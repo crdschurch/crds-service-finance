@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Demo|AnyCPU'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Integration|AnyCPU'" />
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="6.1.1" />
+    <PackageReference Include="Crossroads.Web.Common" Version="1.1.2" />
+    <PackageReference Include="System.Reactive" Version="3.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Contacts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Models\MpEvent.cs" />
+    <Compile Remove="Models\MpEventOpportunity.cs" />
+    <Compile Remove="Models\MpEventType.cs" />
+    <Compile Remove="Models\MpGroup.cs" />
+    <Compile Remove="Models\MpGroupParticipant.cs" />
+    <Compile Remove="Models\MpOpportunity.cs" />
+    <Compile Remove="Models\MpResponse.cs" />
+  </ItemGroup>
+</Project>
