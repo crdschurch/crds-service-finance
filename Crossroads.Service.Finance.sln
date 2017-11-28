@@ -2,9 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crossroads.Service.Template", "Crossroads.Service.Template\Crossroads.Service.Template.csproj", "{59403618-5FAF-4EEF-B9B2-D57EA3F8D90D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crossroads.Service.Finance", "Crossroads.Service.Finance\Crossroads.Service.Finance.csproj", "{59403618-5FAF-4EEF-B9B2-D57EA3F8D90D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crossroads.Service.Template.Test", "Crossroads.Service.Template.Tests\Crossroads.Service.Template.Test.csproj", "{4A7F151D-C5AB-4F72-8945-5A2347017A59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crossroads.Service.Finance.Test", "Crossroads.Service.Finance.Tests\Crossroads.Service.Finance.Test.csproj", "{4A7F151D-C5AB-4F72-8945-5A2347017A59}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinistryPlatform", "MinistryPlatform\MinistryPlatform.csproj", "{8A123163-923C-4082-ADED-1D4A700938F7}"
 EndProject

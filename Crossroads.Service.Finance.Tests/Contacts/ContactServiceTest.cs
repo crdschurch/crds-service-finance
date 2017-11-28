@@ -1,14 +1,14 @@
 ﻿using System;
 using AutoMapper;
-using Crossroads.Service.Template.Models;
-using Crossroads.Service.Template.Services.Contact;
+using Crossroads.Service.Finance.Models;
+using Crossroads.Service.Finance.Services.Contact;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Mock;
 using Moq;
 using Xunit;
 
-namespace Crossroads.Service.Template.Test.Events
+namespace Crossroads.Service.Finance.Test.Events
 {
     public class ContactServiceTest
     {

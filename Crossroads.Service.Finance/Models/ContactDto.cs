@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Crossroads.Service.Template.Models
+namespace Crossroads.Service.Finance.Models
 {
     public class ContactDto
     {

@@ -7,11 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MinistryPlatform.Repositories;
 using AutoMapper;
-using Crossroads.Service.Template.Services.Interfaces;
+using Crossroads.Service.Finance.Services.Interfaces;
 using MinistryPlatform.Interfaces;
-using Crossroads.Service.Template.Services.Contact;
+using Crossroads.Service.Finance.Services.Contact;
 
-namespace Crossroads.Service.Template
+namespace Crossroads.Service.Finance
 {
     public class Startup
     {

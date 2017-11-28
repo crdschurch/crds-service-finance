@@ -1,6 +1,6 @@
 # crds-service-template
 
-Template for Micro-Services in dotnet core
+Finance for Micro-Services in dotnet core
 
 ### Install dependencies
 
@@ -24,7 +24,7 @@ CRDS_MP_COMMON_CLIENT_ID=
 ### Running the app
 
 ```sh
-cd Crossroads.Service.Template
+cd Crossroads.Service.Finance
 dotnet run
 # or if you want to watch files for changes
 dotnet watch run
@@ -36,7 +36,7 @@ dotnet watch run
 ### Running tests
 
 ```sh
-cd Crossroads.Service.Template.Tests
+cd Crossroads.Service.Finance.Tests
 dotnet test
 # or if you want to watch test files for changes
 dotnet watch test

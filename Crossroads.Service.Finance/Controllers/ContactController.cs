@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Crossroads.Service.Template.Services.Interfaces;
+using Crossroads.Service.Finance.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Crossroads.Service.Template.Controllers
+namespace Crossroads.Service.Finance.Controllers
 {
     [Route("api/[controller]")]
     public class ContactController : Controller

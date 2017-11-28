@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Crossroads.Service.Template.Models;
+using Crossroads.Service.Finance.Models;
 
 namespace Mock
 {

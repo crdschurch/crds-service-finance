@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mock\Mock.csproj" />
-    <ProjectReference Include="..\Crossroads.Service.Template\Crossroads.Service.Template.csproj" />
+    <ProjectReference Include="..\Crossroads.Service.Finance\Crossroads.Service.Finance.csproj" />
   </ItemGroup>
 
   <ItemGroup>
