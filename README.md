@@ -1,11 +1,24 @@
 # crds-service-template
 
-Microservice Template in dotnet core
+Template for Micro-Services in dotnet core
 
 ### Install dependencies
 
 ```
 dotnet restore
+```
+
+### Environment variables
+
+create a .env file in the project root with the following variables and set
+values
+
+```
+API_USER=
+API_PASSWORD=
+MP_OAUTH_BASE_URL=
+MP_REST_API_ENDPOINT=
+CRDS_MP_COMMON_CLIENT_ID=
 ```
 
 ### Running the app
@@ -23,6 +36,10 @@ dotnet run
 ```
 cd Crossroads.Service.Template.Tests
 dotnet test
-// or you can live-reload
+```
+
+or with live-reload:
+
+```
 dotnet watch test
 ```
