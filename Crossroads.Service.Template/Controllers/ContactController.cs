@@ -16,6 +16,13 @@ namespace Crossroads.Service.Template.Controllers
         }
 
         [HttpGet]
+        [Route("hello")]
+        public IActionResult HelloWorld()
+        {
+            return Ok("hello world");
+        }
+
+        [HttpGet]
         [Route("{contactId}")]
         public IActionResult GetContact(int contactId)
         {

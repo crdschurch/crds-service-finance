@@ -13,12 +13,6 @@
     <Folder Include="Contacts\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Models\MpEvent.cs" />
-    <Compile Remove="Models\MpEventOpportunity.cs" />
-    <Compile Remove="Models\MpEventType.cs" />
-    <Compile Remove="Models\MpGroup.cs" />
-    <Compile Remove="Models\MpGroupParticipant.cs" />
-    <Compile Remove="Models\MpOpportunity.cs" />
-    <Compile Remove="Models\MpResponse.cs" />
+    <Compile Remove="Opportunities\OpportunityRepository.cs" />
   </ItemGroup>
 </Project>

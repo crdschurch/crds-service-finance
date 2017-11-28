@@ -26,20 +26,18 @@ CRDS_MP_COMMON_CLIENT_ID=
 ```
 cd Crossroads.Service.Template
 dotnet run
+-- or if you want to watch files for changes
+dotnet watch run
 ```
 
-> Your project will run at http://localhost:49266 and a 'hello world' route can
-> be found at GET http://localhost:49266/api/hello
+> Your project will run at http://localhost:5000 and a 'hello world' route can
+> be found at GET http://localhost:5000/api/contact/hello
 
 ### Running tests
 
 ```
 cd Crossroads.Service.Template.Tests
 dotnet test
-```
-
-or with live-reload:
-
-```
+-- or if you want to watch test files for changes
 dotnet watch test
 ```
