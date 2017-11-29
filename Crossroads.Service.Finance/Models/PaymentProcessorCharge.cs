@@ -8,6 +8,8 @@ namespace Crossroads.Service.Finance.Models
 {
     public class PaymentProcessorCharge
     {
-        //public int 
+        // TODO: Check the property name and type needed here
+        [JsonProperty("payment_id")]
+        public int PropertyId { get; set; }
     }
 }

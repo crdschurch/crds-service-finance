@@ -32,7 +32,8 @@ namespace Crossroads.Service.Finance.Services.PaymentEvents
                 return response;
             }
 
-
+            // once we have a payment being transferred, we need to go call out to Pushpay and 
+            // have to get donations associated with that deposit
 
             // steps to do:
             // 2. GetDonationsForDesposit (was GetChargesForTransfer)
