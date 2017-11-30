@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance.Models
 {
-    public class DonationBatchDTO
+    public class DonationBatchDto
     {
         [JsonProperty("id")]
         public int Id { get; set; }

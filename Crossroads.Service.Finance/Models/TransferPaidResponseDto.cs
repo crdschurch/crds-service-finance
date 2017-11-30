@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance.Models
 {
-    public class TransferPaidResponseDTO : PaymentEventResponseDTO
+    public class TransferPaidResponseDto : PaymentEventResponseDto
     {
         [JsonProperty("transaction_count")]
         public int TotalTransactionCount { get; set; }
@@ -18,7 +18,7 @@ namespace Crossroads.Service.Finance.Models
         public List<KeyValuePair<string, string>> FailedUpdates { get; } = new List<KeyValuePair<string, string>>();
 
         [JsonProperty("donation_batch")]
-        public List<DonationBatchDTO> Batch { get; } = new List<DonationBatchDTO>();
+        public List<DonationBatchDto> Batch { get; } = new List<DonationBatchDto>();
 
         [JsonProperty("deposit")]
         public DepositDto Deposit;

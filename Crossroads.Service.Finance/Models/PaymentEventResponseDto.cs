@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance.Models
 {
-    public class PaymentEventResponseDTO
+    public class PaymentEventResponseDto
     {
         [JsonProperty("message")]
         public string Message { get; set; }

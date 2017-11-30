@@ -13,12 +13,12 @@ namespace Crossroads.Service.Finance.Services.PaymentEvents
             _donationService = donationService;
         }
 
-        public PaymentEventResponseDTO CreateDeposit(SettlementEventDto settlementEventDto)
+        public PaymentEventResponseDto CreateDeposit(SettlementEventDto settlementEventDto)
         {
             // TODO: Add logger
             //_logger.Debug("Processing transfer.paid event for transfer id " + transfer.Id);
 
-            var response = new TransferPaidResponseDTO();
+            var response = new TransferPaidResponseDto();
 
             // Don't process this transfer if we already have a deposit for the same transfer id
             var existingDeposit = _donationService.GetDepositByProcessorTransferId(settlementEventDto.Key);

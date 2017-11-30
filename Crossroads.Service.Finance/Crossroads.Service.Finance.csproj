@@ -38,4 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MinistryPlatform\MinistryPlatform.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Models\public class SettlementAmount&#xA;    {&#xA;        [JsonProperty%28&quot;currency&quot;%29]&#xA;        public string Currency { get%3B set%3B }&#xA;&#xA;        [JsonProperty%28&quot;amount&quot;%29]&#xA;        public string Amount { get%3B set%3B }&#xA;    }.cs" />
+  </ItemGroup>
 </Project>

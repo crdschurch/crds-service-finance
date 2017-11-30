@@ -15,7 +15,7 @@ namespace Crossroads.Service.Finance.Models
         public string Name { get; set; }
 
         [JsonProperty("totalAmount")]
-        public SettlementAmount TotalAmount { get; set; }
+        public SettlementAmountDto TotalAmount { get; set; }
 
         [JsonProperty("type")]
         public string Type { get; set; }
@@ -31,14 +31,5 @@ namespace Crossroads.Service.Finance.Models
 
         [JsonProperty("_links")]
         public List<PaymentEventLinkDto> Links { get; set; }
-    }
-
-    public class SettlementAmount
-    {
-        [JsonProperty("currency")]
-        public string Currency { get; set; }
-
-        [JsonProperty("amount")]
-        public string Amount { get; set; }
     }
 }
