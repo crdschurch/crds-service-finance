@@ -30,6 +30,6 @@ namespace Crossroads.Service.Finance.Models
         public bool IsReconciled { get; set; }
 
         [JsonProperty("_links")]
-        public List<PaymentEventLinkDto> Links { get; set; }
+        public List<LinkDto> Links { get; set; }
     }
 }

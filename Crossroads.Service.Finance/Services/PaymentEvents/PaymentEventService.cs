@@ -33,12 +33,15 @@ namespace Crossroads.Service.Finance.Services.PaymentEvents
             }
 
             // once we have a payment being transferred, we need to go call out to Pushpay and 
-            // have to get donations associated with that deposit
+            // have to get all payments associated with a settlement
+
 
             // steps to do:
             // 2. GetDonationsForDesposit (was GetChargesForTransfer)
             // 3. Create Batch (if needed - the batch creation, not the code, I mean)
             // 4. Create Deposit with the associated batch (should be one batch for one deposit)
+
+            return null;
         }
     }
 }

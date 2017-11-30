@@ -40,10 +40,10 @@ namespace Crossroads.Service.Finance.Models
         #endregion
 
         #region Payments property and accessor
-        [JsonIgnore]
-        private readonly List<PaymentDto> _payments = new List<PaymentDto>();
-        [JsonProperty("payments")]
-        public List<PaymentDto> Payments { get { return (_payments); } }
+        //[JsonIgnore]
+        //private readonly List<PaymentDto> _payments = new List<PaymentDto>();
+        //[JsonProperty("payments")]
+        //public List<PaymentDto> Payments { get { return (_payments); } }
         #endregion
 
         [JsonProperty("processor_transfer_id")]
