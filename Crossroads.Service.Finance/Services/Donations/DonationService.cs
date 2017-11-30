@@ -22,5 +22,10 @@ namespace Crossroads.Service.Finance.Services.Donations
         {
             return (Mapper.Map<MpDeposit, DepositDto>(_donationRepository.GetDepositByProcessorTransferId(key)));
         }
+
+        public DonationDto GetDonationByTransactionCode(string transactionCode)
+        {
+            return (Mapper.Map<MpDonation, DonationDto>(_donationRepository.GetDonationByTransactionCode(transactionCode)));
+        }
     }
 }

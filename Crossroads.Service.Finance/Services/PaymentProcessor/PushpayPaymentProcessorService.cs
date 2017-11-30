@@ -28,10 +28,10 @@ namespace Crossroads.Service.Finance.Services.PaymentProcessor
 
             var paymentsDto = new PaymentsDto();
 
-            //var response = _restClient.Execute<>()
+            var response = _restClient.Execute<PaymentsDto>(request);
 
 
-            return null;
+            return response.Data;
 
             //StripeCharges nextPage;
             //do

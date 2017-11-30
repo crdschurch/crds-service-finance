@@ -42,5 +42,11 @@ namespace MinistryPlatform.Donations
 
             //return _ministryPlatformRest.UsingAuthenticationToken(apiToken).Search<MpDeposit>(searchString).ToList().FirstOrDefault();
         }
+
+        public MpDonation GetDonationByTransactionCode(string transactionCode)
+        {
+            // TODO: Implement this
+            return null;
+        }
     }
 }
