@@ -37,5 +37,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MinistryPlatform\MinistryPlatform.csproj" />
+    <ProjectReference Include="..\Pushpay\Pushpay.csproj" />
   </ItemGroup>
 </Project>
