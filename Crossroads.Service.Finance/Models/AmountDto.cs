@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance.Models
 {
-    public class SettlementAmountDto
+    public class AmountDto
     {
         [JsonProperty("currency")]
         public string Currency { get; set; }

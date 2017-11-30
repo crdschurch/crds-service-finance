@@ -6,10 +6,12 @@ using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance.Models
 {
-    public class PaymentProcessorCharge
+    public class LinkDto
     {
-        // TODO: Check the property name and type needed here
-        [JsonProperty("payment_id")]
-        public int PropertyId { get; set; }
+        [JsonProperty("rel")]
+        public string Rel { get; set; }
+
+        [JsonProperty("href")]
+        public string Href { get; set; }
     }
 }

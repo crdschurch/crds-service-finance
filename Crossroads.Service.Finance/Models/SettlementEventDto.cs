@@ -15,7 +15,7 @@ namespace Crossroads.Service.Finance.Models
         public string Name { get; set; }
 
         [JsonProperty("totalAmount")]
-        public SettlementAmountDto TotalAmount { get; set; }
+        public AmountDto TotalAmount { get; set; }
 
         [JsonProperty("type")]
         public string Type { get; set; }
