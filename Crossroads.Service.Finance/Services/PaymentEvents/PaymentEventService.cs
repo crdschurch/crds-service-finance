@@ -60,8 +60,8 @@ namespace Crossroads.Service.Finance.Services.PaymentEvents
             donationBatch = _batchService.SaveDonationBatch(donationBatch);
 
             // TODO: Call into Donation Service and update Donation Statuses and Assign Batch ID
-            var updateDonations = _donationService.UpdateDonationStatus(donationBatch.Donations, donationBatch.Id);
-            _donationService.SaveDonations(updateDonations);
+            var updateDonations = _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id);
+            _donationService.UpdateDonations(updateDonations);
 
             // steps to do:
             // 4. Create Deposit with the associated batch (should be one batch for one deposit)

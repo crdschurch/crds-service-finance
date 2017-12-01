@@ -12,10 +12,12 @@ namespace Crossroads.Service.Finance.Services.Donations
     public class DonationService
     {
         private readonly MinistryPlatform.Donations.IDonationRepository _donationRepository;
+        private readonly IMapper _mapper;
 
-        public DonationService(IDonationRepository donationRepository)
+        public DonationService(IDonationRepository donationRepository, IMapper mapper)
         {
             _donationRepository = donationRepository;
+            _mapper = mapper;
         }
 
         public DepositDto GetDepositByProcessorTransferId(string key)
@@ -29,7 +31,7 @@ namespace Crossroads.Service.Finance.Services.Donations
         }
 
         // need to make sure to handle declined or refunded - do not change status
-        public List<DonationDto> UpdateDonationStatus(List<DonationDto> donations, int batchId)
+        public List<DonationDto> SetDonationStatus(List<DonationDto> donations, int batchId)
         {
             var updatedDonations = donations;
 
@@ -48,9 +50,10 @@ namespace Crossroads.Service.Finance.Services.Donations
             return updatedDonations;
         }
 
-        public void SaveDonations(List<DonationDto> donations)
+        public List<DonationDto> UpdateDonations(List<DonationDto> donations)
         {
-            // TODO: Save this down to the repo layer
+            var mpDonations = _donationRepository.UpdateDonations(_mapper.Map<List<MpDonation>>(donations));
+            return _mapper.Map<List<DonationDto>>(mpDonations);
         }
     }
 }

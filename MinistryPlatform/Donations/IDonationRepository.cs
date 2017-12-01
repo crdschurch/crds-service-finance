@@ -9,5 +9,6 @@ namespace MinistryPlatform.Donations
     {
         MpDeposit GetDepositByProcessorTransferId(string processorTransferId);
         MpDonation GetDonationByTransactionCode(string transactionCode); // theoretically on settlement as transactionid
+        List<MpDonation> UpdateDonations(List<MpDonation> donations);
     }
 }

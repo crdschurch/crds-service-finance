@@ -15,7 +15,7 @@ namespace MinistryPlatform.Deposits
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public MpDeposit SaveDeposit(MpDeposit mpDeposit)
+        public MpDeposit CreateDeposit(MpDeposit mpDeposit)
         {
             var token = ApiUserRepository.GetDefaultApiUserToken();
 
