@@ -27,5 +27,30 @@ namespace Crossroads.Service.Finance.Services.Donations
         {
             return (Mapper.Map<MpDonation, DonationDto>(_donationRepository.GetDonationByTransactionCode(transactionCode)));
         }
+
+        // need to make sure to handle declined or refunded - do not change status
+        public List<DonationDto> UpdateDonationStatus(List<DonationDto> donations, int batchId)
+        {
+            var updatedDonations = donations;
+
+            foreach (var updatedDonation in updatedDonations)
+            {
+                // TODO: Verify that this is an or condition, not an and condition
+                if (updatedDonation.Status != DonationStatus.Declined ||
+                    updatedDonation.Status != DonationStatus.Refunded)
+                {
+                    updatedDonation.Status = DonationStatus.Deposited;
+                }
+
+                updatedDonation.BatchId = batchId;
+            }
+
+            return updatedDonations;
+        }
+
+        public void SaveDonations(List<DonationDto> donations)
+        {
+            // TODO: Save this down to the repo layer
+        }
     }
 }

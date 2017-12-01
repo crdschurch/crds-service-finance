@@ -10,5 +10,7 @@ namespace Crossroads.Service.Finance.Services.Donations
     {
         DepositDto GetDepositByProcessorTransferId(string key);
         void UpdateDonationStatuses(List<DonationDto> donations);
+        List<DonationDto> UpdateDonationStatus(List<DonationDto> donations, int batchId);
+        void SaveDonations(List<DonationDto> donations);
     }
 }
