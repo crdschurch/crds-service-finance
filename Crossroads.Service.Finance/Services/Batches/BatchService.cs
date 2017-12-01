@@ -4,12 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
+using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Donations;
 
 namespace Crossroads.Service.Finance.Services.Batches
 {
     public class BatchService
     {
+        private readonly IConfigurationWrapper _configurationWrapper;
         private readonly IDonationRepository _donationRepository;
         private readonly IMapper _mapper;
 
@@ -30,7 +32,7 @@ namespace Crossroads.Service.Finance.Services.Batches
                 SetupDateTime = DateTime.Now,
                 BatchTotalAmount = 0,
                 ItemCount = 0,
-                BatchEntryType = 10, // hardcoded now, comes from config value
+                BatchEntryType = _configurationWrapper.GetMpConfigIntValue( "BatchEntryTypePaymentProcessor"), // hardcoded now, comes from config value
                 FinalizedDateTime = DateTime.Now,
                 DepositId = null,
                 ProcessorTransferId = transferKey

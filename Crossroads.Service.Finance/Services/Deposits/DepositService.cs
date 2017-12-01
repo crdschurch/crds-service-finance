@@ -2,12 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Crossroads.Service.Finance.Models;
+using MinistryPlatform.Deposits;
+using MinistryPlatform.Models;
 
 namespace Crossroads.Service.Finance.Services.Deposits
 {
     public class DepositService
     {
+        private readonly IDepositRepository _depositRepository;
+        private readonly IMapper _mapper;
+
+        public DepositService(IDepositRepository depositRepository, IMapper mapper)
+        {
+            _depositRepository = depositRepository;
+            _mapper = mapper;
+        }
+
         public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName)
         {
             var depositDto = new DepositDto
@@ -29,8 +41,8 @@ namespace Crossroads.Service.Finance.Services.Deposits
 
         public DepositDto SaveDeposit(DepositDto depositDto)
         {
-            // TODO: Implement this
-            return null;
+            var mpDepostResult = _depositRepository.SaveDeposit(_mapper.Map<MpDeposit>(depositDto));
+            return _mapper.Map<DepositDto>(mpDepostResult);
         }
     }
 }
