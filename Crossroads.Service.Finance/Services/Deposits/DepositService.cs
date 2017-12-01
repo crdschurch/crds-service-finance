@@ -9,7 +9,7 @@ using MinistryPlatform.Models;
 
 namespace Crossroads.Service.Finance.Services.Deposits
 {
-    public class DepositService
+    public class DepositService : IDepositService
     {
         private readonly IDepositRepository _depositRepository;
         private readonly IMapper _mapper;

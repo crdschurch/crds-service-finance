@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Crossroads.Service.Finance.Services.PaymentEvents
 {
-    public class PaymentEventService
+    public class PaymentEventService : IPaymentEventService
     {
         private readonly IBatchService _batchService;
         private readonly IDepositService _depositService;

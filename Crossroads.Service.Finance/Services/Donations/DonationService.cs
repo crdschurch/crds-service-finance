@@ -9,7 +9,7 @@ using MinistryPlatform.Models;
 
 namespace Crossroads.Service.Finance.Services.Donations
 {
-    public class DonationService
+    public class DonationService : IDonationService
     {
         private readonly MinistryPlatform.Donations.IDonationRepository _donationRepository;
         private readonly IMapper _mapper;
