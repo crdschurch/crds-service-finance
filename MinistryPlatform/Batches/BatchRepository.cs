@@ -24,5 +24,16 @@ namespace MinistryPlatform.Batches
                 .Build()
                 .Create(mpDonationBatch);
         }
+
+        public void UpdateDonationBatch(MpDonationBatch mpDonationBatch)
+        {
+            var token = ApiUserRepository.GetDefaultApiUserToken();
+
+            MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .Build()
+                .Update(mpDonationBatch);
+            
+        }
     }
 }

@@ -6,6 +6,7 @@ using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Batches;
+using MinistryPlatform.Models;
 using MinistryPlatform.Donations;
 
 namespace Crossroads.Service.Finance.Services.Batches
@@ -74,12 +75,15 @@ namespace Crossroads.Service.Finance.Services.Batches
             return batch;
         }
 
-        public DonationBatchDto SaveDonationBatch(DonationBatchDto donationBatchDto) {
-            
+        public DonationBatchDto SaveDonationBatch(DonationBatchDto donationBatchDto)
+        {
+            var mpDepostResult = _batchRepository.CreateDonationBatch(_mapper.Map<MpDonationBatch>(donationBatchDto));
+            return _mapper.Map<DonationBatchDto>(mpDepostResult);
             return null;
         }
 
-        public void UpdateDonationBatch(DonationBatchDto donationBatchDto) {
+        public void UpdateDonationBatch(DonationBatchDto donationBatchDto)
+        {
             
         }
     }

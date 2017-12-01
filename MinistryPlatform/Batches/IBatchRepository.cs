@@ -8,5 +8,6 @@ namespace MinistryPlatform.Batches
     public interface IBatchRepository
     {
         MpDonationBatch CreateDonationBatch(MpDonationBatch mpDonationBatch);
+        void UpdateDonationBatch(MpDonationBatch mpDonationBatch);
     }
 }
