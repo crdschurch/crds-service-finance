@@ -5,19 +5,22 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Web.Common.Configuration;
+using MinistryPlatform.Batches;
 using MinistryPlatform.Donations;
 
 namespace Crossroads.Service.Finance.Services.Batches
 {
-    public class BatchService
+    public class BatchService : IBatchService
     {
         private readonly IConfigurationWrapper _configurationWrapper;
         private readonly IDonationRepository _donationRepository;
+        private readonly IBatchRepository _batchRepository;
         private readonly IMapper _mapper;
 
-        public BatchService(IDonationRepository donationRepository, IMapper mapper)
+        public BatchService(IDonationRepository donationRepository, IBatchRepository batchRepository, IMapper mapper)
         {
             _donationRepository = donationRepository;
+            _batchRepository = batchRepository;
             _mapper = mapper;
         }
 
@@ -69,6 +72,15 @@ namespace Crossroads.Service.Finance.Services.Batches
             // 3. Implement save of the batch here - down to the repo and get the object back with an id on it
 
             return batch;
+        }
+
+        public DonationBatchDto SaveDonationBatch(DonationBatchDto donationBatchDto) {
+            
+            return null;
+        }
+
+        public void UpdateDonationBatch(DonationBatchDto donationBatchDto) {
+            
         }
     }
 }
