@@ -8,6 +8,6 @@ namespace Crossroads.Service.Finance.Services.PaymentEvents
 {
     public interface IPaymentEventService
     {
-        PaymentEventResponseDto CreateDeposit(SettlementEventDto settlementEventDto);
+        void CreateDeposit(SettlementEventDto settlementEventDto);
     }
 }

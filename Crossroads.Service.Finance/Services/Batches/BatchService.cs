@@ -19,41 +19,29 @@ namespace Crossroads.Service.Finance.Services.Batches
             _mapper = mapper;
         }
 
-        /// <summary>
-        /// This function creates the batch in MP, then returns the object so that the deposit can be added to the batch
-        /// </summary>
-        /// <param name="charges"></param>
-        /// <param name="depositName"></param>
-        /// <param name="eventTimestamp"></param>
-        /// <param name="transferKey"></param>
-        /// <returns></returns>
+        // This function creates the batch in MP, then returns the object so that the deposit can be added to the batch
         public DonationBatchDto CreateDonationBatch(List<PaymentProcessorChargeDto> charges, string depositName, 
             DateTime eventTimestamp, string transferKey)
         {
-            var now = DateTime.Now;
-
             var batch = new DonationBatchDto()
             {
                 Id = 1234567,
                 BatchName = depositName,
-                SetupDateTime = now,
+                SetupDateTime = DateTime.Now,
                 BatchTotalAmount = 0,
                 ItemCount = 0,
                 BatchEntryType = 10, // hardcoded now, comes from config value
-                FinalizedDateTime = now,
+                FinalizedDateTime = DateTime.Now,
                 DepositId = null,
                 ProcessorTransferId = transferKey
             };
-
-            // TODO:
-            // 1. Loops through the charges to get corresponding DonationDTO and set that on the batch
 
             foreach (var charge in charges)
             {
                 var mpDonation = _donationRepository.GetDonationByTransactionCode(charge.TransactionId);
                 //var donationDto = _mapper.Map<DonationDto>(mpDonation);
 
-                // 2. Add the charge amount to the batch total amount
+                // Add the charge amount to the batch total amount
                 batch.ItemCount++;
                 batch.BatchTotalAmount += Decimal.Parse(charge.Amount.Amount);
 
