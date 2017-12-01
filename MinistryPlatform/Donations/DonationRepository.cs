@@ -16,37 +16,42 @@ namespace MinistryPlatform.Donations
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-
         public MpDeposit GetDepositByProcessorTransferId(string processorTransferId)
         {
-            //var apiToken = ApiUserRepository.GetDefaultApiUserToken();
-            //var searchString = $"Processor_Transfer_ID='{processorTransferId}'";
-
             var token = ApiUserRepository.GetDefaultApiUserToken();
-            //var columns = new string[] {
-            //    "Contact_ID",
-            //    "Household_ID"
-            //};
+
             var filter = $"Processor_Transfer_ID = {processorTransferId}";
             var deposits = MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                //.WithSelectColumns(columns)
                 .WithFilter(filter)
                 .Build()
                 .Search<MpDeposit>();
-            //if (!contacts.Any())
-            //{
-            //    throw new Exception($"No transfer found for transfer id: {processorTransferId}");
-            //}
-            return deposits.FirstOrDefault();
 
-            //return _ministryPlatformRest.UsingAuthenticationToken(apiToken).Search<MpDeposit>(searchString).ToList().FirstOrDefault();
+            return deposits.FirstOrDefault();
         }
 
         public MpDonation GetDonationByTransactionCode(string transactionCode)
         {
-            // TODO: Implement this
-            return null;
+            var token = ApiUserRepository.GetDefaultApiUserToken();
+
+            var filter = $"Transaction_Code = {transactionCode}";
+            var donations = MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .Build()
+                .Search<MpDonation>();
+
+            return donations.FirstOrDefault();
+        }
+
+        public List<MpDonation> UpdateDonations(List<MpDonation> donations)
+        {
+            var token = ApiUserRepository.GetDefaultApiUserToken();
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .Build()
+                .Update(donations);
         }
     }
 }

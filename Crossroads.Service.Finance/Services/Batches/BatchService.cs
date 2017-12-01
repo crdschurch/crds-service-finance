@@ -32,7 +32,7 @@ namespace Crossroads.Service.Finance.Services.Batches
                 SetupDateTime = DateTime.Now,
                 BatchTotalAmount = 0,
                 ItemCount = 0,
-                BatchEntryType = _configurationWrapper.GetMpConfigIntValue( "BatchEntryTypePaymentProcessor"), // hardcoded now, comes from config value
+                BatchEntryType = 10, //_configurationWrapper.GetMpConfigIntValue( "BatchEntryTypePaymentProcessor"), // hardcoded now, comes from config value
                 FinalizedDateTime = DateTime.Now,
                 DepositId = null,
                 ProcessorTransferId = transferKey

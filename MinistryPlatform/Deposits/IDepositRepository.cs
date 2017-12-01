@@ -7,6 +7,6 @@ namespace MinistryPlatform.Deposits
 {
     public interface IDepositRepository
     {
-        MpDeposit SaveDeposit(MpDeposit mpDeposit);
+        MpDeposit CreateDeposit(MpDeposit mpDeposit);
     }
 }
