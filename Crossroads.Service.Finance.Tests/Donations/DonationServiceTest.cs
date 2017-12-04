@@ -60,7 +60,7 @@ namespace Crossroads.Service.Finance.Test.Donations
 
 
             // Act
-
+            //var result = _fixture.SetDonationStatus()
 
             // Assert
         }

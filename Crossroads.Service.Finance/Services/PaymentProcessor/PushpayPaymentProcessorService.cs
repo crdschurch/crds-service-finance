@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Crossroads.Service.Finance.Models;
 using RestSharp;
@@ -10,6 +11,9 @@ namespace Crossroads.Service.Finance.Services.PaymentProcessor
     public class PushpayPaymentProcessorService : IPaymentProcessorService
     {
         private readonly IRestClient _restClient;
+        private const int PageSize = 25;
+        private const int RequestsPerSecond = 10;
+        private const int RequestsPerMinute = 60;
 
         public PushpayPaymentProcessorService(IRestClient restClient)
         {
@@ -22,6 +26,16 @@ namespace Crossroads.Service.Finance.Services.PaymentProcessor
         // call out to the settlement/{settlementKey}/payments endpoint
         public PaymentsDto GetChargesForTransfer(string settlementKey)
         {
+            var donationDtos = new List<DonationDto>();
+            // add a loop here so that we continue to call it, until we don't get a next page (there is a next
+            // page link in the pushpay api)
+
+            // we will need to put a delay in here to avoid hitting the rate limit
+
+
+
+
+
             var url = $"settlement/{settlementKey}/payments";
             var request = new RestRequest(url, Method.GET);
             //request.AddParameter("count", _maxQueryResultsPerPage);
@@ -29,6 +43,24 @@ namespace Crossroads.Service.Finance.Services.PaymentProcessor
             var paymentsDto = new PaymentsDto();
 
             var response = _restClient.Execute<PaymentsDto>(request);
+
+            // once we get the first data back from the response, we determine a delay based on the expected number of calls
+            // we need to make
+
+            // if response.totalRecords / 25 < 10, delay = 0
+            // else if response.totalRecords / 25 < 60 = 150ms
+            // else if response.totalRecords /25 > 60 = 1000ms
+
+            int totalRecords = 200;
+
+            for (int i = 0; i < totalRecords; i++)
+            {
+                Thread.Sleep(150);
+
+                // call and parse next load
+            }
+
+
 
 
             return response.Data;
