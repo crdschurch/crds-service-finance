@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <Folder Include="Contacts\" />
+    <Folder Include="Batches\" />
   </ItemGroup>
 
   <ItemGroup>
