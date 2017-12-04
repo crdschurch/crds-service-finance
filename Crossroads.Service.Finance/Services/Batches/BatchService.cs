@@ -79,7 +79,6 @@ namespace Crossroads.Service.Finance.Services.Batches
         {
             var mpDepostResult = _batchRepository.CreateDonationBatch(_mapper.Map<MpDonationBatch>(donationBatchDto));
             return _mapper.Map<DonationBatchDto>(mpDepostResult);
-            return null;
         }
 
         public void UpdateDonationBatch(DonationBatchDto donationBatchDto)

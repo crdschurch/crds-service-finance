@@ -41,8 +41,9 @@ namespace Crossroads.Service.Finance.Services.Deposits
 
         public DepositDto SaveDeposit(DepositDto depositDto)
         {
-            var mpDepostResult = _depositRepository.CreateDeposit(_mapper.Map<MpDeposit>(depositDto));
-            return _mapper.Map<DepositDto>(mpDepostResult);
+            var mpDepositResult = _depositRepository.CreateDeposit(_mapper.Map<MpDeposit>(depositDto));
+            var mappedObject = _mapper.Map<DepositDto>(mpDepositResult);
+            return mappedObject;
         }
     }
 }
