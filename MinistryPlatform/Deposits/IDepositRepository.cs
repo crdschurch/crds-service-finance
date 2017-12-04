@@ -8,5 +8,6 @@ namespace MinistryPlatform.Deposits
     public interface IDepositRepository
     {
         MpDeposit CreateDeposit(MpDeposit mpDeposit);
+        MpDeposit GetDepositByProcessorTransferId(string processorTransferId);
     }
 }

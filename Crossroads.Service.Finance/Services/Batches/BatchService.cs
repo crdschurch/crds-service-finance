@@ -53,7 +53,7 @@ namespace Crossroads.Service.Finance.Services.Batches
 
                 var donationDto = new DonationDto
                 {
-                    Id = mpDonation.donationId.ToString(),
+                    Id = mpDonation.DonationId.ToString(),
                     Amount = Int32.Parse(charge.Amount.Amount)
 
                     // TODO: need to figure out how to get the fees onto the batch for

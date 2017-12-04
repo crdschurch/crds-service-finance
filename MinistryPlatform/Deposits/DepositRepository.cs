@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
@@ -23,6 +24,20 @@ namespace MinistryPlatform.Deposits
                 .WithAuthenticationToken(token)
                 .Build()
                 .Create(mpDeposit);
+        }
+
+        public MpDeposit GetDepositByProcessorTransferId(string processorTransferId)
+        {
+            var token = ApiUserRepository.GetDefaultApiUserToken();
+
+            var filter = $"Processor_Transfer_ID = {processorTransferId}";
+            var deposits = MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .Build()
+                .Search<MpDeposit>();
+
+            return deposits.FirstOrDefault();
         }
     }
 }

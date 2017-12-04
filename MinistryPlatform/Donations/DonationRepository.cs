@@ -16,20 +16,6 @@ namespace MinistryPlatform.Donations
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public MpDeposit GetDepositByProcessorTransferId(string processorTransferId)
-        {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
-
-            var filter = $"Processor_Transfer_ID = {processorTransferId}";
-            var deposits = MpRestBuilder.NewRequestBuilder()
-                .WithAuthenticationToken(token)
-                .WithFilter(filter)
-                .Build()
-                .Search<MpDeposit>();
-
-            return deposits.FirstOrDefault();
-        }
-
         public MpDonation GetDonationByTransactionCode(string transactionCode)
         {
             var token = ApiUserRepository.GetDefaultApiUserToken();

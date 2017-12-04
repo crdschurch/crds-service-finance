@@ -7,6 +7,6 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         CreateMap<MpContact, ContactDto>();
-        CreateMap<MpDeposit, DepositDto>().ReverseMap();
+        CreateMap<MpDeposit, DepositDto>();
     }
 }

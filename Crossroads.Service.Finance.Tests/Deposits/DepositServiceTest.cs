@@ -85,6 +85,33 @@ namespace Crossroads.Service.Finance.Test.Deposits
             // Assert
             Assert.NotEqual(0, result.Id);
         }
-        
+
+        [Fact]
+        public void ShouldGetDepositByProcessorTransferId()
+        {
+            // Arrange
+            var processorTransferId = "111aaa222bbb";
+
+            var depositDto = new DepositDto
+            {
+                ProcessorTransferId = processorTransferId
+            };
+
+            var mpDeposit = new MpDeposit
+            {
+                ProcessorTransferId = processorTransferId
+            };
+
+            _mapper.Setup(m => m.Map<MpDeposit>(It.IsAny<DepositDto>())).Returns(new MpDeposit());
+            _mapper.Setup(m => m.Map<DepositDto>(It.IsAny<MpDeposit>())).Returns(depositDto);
+            _depositRepository.Setup(m => m.GetDepositByProcessorTransferId(processorTransferId)).Returns(mpDeposit);
+
+            // Act
+            var result = _fixture.GetDepositByProcessorTransferId(processorTransferId);
+
+            // Assert
+            Assert.Equal(processorTransferId, result.ProcessorTransferId);
+        }
+
     }
 }

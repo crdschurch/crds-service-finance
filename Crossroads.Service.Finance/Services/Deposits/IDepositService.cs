@@ -10,5 +10,6 @@ namespace Crossroads.Service.Finance.Services.Deposits
     {
         DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName);
         DepositDto SaveDeposit(DepositDto depositDto);
+        DepositDto GetDepositByProcessorTransferId(string key);
     }
 }

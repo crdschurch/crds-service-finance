@@ -51,6 +51,8 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("notes")]
         public string Notes { get; set; }
 
+        [JsonProperty("transaction_code")]
+        public string TransactionCode { get; set; }
 
         #region Distributions Property
         [JsonIgnore]

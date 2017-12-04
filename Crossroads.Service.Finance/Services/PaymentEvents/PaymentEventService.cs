@@ -35,7 +35,7 @@ namespace Crossroads.Service.Finance.Services.PaymentEvents
             _logger.LogInformation($"Processing transfer.paid event for transfer id: {settlementEventDto.Key}");
 
             // Don't process this transfer if we already have a deposit for the same transfer id
-            var existingDeposit = _donationService.GetDepositByProcessorTransferId(settlementEventDto.Key);
+            var existingDeposit = _depositService.GetDepositByProcessorTransferId(settlementEventDto.Key);
             if (existingDeposit != null)
             {
                 _logger.LogError($"Deposit already exists for settlement: {settlementEventDto.Key}");

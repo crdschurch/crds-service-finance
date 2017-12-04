@@ -45,5 +45,10 @@ namespace Crossroads.Service.Finance.Services.Deposits
             var mappedObject = _mapper.Map<DepositDto>(mpDepositResult);
             return mappedObject;
         }
+
+        public DepositDto GetDepositByProcessorTransferId(string key)
+        {
+            return _mapper.Map<DepositDto>(_depositRepository.GetDepositByProcessorTransferId(key));
+        }
     }
 }
