@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
+using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using RestSharp;
 
-namespace Crossroads.Service.Finance.Services.PaymentProcessor
+namespace Crossroads.Service.Finance.Services
 {
     public class PushpayPaymentProcessorService : IPaymentProcessorService
     {

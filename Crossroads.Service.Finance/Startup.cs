@@ -7,14 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MinistryPlatform.Repositories;
 using AutoMapper;
-using Crossroads.Service.Finance.Services.Interfaces;
+using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
-using Crossroads.Service.Finance.Services.Contact;
-using Crossroads.Service.Finance.Services.Batches;
-using Crossroads.Service.Finance.Services.Deposits;
-using Crossroads.Service.Finance.Services.Donations;
-using Crossroads.Service.Finance.Services.PaymentEvents;
-using Crossroads.Service.Finance.Services.PaymentProcessor;
 
 namespace Crossroads.Service.Finance
 {

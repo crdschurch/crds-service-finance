@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
+using Crossroads.Service.Finance.Interfaces;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 
-namespace Crossroads.Service.Finance.Services.Deposits
+namespace Crossroads.Service.Finance.Services
 {
     public class DepositService : IDepositService
     {

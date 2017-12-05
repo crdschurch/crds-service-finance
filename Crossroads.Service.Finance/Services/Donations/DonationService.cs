@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using AutoMapper;
+using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 
-namespace Crossroads.Service.Finance.Services.Donations
+namespace Crossroads.Service.Finance.Services
 {
     public class DonationService : IDonationService
     {

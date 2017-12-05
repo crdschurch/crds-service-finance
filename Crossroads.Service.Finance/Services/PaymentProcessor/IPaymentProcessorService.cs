@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Crossroads.Service.Finance.Models;
+﻿using Crossroads.Service.Finance.Models;
 
-namespace Crossroads.Service.Finance.Services.PaymentProcessor
+namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IPaymentProcessorService
     {

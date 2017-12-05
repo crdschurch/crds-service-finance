@@ -1,7 +1,7 @@
 ﻿using System;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
-using Crossroads.Service.Finance.Services.Contact;
+using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Mock;

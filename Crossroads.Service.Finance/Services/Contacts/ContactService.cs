@@ -1,10 +1,10 @@
 ﻿using System;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
-using Crossroads.Service.Finance.Services.Interfaces;
+using Crossroads.Service.Finance.Interfaces;
 using MinistryPlatform.Interfaces;
 
-namespace Crossroads.Service.Finance.Services.Contact
+namespace Crossroads.Service.Finance.Services
 {
     public class ContactService : IContactService
     {

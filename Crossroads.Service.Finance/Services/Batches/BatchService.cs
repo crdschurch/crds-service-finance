@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
-using Crossroads.Web.Common.Configuration;
+using Crossroads.Service.Finance.Interfaces;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 
-namespace Crossroads.Service.Finance.Services.Batches
+namespace Crossroads.Service.Finance.Services
 {
     public class BatchService : IBatchService
     {

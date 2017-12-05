@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Linq;
 using Crossroads.Service.Finance.Models;
-using Crossroads.Service.Finance.Services.Interfaces;
-using Crossroads.Service.Finance.Services.PaymentEvents;
+using Crossroads.Service.Finance.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Crossroads.Service.Finance.Controllers
 {

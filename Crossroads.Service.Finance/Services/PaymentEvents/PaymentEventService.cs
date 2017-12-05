@@ -1,12 +1,9 @@
 ﻿using System;
 using Crossroads.Service.Finance.Models;
-using Crossroads.Service.Finance.Services.Batches;
-using Crossroads.Service.Finance.Services.Deposits;
-using Crossroads.Service.Finance.Services.Donations;
-using Crossroads.Service.Finance.Services.PaymentProcessor;
+using Crossroads.Service.Finance.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace Crossroads.Service.Finance.Services.PaymentEvents
+namespace Crossroads.Service.Finance.Services
 {
     public class PaymentEventService : IPaymentEventService
     {

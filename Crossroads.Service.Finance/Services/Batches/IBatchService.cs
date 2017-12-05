@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Crossroads.Service.Finance.Models;
 
-namespace Crossroads.Service.Finance.Services.Batches
+namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IBatchService
     {
