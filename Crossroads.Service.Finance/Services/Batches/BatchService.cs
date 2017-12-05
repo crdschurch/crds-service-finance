@@ -31,14 +31,13 @@ namespace Crossroads.Service.Finance.Services.Batches
         {
             var batch = new DonationBatchDto()
             {
-                Id = 1234567,
                 BatchName = depositName,
-                SetupDateTime = DateTime.Now,
+                SetupDateTime = eventTimestamp,
                 BatchTotalAmount = 0,
                 ItemCount = 0,
                 // TODO:: _configurationWrapper.GetMpConfigIntValue( "BatchEntryTypePaymentProcessor"), hardcoded now, comes from config value
                 BatchEntryType = 10,
-                FinalizedDateTime = DateTime.Now,
+                FinalizedDateTime = eventTimestamp,
                 DepositId = null,
                 ProcessorTransferId = transferKey
             };
@@ -66,8 +65,8 @@ namespace Crossroads.Service.Finance.Services.Batches
 
         public DonationBatchDto SaveDonationBatch(DonationBatchDto donationBatchDto)
         {
-            var mpDepostResult = _batchRepository.CreateDonationBatch(_mapper.Map<MpDonationBatch>(donationBatchDto));
-            return _mapper.Map<DonationBatchDto>(mpDepostResult);
+            var mpBatch = _batchRepository.CreateDonationBatch(_mapper.Map<MpDonationBatch>(donationBatchDto));
+            return _mapper.Map<DonationBatchDto>(mpBatch);
         }
 
         public void UpdateDonationBatch(DonationBatchDto donationBatchDto)

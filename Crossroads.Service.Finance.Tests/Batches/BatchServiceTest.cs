@@ -1,7 +1,11 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
+using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Services.Batches;
 using MinistryPlatform.Batches;
 using MinistryPlatform.Donations;
+using MinistryPlatform.Models;
+using Mock;
 using Xunit;
 using Moq;
 
@@ -26,6 +30,59 @@ namespace Crossroads.Service.Finance.Test.Batches
 
         [Fact]
         public void ShouldCreateDonationBatchObject()
+        {
+            var timestamp = DateTime.Now;
+            var donationsMock = MpDonationsMock.CreateList();
+            var chargesMock = PaymentProcessorChargeDtoMock.CreateList();
+            var expectedBatch = new DonationBatchDto
+            {
+                BatchName = "depositName",
+                SetupDateTime = timestamp,
+                BatchTotalAmount = 90,
+                ItemCount = 3,
+                BatchEntryType = 10,
+                FinalizedDateTime = timestamp,
+                DepositId = null,
+                ProcessorTransferId = "transferId"
+            };
+
+            _donationRepository.Setup(r => r.GetDonationByTransactionCode("1a")).Returns(donationsMock[0]);
+            _donationRepository.Setup(r => r.GetDonationByTransactionCode("2b")).Returns(donationsMock[0]);
+            _donationRepository.Setup(r => r.GetDonationByTransactionCode("3c")).Returns(donationsMock[0]);
+
+            var result = _fixture.CreateDonationBatch(chargesMock, "depositName", timestamp, "transferId");
+
+            Assert.Equal(expectedBatch.SetupDateTime, timestamp);
+            Assert.Equal(expectedBatch.FinalizedDateTime, timestamp);
+            Assert.Equal(expectedBatch.ItemCount, result.ItemCount);
+            Assert.Equal(expectedBatch.BatchTotalAmount, result.BatchTotalAmount);
+        }
+
+        [Fact]
+        public void ShouldSaveDonationBatchObject()
+        {
+            var batch = new DonationBatchDto
+            {
+                BatchTotalAmount = 20
+            };
+
+            var mpBatch = new MpDonationBatch
+            {
+                Id = 123,
+                BatchTotalAmount = 20
+            };
+
+
+            _batchRepository.Setup(r => r.CreateDonationBatch(It.IsAny<MpDonationBatch>())).Returns(mpBatch);
+
+            var result = _fixture.SaveDonationBatch(batch);
+
+            Assert.Equal(result.Id, mpBatch.Id);
+            Assert.Equal(result.BatchTotalAmount, mpBatch.BatchTotalAmount);
+        }
+
+        [Fact]
+        public void ShouldUpdateDonationBatchObject()
         {
         }
     }
