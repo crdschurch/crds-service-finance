@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace Pushpay.Models
 {
