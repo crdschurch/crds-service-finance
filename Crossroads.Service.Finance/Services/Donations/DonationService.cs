@@ -22,7 +22,9 @@ namespace Crossroads.Service.Finance.Services.Donations
 
         public DonationDto GetDonationByTransactionCode(string transactionCode)
         {
-            return (Mapper.Map<MpDonation, DonationDto>(_donationRepository.GetDonationByTransactionCode(transactionCode)));
+            var mpDonation = _donationRepository.GetDonationByTransactionCode(transactionCode);
+            var donationDto = _mapper.Map<DonationDto>(mpDonation);
+            return donationDto;
         }
 
         // need to make sure to handle declined or refunded - do not change status

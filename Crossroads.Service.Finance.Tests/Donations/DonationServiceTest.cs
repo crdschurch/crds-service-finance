@@ -43,38 +43,61 @@ namespace Crossroads.Service.Finance.Test.Donations
                 
             };
 
-            _mapper.Setup(m => m.Map<MpDeposit>(It.IsAny<DepositDto>())).Returns(new MpDeposit());
-            //_mapper.Setup(m => m.Map<DepositDto>(It.IsAny<MpDeposit>())).Returns(depositDto);
-            //_depositRepository.Setup(m => m.GetDepositByProcessorTransferId(processorTransferId)).Returns(mpDeposit);
+            _mapper.Setup(m => m.Map<MpDonation>(It.IsAny<DonationDto>())).Returns(mpDonation);
+            _mapper.Setup(m => m.Map<DonationDto>(It.IsAny<MpDonation>())).Returns(donationDto);
+            _donationRepository.Setup(m => m.GetDonationByTransactionCode(It.IsAny<string>())).Returns(mpDonation);
 
             // Act
-
+            var result = _fixture.GetDonationByTransactionCode(transactionCode);
 
             // Assert
+            Assert.NotNull(result);
         }
 
         [Fact]
         public void ShouldSetDonationStatus()
         {
             // Arrange
+            var batchId = 1234567;
 
+            var donations = new List<DonationDto>
+            {
+                new DonationDto
+                {
+                    Status = DonationStatus.Pending
+                }
+            };
 
             // Act
-            //var result = _fixture.SetDonationStatus()
+            var result = _fixture.SetDonationStatus(donations, batchId);
 
             // Assert
+            Assert.Equal(DonationStatus.Deposited, result[0].Status);
         }
 
         [Fact]
         public void ShouldUpdateDonations()
         {
             // Arrange
+            var mpDonations = new List<MpDonation>
+            {
 
+            };
+
+            var donationDtos = new List<DonationDto>
+            {
+
+            };
+
+            _mapper.Setup(m => m.Map<List<MpDonation>>(It.IsAny<List<DonationDto>>())).Returns(mpDonations);
+            _mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationDtos);
+            _donationRepository.Setup(m => m.UpdateDonations(It.IsAny<List<MpDonation>>())).Returns(mpDonations);
 
             // Act
-
-
+            var result = _fixture.UpdateDonations(donationDtos);
+            
             // Assert
+            Assert.NotNull(result);
         }
     }
 }
