@@ -18,7 +18,7 @@ namespace Pushpay
         private string clientSecret = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_SECRET");
         private Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth/token");
 
-        public PushpayClient(HttpClient httpClient)
+        public PushpayClient(HttpClient httpClient = null)
         {
             _httpClient = httpClient ?? new HttpClient();
         }
