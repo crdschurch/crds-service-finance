@@ -4,9 +4,10 @@ using System.Text;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
+using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 
-namespace MinistryPlatform.Batches
+namespace MinistryPlatform.Repositories
 {
     public class BatchRepository : MinistryPlatformBase, IBatchRepository
     {

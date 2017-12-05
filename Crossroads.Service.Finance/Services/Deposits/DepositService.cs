@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
-using MinistryPlatform.Deposits;
+using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 
 namespace Crossroads.Service.Finance.Services.Deposits

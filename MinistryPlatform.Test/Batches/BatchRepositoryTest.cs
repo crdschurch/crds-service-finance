@@ -4,7 +4,8 @@ using System.Text;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
-using MinistryPlatform.Batches;
+using MinistryPlatform.Interfaces;
+using MinistryPlatform.Repositories;
 using MinistryPlatform.Models;
 using Moq;
 using Xunit;
@@ -20,7 +21,7 @@ namespace MinistryPlatform.Test.Batches
         readonly Mock<IMinistryPlatformRestRequest> _request;
         readonly Mock<IMapper> _mapper;
 
-        private readonly BatchRepository _fixture;
+        private readonly IBatchRepository _fixture;
 
         private string token = "123abc";
 

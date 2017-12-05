@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MinistryPlatform.Models;
 
-namespace MinistryPlatform.Batches
+namespace MinistryPlatform.Interfaces
 {
     public interface IBatchRepository
     {

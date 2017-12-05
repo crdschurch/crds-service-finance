@@ -5,15 +5,13 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Web.Common.Configuration;
-using MinistryPlatform.Batches;
+using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
-using MinistryPlatform.Donations;
 
 namespace Crossroads.Service.Finance.Services.Batches
 {
     public class BatchService : IBatchService
     {
-        private readonly IConfigurationWrapper _configurationWrapper;
         private readonly IDonationRepository _donationRepository;
         private readonly IBatchRepository _batchRepository;
         private readonly IMapper _mapper;

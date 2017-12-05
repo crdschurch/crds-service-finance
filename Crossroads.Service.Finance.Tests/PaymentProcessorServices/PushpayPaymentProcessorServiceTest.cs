@@ -14,7 +14,6 @@ namespace Crossroads.Service.Finance.Test.PaymentProcessorServices
     public class PushpayPaymentProcessorServiceTest
     {
         private readonly Mock<IRestClient> _restClient;
-        private readonly Mock<IConfigurationWrapper> _configuration;
         private readonly PushpayPaymentProcessorService _fixture;
 
         public PushpayPaymentProcessorServiceTest()

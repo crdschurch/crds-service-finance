@@ -10,6 +10,11 @@ using AutoMapper;
 using Crossroads.Service.Finance.Services.Interfaces;
 using MinistryPlatform.Interfaces;
 using Crossroads.Service.Finance.Services.Contact;
+using Crossroads.Service.Finance.Services.Batches;
+using Crossroads.Service.Finance.Services.Deposits;
+using Crossroads.Service.Finance.Services.Donations;
+using Crossroads.Service.Finance.Services.PaymentEvents;
+using Crossroads.Service.Finance.Services.PaymentProcessor;
 
 namespace Crossroads.Service.Finance
 {
@@ -50,9 +55,16 @@ namespace Crossroads.Service.Finance
 
             // Service Layer
             services.AddSingleton<IContactService, ContactService>();
+            services.AddSingleton<IBatchService, BatchService>();
+            services.AddSingleton<IDonationService, DonationService>();
+            services.AddSingleton<IPaymentEventService, PaymentEventService>();
+            services.AddSingleton<IPaymentProcessorService, PushpayPaymentProcessorService>();
 
             // Repo Layer
             services.AddSingleton<IContactRepository, ContactRepository>();
+            services.AddSingleton<IBatchRepository, BatchRepository>();
+            services.AddSingleton<IDepositRepository, DepositRepository>();
+            services.AddSingleton<IDonationRepository, DonationRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

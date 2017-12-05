@@ -2,8 +2,7 @@
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Services.Batches;
-using MinistryPlatform.Batches;
-using MinistryPlatform.Donations;
+using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Mock;
 using Xunit;

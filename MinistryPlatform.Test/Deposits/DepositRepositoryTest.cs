@@ -4,7 +4,8 @@ using System.Text;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
-using MinistryPlatform.Deposits;
+using MinistryPlatform.Interfaces;
+using MinistryPlatform.Repositories;
 using MinistryPlatform.Models;
 using Moq;
 using Xunit;
@@ -20,7 +21,7 @@ namespace MinistryPlatform.Test.Deposits
         readonly Mock<IMinistryPlatformRestRequest> _request;
         readonly Mock<IMapper> _mapper;
 
-        private readonly DepositRepository _fixture;
+        private readonly IDepositRepository _fixture;
 
         private string token = "123abc";
 

@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
-using MinistryPlatform.Donations;
+using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 
 namespace Crossroads.Service.Finance.Services.Donations
 {
     public class DonationService : IDonationService
     {
-        private readonly MinistryPlatform.Donations.IDonationRepository _donationRepository;
+        private readonly IDonationRepository _donationRepository;
         private readonly IMapper _mapper;
 
         public DonationService(IDonationRepository donationRepository, IMapper mapper)

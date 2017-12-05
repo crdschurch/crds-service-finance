@@ -12,7 +12,6 @@ namespace Crossroads.Service.Finance.Controllers
     public class PaymentEventController : Controller
     {
         private readonly IPaymentEventService _paymentEventService;
-        private readonly ILogger _logger;
 
         public PaymentEventController(IPaymentEventService paymentEventService)
         {
@@ -27,7 +26,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost]
-        [Route("{settlement}")]
+        [Route("settlement")]
         public IActionResult ProcessPaymentEvent(SettlementEventDto settlementEventDto)
         {
             try
@@ -37,7 +36,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error processing settlement for settlement: {settlementEventDto.Key}, {ex.Message}, {ex.InnerException.ToString()}");
+                //_logger.LogError($"Error processing settlement for settlement: {settlementEventDto.Key}, {ex.Message}, {ex.InnerException.ToString()}");
                 return StatusCode(500, ex);
             }
         }

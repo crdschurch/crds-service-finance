@@ -4,7 +4,7 @@ using System.Text;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Services.Deposits;
-using MinistryPlatform.Deposits;
+using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Xunit;
 using Moq;
