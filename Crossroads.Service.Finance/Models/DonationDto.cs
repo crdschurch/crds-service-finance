@@ -13,7 +13,7 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty(PropertyName = "program_id", NullValueHandling = NullValueHandling.Ignore)]
         public string ProgramId { get; set; }
         [JsonProperty("amount")]
-        public int Amount { get; set; }
+        public Decimal Amount { get; set; }
         [JsonIgnore]
         public string Id { get; set; }
         [JsonProperty(PropertyName = "email", NullValueHandling = NullValueHandling.Ignore)]
