@@ -10,6 +10,7 @@ using AutoMapper;
 using Crossroads.Service.Finance.Services.Interfaces;
 using MinistryPlatform.Interfaces;
 using Crossroads.Service.Finance.Services.Contact;
+using Crossroads.Service.Finance.Services.Pushpay;
 
 namespace Crossroads.Service.Finance
 {
@@ -50,6 +51,7 @@ namespace Crossroads.Service.Finance
 
             // Service Layer
             services.AddSingleton<IContactService, ContactService>();
+            services.AddSingleton<IPushpayService, PushpayService>();
 
             // Repo Layer
             services.AddSingleton<IContactRepository, ContactRepository>();

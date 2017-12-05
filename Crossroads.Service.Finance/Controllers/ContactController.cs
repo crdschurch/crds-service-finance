@@ -10,10 +10,12 @@ namespace Crossroads.Service.Finance.Controllers
     public class ContactController : Controller
     {
         readonly IContactService _contactService;
+        readonly IPushpayService _pushpayService;
 
-        public ContactController(IContactService contactService)
+        public ContactController(IContactService contactService, IPushpayService pushpayService)
         {
             _contactService = contactService;
+            _pushpayService = pushpayService;
         }
 
         [HttpGet]
@@ -23,13 +25,14 @@ namespace Crossroads.Service.Finance.Controllers
             return Ok("hello world");
         }
 
+        // TODO remove or replace
         [HttpGet]
         [Route("auth")]
         public IActionResult Auth()
         {
             try 
             {
-                Client.GetOAuthToken();
+                _pushpayService.DoStuff();
                 return Ok();    
             } 
             catch (Exception e)
