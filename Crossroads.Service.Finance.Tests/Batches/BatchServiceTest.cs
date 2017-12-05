@@ -72,8 +72,15 @@ namespace Crossroads.Service.Finance.Test.Batches
                 BatchTotalAmount = 20
             };
 
+            var batchnew = new DonationBatchDto
+            {
+                Id = 123,
+                BatchTotalAmount = 20
+            };
 
             _batchRepository.Setup(r => r.CreateDonationBatch(It.IsAny<MpDonationBatch>())).Returns(mpBatch);
+            _mapper.Setup(m => m.Map<MpDonationBatch>(It.IsAny<DonationBatchDto>())).Returns(mpBatch);
+            _mapper.Setup(m => m.Map<DonationBatchDto>(It.IsAny<MpDonationBatch>())).Returns(batchnew);
 
             var result = _fixture.SaveDonationBatch(batch);
 
