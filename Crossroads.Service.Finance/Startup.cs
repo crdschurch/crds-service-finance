@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MinistryPlatform.Repositories;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
+using MinistryPlatform.Repositories;
 
 namespace Crossroads.Service.Finance
 {
