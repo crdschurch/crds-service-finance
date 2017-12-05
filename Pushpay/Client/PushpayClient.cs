@@ -18,9 +18,9 @@ namespace Pushpay
         private string clientSecret = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_SECRET");
         private Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth/token");
 
-        public PushpayClient(HttpClient c)
+        public PushpayClient(HttpClient httpClient)
         {
-            _httpClient = c ?? new HttpClient();
+            _httpClient = httpClient ?? new HttpClient();
         }
 
         public IObservable<OAuth2TokenResponse> GetOAuthToken()
@@ -28,8 +28,6 @@ namespace Pushpay
             return Observable.Create<OAuth2TokenResponse>(obs =>
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(clientId + ":" + clientSecret)));
-                Console.WriteLine("authUri");
-                Console.WriteLine(authUri);
                 var tokenRequestMessage = new HttpRequestMessage(HttpMethod.Post, authUri);
 
                 var body = new Dictionary<string, string> {
@@ -41,8 +39,6 @@ namespace Pushpay
                 var tokenresponse = _httpClient.SendAsync(tokenRequestMessage);
                 tokenresponse.Wait();
 
-                Console.WriteLine("TR");
-                Console.WriteLine(tokenresponse.Result);
                 if (tokenresponse.Result.StatusCode == HttpStatusCode.OK)
                 {
                     var tokenJson = tokenresponse.Result.Content.ReadAsStringAsync();

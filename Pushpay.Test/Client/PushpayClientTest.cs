@@ -26,7 +26,7 @@ namespace Pushpay.Test
                 StatusCode = HttpStatusCode.OK,
             };
             mockResponseMessage.Content = new StringContent(JsonConvert.SerializeObject(mockToken), Encoding.UTF8, "application/json");
-            fakeResponseHandler.AddFakeResponse(new Uri("https://auth.pushpay.com/pushpay-sandbox/oauth/token4"), mockResponseMessage);
+            fakeResponseHandler.AddFakeResponse(new Uri("https://auth.pushpay.com/pushpay-sandbox/oauth/token"), mockResponseMessage);
             _httpClient = new HttpClient(fakeResponseHandler);
             _fixture = new PushpayClient(_httpClient);
         }
