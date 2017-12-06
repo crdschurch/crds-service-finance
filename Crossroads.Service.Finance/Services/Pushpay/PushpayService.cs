@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Pushpay;
@@ -10,18 +11,18 @@ namespace Crossroads.Service.Finance.Services
     public class PushpayService : IPushpayService
     {
         private readonly IPushpayClient _pushpayClient;
+        private readonly IMapper _mapper;
 
-        public PushpayService(IPushpayClient pushpayClient)
+        public PushpayService(IPushpayClient pushpayClient, IMapper mapper)
         {
             _pushpayClient = pushpayClient;
+            _mapper = mapper;
         }
 
         public PaymentsDto GetChargesForTransfer(string settlementKey)
         {
             var result = _pushpayClient.GetPushpayDonations(settlementKey);
-
-            // TODO: need to iterate over result and convert objects to a payment dto
-            return null;
+            return _mapper.Map<PaymentsDto>(result);
         }
 
         // TODO replace
