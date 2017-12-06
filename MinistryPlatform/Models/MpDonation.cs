@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Crossroads.Web.Common.MinistryPlatform;
 using System.Collections.Generic;
-using System.Text;
 using Newtonsoft.Json;
+using System;
+
 
 namespace MinistryPlatform.Models
 {
+    [MpRestApiTable(Name = "Donations")]
     public class MpDonation
     {
         [JsonProperty("Donation_ID")]
@@ -21,19 +23,10 @@ namespace MinistryPlatform.Models
         public string DonorDisplayName { get; set; }
 
         [JsonProperty("Donation_Amount")]
-        public int DonationAmt { get; set; }
+        public string DonationAmt { get; set; }
 
         [JsonProperty("Donation_Date")]
         public DateTime DonationDate { get; set; }
-
-        [JsonProperty("Payment_Type_ID")]
-        public int PaymentTypeId { get; set; }
-
-        [JsonProperty("Item_Number")]
-        public string ItemNumber { get; set; }
-
-        [JsonIgnore]
-        public string DonationNotes { get; set; }
 
         [JsonProperty("Donation_Status_ID")]
         public int DonationStatusId { get; set; }
@@ -46,31 +39,5 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Transaction_Code")]
         public string TransactionCode { get; set; }
-
-        [JsonIgnore]
-        public bool IncludeOnGivingHistory { get; set; }
-
-        [JsonIgnore]
-        public bool IncludeOnPrintedStatement { get; set; }
-
-        [JsonProperty("Is_Recurring_Gift")]
-        public bool IsRecurringGift { get; set; }
-
-        [JsonIgnore]
-        public string AccountingCompanyName { get; set; }
-
-        [JsonIgnore]
-        public bool AccountingCompanyIncludeOnPrintedStatement { get; set; }
-
-        #region Distributions property
-        private readonly List<MpDonationDistribution> _distributions = new List<MpDonationDistribution>();
-        public List<MpDonationDistribution> Distributions { get { return (_distributions); } }
-        #endregion
-
-        public MpDonation()
-        {
-            IncludeOnGivingHistory = true;
-            IncludeOnPrintedStatement = false;
-        }
     }
 }

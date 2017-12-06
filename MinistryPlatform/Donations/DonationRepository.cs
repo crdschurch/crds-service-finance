@@ -21,12 +21,12 @@ namespace MinistryPlatform.Repositories
         {
             var token = ApiUserRepository.GetDefaultApiUserToken();
 
-            var filter = $"Transaction_Code = {transactionCode}";
+            var filter = $"Transaction_Code = '{transactionCode}'";
             var donations = MpRestBuilder.NewRequestBuilder()
-                .WithAuthenticationToken(token)
-                .WithFilter(filter)
-                .Build()
-                .Search<MpDonation>();
+                                .WithAuthenticationToken(token)
+                                .WithFilter(filter)
+                                .Build()
+                                .Search<MpDonation>();
 
             return donations.FirstOrDefault();
         }
