@@ -52,8 +52,9 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IContactService, ContactService>();
             services.AddSingleton<IBatchService, BatchService>();
             services.AddSingleton<IDonationService, DonationService>();
-            services.AddSingleton<IPaymentEventService, PaymentEventService>();
+            services.AddSingleton<IDepositService, DepositService>();
             services.AddSingleton<IPaymentProcessorService, PushpayPaymentProcessorService>();
+            services.AddSingleton<IPaymentEventService, PaymentEventService>();
 
             // Repo Layer
             services.AddSingleton<IContactRepository, ContactRepository>();
