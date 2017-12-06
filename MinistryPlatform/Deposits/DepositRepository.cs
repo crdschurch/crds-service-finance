@@ -13,9 +13,9 @@ namespace MinistryPlatform.Repositories
     public class DepositRepository : MinistryPlatformBase, IDepositRepository
     {
         public DepositRepository(IMinistryPlatformRestRequestBuilderFactory builder,
-            IApiUserRepository apiUserRepository,
-            IConfigurationWrapper configurationWrapper,
-            IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
+                               IApiUserRepository apiUserRepository,
+                               IConfigurationWrapper configurationWrapper,
+                               IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
         public MpDeposit CreateDeposit(MpDeposit mpDeposit)
         {
@@ -31,12 +31,17 @@ namespace MinistryPlatform.Repositories
         {
             var token = ApiUserRepository.GetDefaultApiUserToken();
 
-            var filter = $"Processor_Transfer_ID = {processorTransferId}";
+            var columns = new string[] {
+                "Deposit_ID"
+            };
+            var filter = $"Processor_Transfer_ID = '{processorTransferId}'";
+
             var deposits = MpRestBuilder.NewRequestBuilder()
-                .WithAuthenticationToken(token)
-                .WithFilter(filter)
-                .Build()
-                .Search<MpDeposit>();
+                                .WithAuthenticationToken(token)
+                                .WithSelectColumns(columns)
+                                .WithFilter(filter)
+                                .Build()
+                                .Search<MpDeposit>();
 
             return deposits.FirstOrDefault();
         }
