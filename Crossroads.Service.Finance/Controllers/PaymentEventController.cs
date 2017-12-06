@@ -28,7 +28,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                //_paymentEventService.CreateDeposit(settlementEventDto);
+                _paymentEventService.CreateDeposit(settlementEventDto);
                 return Ok();
             }
             catch (Exception ex)
