@@ -10,8 +10,6 @@ using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Repositories;
-using Crossroads.Service.Finance.Services.Pushpay;
-using Crossroads.Service.Finance.Services.Interfaces;
 
 namespace Crossroads.Service.Finance
 {

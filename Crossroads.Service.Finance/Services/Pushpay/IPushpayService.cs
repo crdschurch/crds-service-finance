@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Crossroads.Service.Finance.Services.Interfaces
+namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IPushpayService
     {
