@@ -80,7 +80,7 @@ namespace Crossroads.Service.Finance.Services
 
             var depositName = DateTime.Now.ToString(BatchNameDateFormat);
 
-            var donationBatch = _batchService.CreateDonationBatch(settlementPayments.payments, depositName + "D",
+            var donationBatch = _batchService.CreateDonationBatch(settlementPayments.Payments, depositName + "D",
                 DateTime.Now, settlementEventDto.Key);
             donationBatch = _batchService.SaveDonationBatch(donationBatch);
 

@@ -8,9 +8,8 @@ namespace Crossroads.Service.Finance.Models
 {
     public class PaymentProcessorChargeDto
     {
-        // TODO: Check the property name and type needed here
         [JsonProperty("status")]
-        public int Status { get; set; }
+        public string Status { get; set; }
 
         [JsonProperty("anticipatedPaymentToken")]
         public string AnticipatedPaymentToken { get; set; }

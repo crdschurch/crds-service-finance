@@ -49,7 +49,7 @@ namespace Crossroads.Service.Finance.Services
                 url = $"settlement/{settlementKey}/payments?page={i}";
                 request = new RestRequest(url, Method.GET);
                 var response = _restClient.Execute<PaymentsDto>(request);
-                paymentsDto.payments.AddRange(response.Data.payments);
+                paymentsDto.Payments.AddRange(response.Data.Payments);
             }
 
             return paymentsDto;

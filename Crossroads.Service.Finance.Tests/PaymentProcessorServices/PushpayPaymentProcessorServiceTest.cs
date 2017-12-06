@@ -35,7 +35,7 @@ namespace Crossroads.Service.Finance.Test.PaymentProcessorServices
             var paymentsDto = new PaymentsDto
             {
                 TotalPages = 45,
-                payments = new List<PaymentProcessorChargeDto>()
+                Payments = new List<PaymentProcessorChargeDto>()
             };
 
             var response = new Mock<IRestResponse<PaymentsDto>>();
