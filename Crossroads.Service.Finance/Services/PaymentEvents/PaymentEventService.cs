@@ -11,18 +11,18 @@ namespace Crossroads.Service.Finance.Services
         private readonly IDepositService _depositService;
         private readonly IDonationService _donationService;
         private readonly ILogger _logger;
-        private readonly IPaymentProcessorService _paymentProcessorService;
+        private readonly IPushpayService _pushpayService;
         
         // This value is used when creating the batch name for exporting to GP.  It must be 15 characters or less.
         private const string BatchNameDateFormat = @"\M\PyyMMddHHmmss";
 
-        public PaymentEventService(IBatchService batchService, IDepositService depositService, IDonationService donationService, 
-            IPaymentProcessorService paymentProcessorService)
+        public PaymentEventService(IBatchService batchService, IDepositService depositService, IDonationService donationService,
+            IPushpayService pushpayService)
         {
             _batchService = batchService;
             _depositService = depositService;
             _donationService = donationService;
-            _paymentProcessorService = paymentProcessorService;
+            _pushpayService = pushpayService;
         }
 
         // TODO: Determine if we need to return anything from this function or if it can be void
@@ -41,7 +41,7 @@ namespace Crossroads.Service.Finance.Services
 
             // once we have a payment being transferred, we need to go call out to Pushpay and 
             // have to get all payments associated with a settlement
-            var settlementPayments = _paymentProcessorService.GetChargesForTransfer(settlementEventDto.Key);
+            var settlementPayments = _pushpayService.GetChargesForTransfer(settlementEventDto.Key);
 
             // Throw exception if no payments are found for a settlement
             if (settlementPayments.payments == null || settlementPayments.payments.Count <= 0)

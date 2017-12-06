@@ -15,13 +15,15 @@ namespace Crossroads.Service.Finance.Test.PaymentProcessorServices
     public class PushpayPaymentProcessorServiceTest
     {
         private readonly Mock<IRestClient> _restClient;
+        private readonly Mock<IPushpayService> _pushpayService;
+
         private readonly PushpayPaymentProcessorService _fixture;
 
         public PushpayPaymentProcessorServiceTest()
         {
             _restClient = new Mock<IRestClient>(MockBehavior.Strict);
 
-            _fixture = new PushpayPaymentProcessorService(_restClient.Object);
+            _fixture = new PushpayPaymentProcessorService(_restClient.Object, _pushpayService.Object);
         }
 
         [Fact]

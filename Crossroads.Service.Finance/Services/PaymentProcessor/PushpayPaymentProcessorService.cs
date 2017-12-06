@@ -11,12 +11,14 @@ namespace Crossroads.Service.Finance.Services
     public class PushpayPaymentProcessorService : IPaymentProcessorService
     {
         private readonly IRestClient _restClient;
+        private readonly IPushpayService _pushpayService;
         private const int RequestsPerSecond = 10;
         private const int RequestsPerMinute = 60;
 
-        public PushpayPaymentProcessorService(IRestClient restClient)
+        public PushpayPaymentProcessorService(IRestClient restClient, IPushpayService pushpayService)
         {
             _restClient = restClient;
+            _pushpayService = pushpayService;
         }
 
         // call out to the settlement/{settlementKey}/payments endpoint

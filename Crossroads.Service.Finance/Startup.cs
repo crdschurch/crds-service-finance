@@ -10,6 +10,7 @@ using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Repositories;
+using RestSharp;
 
 namespace Crossroads.Service.Finance
 {
@@ -48,12 +49,22 @@ namespace Crossroads.Service.Finance
             // Dependency Injection
             CrossroadsWebCommonConfig.Register(services);
 
+            // TODO: Determine if we actually need these
+            //var oAuthBaseUrl = Environment.GetEnvironmentVariable("MP_OAUTH_BASE_URL");
+            //var mpRestUrl = Environment.GetEnvironmentVariable("MP_REST_API_ENDPOINT");
+
+            //// RESTSharp Rest Clients
+            //var mpRestClient = new RestClient(mpRestUrl);
+
             // Service Layer
             services.AddSingleton<IContactService, ContactService>();
             services.AddSingleton<IBatchService, BatchService>();
             services.AddSingleton<IDonationService, DonationService>();
             services.AddSingleton<IDepositService, DepositService>();
+
+            // inject the rest client and Tim's stuff here?
             services.AddSingleton<IPaymentProcessorService, PushpayPaymentProcessorService>();
+
             services.AddSingleton<IPaymentEventService, PaymentEventService>();
             services.AddSingleton<IPushpayService, PushpayService>();
 
