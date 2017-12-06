@@ -2,6 +2,7 @@
 using System.Linq;
 using Crossroads.Service.Finance.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Pushpay;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -9,10 +10,12 @@ namespace Crossroads.Service.Finance.Controllers
     public class ContactController : Controller
     {
         readonly IContactService _contactService;
+        readonly IPushpayService _pushpayService;
 
-        public ContactController(IContactService contactService)
+        public ContactController(IContactService contactService, IPushpayService pushpayService)
         {
             _contactService = contactService;
+            _pushpayService = pushpayService;
         }
 
         [HttpGet]
@@ -20,6 +23,23 @@ namespace Crossroads.Service.Finance.Controllers
         public IActionResult HelloWorld()
         {
             return Ok("hello world");
+        }
+
+        // TODO remove or replace
+        [HttpGet]
+        [Route("auth")]
+        public IActionResult Auth()
+        {
+            try 
+            {
+                _pushpayService.DoStuff();
+                return Ok();    
+            } 
+            catch (Exception e)
+            {
+                return BadRequest();
+            }
+
         }
 
         [HttpGet]
