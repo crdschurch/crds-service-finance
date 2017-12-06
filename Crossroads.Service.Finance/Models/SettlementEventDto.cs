@@ -14,22 +14,28 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        //[JsonIgnore]
         [JsonProperty("totalAmount")]
         public AmountDto TotalAmount { get; set; }
 
+        //[JsonIgnore]
         [JsonProperty("type")]
         public string Type { get; set; }
 
+        //[JsonIgnore]
         [JsonProperty("totalPayments")]
         public int TotalPayments { get; set; }
 
+        //[JsonIgnore]
         [JsonProperty("estimatedDepositDate")]
         public DateTime EstimatedDepositDate { get; set; }
 
+        //[JsonIgnore]
         [JsonProperty("isReconciled")]
         public bool IsReconciled { get; set; }
 
-        [JsonProperty("_links")]
+        [JsonIgnore]
+        //[JsonProperty("_links")]
         public List<LinkDto> Links { get; set; }
     }
 }

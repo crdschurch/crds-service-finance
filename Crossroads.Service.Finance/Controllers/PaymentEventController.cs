@@ -24,7 +24,7 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpPost]
         [Route("settlement")]
-        public IActionResult ProcessPaymentEvent(SettlementEventDto settlementEventDto)
+        public IActionResult ProcessPaymentEvent([FromBody] SettlementEventDto settlementEventDto)
         {
             try
             {
