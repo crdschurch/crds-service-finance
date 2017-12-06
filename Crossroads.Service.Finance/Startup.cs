@@ -10,6 +10,8 @@ using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Repositories;
+using Pushpay;
+using Pushpay.Client;
 using RestSharp;
 
 namespace Crossroads.Service.Finance
@@ -67,6 +69,7 @@ namespace Crossroads.Service.Finance
 
             services.AddSingleton<IPaymentEventService, PaymentEventService>();
             services.AddSingleton<IPushpayService, PushpayService>();
+            services.AddSingleton<IPushpayClient, PushpayClient>();
 
             // Repo Layer
             services.AddSingleton<IContactRepository, ContactRepository>();
