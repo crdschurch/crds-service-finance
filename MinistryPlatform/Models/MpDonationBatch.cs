@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Crossroads.Web.Common.MinistryPlatform;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 
 namespace MinistryPlatform.Models
 {
+    [MpRestApiTable(Name = "Donations")]
     public class MpDonationBatch
     {
         [JsonProperty("id")]
@@ -30,20 +32,6 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("finalized_date_time")]
         public DateTime FinalizedDateTime { get; set; }
-
-        //#region Donations property and accessor
-        //[JsonIgnore]
-        //private readonly List<DonationDTO> _donations = new List<DonationDTO>();
-        //[JsonProperty("donations")]
-        //public List<DonationDTO> Donations { get { return (_donations); } }
-        //#endregion
-
-        //#region Payments property and accessor
-        //[JsonIgnore]
-        //private readonly List<PaymentDTO> _payments = new List<PaymentDTO>();
-        //[JsonProperty("payments")]
-        //public List<PaymentDTO> Payments { get { return (_payments); } }
-        //#endregion
 
         [JsonProperty("processor_transfer_id")]
         public string ProcessorTransferId { get; set; }

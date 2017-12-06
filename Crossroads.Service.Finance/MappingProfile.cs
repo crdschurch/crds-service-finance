@@ -9,6 +9,8 @@ public class MappingProfile : Profile
     {
         CreateMap<MpContact, ContactDto>();
         CreateMap<MpDeposit, DepositDto>();
+        CreateMap<MpDonationBatch, DonationBatchDto>();
+        CreateMap<DonationBatchDto, MpDonationBatch>();
         CreateMap<PushpayAmountDto, AmountDto>();
         CreateMap<PushpayLinkDto, LinkDto>();
         CreateMap<PushpayPaymentProcessorChargeDto, PaymentProcessorChargeDto>();
