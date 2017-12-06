@@ -3,6 +3,7 @@ using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
+using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Mock;
@@ -16,16 +17,18 @@ namespace Crossroads.Service.Finance.Test.Batches
         private readonly Mock<IDonationRepository> _donationRepository;
         private readonly Mock<IBatchRepository> _batchRepository;
         private readonly Mock<IMapper> _mapper;
+        private readonly Mock<IConfigurationWrapper> _configurationWrapper;
 
         private readonly IBatchService _fixture;
 
         public BatchServiceTest()
         {
+            _configurationWrapper = new Mock<IConfigurationWrapper>();
             _donationRepository = new Mock<IDonationRepository>();
             _batchRepository = new Mock<IBatchRepository>();
             _mapper = new Mock<IMapper>();
 
-            _fixture = new BatchService(_donationRepository.Object, _batchRepository.Object, _mapper.Object);
+            _fixture = new BatchService(_donationRepository.Object, _batchRepository.Object, _mapper.Object, _configurationWrapper.Object);
         }
 
         [Fact]

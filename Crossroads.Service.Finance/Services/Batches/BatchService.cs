@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 
@@ -14,11 +15,15 @@ namespace Crossroads.Service.Finance.Services
         private readonly IBatchRepository _batchRepository;
         private readonly IMapper _mapper;
 
-        public BatchService(IDonationRepository donationRepository, IBatchRepository batchRepository, IMapper mapper)
+        private readonly int _batchEntryTypeValue;
+
+        public BatchService(IDonationRepository donationRepository, IBatchRepository batchRepository, IMapper mapper, IConfigurationWrapper configurationWrapper)
         {
             _donationRepository = donationRepository;
             _batchRepository = batchRepository;
             _mapper = mapper;
+
+            _batchEntryTypeValue = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "BatchEntryTypePaymentProcessor", true).GetValueOrDefault();
         }
 
         // This function creates the batch in MP, then returns the object so that the deposit can be added to the batch
@@ -31,8 +36,7 @@ namespace Crossroads.Service.Finance.Services
                 SetupDateTime = eventTimestamp,
                 BatchTotalAmount = 0,
                 ItemCount = 0,
-                // TODO:: _configurationWrapper.GetMpConfigIntValue( "BatchEntryTypePaymentProcessor"), hardcoded now, comes from config value
-                BatchEntryType = 10,
+                BatchEntryType = _batchEntryTypeValue,
                 FinalizedDateTime = eventTimestamp,
                 DepositId = null,
                 ProcessorTransferId = transferKey
