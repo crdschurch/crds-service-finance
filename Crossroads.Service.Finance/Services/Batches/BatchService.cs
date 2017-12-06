@@ -23,7 +23,7 @@ namespace Crossroads.Service.Finance.Services
             _batchRepository = batchRepository;
             _mapper = mapper;
 
-            _batchEntryTypeValue = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "BatchEntryTypePaymentProcessor", true).GetValueOrDefault();
+            _batchEntryTypeValue = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "BatchEntryType", true).GetValueOrDefault();
         }
 
         // This function creates the batch in MP, then returns the object so that the deposit can be added to the batch
