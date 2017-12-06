@@ -34,9 +34,22 @@ namespace Pushpay
 
         public PushpayPaymentsDto GetPushpayDonations(string settlementKey)
         {
+            var token = GetOAuthToken().Wait();
+
             var url = $"settlement/{settlementKey}/payments";
             var request = new RestRequest(url, Method.GET);
+
+            //request.AddHeader("Content-Type", "application/json");
+            //request.AddParameter("grant_type", "client_credentials");
+            //request.AddParameter("client_id", "client-app");
+            //request.AddParameter("client_secret", "secret");
+
+            request.AddParameter("Authorization",
+                string.Format("Bearer " + token.AccessToken),
+                ParameterType.HttpHeader);
+
             //request.
+
             var paymentsDto = _restClient.Execute<PushpayPaymentsDto>(request).Data;
 
             // determine the delay needed to avoid hitting the rate limits for Pushpay
