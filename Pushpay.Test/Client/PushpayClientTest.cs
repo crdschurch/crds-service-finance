@@ -13,16 +13,15 @@ namespace Pushpay.Test
 {
     public class PushpayClientTest
     {
+        private readonly Mock<IRestClient> _restClient;
         private readonly PushpayClient _fixture;
         const string accessToken = "ryJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwdXNocGV5IiwiYXVkIjoicHVzaHBheS1zYW5kYm94IiwibmJmIjoxNTEyNjgwMzgzLCJleAHiOjE1MTI2ODM5ODMsImNsaWVudF9pZCI6ImNyb3Nzcm9hZHMtaW5nYWdlLWRldi1jbGllbnQiLCJzY29wZSI6WyJyZWFkIiwiY3JlYXRlX2FudGljaXBhdGVkX3BheW1lbnQiXSwibWVyY2hhbnRzIjoiNzkwMzg4NCA3OTAyNjQ1In0.ffD4AaY-4Zd-o2nOG2OIcgwq327jSQPnry4kCKFql88";
         const string tokenType = "Bearer";
         const int expiresIn = 3600;
-        private Mock<IRestClient> _restClient;
 
         public PushpayClientTest()
         {
             _restClient = new Mock<IRestClient>();
-
             _fixture = new PushpayClient(_restClient.Object);
         }
 
