@@ -65,7 +65,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             {
                 new DonationDto
                 {
-                    Status = DonationStatus.Pending
+                    DonationStatusId = DonationStatus.Pending.GetHashCode()
                 }
             };
 
@@ -73,7 +73,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             var result = _fixture.SetDonationStatus(donations, batchId);
 
             // Assert
-            Assert.Equal(DonationStatus.Deposited, result[0].Status);
+            Assert.Equal(DonationStatus.Deposited.GetHashCode(), result[0].DonationStatusId);
         }
 
         [Fact]
