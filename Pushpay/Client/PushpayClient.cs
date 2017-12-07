@@ -23,16 +23,16 @@ namespace Pushpay
         private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private string donationsScope = "read merchant:view_payments";
 
-        private readonly RestClient _restClient;
+        private readonly IRestClient _restClient;
         private const int RequestsPerSecond = 10;
         private const int RequestsPerMinute = 60;
 
-        public PushpayClient(RestClient restClient = null)
+        public PushpayClient(IRestClient restClient = null)
         {
             _restClient = restClient ?? new RestClient();
         }
 
-        private IObservable<OAuth2TokenResponse> GetOAuthToken(string scope = "read")
+        public IObservable<OAuth2TokenResponse> GetOAuthToken(string scope = "read")
         {
             return Observable.Create<OAuth2TokenResponse>(obs =>
             {
@@ -45,6 +45,7 @@ namespace Pushpay
                 request.AddParameter("grant_type", "client_credentials");
                 request.AddParameter("scope", scope);
                 IRestResponse response = _restClient.Execute(request);
+
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var tokenJson = response.Content;
@@ -54,7 +55,7 @@ namespace Pushpay
                 }
                 else
                 {
-                    obs.OnError(new Exception("Authentication was not successful"));
+                    obs.OnError(new Exception($"Authentication was not successful {response.StatusCode}"));
                 }
                 return Disposable.Empty;
             });

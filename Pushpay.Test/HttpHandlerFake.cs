@@ -1,28 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿//using System.Net;
+//using Moq;
+//using Newtonsoft.Json;
+//using RestSharp;
 
-public class FakeResponseHandler : DelegatingHandler
-{
-    private readonly Dictionary<Uri, HttpResponseMessage> _FakeResponses = new Dictionary<Uri, HttpResponseMessage>();
+//public static IRestClient MockRestSharpClient<T>(HttpStatusCode httpStatusCode, string json) where T : new()
+//{
+//    //var data = JsonConvert.DeserializeObject<T>(json);
+//    //var response = new Mock<IRestResponse<T>>();
+//    //response.Setup(_ => _.StatusCode).Returns(httpStatusCode);
+//    //response.Setup(_ => _.Data).Returns(data);
 
-    public void AddFakeResponse(Uri uri, HttpResponseMessage responseMessage)
-    {
-        _FakeResponses.Add(uri, responseMessage);
-    }
-
-    protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
-    {
-        if (_FakeResponses.ContainsKey(request.RequestUri))
-        {
-            return _FakeResponses[request.RequestUri];
-        }
-        else
-        {
-            return new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request };
-        }
-
-    }
-}
+//    //var mockIRestClient = new Mock<IRestClient>();
+//    //mockIRestClient.Setup(x => x.Execute<T>(It.IsAny<IRestRequest>())).Returns(response.Object);
+//    //return mockIRestClient.Object;
+//}
