@@ -7,7 +7,7 @@ namespace Pushpay.Client
 {
     public interface IPushpayClient
     {
-        IObservable<OAuth2TokenResponse> GetOAuthToken();
+        IObservable<OAuth2TokenResponse> GetOAuthToken2();
         PushpayPaymentsDto GetPushpayDonations(string settlementKey);
         IObservable<bool> DoStuff();
     }
