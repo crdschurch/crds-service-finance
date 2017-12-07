@@ -33,10 +33,10 @@ namespace Crossroads.Service.Finance.Services
             foreach (var updatedDonation in updatedDonations)
             {
                 // TODO: Verify that this is an or condition, not an and condition
-                if (updatedDonation.Status != DonationStatus.Declined ||
-                    updatedDonation.Status != DonationStatus.Refunded)
+                if (updatedDonation.DonationStatusId != DonationStatus.Declined.GetHashCode() ||
+                    updatedDonation.DonationStatusId != DonationStatus.Refunded.GetHashCode())
                 {
-                    updatedDonation.Status = DonationStatus.Deposited;
+                    updatedDonation.DonationStatusId = DonationStatus.Deposited.GetHashCode();
                 }
 
                 updatedDonation.BatchId = batchId;

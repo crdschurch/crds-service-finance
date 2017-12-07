@@ -50,14 +50,8 @@ namespace Crossroads.Service.Finance.Services
                 batch.ItemCount++;
                 batch.BatchTotalAmount += decimal.Parse(charge.Amount.Amount);
 
-                var donationDto = new DonationDto
-                {
-                    Id = mpDonation.DonationId.ToString(),
-                    Amount = decimal.Parse(charge.Amount.Amount)
-                };
-
                 // TODO: We don't want to save the list of donations on this batch - potentially clear out or ignore before save to avoid creating duplicate data
-                batch.Donations.Add(donationDto);
+                batch.Donations.Add(_mapper.Map<DonationDto>(mpDonation));
             }
 
             return batch;
