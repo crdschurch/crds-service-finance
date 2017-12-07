@@ -65,7 +65,7 @@ namespace Crossroads.Service.Finance.Services
 
         public void UpdateDonationBatch(DonationBatchDto donationBatchDto)
         {
-            
+            _batchRepository.UpdateDonationBatch(_mapper.Map<MpDonationBatch>(donationBatchDto));
         }
     }
 }
