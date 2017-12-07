@@ -6,40 +6,34 @@ using Newtonsoft.Json;
 
 namespace MinistryPlatform.Models
 {
-    [MpRestApiTable(Name = "Donations")]
+    [MpRestApiTable(Name = "Batches")]
     public class MpDonationBatch
     {
-        [JsonProperty("id")]
+        [JsonProperty("Batch_ID")]
         public int Id { get; set; }
 
-        [JsonProperty("batch_name")]
+        [JsonProperty("Batch_Name")]
         public string BatchName { get; set; }
 
-        [JsonProperty("setup_date_time")]
+        [JsonProperty("Setup_Date")]
         public DateTime SetupDateTime { get; set; }
 
-        [JsonProperty("batch_total_amount")]
+        [JsonProperty("Batch_Total")]
         public decimal BatchTotalAmount { get; set; }
 
-        [JsonProperty("item_count")]
+        [JsonProperty("Item_Count")]
         public int ItemCount { get; set; }
 
-        [JsonProperty("batch_entry_type")]
+        [JsonProperty("Batch_Entry_Type_ID")]
         public int BatchEntryType { get; set; }
 
-        [JsonProperty("deposit_id")]
+        [JsonProperty("Deposit_ID")]
         public int? DepositId { get; set; }
 
-        [JsonProperty("finalized_date_time")]
+        [JsonProperty("Finalized_Date")]
         public DateTime FinalizedDateTime { get; set; }
 
-        [JsonProperty("processor_transfer_id")]
+        [JsonProperty("Processor_Transfer_ID")]
         public string ProcessorTransferId { get; set; }
-
-        [JsonProperty("program_id")]
-        public int ProgramId { get; set; }
-
-        [JsonProperty("batch_fee_total")]
-        public decimal BatchFeeTotal { get; set; }
     }
 }

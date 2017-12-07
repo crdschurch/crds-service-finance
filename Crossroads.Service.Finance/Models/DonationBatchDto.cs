@@ -39,20 +39,7 @@ namespace Crossroads.Service.Finance.Models
         public List<DonationDto> Donations { get { return (_donations); } }
         #endregion
 
-        #region Payments property and accessor
-        //[JsonIgnore]
-        //private readonly List<PaymentDto> _payments = new List<PaymentDto>();
-        //[JsonProperty("payments")]
-        //public List<PaymentDto> Payments { get { return (_payments); } }
-        #endregion
-
         [JsonProperty("processor_transfer_id")]
         public string ProcessorTransferId { get; set; }
-
-        [JsonProperty("program_id")]
-        public int ProgramId { get; set; }
-
-        [JsonProperty("batch_fee_total")]
-        public decimal BatchFeeTotal { get; set; }
     }
 }
