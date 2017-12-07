@@ -20,6 +20,6 @@ namespace Crossroads.Service.Finance.Models
 
         // TODO: Check the property name and type needed here
         [JsonProperty("items")]
-        public List<PaymentProcessorChargeDto> Payments { get; set; }
+        public List<PaymentProcessorChargeDto> items { get; set; }
     }
 }

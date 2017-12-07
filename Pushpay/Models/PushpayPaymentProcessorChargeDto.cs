@@ -9,10 +9,7 @@ namespace Pushpay.Models
     {
         // TODO: Check the property name and type needed here
         [JsonProperty("status")]
-        public int Status { get; set; }
-
-        [JsonProperty("anticipatedPaymentToken")]
-        public string AnticipatedPaymentToken { get; set; }
+        public string Status { get; set; }
 
         [JsonProperty("recurringPaymentToken")]
         public string RecurringPaymentToken { get; set; }
@@ -25,11 +22,5 @@ namespace Pushpay.Models
 
         [JsonProperty("amount")]
         public PushpayAmountDto Amount { get; set; }
-
-        [JsonProperty("source")]
-        public string Source { get; set; }
-
-        [JsonProperty("_links")]
-        public List<PushpayLinkDto> Links { get; set; }
     }
 }

@@ -45,7 +45,7 @@ namespace Crossroads.Service.Finance.Services
             var settlementPayments = _pushpayService.GetChargesForTransfer(settlementEventDto.Key);
 
             // Throw exception if no payments are found for a settlement
-            if (settlementPayments.Payments == null || settlementPayments.Payments.Count <= 0)
+            if (settlementPayments.items == null || settlementPayments.items.Count <= 0)
             {
                 //_logger.LogError($"No charges found for settlement: {settlementEventDto.Key}");
                 throw new Exception($"No charges found for settlement: {settlementEventDto.Key}");
@@ -53,7 +53,7 @@ namespace Crossroads.Service.Finance.Services
 
             var depositName = DateTime.Now.ToString(BatchNameDateFormat);
 
-            var donationBatch = _batchService.CreateDonationBatch(settlementPayments.Payments, depositName + "D",
+            var donationBatch = _batchService.CreateDonationBatch(settlementPayments.items, depositName + "D",
                 DateTime.Now, settlementEventDto.Key);
             var savedDonationBatch = _batchService.SaveDonationBatch(donationBatch);
             donationBatch.Id = savedDonationBatch.Id;

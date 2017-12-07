@@ -95,7 +95,7 @@ namespace Pushpay
                     Thread.Sleep(delay);
                     request.Resource = $"settlement/{settlementKey}/payments?page={i}";
                     response = _restClient.Execute<PushpayPaymentsDto>(request);
-                    paymentsDto.payments.AddRange(response.Data.payments);
+                    paymentsDto.items.AddRange(response.Data.items);
                 }   
             }
             return paymentsDto;
