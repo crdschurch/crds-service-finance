@@ -59,7 +59,7 @@ namespace MinistryPlatform.Test.Donations
                 }
             };
 
-            var filter = $"Transaction_Code = {transactionCode}";
+            var filter = $"Transaction_Code = '{transactionCode}'";
             _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
