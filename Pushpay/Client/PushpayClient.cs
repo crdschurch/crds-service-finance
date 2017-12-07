@@ -21,6 +21,7 @@ namespace Pushpay
         private string clientId = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_ID");
         private string clientSecret = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_SECRET");
         private Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth");
+        private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
 
         private readonly RestClient _restClient;
         private const int RequestsPerSecond = 10;
@@ -35,21 +36,14 @@ namespace Pushpay
 
         public PushpayPaymentsDto GetPushpayDonations(string settlementKey)
         {
-            var token = GetOAuthToken().Wait();
+            Console.WriteLine("GetPushpayDonations");
+            var tokenResponse = GetOAuthToken().Wait();
+            _restClient.BaseUrl = apiUri;
+            var request = new RestRequest(Method.POST);
+            request.Resource = $"settlement/{settlementKey}/payments";
+            Console.WriteLine(request.Resource);
+            request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
-            var url = $"settlement/{settlementKey}/payments";
-            var request = new RestRequest(url, Method.GET);
-
-            //request.AddHeader("Content-Type", "application/json");
-            //request.AddParameter("grant_type", "client_credentials");
-            //request.AddParameter("client_id", "client-app");
-            //request.AddParameter("client_secret", "secret");
-
-            request.AddParameter("Authorization",
-                string.Format("Bearer " + token.AccessToken),
-                ParameterType.HttpHeader);
-
-            //request.
 
             var paymentsDto = _restClient.Execute<PushpayPaymentsDto>(request).Data;
 
@@ -71,8 +65,9 @@ namespace Pushpay
                 Thread.Sleep(delay);
 
                 // call and parse next load
-                url = $"settlement/{settlementKey}/payments?page={i}";
-                request = new RestRequest(url, Method.GET);
+                request.Resource = $"settlement/{settlementKey}/payments?page={i}";
+                //request = new RestRequest(url, Method.GET);
+                Console.WriteLine(request.Resource);
                 var response = _restClient.Execute<PushpayPaymentsDto>(request);
                 paymentsDto.payments.AddRange(response.Data.payments);
             }
@@ -82,22 +77,15 @@ namespace Pushpay
 
         public IObservable<OAuth2TokenResponse> GetOAuthToken()
         {
-            Console.WriteLine("1");
             return Observable.Create<OAuth2TokenResponse>(obs =>
             {
-                Console.WriteLine("2");
                 _restClient.BaseUrl = authUri;
-
                 _restClient.Authenticator = new HttpBasicAuthenticator(clientId, clientSecret);
                 var request = new RestRequest(Method.POST);
                 request.Resource = "token";
-                Console.WriteLine("3");
                 request.AddParameter("grant_type", "client_credentials");
                 request.AddParameter("scope", "read");
                 IRestResponse response = _restClient.Execute(request);
-                Console.WriteLine("4");
-                Console.WriteLine(response.Content);
-                Console.WriteLine(response.StatusCode);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var tokenJson = response.Content;
