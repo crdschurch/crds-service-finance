@@ -28,6 +28,8 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
+                Console.WriteLine("settlementEventDto");
+                Console.WriteLine(settlementEventDto);
                 _paymentEventService.CreateDeposit(settlementEventDto);
                 return Ok();
             }

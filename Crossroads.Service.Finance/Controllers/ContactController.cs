@@ -32,6 +32,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try 
             {
+                Console.WriteLine("auth...");
                 _pushpayService.DoStuff();
                 return Ok();    
             } 
