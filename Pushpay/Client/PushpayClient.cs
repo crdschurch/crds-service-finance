@@ -21,6 +21,7 @@ namespace Pushpay
         private string clientSecret = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_SECRET");
         private Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth");
         private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
+        private string donationsScope = "read merchant:view_payments";
 
         private readonly RestClient _restClient;
         private const int RequestsPerSecond = 10;
@@ -31,7 +32,7 @@ namespace Pushpay
             _restClient = restClient ?? new RestClient();
         }
 
-        private IObservable<OAuth2TokenResponse> GetOAuthToken()
+        private IObservable<OAuth2TokenResponse> GetOAuthToken(string scope = "read")
         {
             return Observable.Create<OAuth2TokenResponse>(obs =>
             {
@@ -42,7 +43,7 @@ namespace Pushpay
                     Resource = "token"
                 };
                 request.AddParameter("grant_type", "client_credentials");
-                request.AddParameter("scope", "read merchant:view_payments");
+                request.AddParameter("scope", scope);
                 IRestResponse response = _restClient.Execute(request);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -61,7 +62,7 @@ namespace Pushpay
 
         public PushpayPaymentsDto GetPushpayDonations(string settlementKey)
         {
-            var tokenResponse = GetOAuthToken().Wait();
+            var tokenResponse = GetOAuthToken(donationsScope).Wait();
             _restClient.BaseUrl = apiUri;
             var request = new RestRequest(Method.GET)
             {
