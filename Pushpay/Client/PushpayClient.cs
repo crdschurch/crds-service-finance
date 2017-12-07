@@ -39,13 +39,21 @@ namespace Pushpay
             Console.WriteLine("GetPushpayDonations");
             var tokenResponse = GetOAuthToken().Wait();
             _restClient.BaseUrl = apiUri;
-            var request = new RestRequest(Method.POST);
+            var request = new RestRequest(Method.GET);
             request.Resource = $"settlement/{settlementKey}/payments";
+
             Console.WriteLine(request.Resource);
+            Console.WriteLine(tokenResponse.AccessToken);
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
 
-            var paymentsDto = _restClient.Execute<PushpayPaymentsDto>(request).Data;
+            var response = _restClient.Execute<PushpayPaymentsDto>(request);
+
+            Console.WriteLine(response.Content);
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine(response.Data);
+
+            var paymentsDto = response.Data;
 
             // determine the delay needed to avoid hitting the rate limits for Pushpay
             var delay = 0;
@@ -68,8 +76,8 @@ namespace Pushpay
                 request.Resource = $"settlement/{settlementKey}/payments?page={i}";
                 //request = new RestRequest(url, Method.GET);
                 Console.WriteLine(request.Resource);
-                var response = _restClient.Execute<PushpayPaymentsDto>(request);
-                paymentsDto.payments.AddRange(response.Data.payments);
+                var response2 = _restClient.Execute<PushpayPaymentsDto>(request);
+                paymentsDto.payments.AddRange(response2.Data.payments);
             }
 
             return paymentsDto;
@@ -84,7 +92,7 @@ namespace Pushpay
                 var request = new RestRequest(Method.POST);
                 request.Resource = "token";
                 request.AddParameter("grant_type", "client_credentials");
-                request.AddParameter("scope", "read");
+                request.AddParameter("scope",  "read merchant:view_payments");
                 IRestResponse response = _restClient.Execute(request);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
