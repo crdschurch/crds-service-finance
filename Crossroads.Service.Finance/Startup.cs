@@ -64,9 +64,6 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IDonationService, DonationService>();
             services.AddSingleton<IDepositService, DepositService>();
 
-            // inject the rest client and Tim's stuff here?
-            services.AddSingleton<IPaymentProcessorService, PushpayPaymentProcessorService>();
-
             services.AddSingleton<IPaymentEventService, PaymentEventService>();
             services.AddSingleton<IPushpayService, PushpayService>();
             services.AddSingleton<IPushpayClient, PushpayClient>();

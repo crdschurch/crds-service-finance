@@ -41,37 +41,10 @@ namespace Crossroads.Service.Finance.Services
                 throw new Exception($"Deposit already exists for settlement: {settlementEventDto.Key}");
             }
 
-            //// once we have a payment being transferred, we need to go call out to Pushpay and 
-            //// have to get all payments associated with a settlement
+            //// onc?ve to get all payments associated with a settlement
             var settlementPayments = _pushpayService.GetChargesForTransfer(settlementEventDto.Key);
-            //TODO:: will use the above line but currently just stubbing out a answer
-            //var settlementPayments = new PaymentsDto
-            //{
-            //    Payments = new List<PaymentProcessorChargeDto> {
-            //        new PaymentProcessorChargeDto{
-            //            Status = "Success",
-            //            TransactionId = "8416544",
-            //            PaymentToken = "5dcdaPH0wkqvnd4LmB7dEg",
-            //            Amount = new AmountDto {
-            //                Currency = "USD",
-            //                Amount = "22.00"
-            //            },
-            //            Source = "WebGiving"
-            //        },
-            //        new PaymentProcessorChargeDto{
-            //            Status = "Success",
-            //            TransactionId = "8837299",
-            //            PaymentToken = "5dcdaPH0wkqvnd4LmB7dEgasfdfaew",
-            //            Amount = new AmountDto {
-            //                Currency = "USD",
-            //                Amount = "55.00"
-            //            },
-            //            Source = "WebGiving"
-            //        },
-            //    }
-            //};
 
-            //// Throw exception if no payments are found for a settlement
+            // Throw exception if no payments are found for a settlement
             if (settlementPayments.Payments == null || settlementPayments.Payments.Count <= 0)
             {
                 //_logger.LogError($"No charges found for settlement: {settlementEventDto.Key}");
