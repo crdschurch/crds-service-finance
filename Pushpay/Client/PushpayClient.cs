@@ -37,8 +37,10 @@ namespace Pushpay
             {
                 _restClient.BaseUrl = authUri;
                 _restClient.Authenticator = new HttpBasicAuthenticator(clientId, clientSecret);
-                var request = new RestRequest(Method.POST);
-                request.Resource = "token";
+                var request = new RestRequest(Method.POST)
+                {
+                    Resource = "token"
+                };
                 request.AddParameter("grant_type", "client_credentials");
                 request.AddParameter("scope", "read merchant:view_payments");
                 IRestResponse response = _restClient.Execute(request);
@@ -61,9 +63,10 @@ namespace Pushpay
         {
             var tokenResponse = GetOAuthToken().Wait();
             _restClient.BaseUrl = apiUri;
-            var request = new RestRequest(Method.GET);
-            request.Resource = $"settlement/{settlementKey}/payments";
-
+            var request = new RestRequest(Method.GET)
+            {
+                Resource = $"settlement/{settlementKey}/payments"
+            };
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
             var response = _restClient.Execute<PushpayPaymentsDto>(request);
