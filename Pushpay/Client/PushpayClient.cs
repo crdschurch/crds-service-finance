@@ -36,50 +36,42 @@ namespace Pushpay
 
         public PushpayPaymentsDto GetPushpayDonations(string settlementKey)
         {
-            Console.WriteLine("GetPushpayDonations");
             var tokenResponse = GetOAuthToken().Wait();
             _restClient.BaseUrl = apiUri;
             var request = new RestRequest(Method.GET);
             request.Resource = $"settlement/{settlementKey}/payments";
 
-            Console.WriteLine(request.Resource);
-            Console.WriteLine(tokenResponse.AccessToken);
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
-
             var response = _restClient.Execute<PushpayPaymentsDto>(request);
-
-            Console.WriteLine(response.Content);
-            Console.WriteLine(response.StatusCode);
-            Console.WriteLine(response.Data);
-
             var paymentsDto = response.Data;
 
+            // determine if we need to call again (multiple pages), then
             // determine the delay needed to avoid hitting the rate limits for Pushpay
-            var delay = 0;
             var totalPages = paymentsDto.TotalPages;
+            Console.WriteLine("pages");
+            Console.WriteLine(totalPages);
 
-            if (totalPages >= RequestsPerSecond && totalPages < RequestsPerMinute)
+            if (totalPages > 1)
             {
-                delay = 150;
-            }
-            else if (totalPages >= RequestsPerMinute)
-            {
-                delay = 1000;
-            }
+                var delay = 0;
+                if (totalPages >= RequestsPerSecond && totalPages < RequestsPerMinute)
+                {
+                    delay = 150;
+                }
+                else if (totalPages >= RequestsPerMinute)
+                {
+                    delay = 1000;
+                }
 
-            for (int i = 0; i < totalPages; i++)
-            {
-                Thread.Sleep(delay);
-
-                // call and parse next load
-                request.Resource = $"settlement/{settlementKey}/payments?page={i}";
-                //request = new RestRequest(url, Method.GET);
-                Console.WriteLine(request.Resource);
-                var response2 = _restClient.Execute<PushpayPaymentsDto>(request);
-                paymentsDto.payments.AddRange(response2.Data.payments);
+                for (int i = 0; i < totalPages; i++)
+                {
+                    Thread.Sleep(delay);
+                    request.Resource = $"settlement/{settlementKey}/payments?page={i}";
+                    response = _restClient.Execute<PushpayPaymentsDto>(request);
+                    paymentsDto.payments.AddRange(response.Data.payments);
+                }   
             }
-
             return paymentsDto;
         }
 
