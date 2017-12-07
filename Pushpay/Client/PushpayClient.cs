@@ -20,7 +20,7 @@ namespace Pushpay
         private HttpClient _httpClient;
         private string clientId = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_ID");
         private string clientSecret = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_SECRET");
-        private Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth/token");
+        private Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth");
 
         private readonly RestClient _restClient;
         private const int RequestsPerSecond = 10;
@@ -35,7 +35,7 @@ namespace Pushpay
 
         public PushpayPaymentsDto GetPushpayDonations(string settlementKey)
         {
-            var token = GetOAuthToken2().Wait();
+            var token = GetOAuthToken().Wait();
 
             var url = $"settlement/{settlementKey}/payments";
             var request = new RestRequest(url, Method.GET);
@@ -80,49 +80,24 @@ namespace Pushpay
             return paymentsDto;
         }
 
-        //public IObservable<OAuth2TokenResponse> GetOAuthToken()
-        //{
-        //    return Observable.Create<OAuth2TokenResponse>(obs =>
-        //    {
-        //        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(clientId + ":" + clientSecret)));
-        //        var tokenRequestMessage = new HttpRequestMessage(HttpMethod.Post, authUri);
-
-        //        var body = new Dictionary<string, string> {
-        //            {"grant_type", "client_credentials"},
-        //            {"scope", "list_my_merchants merchant:manage_community_members merchant:view_community_members merchant:view_payments merchant:view_recurring_payments organization:manage_funds read"}
-        //        };
-
-        //        tokenRequestMessage.Content = new FormUrlEncodedContent(body);
-        //        var tokenresponse = _httpClient.SendAsync(tokenRequestMessage);
-        //        tokenresponse.Wait();
-
-        //        if (tokenresponse.Result.StatusCode == HttpStatusCode.OK)
-        //        {
-        //            var tokenJson = tokenresponse.Result.Content.ReadAsStringAsync();
-        //            var tokens = JsonConvert.DeserializeObject<OAuth2TokenResponse>(tokenJson.Result);
-        //            obs.OnNext(tokens);
-        //            obs.OnCompleted();
-        //        }
-        //        else
-        //        {
-        //            obs.OnError(new Exception("Authentication was not successful"));
-        //        }
-        //        return Disposable.Empty;
-        //    });
-        //}
-
-        public IObservable<OAuth2TokenResponse> GetOAuthToken2()
+        public IObservable<OAuth2TokenResponse> GetOAuthToken()
         {
             Console.WriteLine("1");
             return Observable.Create<OAuth2TokenResponse>(obs =>
             {
-                var client = new RestClient("https://auth.pushpay.com/pushpay-sandbox/oauth/token");
-                client.Authenticator = new HttpBasicAuthenticator(clientId, clientSecret);
-                var request = new RestRequest(Method.POST);
-                request.AddParameter("grant_type", "client_credentials");
-                request.AddParameter("scope", "read create_anticipated_payment");
-                IRestResponse response = client.Execute(request);
+                Console.WriteLine("2");
+                _restClient.BaseUrl = authUri;
 
+                _restClient.Authenticator = new HttpBasicAuthenticator(clientId, clientSecret);
+                var request = new RestRequest(Method.POST);
+                request.Resource = "token";
+                Console.WriteLine("3");
+                request.AddParameter("grant_type", "client_credentials");
+                request.AddParameter("scope", "read");
+                IRestResponse response = _restClient.Execute(request);
+                Console.WriteLine("4");
+                Console.WriteLine(response.Content);
+                Console.WriteLine(response.StatusCode);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var tokenJson = response.Content;
@@ -142,7 +117,7 @@ namespace Pushpay
         // TODO remove
         public IObservable<bool> DoStuff()
         {
-            var token = GetOAuthToken2().Wait();
+            var token = GetOAuthToken().Wait();
             Console.WriteLine("token");
             Console.WriteLine(token.AccessToken);
             return Observable.Create<bool>(obs =>
