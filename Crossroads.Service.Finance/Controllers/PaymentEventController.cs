@@ -28,15 +28,13 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                Console.WriteLine("settlementEventDto");
-                Console.WriteLine(settlementEventDto);
                 _paymentEventService.CreateDeposit(settlementEventDto);
                 return Ok();
             }
             catch (Exception ex)
             {
                 //_logger.LogError($"Error processing settlement for settlement: {settlementEventDto.Key}, {ex.Message}, {ex.InnerException.ToString()}");
-                return StatusCode(500, ex);
+                return StatusCode(400, ex);
             }
         }
     }

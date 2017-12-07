@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using AutoMapper;
+﻿using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
-using Pushpay;
 using Pushpay.Client;
 
 namespace Crossroads.Service.Finance.Services
@@ -23,13 +20,6 @@ namespace Crossroads.Service.Finance.Services
         {
             var result = _pushpayClient.GetPushpayDonations(settlementKey);
             return _mapper.Map<PaymentsDto>(result);
-        }
-
-        // TODO replace
-        public Boolean DoStuff()
-        {
-            _pushpayClient.DoStuff();
-            return true;
         }
 
     }
