@@ -32,8 +32,7 @@ namespace Crossroads.Service.Finance.Services
 
             foreach (var updatedDonation in updatedDonations)
             {
-                // TODO: Verify that this is an or condition, not an and condition
-                if (updatedDonation.DonationStatusId != DonationStatus.Declined.GetHashCode() ||
+                if (updatedDonation.DonationStatusId != DonationStatus.Declined.GetHashCode() &&
                     updatedDonation.DonationStatusId != DonationStatus.Refunded.GetHashCode())
                 {
                     updatedDonation.DonationStatusId = DonationStatus.Deposited.GetHashCode();
