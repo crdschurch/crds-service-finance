@@ -8,8 +8,22 @@ namespace Crossroads.Service.Finance.Controllers
     public class WebhookController : Controller
     {
         [HttpPost]
-        [Route("donation")]
-        public IActionResult DonationStatusUpdate([FromBody] PushpayWebhook pushpayWebhook)
+        [Route("payment/status")]
+        public IActionResult PaymentStatusUpdate([FromBody] PushpayWebhook pushpayWebhook)
+        {
+            return Json(pushpayWebhook);
+        }
+
+        [HttpPost]
+        [Route("payment/created")]
+        public IActionResult PaymentCreated([FromBody] PushpayWebhook pushpayWebhook)
+        {
+            return Json(pushpayWebhook);
+        }
+
+        [HttpPost]
+        [Route("payment/anticipated/status")]
+        public IActionResult AnticipatedPaymentStatusUpdate([FromBody] PushpayWebhook pushpayWebhook)
         {
             return Json(pushpayWebhook);
         }
