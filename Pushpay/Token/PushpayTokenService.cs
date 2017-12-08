@@ -16,8 +16,6 @@ namespace Pushpay.Token
         private readonly Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth");
 
         private readonly IRestClient _restClient;
-        private const int RequestsPerSecond = 10;
-        private const int RequestsPerMinute = 60;
 
         public PushpayTokenService(IRestClient restClient = null)
         {
