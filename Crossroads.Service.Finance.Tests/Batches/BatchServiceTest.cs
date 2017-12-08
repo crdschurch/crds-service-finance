@@ -94,6 +94,31 @@ namespace Crossroads.Service.Finance.Test.Batches
         [Fact]
         public void ShouldUpdateDonationBatchObject()
         {
+            var batch = new DonationBatchDto
+            {
+                BatchTotalAmount = 20
+            };
+
+            var mpBatch = new MpDonationBatch
+            {
+                Id = 123,
+                BatchTotalAmount = 30
+            };
+
+            var batchnew = new DonationBatchDto
+            {
+                Id = 123,
+                BatchTotalAmount = 30,
+                DepositId = 12
+            };
+
+            _batchRepository.Setup(r => r.CreateDonationBatch(It.IsAny<MpDonationBatch>())).Returns(mpBatch);
+            _mapper.Setup(m => m.Map<MpDonationBatch>(It.IsAny<DonationBatchDto>())).Returns(mpBatch);
+            _mapper.Setup(m => m.Map<DonationBatchDto>(It.IsAny<MpDonationBatch>())).Returns(batchnew);
+
+            _fixture.UpdateDonationBatch(batch);
+
+            _batchRepository.Verify();
         }
     }
 }
