@@ -32,8 +32,8 @@ namespace Crossroads.Service.Finance.Services
 
             foreach (var updatedDonation in updatedDonations)
             {
-                if (updatedDonation.DonationStatusId == DonationStatus.Declined.GetHashCode() ||
-                    updatedDonation.DonationStatusId == DonationStatus.Refunded.GetHashCode())
+                if (updatedDonation.DonationStatusId != DonationStatus.Declined.GetHashCode() &&
+                    updatedDonation.DonationStatusId != DonationStatus.Refunded.GetHashCode())
                 {
                     updatedDonation.DonationStatusId = DonationStatus.Deposited.GetHashCode();
                 }

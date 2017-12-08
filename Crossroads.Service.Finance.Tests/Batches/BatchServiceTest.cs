@@ -19,6 +19,8 @@ namespace Crossroads.Service.Finance.Test.Batches
         private readonly Mock<IMapper> _mapper;
         private readonly Mock<IConfigurationWrapper> _configurationWrapper;
 
+        private readonly IBatchService _fixture;
+
         public BatchServiceTest()
         {
             _configurationWrapper = new Mock<IConfigurationWrapper>();
