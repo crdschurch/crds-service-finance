@@ -49,8 +49,6 @@ namespace Crossroads.Service.Finance.Services
                 // Add the charge amount to the batch total amount
                 batch.ItemCount++;
                 batch.BatchTotalAmount += decimal.Parse(charge.Amount.Amount);
-
-                // TODO: We don't want to save the list of donations on this batch - potentially clear out or ignore before save to avoid creating duplicate data
                 batch.Donations.Add(_mapper.Map<DonationDto>(mpDonation));
             }
 

@@ -18,7 +18,6 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("totalPages")]
         public int TotalPages { get; set; }
 
-        // TODO: Check the property name and type needed here
         [JsonProperty("items")]
         public List<PaymentProcessorChargeDto> items { get; set; }
     }

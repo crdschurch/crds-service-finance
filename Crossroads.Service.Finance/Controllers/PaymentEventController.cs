@@ -33,7 +33,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                //_logger.LogError($"Error processing settlement for settlement: {settlementEventDto.Key}, {ex.Message}, {ex.InnerException.ToString()}");
                 return StatusCode(400, ex);
             }
         }
