@@ -13,6 +13,7 @@ using MinistryPlatform.Repositories;
 using Pushpay;
 using Pushpay.Client;
 using RestSharp;
+using Pushpay.Token;
 
 namespace Crossroads.Service.Finance
 {
@@ -51,13 +52,6 @@ namespace Crossroads.Service.Finance
             // Dependency Injection
             CrossroadsWebCommonConfig.Register(services);
 
-            // TODO: Determine if we actually need these
-            //var oAuthBaseUrl = Environment.GetEnvironmentVariable("MP_OAUTH_BASE_URL");
-            //var mpRestUrl = Environment.GetEnvironmentVariable("MP_REST_API_ENDPOINT");
-
-            //// RESTSharp Rest Clients
-            //var mpRestClient = new RestClient(mpRestUrl);
-
             // Service Layer
             services.AddSingleton<IContactService, ContactService>();
             services.AddSingleton<IBatchService, BatchService>();
@@ -67,6 +61,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IPaymentEventService, PaymentEventService>();
             services.AddSingleton<IPushpayService, PushpayService>();
             services.AddSingleton<IPushpayClient, PushpayClient>();
+            services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
 
             // Repo Layer
             services.AddSingleton<IContactRepository, ContactRepository>();

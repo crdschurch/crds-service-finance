@@ -19,7 +19,7 @@ namespace Pushpay.Models
 
         // TODO: Check the property name and type needed here
         [JsonProperty("items")]
-        public List<PushpayPaymentProcessorChargeDto> items { get; set; }
+        public List<PushpayPaymentProcessorChargeDto> Items { get; set; }
 
     }
 }
