@@ -1,70 +1,74 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text;
-using Newtonsoft.Json;
+using System.Threading;
 using Pushpay.Models;
+using Pushpay.Token;
+using RestSharp;
 
-namespace Pushpay
+namespace Pushpay.Client
 {
-    public class PushpayClient
+    public class PushpayClient : IPushpayClient
     {
-        private HttpClient _httpClient;
         private string clientId = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_ID");
         private string clientSecret = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_SECRET");
-        private Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth/token");
+        private Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth");
+        private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
+        private readonly string donationsScope = "read merchant:view_payments";
 
-        public PushpayClient(HttpClient httpClient = null)
+        private readonly IPushpayTokenService _pushpayTokenService;
+        private readonly IRestClient _restClient;
+        private const int RequestsPerSecond = 10;
+        private const int RequestsPerMinute = 60;
+
+        public PushpayClient(IPushpayTokenService pushpayTokenService, IRestClient restClient = null)
         {
-            _httpClient = httpClient ?? new HttpClient();
+            _pushpayTokenService = pushpayTokenService;
+            _restClient = restClient ?? new RestClient();
         }
 
-        public IObservable<OAuth2TokenResponse> GetOAuthToken()
+        public PushpayPaymentsDto GetPushpayDonations(string settlementKey)
         {
-            return Observable.Create<OAuth2TokenResponse>(obs =>
+            var tokenResponse = _pushpayTokenService.GetOAuthToken(donationsScope).Wait();
+            _restClient.BaseUrl = apiUri;
+            var request = new RestRequest(Method.GET)
             {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(clientId + ":" + clientSecret)));
-                var tokenRequestMessage = new HttpRequestMessage(HttpMethod.Post, authUri);
+                Resource = $"settlement/{settlementKey}/payments"
+            };
+            request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
-                var body = new Dictionary<string, string> {
-                    {"grant_type", "client_credentials"},
-                    {"scope", "list_my_merchants merchant:manage_community_members merchant:view_community_members merchant:view_payments merchant:view_recurring_payments organization:manage_funds read"}
-                };
+            var response = _restClient.Execute<PushpayPaymentsDto>(request);
 
-                tokenRequestMessage.Content = new FormUrlEncodedContent(body);
-                var tokenresponse = _httpClient.SendAsync(tokenRequestMessage);
-                tokenresponse.Wait();
+            var paymentsDto = response.Data;
 
-                if (tokenresponse.Result.StatusCode == HttpStatusCode.OK)
+            // determine if we need to call again (multiple pages), then
+            // determine the delay needed to avoid hitting the rate limits for Pushpay
+            if (paymentsDto == null) {
+                throw new Exception($"Get Settlement from Pushpay not successful: {response.Content}");
+            }
+
+            var totalPages = paymentsDto.TotalPages;
+
+            if (totalPages > 1)
+            {
+                var delay = 0;
+                if (totalPages >= RequestsPerSecond && totalPages < RequestsPerMinute)
                 {
-                    var tokenJson = tokenresponse.Result.Content.ReadAsStringAsync();
-                    var tokens = JsonConvert.DeserializeObject<OAuth2TokenResponse>(tokenJson.Result);
-                    obs.OnNext(tokens);
-                    obs.OnCompleted();
-                } else {
-                    obs.OnError(new Exception("Authentication was not successful"));   
+                    delay = 150;
                 }
-                return Disposable.Empty;
-            });
-        }
+                else if (totalPages >= RequestsPerMinute)
+                {
+                    delay = 1000;
+                }
 
-        // this is an example of how we can get token for a call to pushpay
-        // TODO remove
-        public IObservable<bool> DoStuff()
-        {
-            var token = GetOAuthToken().Wait();
-            Console.WriteLine("token");
-            Console.WriteLine(token.AccessToken);
-            return Observable.Create<bool>(obs =>
-            {
-                obs.OnNext(true);
-                obs.OnCompleted();
-                return Disposable.Empty;
-            });
+                for (int i = 0; i < totalPages; i++)
+                {
+                    Thread.Sleep(delay);
+                    request.Resource = $"settlement/{settlementKey}/payments?page={i}";
+                    response = _restClient.Execute<PushpayPaymentsDto>(request);
+                    paymentsDto.Items.AddRange(response.Data.Items);
+                }   
+            }
+            return paymentsDto;
         }
 
     }

@@ -1,23 +1,25 @@
-﻿using System;
-using Crossroads.Service.Finance.Services.Interfaces;
-using Pushpay;
+﻿using AutoMapper;
+using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Models;
+using Pushpay.Client;
 
-namespace Crossroads.Service.Finance.Services.Pushpay
+namespace Crossroads.Service.Finance.Services
 {
     public class PushpayService : IPushpayService
     {
-        readonly PushpayClient _pushpayClient;
+        private readonly IPushpayClient _pushpayClient;
+        private readonly IMapper _mapper;
 
-        public PushpayService()
+        public PushpayService(IPushpayClient pushpayClient, IMapper mapper)
         {
-            _pushpayClient = new PushpayClient();
+            _pushpayClient = pushpayClient;
+            _mapper = mapper;
         }
 
-        // TODO replace
-        public Boolean DoStuff()
+        public PaymentsDto GetChargesForTransfer(string settlementKey)
         {
-            _pushpayClient.DoStuff();
-            return true;
+            var result = _pushpayClient.GetPushpayDonations(settlementKey);
+            return _mapper.Map<PaymentsDto>(result);
         }
 
     }

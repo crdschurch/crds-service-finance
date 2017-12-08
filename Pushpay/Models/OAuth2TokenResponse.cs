@@ -13,7 +13,7 @@ namespace Pushpay.Models
         public string TokenType { get; set; }
 
         [JsonProperty(PropertyName = "expires_in")]
-        public string ExpiresIn { get; set; }
+        public int ExpiresIn { get; set; }
 
         [JsonProperty(PropertyName = "refresh_token")]
         public string RefreshToken { get; set; }

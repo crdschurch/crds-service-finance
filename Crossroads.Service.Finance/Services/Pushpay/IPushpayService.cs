@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Crossroads.Service.Finance.Models;
 
-namespace Crossroads.Service.Finance.Services.Interfaces
+namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IPushpayService
     {
-        Boolean DoStuff();
+        PaymentsDto GetChargesForTransfer(string settlementKey);
     }
 }
