@@ -11,7 +11,6 @@ namespace Pushpay.Client
     {
         private string clientId = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_ID");
         private string clientSecret = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_SECRET");
-        private Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth");
         private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
 
