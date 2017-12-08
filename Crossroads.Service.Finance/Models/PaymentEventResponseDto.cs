@@ -10,8 +10,5 @@ namespace Crossroads.Service.Finance.Models
     {
         [JsonProperty("message")]
         public string Message { get; set; }
-
-        [JsonProperty("exception")]
-        public ApplicationException Exception { get; set; }
     }
 }

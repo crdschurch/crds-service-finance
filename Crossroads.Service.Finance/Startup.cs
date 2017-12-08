@@ -53,7 +53,6 @@ namespace Crossroads.Service.Finance
             CrossroadsWebCommonConfig.Register(services);
 
             // Service Layer
-            services.AddSingleton<IContactService, ContactService>();
             services.AddSingleton<IBatchService, BatchService>();
             services.AddSingleton<IDonationService, DonationService>();
             services.AddSingleton<IDepositService, DepositService>();
@@ -64,7 +63,6 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
 
             // Repo Layer
-            services.AddSingleton<IContactRepository, ContactRepository>();
             services.AddSingleton<IBatchRepository, BatchRepository>();
             services.AddSingleton<IDepositRepository, DepositRepository>();
             services.AddSingleton<IDonationRepository, DonationRepository>();

@@ -28,10 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Contacts\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MinistryPlatform\MinistryPlatform.csproj" />
   </ItemGroup>
 

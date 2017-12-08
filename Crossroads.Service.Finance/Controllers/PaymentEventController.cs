@@ -15,13 +15,6 @@ namespace Crossroads.Service.Finance.Controllers
             _paymentEventService = paymentEventService;
         }
 
-        [HttpGet]
-        [Route("hello")]
-        public IActionResult PaymentEventServiceHelloWorld()
-        {
-            return Ok("payment event service hello world");
-        }
-
         [HttpPost]
         [Route("settlement")]
         public IActionResult ProcessPaymentEvent([FromBody] SettlementEventDto settlementEventDto)
@@ -33,7 +26,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                //_logger.LogError($"Error processing settlement for settlement: {settlementEventDto.Key}, {ex.Message}, {ex.InnerException.ToString()}");
                 return StatusCode(400, ex);
             }
         }
