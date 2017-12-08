@@ -34,18 +34,7 @@ namespace Pushpay.Token
                 };
                 request.AddParameter("grant_type", "client_credentials");
                 request.AddParameter("scope", scope);
-
-
-                Console.Write("GetOAuthToken");
-                Console.Write(scope);
-                Console.Write(clientId);
-                Console.Write(clientSecret);
-                Console.Write(authUri);
-
                 IRestResponse response = _restClient.Execute(request);
-
-                Console.Write(response.StatusCode);
-                Console.Write(response.Content);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {

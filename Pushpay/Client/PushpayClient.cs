@@ -11,7 +11,6 @@ namespace Pushpay.Client
     {
         private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
-
         private readonly IPushpayTokenService _pushpayTokenService;
         private readonly IRestClient _restClient;
         private const int RequestsPerSecond = 10;
