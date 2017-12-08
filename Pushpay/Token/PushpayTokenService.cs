@@ -43,8 +43,6 @@ namespace Pushpay.Token
                 {
                     var tokenJson = response.Content;
                     var tokens = JsonConvert.DeserializeObject<OAuth2TokenResponse>(tokenJson);
-                    Console.WriteLine("tokens.AccessToken");
-                    Console.WriteLine(tokens.AccessToken);
                     obs.OnNext(tokens);
                     obs.OnCompleted();
                 }

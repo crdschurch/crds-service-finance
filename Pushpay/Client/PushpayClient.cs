@@ -37,9 +37,6 @@ namespace Pushpay.Client
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
             var response = _restClient.Execute<PushpayPaymentsDto>(request);
-            Console.WriteLine(response.StatusCode);
-            Console.WriteLine(response.Data);
-            Console.WriteLine(response.Content);
 
             var paymentsDto = response.Data;
 
