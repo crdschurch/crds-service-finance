@@ -58,7 +58,7 @@ namespace Pushpay.Token
                 }
                 else
                 {
-                    obs.OnError(new Exception($"Authentication was not successful {response.Content}"));
+                    obs.OnError(new Exception($"Authentication was not successful {response.StatusCode} {scope} {clientId} {clientSecret} {authUri} {response.Content}"));
                 }
                 return Disposable.Empty;
             });
