@@ -16,8 +16,6 @@ namespace Pushpay.Token
         private readonly Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth");
 
         private readonly IRestClient _restClient;
-        private const int RequestsPerSecond = 10;
-        private const int RequestsPerMinute = 60;
 
         public PushpayTokenService(IRestClient restClient = null)
         {
@@ -36,18 +34,7 @@ namespace Pushpay.Token
                 };
                 request.AddParameter("grant_type", "client_credentials");
                 request.AddParameter("scope", scope);
-
-
-                Console.Write("GetOAuthToken");
-                Console.Write(scope);
-                Console.Write(clientId);
-                Console.Write(clientSecret);
-                Console.Write(authUri);
-
                 IRestResponse response = _restClient.Execute(request);
-
-                Console.Write(response.StatusCode);
-                Console.Write(response.Content);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -58,7 +45,7 @@ namespace Pushpay.Token
                 }
                 else
                 {
-                    obs.OnError(new Exception($"Authentication was not successful {response.StatusCode} {scope} {clientId} {clientSecret} {authUri} {response.Content}"));
+                    obs.OnError(new Exception($"Authentication was not successful {response.StatusCode}"));
                 }
                 return Disposable.Empty;
             });
