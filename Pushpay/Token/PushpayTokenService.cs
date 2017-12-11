@@ -14,11 +14,8 @@ namespace Pushpay.Token
         private readonly string clientId = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_ID");
         private readonly string clientSecret = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_SECRET");
         private readonly Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth");
-        private readonly Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
 
         private readonly IRestClient _restClient;
-        private const int RequestsPerSecond = 10;
-        private const int RequestsPerMinute = 60;
 
         public PushpayTokenService(IRestClient restClient = null)
         {
@@ -43,8 +40,6 @@ namespace Pushpay.Token
                 {
                     var tokenJson = response.Content;
                     var tokens = JsonConvert.DeserializeObject<OAuth2TokenResponse>(tokenJson);
-                    Console.WriteLine("tokens.AccessToken");
-                    Console.WriteLine(tokens.AccessToken);
                     obs.OnNext(tokens);
                     obs.OnCompleted();
                 }

@@ -9,12 +9,8 @@ namespace Pushpay.Client
 {
     public class PushpayClient : IPushpayClient
     {
-        private string clientId = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_ID");
-        private string clientSecret = Environment.GetEnvironmentVariable("PUSHPAY_CLIENT_SECRET");
-        private Uri authUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_AUTH_ENDPOINT") ?? "https://auth.pushpay.com/pushpay-sandbox/oauth");
         private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
-
         private readonly IPushpayTokenService _pushpayTokenService;
         private readonly IRestClient _restClient;
         private const int RequestsPerSecond = 10;
@@ -37,9 +33,6 @@ namespace Pushpay.Client
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
             var response = _restClient.Execute<PushpayPaymentsDto>(request);
-            Console.WriteLine(response.StatusCode);
-            Console.WriteLine(response.Data);
-            Console.WriteLine(response.Content);
 
             var paymentsDto = response.Data;
 
