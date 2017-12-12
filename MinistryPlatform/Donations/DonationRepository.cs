@@ -40,5 +40,15 @@ namespace MinistryPlatform.Repositories
                 .Build()
                 .Update(donations);
         }
+
+        public MpDonation UpdateDonation(MpDonation donation)
+        {
+            var token = ApiUserRepository.GetDefaultApiUserToken();
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .Build()
+                .Update(donation);
+        }
     }
 }

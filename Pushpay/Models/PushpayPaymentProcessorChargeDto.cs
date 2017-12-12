@@ -1,18 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Pushpay.Models
 {
-    public class PushpayPaymentProcessorChargeDto
+    public class PushpayPaymentDto
     {
-        // TODO: Check the property name and type needed here
         [JsonProperty("status")]
         public string Status { get; set; }
 
+        [JsonProperty("settlement")]
+        public PushpaySettlementDto Settlement { get; set; }
+
         [JsonProperty("recurringPaymentToken")]
         public string RecurringPaymentToken { get; set; }
+
+        [JsonProperty("fund")]
+        public PushpayFundDto Fund{ get; set; }
 
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }

@@ -6,10 +6,13 @@ using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance.Models
 {
-    public class PaymentProcessorChargeDto
+    public class PaymentDto
     {
         [JsonProperty("status")]
         public string Status { get; set; }
+
+        [JsonProperty("settlement")]
+        public SettlementDto Settlement { get; set; }
 
         [JsonProperty("anticipatedPaymentToken")]
         public string AnticipatedPaymentToken { get; set; }

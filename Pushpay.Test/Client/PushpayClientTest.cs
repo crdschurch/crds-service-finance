@@ -1,4 +1,4 @@
-using Xunit;
+﻿using Xunit;
 using System.Net;
 using Moq;
 using RestSharp;
@@ -9,6 +9,7 @@ using Pushpay.Token;
 using Pushpay.Models;
 using System.Reactive.Linq;
 using System;
+using Crossroads.Service.Finance.Models;
 
 namespace Pushpay.Test
 {
@@ -39,8 +40,8 @@ namespace Pushpay.Test
         [Fact]
         public void GetPushpayDonationsTest()
         {
-            var items = new List<PushpayPaymentProcessorChargeDto>();
-            var item = new PushpayPaymentProcessorChargeDto()
+            var items = new List<PushpayPaymentDto>();
+            var item = new PushpayPaymentDto()
             {
                 Status = "pending"
             };
@@ -79,5 +80,17 @@ namespace Pushpay.Test
         // TODO
         //[Fact]
         //public void GetPushpayDonationsPagingTest() { }
+
+        [Fact]
+        public void UpdateDonationStatusTest()
+        {
+            _restClient.Setup(x => x.Execute<PushpayWebhook>(It.IsAny<IRestRequest>()))
+                    .Returns(new RestResponse<PushpayWebhook>()
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                });
+
+            Assert.Throws<Exception>(() => _fixture.GetPushpayDonations("settlement-key-123"));
+        }
     }
 }
