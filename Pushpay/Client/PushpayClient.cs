@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading;
 using Pushpay.Models;
@@ -67,5 +68,52 @@ namespace Pushpay.Client
             return paymentsDto;
         }
 
+        public List<PushpayDepositDto> GetDepositByDateRange(DateTime startDate, DateTime endDate)
+        {
+            var tokenResponse = _pushpayTokenService.GetOAuthToken(donationsScope).Wait();
+            _restClient.BaseUrl = apiUri;
+            var request = new RestRequest(Method.GET)
+            {
+                Resource = $"settlement/settlements?startDate={startDate}&endDate={endDate}"
+            };
+            request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
+
+            // TODO: Verify that this will give us a list or otherwise how this comes back
+            var response = _restClient.Execute<List<PushpayDepositDto>>(request);
+
+            var pushpayDepositDtos = response.Data;
+
+            // determine if we need to call again (multiple pages), then
+            // determine the delay needed to avoid hitting the rate limits for Pushpay
+            if (pushpayDepositDtos == null)
+            {
+                throw new Exception($"Get Settlement from Pushpay not successful: {response.Content}");
+            }
+
+            var totalPages = pushpayDepositDtos[0].TotalPages;
+
+            if (totalPages > 1)
+            {
+                var delay = 0;
+                if (totalPages >= RequestsPerSecond && totalPages < RequestsPerMinute)
+                {
+                    delay = 150;
+                }
+                else if (totalPages >= RequestsPerMinute)
+                {
+                    delay = 1000;
+                }
+
+                for (int i = 0; i < totalPages; i++)
+                {
+                    Thread.Sleep(delay);
+                    request.Resource = $"settlement/settlements?startDate={startDate}&endDate={endDate}?page={i}";
+                    response = _restClient.Execute<List<PushpayDepositDto>>(request);
+                    pushpayDepositDtos.AddRange(response.Data);
+                }
+            }
+
+            return pushpayDepositDtos;
+        }
     }
 }

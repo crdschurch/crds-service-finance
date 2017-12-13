@@ -114,5 +114,19 @@ namespace Crossroads.Service.Finance.Test.Deposits
             Assert.Equal(processorTransferId, result.ProcessorTransferId);
         }
 
+        [Fact]
+        public void ShouldGetDepositsToSync()
+        {
+            // Arrange
+            var startDate = new DateTime(2017, 12, 6);
+            var endDate = new DateTime(2017, 12, 13);
+
+            // Act
+            var result = _fixture.GetDepositsForSync(startDate, endDate);
+
+            // Assert
+            Assert.NotNull(result);
+        }
+
     }
 }

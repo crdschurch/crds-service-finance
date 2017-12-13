@@ -17,5 +17,6 @@ public class MappingProfile : Profile
         CreateMap<PushpayLinkDto, LinkDto>();
         CreateMap<PushpayPaymentProcessorChargeDto, PaymentProcessorChargeDto>();
         CreateMap<PushpayPaymentsDto, PaymentsDto>();
+        CreateMap<PushpayDepositDto, DepositDto>();
     }
 }

@@ -1,7 +1,10 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Pushpay.Client;
+using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -22,5 +25,10 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<PaymentsDto>(result);
         }
 
+        public List<DepositDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
+        {
+            var result = _pushpayClient.GetDepositByDateRange(startDate, endDate);
+            return _mapper.Map<List<DepositDto>>(result);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
@@ -47,6 +48,28 @@ namespace Crossroads.Service.Finance.Services
         public DepositDto GetDepositByProcessorTransferId(string key)
         {
             return _mapper.Map<DepositDto>(_depositRepository.GetDepositByProcessorTransferId(key));
+        }
+
+        // this will pull desposits by a date range and determine which ones we need to create in the system
+        public void SyncDeposits()
+        {
+            // need to:
+            // 1. Verify that these are inclusive of the specified day, not less than or greater than
+            // 2. Determine the date range that makes sense here
+            var startDate = DateTime.Now.AddDays(-7);
+            var endDate = DateTime.Now;
+
+            var depositDtos = GetDepositsForSync(startDate, endDate);
+        }
+
+        public List<DepositDto> GetDepositsForSync(DateTime startDate, DateTime endDate)
+        {
+            return null;
+        }
+
+        public void SyncDeposits(List<DepositDto> deposits)
+        {
+            
         }
     }
 }

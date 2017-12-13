@@ -79,5 +79,34 @@ namespace Pushpay.Test
         // TODO
         //[Fact]
         //public void GetPushpayDonationsPagingTest() { }
+
+        [Fact]
+        public void ShouldGetDepositsByDateRange()
+        {
+            // Arrange
+            var startDate = new DateTime(2017, 12, 6);
+            var endDate = new DateTime(2017, 12, 13);
+
+            var mockPushPayDepositDtos = new List<PushpayDepositDto>
+            {
+                new PushpayDepositDto
+                {
+                    TotalPages = 1
+                }
+            };
+
+            _restClient.Setup(x => x.Execute<List<PushpayDepositDto>>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<List<PushpayDepositDto>>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Data = mockPushPayDepositDtos
+                });
+
+            // Act
+            var result = _fixture.GetDepositByDateRange(startDate, endDate);
+
+            // Assert
+            Assert.NotNull(result);
+        }
     }
 }
