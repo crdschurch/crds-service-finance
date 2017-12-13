@@ -1,4 +1,4 @@
-# crds-service-template
+# crds-service-finance
 
 Finance for Micro-Services in dotnet core
 

@@ -1,6 +1,8 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
+using Crossroads.Web.Common.Configuration;
 using Pushpay.Client;
 using Pushpay.Models;
 
@@ -11,12 +13,16 @@ namespace Crossroads.Service.Finance.Services
         private readonly IPushpayClient _pushpayClient;
         private readonly IDonationService _donationService;
         private readonly IMapper _mapper;
+        private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
 
-        public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper)
+        public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper, IConfigurationWrapper configurationWrapper)
         {
             _pushpayClient = pushpayClient;
             _donationService = donationService;
             _mapper = mapper;
+            _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
+            _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
+            _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
         }
 
         public PaymentsDto GetChargesForTransfer(string settlementKey)
@@ -31,14 +37,24 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<PaymentDto>(result);
         }
 
-        public PaymentDto UpdatePayment(PushpayWebhook webhook)
+        public DonationDto UpdateDonationStatusFromPushpay(PushpayWebhook webhook)
         {
             var pushpayPayment = _pushpayClient.GetPayment(webhook);
             var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
-            // TODO update payment stuff
+            if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
+            {
+                donation.DonationStatusId = _mpDonationStatusPending;
+            }
+            else if (pushpayPayment.IsStatusSuccess)
+            {
+                donation.DonationStatusId = _mpDonationStatusSucceeded;
 
-            var updatedDonation = _donationService.UpdateDonation(donation);
-            return _mapper.Map<PaymentDto>(updatedDonation);
+            }
+            else if (pushpayPayment.IsStatusFailed)
+            {
+                donation.DonationStatusId = _mpDonationStatusDeclined;
+            }
+            return _donationService.UpdateDonation(donation);
         }
     }
 }
