@@ -90,7 +90,7 @@ namespace MinistryPlatform.Test.Donations
             _request.Setup(m => m.Update(It.IsAny<List<MpDonation>>())).Returns(mpDonations);
 
             // Act
-            var result = _fixture.UpdateDonations(mpDonations);
+            var result = _fixture.Update(mpDonations);
 
             // Assert
             Assert.Single(result);

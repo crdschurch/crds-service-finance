@@ -6,8 +6,8 @@ namespace Crossroads.Service.Finance.Interfaces
     public interface IDonationService
     {
         List<DonationDto> SetDonationStatus(List<DonationDto> donations, int batchId);
-        DonationDto UpdateDonation(DonationDto donation);
-        List<DonationDto> UpdateDonations(List<DonationDto> donations);
+        DonationDto Update(DonationDto donation);
+        List<DonationDto> Update(List<DonationDto> donations);
         DonationDto GetDonationByTransactionCode(string transactionCode);
     }
 }

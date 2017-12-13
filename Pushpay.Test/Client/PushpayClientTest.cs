@@ -82,15 +82,9 @@ namespace Pushpay.Test
         //public void GetPushpayDonationsPagingTest() { }
 
         [Fact]
-        public void UpdateDonationStatusTest()
+        public void GetPaymentTest()
         {
-            _restClient.Setup(x => x.Execute<PushpayWebhook>(It.IsAny<IRestRequest>()))
-                    .Returns(new RestResponse<PushpayWebhook>()
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                });
-
-            Assert.Throws<Exception>(() => _fixture.GetPushpayDonations("settlement-key-123"));
+            Assert.True(false);
         }
     }
 }

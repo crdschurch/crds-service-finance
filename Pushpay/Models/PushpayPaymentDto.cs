@@ -25,8 +25,6 @@ namespace Pushpay.Models
         [JsonProperty("amount")]
         public PushpayAmountDto Amount { get; set; }
 
-
-
         public bool IsStatusSuccess {
             get {
                 return Status == PushpayPaymentStatus.Success;

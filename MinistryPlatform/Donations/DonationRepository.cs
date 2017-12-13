@@ -31,20 +31,18 @@ namespace MinistryPlatform.Repositories
             return donations.FirstOrDefault();
         }
 
-        public List<MpDonation> UpdateDonations(List<MpDonation> donations)
+        public List<MpDonation> Update(List<MpDonation> donations)
         {
             var token = ApiUserRepository.GetDefaultApiUserToken();
-
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
                 .Update(donations);
         }
 
-        public MpDonation UpdateDonation(MpDonation donation)
+        public MpDonation Update(MpDonation donation)
         {
             var token = ApiUserRepository.GetDefaultApiUserToken();
-
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()

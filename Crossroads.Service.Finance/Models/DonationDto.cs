@@ -13,7 +13,7 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("amount")]
         public string DonationAmt { get; set; }
 
-        [JsonProperty("status_id"), JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty("status_id")]
         public int DonationStatusId { get; set; }
 
         [JsonProperty("date_status_date")]

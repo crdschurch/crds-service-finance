@@ -19,16 +19,14 @@ namespace Crossroads.Service.Finance.Controllers
         [Route("payment/status")]
         public IActionResult PaymentStatusUpdate([FromBody] PushpayWebhook pushpayWebhook)
         {
-            _pushpayService.UpdateDonationStatusFromPushpay(pushpayWebhook);
-            return Ok();
+            return Ok(_pushpayService.UpdateDonationStatusFromPushpay(pushpayWebhook));
         }
 
         [HttpPost]
         [Route("payment/created")]
         public IActionResult PaymentCreated([FromBody] PushpayWebhook pushpayWebhook)
         {
-            _pushpayService.UpdateDonationStatusFromPushpay(pushpayWebhook);
-            return Ok();
+            return Ok(_pushpayService.UpdateDonationStatusFromPushpay(pushpayWebhook));
         }
     }
 }

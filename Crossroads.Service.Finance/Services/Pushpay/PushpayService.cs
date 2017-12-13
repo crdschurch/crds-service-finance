@@ -54,7 +54,8 @@ namespace Crossroads.Service.Finance.Services
             {
                 donation.DonationStatusId = _mpDonationStatusDeclined;
             }
-            return _donationService.UpdateDonation(donation);
+            _donationService.Update(donation);
+            return donation;
         }
     }
 }
