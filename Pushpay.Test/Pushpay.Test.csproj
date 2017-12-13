@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pushpay\Pushpay.csproj" />
+    <ProjectReference Include="..\Mock\Mock.csproj" />
   </ItemGroup>
 </Project>

@@ -84,6 +84,12 @@ namespace Pushpay.Test
         [Fact]
         public void GetPaymentTest()
         {
+            var webhook = Mock.PushpayStatusChangeRequestMock.Create();
+            // TODO mock stuff
+
+            _fixture.GetPayment(webhook);
+
+            // TODO assert stuff
             Assert.True(false);
         }
     }

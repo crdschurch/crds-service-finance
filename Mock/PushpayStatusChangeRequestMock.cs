@@ -4,7 +4,7 @@ using Crossroads.Service.Finance.Models;
 
 namespace Mock
 {
-    public class PushpayStatusChangeRequest
+    public class PushpayStatusChangeRequestMock
     {
         public static PushpayWebhook Create() =>
             new PushpayWebhook()
