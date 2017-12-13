@@ -5,11 +5,15 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MinistryPlatform.Repositories;
 using AutoMapper;
-using Crossroads.Service.Finance.Services.Interfaces;
+using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
-using Crossroads.Service.Finance.Services.Contact;
+using MinistryPlatform.Repositories;
+using Pushpay;
+using Pushpay.Client;
+using RestSharp;
+using Pushpay.Token;
 
 namespace Crossroads.Service.Finance
 {
@@ -49,10 +53,19 @@ namespace Crossroads.Service.Finance
             CrossroadsWebCommonConfig.Register(services);
 
             // Service Layer
-            services.AddSingleton<IContactService, ContactService>();
+            services.AddSingleton<IBatchService, BatchService>();
+            services.AddSingleton<IDonationService, DonationService>();
+            services.AddSingleton<IDepositService, DepositService>();
+
+            services.AddSingleton<IPaymentEventService, PaymentEventService>();
+            services.AddSingleton<IPushpayService, PushpayService>();
+            services.AddSingleton<IPushpayClient, PushpayClient>();
+            services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
 
             // Repo Layer
-            services.AddSingleton<IContactRepository, ContactRepository>();
+            services.AddSingleton<IBatchRepository, BatchRepository>();
+            services.AddSingleton<IDepositRepository, DepositRepository>();
+            services.AddSingleton<IDonationRepository, DonationRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
