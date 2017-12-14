@@ -6,20 +6,25 @@ using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
+using RestSharp;
 
 namespace Crossroads.Service.Finance.Services
 {
     public class DepositService : IDepositService
     {
+        // TODO: Replace with int micro service url
+        private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("FINANCE_MS_ENDPOINT") ?? "http://localhost:62545/api/");
         private readonly IDepositRepository _depositRepository;
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
+        private readonly IRestClient _restClient;
 
-        public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService)
+        public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, IRestClient restClient)
         {
             _depositRepository = depositRepository;
             _mapper = mapper;
             _pushpayService = pushpayService;
+            _restClient = restClient;
         }
 
         public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName)
@@ -90,7 +95,19 @@ namespace Crossroads.Service.Finance.Services
 
         public void SyncDeposits(List<DepositDto> deposits)
         {
-            
+            _restClient.BaseUrl = apiUri;
+
+            foreach (var deposit in deposits)
+            {
+                //var request = new RestRequest(Method.POST)
+                //{
+                //    Resource = $"paymentevent/settlement"
+                //};
+
+                //request.AddBody(deposit);
+
+                //var response = _restClient.Execute(request);
+            }
         }
 
         // TODO: Consider merging this with the single call to get a deposit

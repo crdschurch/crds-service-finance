@@ -9,6 +9,7 @@ using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Xunit;
 using Moq;
+using RestSharp;
 
 namespace Crossroads.Service.Finance.Test.Deposits
 {
@@ -17,6 +18,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
         private readonly Mock<IDepositRepository> _depositRepository;
         private readonly Mock<IMapper> _mapper;
         private readonly Mock<IPushpayService> _pushpayService;
+        private readonly Mock<IRestClient> _restClient;
 
         private readonly IDepositService _fixture;
 
@@ -25,8 +27,9 @@ namespace Crossroads.Service.Finance.Test.Deposits
             _depositRepository = new Mock<IDepositRepository>();
             _mapper = new Mock<IMapper>();
             _pushpayService = new Mock<IPushpayService>();
+            _restClient = new Mock<IRestClient>();
 
-            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object);
+            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _restClient.Object);
         }
 
         [Fact]
@@ -125,10 +128,15 @@ namespace Crossroads.Service.Finance.Test.Deposits
 
             var depositDtos = new List<DepositDto>
             {
-                new DepositDto()
+                new DepositDto
+                {
+                    ProcessorTransferId = "111bbb222aaa"
+                }
             };
 
             _pushpayService.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(depositDtos);
+            _depositRepository.Setup(m => m.GetDepositsByTransferIds(It.IsAny<List<string>>()))
+                .Returns(new List<MpDeposit>());
 
             // Act
             var result = _fixture.GetDepositsForSync(startDate, endDate);
