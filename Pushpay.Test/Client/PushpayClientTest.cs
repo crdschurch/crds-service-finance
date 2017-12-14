@@ -67,7 +67,8 @@ namespace Pushpay.Test
         }
 
         [Fact]
-        public void GetPushpayDonationsSettlementDoesntExistTest() {
+        public void GetPushpayDonationsSettlementDoesntExistTest()
+        {
             _restClient.Setup(x => x.Execute<PushpayPaymentsDto>(It.IsAny<IRestRequest>()))
                 .Returns(new RestResponse<PushpayPaymentsDto>()
                 {
@@ -84,13 +85,31 @@ namespace Pushpay.Test
         [Fact]
         public void GetPaymentTest()
         {
+            var status = "pending";
             var webhook = Mock.PushpayStatusChangeRequestMock.Create();
-            // TODO mock stuff
+            _restClient.Setup(x => x.Execute<PushpayPaymentDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayPaymentDto>()
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Data = new PushpayPaymentDto()
+                    {
+                        Status = status
+                    }
+                });
 
-            _fixture.GetPayment(webhook);
+            var result =  _fixture.GetPayment(webhook);
 
-            // TODO assert stuff
-            Assert.True(false);
+            Assert.Equal("pending", result.Status);
+        }
+
+        [Fact]
+        public void GetPaymentNullTest()
+        {
+            var webhook = Mock.PushpayStatusChangeRequestMock.Create();
+            _restClient.Setup(x => x.Execute<PushpayPaymentDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayPaymentDto>(){});
+
+            Assert.Throws<Exception>(() => _fixture.GetPayment(webhook));
         }
     }
 }
