@@ -12,5 +12,6 @@ namespace Crossroads.Service.Finance.Interfaces
         void SyncDeposits();
         List<DepositDto> GetDepositsForSync(DateTime startDate, DateTime endDate);
         void SyncDeposits(List<DepositDto> deposits);
+        List<DepositDto> GetDepositsByTransferIds(List<string> transferIds);
     }
 }

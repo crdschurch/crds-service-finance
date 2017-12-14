@@ -16,6 +16,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
     {
         private readonly Mock<IDepositRepository> _depositRepository;
         private readonly Mock<IMapper> _mapper;
+        private readonly Mock<IPushpayService> _pushpayService;
 
         private readonly IDepositService _fixture;
 
@@ -23,8 +24,9 @@ namespace Crossroads.Service.Finance.Test.Deposits
         {
             _depositRepository = new Mock<IDepositRepository>();
             _mapper = new Mock<IMapper>();
+            _pushpayService = new Mock<IPushpayService>();
 
-            _fixture = new DepositService(_depositRepository.Object, _mapper.Object);
+            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object);
         }
 
         [Fact]
@@ -121,6 +123,13 @@ namespace Crossroads.Service.Finance.Test.Deposits
             var startDate = new DateTime(2017, 12, 6);
             var endDate = new DateTime(2017, 12, 13);
 
+            var depositDtos = new List<DepositDto>
+            {
+                new DepositDto()
+            };
+
+            _pushpayService.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(depositDtos);
+
             // Act
             var result = _fixture.GetDepositsForSync(startDate, endDate);
 
@@ -128,5 +137,24 @@ namespace Crossroads.Service.Finance.Test.Deposits
             Assert.NotNull(result);
         }
 
+        [Fact]
+        public void ShouldPullExistingDepositsByTransferIdsFromDepositRepo()
+        {
+            // Arrange
+            var transferIds = new List<string>
+            {
+                "111aaa222bbb",
+                "333ddd444ccc"
+            };
+
+            _mapper.Setup(m => m.Map<List<DepositDto>>(It.IsAny<List<MpDeposit>>())).Returns(new List<DepositDto>());
+            _depositRepository.Setup(m => m.GetDepositsByTransferIds(transferIds)).Returns(new List<MpDeposit>());
+
+            // Act
+            var result = _fixture.GetDepositsByTransferIds(transferIds);
+
+            // Assert
+            Assert.NotNull(result);
+        }
     }
 }

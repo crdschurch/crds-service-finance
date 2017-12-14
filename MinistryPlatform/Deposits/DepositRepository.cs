@@ -45,5 +45,20 @@ namespace MinistryPlatform.Repositories
 
             return deposits.FirstOrDefault();
         }
+
+        public List<MpDeposit> GetDepositsByTransferIds(List<string> transferIds)
+        {
+            var token = ApiUserRepository.GetDefaultApiUserToken();
+
+            var filter = $"Processor_Transfer_ID IN '(" + string.Join(',', transferIds )+ ")'";
+
+            var deposits = MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .Build()
+                .Search<MpDeposit>();
+
+            return deposits;
+        }    
     }
 }

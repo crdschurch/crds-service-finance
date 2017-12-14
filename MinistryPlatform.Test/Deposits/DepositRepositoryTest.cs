@@ -70,5 +70,32 @@ namespace MinistryPlatform.Test.Deposits
             // Assert
             Assert.Equal(processorTransferId, result.ProcessorTransferId);
         }
+
+
+        [Fact]
+        public void ShouldGetDepositsByTransferIds()
+        {
+            // Arrange
+            var transferIds = new List<string>
+            {
+                "111aaa222bbb",
+                "333ccc444ddd"
+            };
+
+            var filter = $"Processor_Transfer_ID IN '(" + string.Join(',', transferIds) + ")'";
+            _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpDeposit>()).Returns(new List<MpDeposit>());
+
+            // Act
+            var result = _fixture.GetDepositsByTransferIds(transferIds);
+
+            // Assert
+            Assert.NotNull(result);
+        }
     }
 }
