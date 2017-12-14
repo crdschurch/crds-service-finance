@@ -1,4 +1,4 @@
-using Xunit;
+﻿using Xunit;
 using System.Net;
 using Moq;
 using RestSharp;
@@ -9,6 +9,7 @@ using Pushpay.Token;
 using Pushpay.Models;
 using System.Reactive.Linq;
 using System;
+using Crossroads.Service.Finance.Models;
 
 namespace Pushpay.Test
 {
@@ -39,8 +40,8 @@ namespace Pushpay.Test
         [Fact]
         public void GetPushpayDonationsTest()
         {
-            var items = new List<PushpayPaymentProcessorChargeDto>();
-            var item = new PushpayPaymentProcessorChargeDto()
+            var items = new List<PushpayPaymentDto>();
+            var item = new PushpayPaymentDto()
             {
                 Status = "pending"
             };
@@ -66,7 +67,8 @@ namespace Pushpay.Test
         }
 
         [Fact]
-        public void GetPushpayDonationsSettlementDoesntExistTest() {
+        public void GetPushpayDonationsSettlementDoesntExistTest()
+        {
             _restClient.Setup(x => x.Execute<PushpayPaymentsDto>(It.IsAny<IRestRequest>()))
                 .Returns(new RestResponse<PushpayPaymentsDto>()
                 {
@@ -79,5 +81,35 @@ namespace Pushpay.Test
         // TODO
         //[Fact]
         //public void GetPushpayDonationsPagingTest() { }
+
+        [Fact]
+        public void GetPaymentTest()
+        {
+            var status = "pending";
+            var webhook = Mock.PushpayStatusChangeRequestMock.Create();
+            _restClient.Setup(x => x.Execute<PushpayPaymentDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayPaymentDto>()
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Data = new PushpayPaymentDto()
+                    {
+                        Status = status
+                    }
+                });
+
+            var result =  _fixture.GetPayment(webhook);
+
+            Assert.Equal("pending", result.Status);
+        }
+
+        [Fact]
+        public void GetPaymentNullTest()
+        {
+            var webhook = Mock.PushpayStatusChangeRequestMock.Create();
+            _restClient.Setup(x => x.Execute<PushpayPaymentDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayPaymentDto>(){});
+
+            Assert.Throws<Exception>(() => _fixture.GetPayment(webhook));
+        }
     }
 }

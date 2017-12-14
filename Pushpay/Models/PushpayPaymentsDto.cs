@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Pushpay.Models
@@ -17,9 +15,8 @@ namespace Pushpay.Models
         [JsonProperty("totalPages")]
         public int TotalPages { get; set; }
 
-        // TODO: Check the property name and type needed here
         [JsonProperty("items")]
-        public List<PushpayPaymentProcessorChargeDto> Items { get; set; }
+        public List<PushpayPaymentDto> Items { get; set; }
 
     }
 }

@@ -27,7 +27,7 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // This function creates the batch in MP, then returns the object so that the deposit can be added to the batch
-        public DonationBatchDto CreateDonationBatch(List<PaymentProcessorChargeDto> charges, string depositName, 
+        public DonationBatchDto CreateDonationBatch(List<PaymentDto> charges, string depositName, 
             DateTime eventTimestamp, string transferKey)
         {
             var batch = new DonationBatchDto()

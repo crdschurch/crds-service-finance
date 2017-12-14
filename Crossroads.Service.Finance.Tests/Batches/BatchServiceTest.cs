@@ -36,7 +36,7 @@ namespace Crossroads.Service.Finance.Test.Batches
         {
             var timestamp = DateTime.Now;
             var donationsMock = MpDonationsMock.CreateList();
-            var chargesMock = PaymentProcessorChargeDtoMock.CreateList();
+            var chargesMock = PaymentDtoMock.CreateList();
             var expectedBatch = new DonationBatchDto
             {
                 BatchName = "depositName",

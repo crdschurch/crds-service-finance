@@ -23,6 +23,6 @@ namespace Crossroads.Service.Finance.Models
         //
         // ReSharper disable once InconsistentNaming
         [JsonProperty("items")]
-        public List<PaymentProcessorChargeDto> items { get; set; }
+        public List<PaymentDto> items { get; set; }
     }
 }

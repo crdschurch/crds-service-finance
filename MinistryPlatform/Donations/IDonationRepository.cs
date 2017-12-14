@@ -8,6 +8,7 @@ namespace MinistryPlatform.Interfaces
     public interface IDonationRepository
     {
         MpDonation GetDonationByTransactionCode(string transactionCode); // theoretically on settlement as transactionid
-        List<MpDonation> UpdateDonations(List<MpDonation> donations);
+        List<MpDonation> Update(List<MpDonation> donations);
+        MpDonation Update(MpDonation donation);
     }
 }

@@ -92,10 +92,10 @@ namespace Crossroads.Service.Finance.Test.Donations
 
             _mapper.Setup(m => m.Map<List<MpDonation>>(It.IsAny<List<DonationDto>>())).Returns(mpDonations);
             _mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationDtos);
-            _donationRepository.Setup(m => m.UpdateDonations(It.IsAny<List<MpDonation>>())).Returns(mpDonations);
+            _donationRepository.Setup(m => m.Update(It.IsAny<List<MpDonation>>())).Returns(mpDonations);
 
             // Act
-            var result = _fixture.UpdateDonations(donationDtos);
+            var result = _fixture.Update(donationDtos);
             
             // Assert
             Assert.NotNull(result);
