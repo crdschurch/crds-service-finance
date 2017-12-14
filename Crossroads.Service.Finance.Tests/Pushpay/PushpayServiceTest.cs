@@ -33,7 +33,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         public void ShouldUpdateDonationStatusPendingFromPushpay()
         {
             string transactionCode = "87234354pending";
-            var webhookMock = Mock.PushpayStatusChangeRequest.Create();
+            var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
             _pushplayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateProcessing());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
 
@@ -47,7 +47,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         public void ShouldUpdateDonationStatusSuccessFromPushpay()
         {
             string transactionCode = "87234354v";
-            var webhookMock = Mock.PushpayStatusChangeRequest.Create();
+            var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
             _pushplayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateSuccess());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
 
@@ -61,7 +61,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         public void ShouldUpdateDonationStatusDeclinedFromPushpay()
         {
             string transactionCode = "87234354v";
-            var webhookMock = Mock.PushpayStatusChangeRequest.Create();
+            var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
             _pushplayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateFailed());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
 
