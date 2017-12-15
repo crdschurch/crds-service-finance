@@ -28,7 +28,12 @@ namespace MinistryPlatform.Repositories
                                 .Build()
                                 .Search<MpDonation>();
 
-            return donations.FirstOrDefault();
+            if(!donations.Any())
+            {
+                throw new Exception($"Donation does not exist for transaction code: {transactionCode}");
+            }
+
+            return donations.First();
         }
 
         public List<MpDonation> Update(List<MpDonation> donations)
