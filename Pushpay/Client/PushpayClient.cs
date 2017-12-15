@@ -90,13 +90,16 @@ namespace Pushpay.Client
             return paymentDto;
         }
 
-	public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
-        {
+	    public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
+	    {
+	        var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+	        endDate = endDate.ToUniversalTime();
+
             var tokenResponse = _pushpayTokenService.GetOAuthToken(donationsScope).Wait();
             _restClient.BaseUrl = apiUri;
             var request = new RestRequest(Method.GET)
             {
-                Resource = $"settlements?startDate={startDate}&endDate={endDate}"
+                Resource = $"settlements?depositFrom={modStartDate}"
             };
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
@@ -128,7 +131,7 @@ namespace Pushpay.Client
                 for (int i = 0; i < totalPages; i++)
                 {
                     Thread.Sleep(delay);
-                    request.Resource = $"settlement/settlements?startDate={startDate}&endDate={endDate}?page={i}";
+                    request.Resource = $"settlement/settlements?depositFrom={modStartDate}&page={i}";
                     response = _restClient.Execute<PushpaySettlementResponseDto>(request);
                     pushpayDepositDtos.AddRange(response.Data.items);
                 }
