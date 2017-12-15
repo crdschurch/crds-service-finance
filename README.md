@@ -1,4 +1,4 @@
-# crds-service-template
+# crds-service-finance
 
 Finance for Micro-Services in dotnet core
 
@@ -19,6 +19,10 @@ API_PASSWORD=
 MP_OAUTH_BASE_URL=
 MP_REST_API_ENDPOINT=
 CRDS_MP_COMMON_CLIENT_ID=
+PUSHPAY_CLIENT_ID=
+PUSHPAY_CLIENT_SECRET=
+PUSHPAY_AUTH_ENDPOINT=
+PUSHPAY_API_ENDPOINT=
 ```
 
 ### Running the app

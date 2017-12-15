@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
@@ -11,7 +11,7 @@ namespace Pushpay.Models
         public string Key { get; set; }
 
         [JsonProperty("name")]
-        public string AccountNumber { get; set; }
+        public string Name { get; set; }
 
         [JsonProperty("totalAmount")]
         public PushpayAmountDto TotalAmount { get; set; }

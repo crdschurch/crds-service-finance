@@ -15,7 +15,7 @@ public class MappingProfile : Profile
         CreateMap<DonationDto, MpDonation>();
         CreateMap<PushpayAmountDto, AmountDto>();
         CreateMap<PushpayLinkDto, LinkDto>();
-        CreateMap<PushpayPaymentProcessorChargeDto, PaymentProcessorChargeDto>();
+        CreateMap<PushpayPaymentDto, PaymentDto>();
         CreateMap<PushpayPaymentsDto, PaymentsDto>();
         CreateMap<PushpaySettlementDto, SettlementEventDto>();
     }

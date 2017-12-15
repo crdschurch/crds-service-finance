@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading;
+using Crossroads.Service.Finance.Models;
 using Pushpay.Models;
 using Pushpay.Token;
 using RestSharp;
@@ -68,7 +69,28 @@ namespace Pushpay.Client
             return paymentsDto;
         }
 
-        public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
+        public PushpayPaymentDto GetPayment(PushpayWebhook webhook)
+        {
+            _restClient.BaseUrl = new Uri(webhook.Events[0].Links.Payment);
+            var token = _pushpayTokenService.GetOAuthToken(donationsScope).Wait().AccessToken;
+            var request = new RestRequest(Method.GET);
+            request.AddParameter("Authorization", string.Format("Bearer " + token), ParameterType.HttpHeader);
+
+            var response = _restClient.Execute<PushpayPaymentDto>(request);
+
+            var paymentDto = response.Data;
+
+            // determine if we need to call again (multiple pages), then
+            // determine the delay needed to avoid hitting the rate limits for Pushpay
+            if (paymentDto == null)
+            {
+                throw new Exception($"Get Payment from Pushpay not successful: {response.Content}");
+            }
+
+            return paymentDto;
+        }
+
+	public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
         {
             var tokenResponse = _pushpayTokenService.GetOAuthToken(donationsScope).Wait();
             _restClient.BaseUrl = apiUri;
@@ -115,5 +137,6 @@ namespace Pushpay.Client
 
             return pushpayDepositDtos;
         }
+
     }
 }

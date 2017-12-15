@@ -6,7 +6,7 @@ namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IBatchService
     {
-        DonationBatchDto CreateDonationBatch(List<PaymentProcessorChargeDto> charges, string depositName, DateTime eventTimestamp, string transferKey);
+        DonationBatchDto CreateDonationBatch(List<PaymentDto> charges, string depositName, DateTime eventTimestamp, string transferKey);
         DonationBatchDto SaveDonationBatch(DonationBatchDto donationBatchDto);
         void UpdateDonationBatch(DonationBatchDto donationBatchDto);
     }
