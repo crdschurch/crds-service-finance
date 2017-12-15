@@ -123,13 +123,5 @@ namespace Crossroads.Service.Finance.Services
                 var response = _restClient.Execute(request);
             }
         }
-
-        // TODO: Consider merging this with the single call to get a deposit
-        public List<DepositDto> GetDepositsByTransferIds(List<string> transferIds)
-        {
-            var mpDepositDtos = _depositRepository.GetDepositsByTransferIds(transferIds);
-            var depositDtos = _mapper.Map<List<DepositDto>>(mpDepositDtos);
-            return depositDtos;
-        }
     }
 }

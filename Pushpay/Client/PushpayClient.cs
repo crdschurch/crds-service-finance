@@ -100,7 +100,6 @@ namespace Pushpay.Client
             };
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
-            // TODO: Verify that this will give us a list or otherwise how this comes back
             var response = _restClient.Execute<PushpaySettlementResponseDto>(request);
 
             var pushpayDepositDtos = response.Data.items;

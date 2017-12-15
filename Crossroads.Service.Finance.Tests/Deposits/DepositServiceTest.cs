@@ -147,25 +147,5 @@ namespace Crossroads.Service.Finance.Test.Deposits
             // Assert
             Assert.NotNull(result);
         }
-
-        [Fact]
-        public void ShouldPullExistingDepositsByTransferIdsFromDepositRepo()
-        {
-            // Arrange
-            var transferIds = new List<string>
-            {
-                "111aaa222bbb",
-                "333ddd444ccc"
-            };
-
-            _mapper.Setup(m => m.Map<List<DepositDto>>(It.IsAny<List<MpDeposit>>())).Returns(new List<DepositDto>());
-            _depositRepository.Setup(m => m.GetDepositsByTransferIds(transferIds)).Returns(new List<MpDeposit>());
-
-            // Act
-            var result = _fixture.GetDepositsByTransferIds(transferIds);
-
-            // Assert
-            Assert.NotNull(result);
-        }
     }
 }
