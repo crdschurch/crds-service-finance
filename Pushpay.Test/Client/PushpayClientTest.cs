@@ -115,30 +115,38 @@ namespace Pushpay.Test
 	[Fact]
         public void ShouldGetDepositsByDateRange()
         {
-            //// Arrange
-            //var startDate = new DateTime(2017, 12, 6);
-            //var endDate = new DateTime(2017, 12, 13);
+            // Arrange
+            var startDate = new DateTime(2017, 12, 6);
+            var endDate = new DateTime(2017, 12, 13);
 
-            //var mockPushPayDepositDtos = new List<PushpaySettlementDto>
-            //{
-            //    new PushpaySettlementDto
-            //    {
-            //        TotalPages = 1
-            //    }
-            //};
+            var mockPushPayDepositDtos = new List<PushpaySettlementDto>
+            {
+                new PushpaySettlementDto
+                {
+                    
+                }
+            };
 
-            //_restClient.Setup(x => x.Execute<List<PushpaySettlementDto>>(It.IsAny<IRestRequest>()))
-            //    .Returns(new RestResponse<List<PushpaySettlementDto>>
-            //    {
-            //        StatusCode = HttpStatusCode.OK,
-            //        Data = mockPushPayDepositDtos
-            //    });
+            var pushpaySettlementResponseDto = new PushpaySettlementResponseDto
+            {
+                Page = 0,
+                PageSize = 5,
+                TotalPages = 1,
+                items = mockPushPayDepositDtos
+            };
 
-            //// Act
-            //var result = _fixture.GetDepositsByDateRange(startDate, endDate);
+            _restClient.Setup(x => x.Execute<PushpaySettlementResponseDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpaySettlementResponseDto>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Data = pushpaySettlementResponseDto
+                });
 
-            //// Assert
-            //Assert.NotNull(result);
+            // Act
+            var result = _fixture.GetDepositsByDateRange(startDate, endDate);
+
+            // Assert
+            Assert.NotNull(result);
         }
     }
 }
