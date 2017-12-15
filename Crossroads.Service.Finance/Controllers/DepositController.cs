@@ -35,15 +35,15 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpGet]
         //[Route("sync")]
-        public IActionResult GetSettlements()
+        public IActionResult GetSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
         {
             try
             {
-                // TODO: Change hardcoded date time values to live values passed in via the service
-                var startDate = DateTime.Now.AddDays(-14);
-                var endDate = DateTime.Now;
+                //// TODO: Change hardcoded date time values to live values passed in via the service
+                //var startDate = startdate.ToShortDateString();
+                //var endDate = enddate.ToShortDateString();
 
-                var result = _depositService.GetDepositsForSync(startDate, endDate);
+                var result = _depositService.GetDepositsForSync(startdate, enddate);
                 return Ok(result);
             }
             catch (Exception ex)

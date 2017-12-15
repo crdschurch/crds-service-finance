@@ -126,11 +126,11 @@ namespace Crossroads.Service.Finance.Test.Deposits
             var startDate = new DateTime(2017, 12, 6);
             var endDate = new DateTime(2017, 12, 13);
 
-            var depositDtos = new List<DepositDto>
+            var depositDtos = new List<SettlementEventDto>
             {
-                new DepositDto
+                new SettlementEventDto
                 {
-                    ProcessorTransferId = "111bbb222aaa"
+                    Key = "111bbb222aaa"
                 }
             };
 

@@ -50,7 +50,7 @@ namespace MinistryPlatform.Repositories
         {
             var token = ApiUserRepository.GetDefaultApiUserToken();
 
-            var filter = $"Processor_Transfer_ID IN '(" + string.Join(',', transferIds )+ ")'";
+            var filter = $"Processor_Transfer_ID IN (" + string.Join(',', transferIds ) + ")";
 
             var deposits = MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)

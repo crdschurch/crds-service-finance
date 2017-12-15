@@ -7,6 +7,6 @@ namespace Pushpay.Client
     public interface IPushpayClient
     {
         PushpayPaymentsDto GetPushpayDonations(string settlementKey);
-        List<PushpayDepositDto> GetDepositByDateRange(DateTime startDate, DateTime endDate);
+        List<PushpaySettlementDto> GetDepositByDateRange(DateTime startDate, DateTime endDate);
     }
 }

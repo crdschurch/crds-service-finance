@@ -7,6 +7,6 @@ namespace Crossroads.Service.Finance.Interfaces
     public interface IPushpayService
     {
         PaymentsDto GetChargesForTransfer(string settlementKey);
-        List<DepositDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
+        List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
     }
 }

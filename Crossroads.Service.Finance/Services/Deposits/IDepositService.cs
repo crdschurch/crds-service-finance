@@ -10,8 +10,8 @@ namespace Crossroads.Service.Finance.Interfaces
         DepositDto SaveDeposit(DepositDto depositDto);
         DepositDto GetDepositByProcessorTransferId(string key);
         void SyncDeposits();
-        List<DepositDto> GetDepositsForSync(DateTime startDate, DateTime endDate);
-        void SyncDeposits(List<DepositDto> deposits);
+        List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate);
+        void SubmitDeposits(List<SettlementEventDto> deposits);
         List<DepositDto> GetDepositsByTransferIds(List<string> transferIds);
     }
 }

@@ -58,9 +58,18 @@ namespace Crossroads.Service.Finance.Services
             var savedDonationBatch = _batchService.SaveDonationBatch(donationBatch);
             donationBatch.Id = savedDonationBatch.Id;
 
-            // 5. Update all the donations to have a status of deposited and to be part of the new batch.
-            var updateDonations = _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id);
-            _donationService.UpdateDonations(updateDonations);
+            try
+            {
+                // 5. Update all the donations to have a status of deposited and to be part of the new batch.
+                var updateDonations = _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id);
+                _donationService.UpdateDonations(updateDonations);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                //throw;
+            }
+
 
             // 6. Create Deposit with the associated batch (should be one batch for one deposit)
             var deposit = _depositService.CreateDeposit(settlementEventDto, depositName);

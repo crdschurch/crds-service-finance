@@ -7,24 +7,26 @@ using Crossroads.Service.Finance.Interfaces;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using RestSharp;
+using RestSharp.Serializers;
 
 namespace Crossroads.Service.Finance.Services
 {
     public class DepositService : IDepositService
     {
         // TODO: Replace with int micro service url
-        private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("FINANCE_MS_ENDPOINT") ?? "http://localhost:62545/api/");
+        private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("FINANCE_MS_ENDPOINT") ?? "https://gatewayint.crossroads.net/finance/api/paymentevent/settlement");
+        //private Uri apiUri = new Uri("http://localhost:62545/api/");
         private readonly IDepositRepository _depositRepository;
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
         private readonly IRestClient _restClient;
 
-        public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, IRestClient restClient)
+        public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, IRestClient restClient = null)
         {
             _depositRepository = depositRepository;
             _mapper = mapper;
             _pushpayService = pushpayService;
-            _restClient = restClient;
+            _restClient = restClient ?? new RestClient();
         }
 
         public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName)
@@ -68,23 +70,23 @@ namespace Crossroads.Service.Finance.Services
             var endDate = DateTime.Now;
 
             var depositDtos = GetDepositsForSync(startDate, endDate);
-            SyncDeposits(depositDtos);
+            SubmitDeposits(depositDtos);
         }
 
-        public List<DepositDto> GetDepositsForSync(DateTime startDate, DateTime endDate)
+        public List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate)
         {
             var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
-            var transferIds = deposits.Select(r => r.ProcessorTransferId).ToList();
+            var transferIds = deposits.Select(r => "'" + r.Key + "'").ToList();
 
             // check to see if any of the deposits we're pulling over have already been deposited
             var existingDeposits = _depositRepository.GetDepositsByTransferIds(transferIds);
             var existingDepositIds = existingDeposits.Select(r => r.ProcessorTransferId).ToList();
 
-            var depositsToProcess = new List<DepositDto>();
+            var depositsToProcess = new List<SettlementEventDto>();
 
             foreach (var deposit in deposits)
             {
-                if (!existingDepositIds.Contains(deposit.ProcessorTransferId))
+                if (!existingDepositIds.Contains(deposit.Key))
                 {
                     depositsToProcess.Add(deposit);
                 }
@@ -93,21 +95,34 @@ namespace Crossroads.Service.Finance.Services
             return depositsToProcess;
         }
 
-        public void SyncDeposits(List<DepositDto> deposits)
+        public void SubmitDeposits(List<SettlementEventDto> deposits)
         {
             _restClient.BaseUrl = apiUri;
+            var deposit = deposits.First();
 
-            foreach (var deposit in deposits)
+            var request = new RestRequest(Method.POST)
             {
-                //var request = new RestRequest(Method.POST)
-                //{
-                //    Resource = $"paymentevent/settlement"
-                //};
+                Resource = $"paymentevent/settlement"
+            };
 
-                //request.AddBody(deposit);
+            request.AddHeader("Content-Type", "application/json");
+            request.JsonSerializer = new JsonSerializer(); // needed?
+            request.RequestFormat = DataFormat.Json;
+            request.AddBody(deposit);
 
-                //var response = _restClient.Execute(request);
-            }
+            var response = _restClient.Execute(request);
+
+            //foreach (var deposit in deposits)
+            //{
+            //    //var request = new RestRequest(Method.POST)
+            //    //{
+            //    //    Resource = $"paymentevent/settlement"
+            //    //};
+
+            //    //request.AddBody(deposit);
+
+            //    //var response = _restClient.Execute(request);
+            //}
         }
 
         // TODO: Consider merging this with the single call to get a deposit
