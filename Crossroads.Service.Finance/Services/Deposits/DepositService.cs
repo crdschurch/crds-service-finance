@@ -4,6 +4,7 @@ using System.Linq;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using RestSharp;
@@ -15,18 +16,20 @@ namespace Crossroads.Service.Finance.Services
     {
         // TODO: Replace with int micro service url
         private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("FINANCE_MS_ENDPOINT") ?? "https://gatewayint.crossroads.net/finance/api/paymentevent/settlement");
-        //private Uri apiUri = new Uri("http://localhost:62545/api/");
         private readonly IDepositRepository _depositRepository;
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
         private readonly IRestClient _restClient;
+        private readonly int _depositProcessingOffset;
 
-        public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, IRestClient restClient = null)
+        public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, IConfigurationWrapper configurationWrapper, IRestClient restClient = null)
         {
             _depositRepository = depositRepository;
             _mapper = mapper;
             _pushpayService = pushpayService;
             _restClient = restClient ?? new RestClient();
+
+            _depositProcessingOffset = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
         }
 
         public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName)
@@ -63,10 +66,8 @@ namespace Crossroads.Service.Finance.Services
         // this will pull desposits by a date range and determine which ones we need to create in the system
         public void SyncDeposits()
         {
-            // need to:
-            // 1. Verify that these are inclusive of the specified day, not less than or greater than
-            // 2. Determine the date range that makes sense here
-            var startDate = DateTime.Now.AddDays(-7);
+            // we look back however many days are specified in the mp config setting
+            var startDate = DateTime.Now.AddDays(-(_depositProcessingOffset));
             var endDate = DateTime.Now;
 
             var depositDtos = GetDepositsForSync(startDate, endDate);
@@ -95,34 +96,32 @@ namespace Crossroads.Service.Finance.Services
             return depositsToProcess;
         }
 
+        // returns the list of all deposits that woould be pulled, if we weren't checking what is in the system -
+        // mostly to support testing and auditing
+        public List<SettlementEventDto> GetDepositsForSyncRaw(DateTime startDate, DateTime endDate)
+        {
+            var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
+            return deposits;
+        }
+
         public void SubmitDeposits(List<SettlementEventDto> deposits)
         {
             _restClient.BaseUrl = apiUri;
-            var deposit = deposits.First();
 
-            var request = new RestRequest(Method.POST)
+            foreach (var deposit in deposits)
             {
-                Resource = $"paymentevent/settlement"
-            };
+                var request = new RestRequest(Method.POST)
+                {
+                    Resource = $"paymentevent/settlement"
+                };
 
-            request.AddHeader("Content-Type", "application/json");
-            request.JsonSerializer = new JsonSerializer(); // needed?
-            request.RequestFormat = DataFormat.Json;
-            request.AddBody(deposit);
+                request.AddHeader("Content-Type", "application/json");
+                request.JsonSerializer = new JsonSerializer(); // needed?
+                request.RequestFormat = DataFormat.Json;
+                request.AddBody(deposit);
 
-            var response = _restClient.Execute(request);
-
-            //foreach (var deposit in deposits)
-            //{
-            //    //var request = new RestRequest(Method.POST)
-            //    //{
-            //    //    Resource = $"paymentevent/settlement"
-            //    //};
-
-            //    //request.AddBody(deposit);
-
-            //    //var response = _restClient.Execute(request);
-            //}
+                var response = _restClient.Execute(request);
+            }
         }
 
         // TODO: Consider merging this with the single call to get a deposit

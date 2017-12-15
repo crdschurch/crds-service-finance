@@ -39,13 +39,13 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 new PushpaySettlementDto()
             };
 
-            var depositDtos = new List<DepositDto>
+            var depositDtos = new List<SettlementEventDto>
             {
-                new DepositDto()
+                new SettlementEventDto()
             };
 
-            _mapper.Setup(m => m.Map<List<DepositDto>>(It.IsAny<List<PushpaySettlementDto>>())).Returns(depositDtos);
-            _pushpayClient.Setup(m => m.GetDepositByDateRange(startDate, endDate)).Returns(pushpayDepositDtos);
+            _mapper.Setup(m => m.Map<List<SettlementEventDto>>(It.IsAny<List<PushpaySettlementDto>>())).Returns(depositDtos);
+            _pushpayClient.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(pushpayDepositDtos);
 
             // Act
             var result = _fixture.GetDepositsByDateRange(startDate, endDate);

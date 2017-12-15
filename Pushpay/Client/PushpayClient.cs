@@ -68,7 +68,7 @@ namespace Pushpay.Client
             return paymentsDto;
         }
 
-        public List<PushpaySettlementDto> GetDepositByDateRange(DateTime startDate, DateTime endDate)
+        public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
         {
             var tokenResponse = _pushpayTokenService.GetOAuthToken(donationsScope).Wait();
             _restClient.BaseUrl = apiUri;

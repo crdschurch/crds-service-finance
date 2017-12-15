@@ -82,7 +82,7 @@ namespace MinistryPlatform.Test.Deposits
                 "333ccc444ddd"
             };
 
-            var filter = $"Processor_Transfer_ID IN '(" + string.Join(',', transferIds) + ")'";
+            var filter = $"Processor_Transfer_ID IN (" + string.Join(',', transferIds) + ")";
             _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);

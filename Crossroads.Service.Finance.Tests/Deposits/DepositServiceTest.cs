@@ -5,6 +5,7 @@ using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
+using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Xunit;
@@ -19,6 +20,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
         private readonly Mock<IMapper> _mapper;
         private readonly Mock<IPushpayService> _pushpayService;
         private readonly Mock<IRestClient> _restClient;
+        private readonly Mock<IConfigurationWrapper> _configWrapper;
 
         private readonly IDepositService _fixture;
 
@@ -28,8 +30,9 @@ namespace Crossroads.Service.Finance.Test.Deposits
             _mapper = new Mock<IMapper>();
             _pushpayService = new Mock<IPushpayService>();
             _restClient = new Mock<IRestClient>();
+            _configWrapper = new Mock<IConfigurationWrapper>();
 
-            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _restClient.Object);
+            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object, _restClient.Object);
         }
 
         [Fact]

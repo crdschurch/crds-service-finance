@@ -27,7 +27,7 @@ namespace Crossroads.Service.Finance.Services
 
         public List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
         {
-            var result = _pushpayClient.GetDepositByDateRange(startDate, endDate);
+            var result = _pushpayClient.GetDepositsByDateRange(startDate, endDate);
             return _mapper.Map<List<SettlementEventDto>>(result);
         }
     }

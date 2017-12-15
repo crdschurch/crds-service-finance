@@ -34,16 +34,27 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpGet]
-        //[Route("sync")]
-        public IActionResult GetSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
+        [Route("active")]
+        public IActionResult GetActiveSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
         {
             try
             {
-                //// TODO: Change hardcoded date time values to live values passed in via the service
-                //var startDate = startdate.ToShortDateString();
-                //var endDate = enddate.ToShortDateString();
-
                 var result = _depositService.GetDepositsForSync(startdate, enddate);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, ex);
+            }
+        }
+
+        [HttpGet]
+        [Route("all")]
+        public IActionResult GetAllSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
+        {
+            try
+            {
+                var result = _depositService.GetDepositsForSyncRaw(startdate, enddate);
                 return Ok(result);
             }
             catch (Exception ex)

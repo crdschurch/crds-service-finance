@@ -103,7 +103,7 @@ namespace Pushpay.Test
             //    });
 
             //// Act
-            //var result = _fixture.GetDepositByDateRange(startDate, endDate);
+            //var result = _fixture.GetDepositsByDateRange(startDate, endDate);
 
             //// Assert
             //Assert.NotNull(result);
