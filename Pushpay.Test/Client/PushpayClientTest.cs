@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using System.Net;
 using Moq;
 using RestSharp;
@@ -110,6 +110,43 @@ namespace Pushpay.Test
                 .Returns(new RestResponse<PushpayPaymentDto>(){});
 
             Assert.Throws<Exception>(() => _fixture.GetPayment(webhook));
+        }
+
+	[Fact]
+        public void ShouldGetDepositsByDateRange()
+        {
+            // Arrange
+            var startDate = new DateTime(2017, 12, 6);
+            var endDate = new DateTime(2017, 12, 13);
+
+            var mockPushPayDepositDtos = new List<PushpaySettlementDto>
+            {
+                new PushpaySettlementDto
+                {
+                    
+                }
+            };
+
+            var pushpaySettlementResponseDto = new PushpaySettlementResponseDto
+            {
+                Page = 0,
+                PageSize = 5,
+                TotalPages = 1,
+                items = mockPushPayDepositDtos
+            };
+
+            _restClient.Setup(x => x.Execute<PushpaySettlementResponseDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpaySettlementResponseDto>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Data = pushpaySettlementResponseDto
+                });
+
+            // Act
+            var result = _fixture.GetDepositsByDateRange(startDate, endDate);
+
+            // Assert
+            Assert.NotNull(result);
         }
     }
 }

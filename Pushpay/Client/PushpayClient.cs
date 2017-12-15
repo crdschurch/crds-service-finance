@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading;
 using Crossroads.Service.Finance.Models;
@@ -87,6 +88,53 @@ namespace Pushpay.Client
             }
 
             return paymentDto;
+        }
+
+	public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
+        {
+            var tokenResponse = _pushpayTokenService.GetOAuthToken(donationsScope).Wait();
+            _restClient.BaseUrl = apiUri;
+            var request = new RestRequest(Method.GET)
+            {
+                Resource = $"settlements?startDate={startDate}&endDate={endDate}"
+            };
+            request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
+
+            var response = _restClient.Execute<PushpaySettlementResponseDto>(request);
+
+            var pushpayDepositDtos = response.Data.items;
+
+            // determine if we need to call again (multiple pages), then
+            // determine the delay needed to avoid hitting the rate limits for Pushpay
+            if (pushpayDepositDtos == null)
+            {
+                throw new Exception($"Get Settlement from Pushpay not successful: {response.Content}");
+            }
+
+            var totalPages = response.Data.TotalPages;
+
+            if (totalPages > 1)
+            {
+                var delay = 0;
+                if (totalPages >= RequestsPerSecond && totalPages < RequestsPerMinute)
+                {
+                    delay = 150;
+                }
+                else if (totalPages >= RequestsPerMinute)
+                {
+                    delay = 1000;
+                }
+
+                for (int i = 0; i < totalPages; i++)
+                {
+                    Thread.Sleep(delay);
+                    request.Resource = $"settlement/settlements?startDate={startDate}&endDate={endDate}?page={i}";
+                    response = _restClient.Execute<PushpaySettlementResponseDto>(request);
+                    pushpayDepositDtos.AddRange(response.Data.items);
+                }
+            }
+
+            return pushpayDepositDtos;
         }
 
     }

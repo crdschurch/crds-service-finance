@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
@@ -7,12 +7,15 @@ using Xunit;
 using Pushpay.Client;
 using Crossroads.Web.Common.Configuration;
 using System;
+using System.Collections.Generic;
+using Crossroads.Service.Finance.Models;
+using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Test.Pushpay
 {
     public class PushpayServiceTest
     {
-        private readonly Mock<IPushpayClient> _pushplayClient;
+        private readonly Mock<IPushpayClient> _pushpayClient;
         private readonly Mock<IDonationService> _donationService;
         private readonly Mock<IMapper> _mapper;
         private readonly Mock<IConfigurationWrapper> _configurationWrapper;
@@ -21,12 +24,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
 
         public PushpayServiceTest()
         {
-            _pushplayClient = new Mock<IPushpayClient>();
+            _pushpayClient = new Mock<IPushpayClient>();
             _donationService = new Mock<IDonationService>();
             _mapper = new Mock<IMapper>();
             _configurationWrapper = new Mock<IConfigurationWrapper>();
 
-            _fixture = new PushpayService(_pushplayClient.Object, _donationService.Object, _mapper.Object, _configurationWrapper.Object);
+            _fixture = new PushpayService(_pushpayClient.Object, _donationService.Object, _mapper.Object, _configurationWrapper.Object);
         }
 
         [Fact]
@@ -34,7 +37,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         {
             string transactionCode = "87234354pending";
             var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
-            _pushplayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateProcessing());
+            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateProcessing());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
 
             var result = _fixture.UpdateDonationStatusFromPushpay(webhookMock);
@@ -48,7 +51,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         {
             string transactionCode = "87234354v";
             var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
-            _pushplayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateSuccess());
+            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateSuccess());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
 
             var result = _fixture.UpdateDonationStatusFromPushpay(webhookMock);
@@ -62,7 +65,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         {
             string transactionCode = "87234354v";
             var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
-            _pushplayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateFailed());
+            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateFailed());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
 
             var result = _fixture.UpdateDonationStatusFromPushpay(webhookMock);
@@ -70,5 +73,32 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             // is failed
             Assert.Equal(3, result.DonationStatusId);
         }
-    }
+
+        [Fact]
+        public void ShouldGetDepositsByDateRange()
+        {
+            // Arrange
+            var startDate = new DateTime(2017, 12, 12);
+            var endDate = new DateTime(2017, 12, 17);
+
+            var pushpayDepositDtos = new List<PushpaySettlementDto>
+            {
+                new PushpaySettlementDto()
+            };
+
+            var depositDtos = new List<SettlementEventDto>
+            {
+                new SettlementEventDto()
+            };
+
+            _mapper.Setup(m => m.Map<List<SettlementEventDto>>(It.IsAny<List<PushpaySettlementDto>>())).Returns(depositDtos);
+            _pushpayClient.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(pushpayDepositDtos);
+
+            // Act
+            var result = _fixture.GetDepositsByDateRange(startDate, endDate);
+
+            // Assert
+            Assert.NotNull(result);
+        }
+    }    
 }

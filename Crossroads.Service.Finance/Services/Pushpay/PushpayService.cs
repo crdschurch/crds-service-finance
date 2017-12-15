@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
@@ -56,6 +57,12 @@ namespace Crossroads.Service.Finance.Services
             }
             _donationService.Update(donation);
             return donation;
+        }
+
+	public List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
+        {
+            var result = _pushpayClient.GetDepositsByDateRange(startDate, endDate);
+            return _mapper.Map<List<SettlementEventDto>>(result);
         }
     }
 }
