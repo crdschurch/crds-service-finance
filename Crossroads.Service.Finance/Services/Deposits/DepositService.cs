@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
@@ -124,6 +125,11 @@ namespace Crossroads.Service.Finance.Services
                 request.AddBody(deposit);
 
                 var response = _restClient.Execute(request);
+
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new Exception($"Could not find server for {_restClient.BaseUrl} & {request.Resource}");
+                }
             }
         }
     }
