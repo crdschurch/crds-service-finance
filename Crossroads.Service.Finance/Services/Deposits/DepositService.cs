@@ -14,13 +14,12 @@ namespace Crossroads.Service.Finance.Services
 {
     public class DepositService : IDepositService
     {
-        // TODO: Replace with int micro service url
-        private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("FINANCE_MS_ENDPOINT") ?? "https://gatewayint.crossroads.net/finance/api/");
         private readonly IDepositRepository _depositRepository;
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
         private readonly IRestClient _restClient;
         private readonly int _depositProcessingOffset;
+        private readonly string _financePath;
 
         public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, IConfigurationWrapper configurationWrapper, IRestClient restClient = null)
         {
@@ -28,6 +27,9 @@ namespace Crossroads.Service.Finance.Services
             _mapper = mapper;
             _pushpayService = pushpayService;
             _restClient = restClient ?? new RestClient();
+
+            _financePath = Environment.GetEnvironmentVariable("FINANCE_PATH") ??
+                               configurationWrapper.GetMpConfigValue("CRDS-FINANCE", "FinanceMicroservicePath", true);
 
             _depositProcessingOffset = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
         }
@@ -64,14 +66,14 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // this will pull desposits by a date range and determine which ones we need to create in the system
-        public void SyncDeposits()
+        public void SyncDeposits(string hostName)
         {
             // we look back however many days are specified in the mp config setting
             var startDate = DateTime.Now.AddDays(-(_depositProcessingOffset));
             var endDate = DateTime.Now;
 
             var depositDtos = GetDepositsForSync(startDate, endDate);
-            SubmitDeposits(depositDtos);
+            SubmitDeposits(depositDtos, hostName);
         }
 
         public List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate)
@@ -104,15 +106,16 @@ namespace Crossroads.Service.Finance.Services
             return deposits;
         }
 
-        public void SubmitDeposits(List<SettlementEventDto> deposits)
+        public void SubmitDeposits(List<SettlementEventDto> deposits, string hostName)
         {
-            _restClient.BaseUrl = apiUri;
+            // TODO: There is some code smell around this - determine if there is a better way to handle this
+            _restClient.BaseUrl = hostName.Contains("localhost") ? new Uri("http://" + hostName) : new Uri("https://" + hostName);
 
             foreach (var deposit in deposits)
             {
                 var request = new RestRequest(Method.POST)
                 {
-                    Resource = $"paymentevent/settlement"
+                    Resource = _financePath + "paymentevent/settlement"
                 };
 
                 request.AddHeader("Content-Type", "application/json");
