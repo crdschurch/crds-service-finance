@@ -22,7 +22,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                Thread.Sleep(30000);
+                Thread.Sleep(60000);
                 return Ok(_pushpayService.UpdateDonationStatusFromPushpay(pushpayWebhook));
             }
             catch (Exception ex)
@@ -37,7 +37,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                Thread.Sleep(30000);
+                Thread.Sleep(60000);
                 return Ok(_pushpayService.UpdateDonationStatusFromPushpay(pushpayWebhook));
             }
             catch (Exception ex)
