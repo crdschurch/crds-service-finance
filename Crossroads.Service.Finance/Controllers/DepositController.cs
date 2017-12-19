@@ -63,5 +63,20 @@ namespace Crossroads.Service.Finance.Controllers
                 return StatusCode(400, ex);
             }
         }
+
+        [HttpGet]
+        [Route("pending-sync")]
+        public IActionResult GetSettlementsPendingSync()
+        {
+            try
+            {
+                var result = _depositService.GetDepositsForPendingSync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, ex);
+            }
+        }
     }
 }

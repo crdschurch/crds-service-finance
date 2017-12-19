@@ -74,12 +74,24 @@ namespace Crossroads.Service.Finance.Services
             var endDate = DateTime.Now;
 
             var depositDtos = GetDepositsForSync(startDate, endDate);
+
+            if (!depositDtos.Any())
+            {
+                return;
+            }
+
             SubmitDeposits(depositDtos, hostName);
         }
 
         public List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate)
         {
             var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
+
+            if (!deposits.Any())
+            {
+                return null;
+            }
+
             var transferIds = deposits.Select(r => "'" + r.Key + "'").ToList();
 
             // check to see if any of the deposits we're pulling over have already been deposited
@@ -103,6 +115,16 @@ namespace Crossroads.Service.Finance.Services
         // mostly to support testing and auditing
         public List<SettlementEventDto> GetDepositsForSyncRaw(DateTime startDate, DateTime endDate)
         {
+            var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
+            return deposits;
+        }
+
+        public List<SettlementEventDto> GetDepositsForPendingSync()
+        {
+            // we look back however many days are specified in the mp config setting
+            var startDate = DateTime.Now.AddDays(-(_depositProcessingOffset));
+            var endDate = DateTime.Now;
+
             var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
             return deposits;
         }
