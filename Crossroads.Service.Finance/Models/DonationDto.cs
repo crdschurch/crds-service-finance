@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -16,7 +13,7 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("amount")]
         public string DonationAmt { get; set; }
 
-        [JsonProperty("status_id"), JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty("status_id")]
         public int DonationStatusId { get; set; }
 
         [JsonProperty("date_status_date")]

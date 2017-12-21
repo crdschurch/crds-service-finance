@@ -28,17 +28,30 @@ namespace MinistryPlatform.Repositories
                                 .Build()
                                 .Search<MpDonation>();
 
-            return donations.FirstOrDefault();
+            if(!donations.Any())
+            {
+                throw new Exception($"Donation does not exist for transaction code: {transactionCode}");
+            }
+
+            return donations.First();
         }
 
-        public List<MpDonation> UpdateDonations(List<MpDonation> donations)
+        public List<MpDonation> Update(List<MpDonation> donations)
         {
             var token = ApiUserRepository.GetDefaultApiUserToken();
-
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
                 .Update(donations);
+        }
+
+        public MpDonation Update(MpDonation donation)
+        {
+            var token = ApiUserRepository.GetDefaultApiUserToken();
+            return MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .Build()
+                .Update(donation);
         }
     }
 }

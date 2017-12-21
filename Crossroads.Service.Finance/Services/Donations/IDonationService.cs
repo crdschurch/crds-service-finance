@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Crossroads.Service.Finance.Models;
 
 namespace Crossroads.Service.Finance.Interfaces
@@ -9,7 +6,8 @@ namespace Crossroads.Service.Finance.Interfaces
     public interface IDonationService
     {
         List<DonationDto> SetDonationStatus(List<DonationDto> donations, int batchId);
-        List<DonationDto> UpdateDonations(List<DonationDto> donations);
+        DonationDto Update(DonationDto donation);
+        List<DonationDto> Update(List<DonationDto> donations);
         DonationDto GetDonationByTransactionCode(string transactionCode);
     }
 }
