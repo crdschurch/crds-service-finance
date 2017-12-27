@@ -77,8 +77,7 @@ namespace Crossroads.Service.Finance.Services
 
         public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPaymentDto)
         {
-            Console.WriteLine(PushpayMerchantKey);
-            // TODO replace when frontend is actually sending up data
+            // TODO replace when frontend is sending up data
             var samplePushpayAnticipatedPayment = new PushpayAnticipatedPaymentDto()
             {
                 Description = "2018 Jul NOLA Trip",

@@ -145,12 +145,7 @@ namespace Pushpay.Client
         public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment)
         {
             var request = CreateRequest("anticipatedpayments", Method.POST, createAnticipatedPaymentsScope, anticipatedPayment);
-            Console.WriteLine(request);
             var response = _restClient.Execute<PushpayAnticipatedPaymentDto>(request);
-            Console.WriteLine(response.StatusCode);
-            Console.WriteLine(response.Data);
-            Console.WriteLine(response.Content);
-            Console.WriteLine(response.Data.Description);
             return response.Data;
         }
 
