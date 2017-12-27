@@ -3,6 +3,9 @@ using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using Crossroads.Service.Finance.Controllers;
+using Newtonsoft.Json.Linq;
+using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -16,6 +19,7 @@ namespace Crossroads.Service.Finance.Services
         
         // This value is used when creating the batch name for exporting to GP.  It must be 15 characters or less.
         private const string BatchNameDateFormat = @"\M\PyyMMddHHmmss";
+        private readonly string PushpayMerchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
 
         public PaymentEventService(IBatchService batchService, IDepositService depositService, IDonationService donationService,
             IPushpayService pushpayService)
@@ -69,6 +73,33 @@ namespace Crossroads.Service.Finance.Services
             // 7. Update batch with deposit id and resave
             donationBatch.DepositId = deposit.Id;
             _batchService.UpdateDonationBatch(donationBatch);
+        }
+
+        public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPaymentDto)
+        {
+            Console.WriteLine(PushpayMerchantKey);
+            // TODO replace when frontend is actually sending up data
+            var samplePushpayAnticipatedPayment = new PushpayAnticipatedPaymentDto()
+            {
+                Description = "2018 Jul NOLA Trip",
+                DescriptionTitle = "Trip Donation For",
+                ReturnUrl = "https://www.espn.com",
+                ReturnTitle = "Return to espn.com...",
+                MerchantKey = PushpayMerchantKey,
+                Fields = new List<PushpayAnticipatedPaymentField>
+                {
+                    new PushpayAnticipatedPaymentField()
+                    {
+                        Key = "amount",
+                        Value =  new JObject(
+                            new JProperty("amount", "140.50"),
+                            new JProperty("currency", "USD")
+                        ),
+                        ReadOnly = true
+                    }
+                }
+            };
+            return _pushpayService.CreateAnticipatedPayment(samplePushpayAnticipatedPayment);
         }
     }
 }

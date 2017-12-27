@@ -2,6 +2,7 @@
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -23,6 +24,21 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 _paymentEventService.CreateDeposit(settlementEventDto);
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, ex);
+            }
+        }
+
+        [HttpPost]
+        [Route("anticipated")]
+        public IActionResult CreateAnticipatedPayment([FromBody] PushpayAnticipatedPaymentDto anticipatedPaymentDto)
+        {
+            try
+            {
+                var result = _paymentEventService.CreateAnticipatedPayment(anticipatedPaymentDto);
+                return StatusCode(201, result.Links.Pay.Href);
             }
             catch (Exception ex)
             {
