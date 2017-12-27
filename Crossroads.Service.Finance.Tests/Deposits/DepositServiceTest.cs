@@ -5,10 +5,12 @@ using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
+using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Xunit;
 using Moq;
+using RestSharp;
 
 namespace Crossroads.Service.Finance.Test.Deposits
 {
@@ -16,6 +18,9 @@ namespace Crossroads.Service.Finance.Test.Deposits
     {
         private readonly Mock<IDepositRepository> _depositRepository;
         private readonly Mock<IMapper> _mapper;
+        private readonly Mock<IPushpayService> _pushpayService;
+        private readonly Mock<IRestClient> _restClient;
+        private readonly Mock<IConfigurationWrapper> _configWrapper;
 
         private readonly IDepositService _fixture;
 
@@ -23,8 +28,11 @@ namespace Crossroads.Service.Finance.Test.Deposits
         {
             _depositRepository = new Mock<IDepositRepository>();
             _mapper = new Mock<IMapper>();
+            _pushpayService = new Mock<IPushpayService>();
+            _restClient = new Mock<IRestClient>();
+            _configWrapper = new Mock<IConfigurationWrapper>();
 
-            _fixture = new DepositService(_depositRepository.Object, _mapper.Object);
+            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object, _restClient.Object);
         }
 
         [Fact]
@@ -114,5 +122,30 @@ namespace Crossroads.Service.Finance.Test.Deposits
             Assert.Equal(processorTransferId, result.ProcessorTransferId);
         }
 
+        [Fact]
+        public void ShouldGetDepositsToSync()
+        {
+            // Arrange
+            var startDate = new DateTime(2017, 12, 6);
+            var endDate = new DateTime(2017, 12, 13);
+
+            var depositDtos = new List<SettlementEventDto>
+            {
+                new SettlementEventDto
+                {
+                    Key = "111bbb222aaa"
+                }
+            };
+
+            _pushpayService.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(depositDtos);
+            _depositRepository.Setup(m => m.GetDepositsByTransferIds(It.IsAny<List<string>>()))
+                .Returns(new List<MpDeposit>());
+
+            // Act
+            var result = _fixture.GetDepositsForSync(startDate, endDate);
+
+            // Assert
+            Assert.NotNull(result);
+        }
     }
 }

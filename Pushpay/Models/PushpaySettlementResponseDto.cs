@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace Pushpay.Models
 {
-    public class PushpayPaymentsDto
+    public class PushpaySettlementResponseDto
     {
         [JsonProperty("page")]
         public int Page { get; set; }
 
-        // currently, Pushpay has this hard set to 25, but this could change
         [JsonProperty("pageSize")]
         public int PageSize { get; set; }
 
@@ -16,7 +17,6 @@ namespace Pushpay.Models
         public int TotalPages { get; set; }
 
         [JsonProperty("items")]
-        public List<PushpayPaymentDto> Items { get; set; }
-
+        public List<PushpaySettlementDto> items { get; set; }
     }
 }

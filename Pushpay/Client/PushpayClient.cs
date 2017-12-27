@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading;
+using Crossroads.Service.Finance.Models;
 using Pushpay.Models;
 using Pushpay.Token;
 using RestSharp;
@@ -65,6 +67,77 @@ namespace Pushpay.Client
                 }   
             }
             return paymentsDto;
+        }
+
+        public PushpayPaymentDto GetPayment(PushpayWebhook webhook)
+        {
+            _restClient.BaseUrl = new Uri(webhook.Events[0].Links.Payment);
+            var token = _pushpayTokenService.GetOAuthToken(donationsScope).Wait().AccessToken;
+            var request = new RestRequest(Method.GET);
+            request.AddParameter("Authorization", string.Format("Bearer " + token), ParameterType.HttpHeader);
+
+            var response = _restClient.Execute<PushpayPaymentDto>(request);
+
+            var paymentDto = response.Data;
+
+            // determine if we need to call again (multiple pages), then
+            // determine the delay needed to avoid hitting the rate limits for Pushpay
+            if (paymentDto == null)
+            {
+                throw new Exception($"Get Payment from Pushpay not successful: {response.Content}");
+            }
+
+            return paymentDto;
+        }
+
+	    public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
+	    {
+	        var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+	        endDate = endDate.ToUniversalTime();
+
+            var tokenResponse = _pushpayTokenService.GetOAuthToken(donationsScope).Wait();
+            _restClient.BaseUrl = apiUri;
+            var request = new RestRequest(Method.GET)
+            {
+                Resource = $"settlements?depositFrom={modStartDate}"
+            };
+            request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
+
+            var response = _restClient.Execute<PushpaySettlementResponseDto>(request);
+
+            var pushpayDepositDtos = response.Data.items;
+
+            // determine if we need to call again (multiple pages), then
+            // determine the delay needed to avoid hitting the rate limits for Pushpay
+            if (pushpayDepositDtos == null)
+            {
+                throw new Exception($"Get Settlement from Pushpay not successful: {response.Content}");
+            }
+
+            var totalPages = response.Data.TotalPages;
+
+            if (totalPages > 1)
+            {
+                var delay = 0;
+                if (totalPages >= RequestsPerSecond && totalPages < RequestsPerMinute)
+                {
+                    delay = 150;
+                }
+                else if (totalPages >= RequestsPerMinute)
+                {
+                    delay = 1000;
+                }
+
+                for (int i = 0; i < totalPages; i++)
+                {
+                    Thread.Sleep(delay);
+                    request.Resource = $"settlement/settlements?depositFrom={modStartDate}&page={i}";
+                    response = _restClient.Execute<PushpaySettlementResponseDto>(request);
+                    pushpayDepositDtos.AddRange(response.Data.items);
+                }
+            }
+
+            return pushpayDepositDtos;
         }
 
     }
