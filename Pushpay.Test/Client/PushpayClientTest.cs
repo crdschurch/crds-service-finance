@@ -112,7 +112,7 @@ namespace Pushpay.Test
             Assert.Throws<Exception>(() => _fixture.GetPayment(webhook));
         }
 
-	[Fact]
+        [Fact]
         public void ShouldGetDepositsByDateRange()
         {
             // Arrange
@@ -147,6 +147,29 @@ namespace Pushpay.Test
 
             // Assert
             Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void CreateAnticipatedPaymentTest()
+        {
+            string mockPushpayUrl = "http://test.com";
+            _restClient.Setup(x => x.Execute<PushpayAnticipatedPaymentDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayAnticipatedPaymentDto>()
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Data = new PushpayAnticipatedPaymentDto()
+                    {
+                        Links = new PushpayLinksDto() {
+                            Pay = new PushpayLinkDto() {
+                                Href = mockPushpayUrl
+                            }
+                        }
+                    }
+                });
+
+            var result = _fixture.CreateAnticipatedPayment(null);
+
+            Assert.Equal(mockPushpayUrl, result.Links.Pay.Href);
         }
     }
 }
