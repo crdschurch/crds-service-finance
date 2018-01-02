@@ -75,7 +75,7 @@ namespace Crossroads.Service.Finance.Services
 
             var depositDtos = GetDepositsForSync(startDate, endDate);
 
-            if (!depositDtos.Any())
+            if (depositDtos == null || !depositDtos.Any())
             {
                 return;
             }
