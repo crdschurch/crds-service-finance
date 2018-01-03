@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Logging;
 using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Repositories;
@@ -73,6 +74,36 @@ namespace Crossroads.Service.Finance
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            var loggingEnv = Environment.GetEnvironmentVariable("CRDS_ENV");
+
+            // TODO: Consider a better way of getting the log file config into log4net here
+            switch (loggingEnv)
+            {
+                case "dev":
+                    loggerFactory.AddLog4Net("log4net.dev.config");
+                    break;
+                case "int":
+                    loggerFactory.AddLog4Net("log4net.int.config");
+                    break;
+                case "demo":
+                    loggerFactory.AddLog4Net("log4net.demo.config");
+                    break;
+                case "prod":
+                    loggerFactory.AddLog4Net("log4net.prod.config");
+                    break;
+                default:
+                    loggerFactory.AddLog4Net("log4net.config");
+                    break;
+            }
+
+            //loggerFactory.AddLog4Net("log4net.dev.config");
+
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            app.UseMvcWithDefaultRoute();
 
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
