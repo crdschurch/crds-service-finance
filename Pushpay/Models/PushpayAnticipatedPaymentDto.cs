@@ -14,7 +14,7 @@ namespace Pushpay.Models
         public List<PushpayAnticipatedPaymentField> Fields { get; set; }
 
         [JsonProperty("fund")]
-        public JObject Fund { get; set; }
+        public PushpayAnticipatedFundDto Fund { get; set; }
 
         [JsonProperty("description")]
         public string Description { get; set; }

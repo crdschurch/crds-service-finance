@@ -85,11 +85,12 @@ namespace Crossroads.Service.Finance.Services
                 ReturnUrl = "https://www.espn.com",
                 ReturnTitle = "Return to espn.com...",
                 MerchantKey = PushpayMerchantKey,
-                Fund = new JObject(
-                    new JProperty("key", "vtAhLkzHHCpunKRtzFF5zA"),
-                    new JProperty("name", "2018 Jul NOLA Trip"),
-                    new JProperty("taxDeductable", true)
-                ),
+                Fund = new PushpayAnticipatedFundDto
+                {
+                    Key = "vtAhLkzHHCpunKRtzFF5zA",
+                    Name = "2018 Jul NOLA Trip",
+                    TaxDeductable = true
+                },
                 Fields = new List<PushpayAnticipatedPaymentField>
                 {
                     new PushpayAnticipatedPaymentField()
