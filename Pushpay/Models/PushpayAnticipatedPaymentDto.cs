@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Pushpay.Models
 {
@@ -11,6 +12,9 @@ namespace Pushpay.Models
 
         [JsonProperty("fields")]
         public List<PushpayAnticipatedPaymentField> Fields { get; set; }
+
+        [JsonProperty("fund")]
+        public JObject Fund { get; set; }
 
         [JsonProperty("description")]
         public string Description { get; set; }
