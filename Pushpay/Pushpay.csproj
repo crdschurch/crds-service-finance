@@ -13,4 +13,7 @@
   <ItemGroup>
     <Folder Include="Token\" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Models\PushpayAnticipatedFundDto.cs" />
+  </ItemGroup>
 </Project>
