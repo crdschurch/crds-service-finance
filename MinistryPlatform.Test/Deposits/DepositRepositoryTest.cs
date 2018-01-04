@@ -97,5 +97,44 @@ namespace MinistryPlatform.Test.Deposits
             // Assert
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public void ShouldGetDepositsByDepositName()
+        {
+            var hourDateTime = new DateTime(2018, 01, 04, 13, 15, 00);
+
+            var hourDateTimeString = (hourDateTime.Hour < 10) ? "0" + hourDateTime.Hour : hourDateTime.Hour.ToString();
+            var minuteDateTimeString = (hourDateTime.Minute < 10) ? "0" + hourDateTime.Minute : hourDateTime.Minute.ToString();
+
+
+            var x = hourDateTimeString + minuteDateTimeString;
+
+
+            // Arrange
+            var depositName = "ACH20180103";
+
+            List<MpDeposit> deposits = new List<MpDeposit>
+            {
+                new MpDeposit
+                {
+                    DepositName = "ACH20180103"
+                }
+            };
+
+            var filter = $"Deposit_Name LIKE '%{depositName}%'";
+            _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpDeposit>()).Returns(deposits);
+
+            // Act
+            var result = _fixture.GetDepositNamesByDepositName(depositName);
+
+            // Assert
+            Assert.NotNull(result);
+        }
     }
 }

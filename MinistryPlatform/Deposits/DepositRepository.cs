@@ -59,6 +59,21 @@ namespace MinistryPlatform.Repositories
                 .Search<MpDeposit>();
 
             return deposits;
-        }    
+        }
+
+        public List<MpDeposit> GetDepositNamesByDepositName(string depositName)
+        {
+            var token = ApiUserRepository.GetDefaultApiUserToken();
+
+            var filter = $"Deposit_Name LIKE '%{depositName}%'";
+
+            var deposits = MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .Build()
+                .Search<MpDeposit>();
+
+            return deposits;
+        }
     }
 }

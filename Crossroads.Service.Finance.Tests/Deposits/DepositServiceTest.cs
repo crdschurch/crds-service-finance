@@ -39,7 +39,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
         public void ShouldCreateAndReturnDepositObject()
         {
             // Arrange
-            var depositName = "testDepositName";
+            var depositName = "FD20171219";
             var settlementKey = "aaabbb111222";
             var amount = "1000";
 
@@ -52,13 +52,64 @@ namespace Crossroads.Service.Finance.Test.Deposits
                 }
             };
 
+            var mpDeposits = new List<MpDeposit>
+            {
+                new MpDeposit(),
+                new MpDeposit()
+            };
+
+            _depositRepository.Setup(r => r.GetDepositNamesByDepositName(It.IsAny<string>())).Returns(mpDeposits);
+
             // Act
             var result = _fixture.CreateDeposit(settlementEventDto, depositName);
 
             // Assert
             Assert.Equal(settlementKey, result.ProcessorTransferId);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
-            Assert.Equal(result.DepositName, depositName);
+            Assert.Equal(result.DepositName, depositName + "002");
+        }
+
+        [Fact]
+        public void ShouldCreateAndReturnDepositObjectWithOverTenDeposits()
+        {
+            // Arrange
+            var depositName = "FD20171219";
+            var settlementKey = "aaabbb111222";
+            var amount = "1000";
+
+            var settlementEventDto = new SettlementEventDto
+            {
+                Key = settlementKey,
+                TotalAmount = new AmountDto
+                {
+                    Amount = amount
+                }
+            };
+
+            var mpDeposits = new List<MpDeposit>
+            {
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+            };
+
+            _depositRepository.Setup(r => r.GetDepositNamesByDepositName(It.IsAny<string>())).Returns(mpDeposits);
+
+            // Act
+            var result = _fixture.CreateDeposit(settlementEventDto, depositName);
+
+            // Assert
+            Assert.Equal(settlementKey, result.ProcessorTransferId);
+            Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
+            Assert.Equal(result.DepositName, depositName + "011");
         }
 
         [Fact]

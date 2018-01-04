@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
@@ -37,6 +38,19 @@ namespace Crossroads.Service.Finance.Services
 
         public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName)
         {
+            var existingDeposits = _depositRepository.GetDepositNamesByDepositName(depositName);
+
+            // append a number to the deposit, based on how many deposits already exist by that name
+            // with the datetime and deposit type
+            if (existingDeposits.Count < 10)
+            {
+                depositName = depositName + "00" + existingDeposits.Count;
+            }
+            else if (existingDeposits.Count >= 10 && existingDeposits.Count < 100)
+            {
+                depositName = depositName + "0" + existingDeposits.Count;
+            }
+
             var depositDto = new DepositDto
             {
                 // Account number must be non-null, and non-empty; using a single space to fulfill this requirement
