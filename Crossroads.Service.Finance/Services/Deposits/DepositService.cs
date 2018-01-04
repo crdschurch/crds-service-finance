@@ -40,11 +40,6 @@ namespace Crossroads.Service.Finance.Services
         {
             var existingDeposits = _depositRepository.GetDepositNamesByDepositName(depositName);
 
-            if (existingDeposits.Count > 999)
-            {
-                throw new Exception("Over 999 deposits for same time period");
-            }
-
             // append a number to the deposit, based on how many deposits already exist by that name
             // with the datetime and deposit type
             if (existingDeposits.Count < 10)
@@ -54,6 +49,14 @@ namespace Crossroads.Service.Finance.Services
             else if (existingDeposits.Count >= 10 && existingDeposits.Count < 100)
             {
                 depositName = depositName + "0" + existingDeposits.Count;
+            }
+            else if (existingDeposits.Count >= 100 && existingDeposits.Count < 999)
+            {
+                depositName = depositName + existingDeposits.Count;
+            }
+            else if (existingDeposits.Count >= 1000)
+            {
+                throw new Exception("Over 999 deposits for same time period");
             }
 
             var depositDto = new DepositDto
