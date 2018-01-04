@@ -53,25 +53,23 @@ namespace Crossroads.Service.Finance.Services
                 throw new Exception($"No charges found for settlement: {settlementEventDto.Key}");
             }
 
-            // 3. Generate the Deposit Name.
-            var depositName = DateTime.Now.ToString(BatchNameDateFormat);
-
-            // 4. Create and Save the Batch to MP.
-            var donationBatch = _batchService.CreateDonationBatch(settlementPayments.items, depositName + "D",
+            // 3. Create and Save the Batch to MP.
+            var donationBatch = _batchService.CreateDonationBatch(settlementPayments.items, settlementEventDto.Name,
                 DateTime.Now, settlementEventDto.Key);
             var savedDonationBatch = _batchService.SaveDonationBatch(donationBatch);
             donationBatch.Id = savedDonationBatch.Id;
 
-            // 5. Update all the donations to have a status of deposited and to be part of the new batch.
+            // 4. Update all the donations to have a status of deposited and to be part of the new batch.
             var updateDonations = _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id);
             _donationService.Update(updateDonations);
 
-            // 6. Create Deposit with the associated batch (should be one batch for one deposit)
-            var deposit = _depositService.CreateDeposit(settlementEventDto, depositName);
+            // 5. Create Deposit with the associated batch (should be one batch for one deposit)
+            var deposit = _depositService.CreateDeposit(settlementEventDto, settlementEventDto.Name);
             deposit = _depositService.SaveDeposit(deposit);
 
-            // 7. Update batch with deposit id and resave
+            // 6. Update batch with deposit id and name and resave
             donationBatch.DepositId = deposit.Id;
+            donationBatch.BatchName = deposit.DepositName + "D";
             _batchService.UpdateDonationBatch(donationBatch);
         }
 
