@@ -17,12 +17,10 @@ namespace Crossroads.Service.Finance.Controllers
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly IDepositService _depositService;
-        //private readonly ILogger<DepositController> _logger;
 
         public DepositController(IDepositService depositService)
         {
             _depositService = depositService;
-            //_logger = logger;
         }
 
         [HttpPost]
@@ -37,6 +35,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
+                _logger.Error("Error in SyncSettlements: " + ex.Message);
                 return StatusCode(400, ex);
             }
         }
@@ -47,13 +46,12 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                _logger.Debug("Getting active settlements");
                 var result = _depositService.GetDepositsForSync(startdate, enddate);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message);
+                _logger.Error("Error in GetActiveSettlements: " + ex.Message);
                 return StatusCode(400, ex);
             }
         }
@@ -69,6 +67,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
+                _logger.Error("Error in GetAllSettlements: " + ex.Message);
                 return StatusCode(400, ex);
             }
         }
@@ -84,6 +83,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
+                _logger.Error("Error in GetSettlementsPendingSync: " + ex.Message);
                 return StatusCode(400, ex);
             }
         }

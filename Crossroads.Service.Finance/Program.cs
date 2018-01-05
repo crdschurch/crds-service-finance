@@ -19,29 +19,17 @@ namespace Crossroads.Service.Finance
 
         public static void Main(string[] args)
         {
-            // this basically duplicates the section in startup, but may be necessary to log exceptions on application load here
+            // load logging here to capture issues in starting the services
             var loggingEnv = Environment.GetEnvironmentVariable("CRDS_ENV");
+            var loggingPath = Environment.GetEnvironmentVariable("APP_LOG_ROOT");
 
             XmlDocument log4netConfig = new XmlDocument();
 
-            switch (loggingEnv)
-            {
-                case "dev":
-                    log4netConfig.Load(File.OpenRead("log4net.dev.config"));
-                    break;
-                case "int":
-                    log4netConfig.Load(File.OpenRead("log4net.int.config"));
-                    break;
-                case "demo":
-                    log4netConfig.Load(File.OpenRead("log4net.demo.config"));
-                    break;
-                case "prod":
-                    log4netConfig.Load(File.OpenRead("log4net.prod.config"));
-                    break;
-                default:
-                    log4netConfig.Load(File.OpenRead("log4net.config"));
-                    break;
-            }
+            log4netConfig.Load(!string.IsNullOrEmpty(loggingEnv)
+                ? File.OpenRead($"log4net.{loggingEnv}.config")
+                : File.OpenRead($"log4net.config"));
+
+            log4netConfig.InnerXml = log4netConfig.InnerXml.Replace("${APP_LOG_ROOT}", loggingPath);
 
             var repo = log4net.LogManager.CreateRepository(
                 Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
