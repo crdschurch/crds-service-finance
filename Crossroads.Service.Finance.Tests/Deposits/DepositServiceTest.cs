@@ -153,6 +153,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             Assert.Equal(settlementKey, result.ProcessorTransferId);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
             Assert.Equal("DEFGHIJKLMNO" + "011", result.DepositName);
+            Assert.True(15 >= result.DepositName.Length);
         }
 
         [Fact]
