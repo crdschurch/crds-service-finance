@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
+using log4net;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Crossroads.Service.Finance.Controllers
 {
     [Route("api/[controller]")]
     public class DepositController : Controller
     {
+        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         private readonly IDepositService _depositService;
 
         public DepositController(IDepositService depositService)
@@ -30,6 +35,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
+                _logger.Error("Error in SyncSettlements: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }
@@ -45,6 +51,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
+                _logger.Error("Error in GetActiveSettlements: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }
@@ -60,6 +67,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
+                _logger.Error("Error in GetAllSettlements: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }
@@ -75,6 +83,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
+                _logger.Error("Error in GetSettlementsPendingSync: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }
