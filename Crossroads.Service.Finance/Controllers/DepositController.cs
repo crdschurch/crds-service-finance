@@ -35,7 +35,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Error("Error in SyncSettlements: " + ex.Message);
+                _logger.Error("Error in SyncSettlements: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }
@@ -51,7 +51,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Error("Error in GetActiveSettlements: " + ex.Message);
+                _logger.Error("Error in GetActiveSettlements: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }
@@ -67,7 +67,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Error("Error in GetAllSettlements: " + ex.Message);
+                _logger.Error("Error in GetAllSettlements: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }
@@ -83,7 +83,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Error("Error in GetSettlementsPendingSync: " + ex.Message);
+                _logger.Error("Error in GetSettlementsPendingSync: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }
