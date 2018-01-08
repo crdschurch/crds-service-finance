@@ -113,6 +113,50 @@ namespace Crossroads.Service.Finance.Test.Deposits
         }
 
         [Fact]
+        public void ShouldTruncateDepositNameOverFifteenChars()
+        {
+            // Arrange
+            var depositName = "ABCDEFGHIJKLMNO";
+            var settlementKey = "aaabbb111222";
+            var amount = "1000";
+
+            var settlementEventDto = new SettlementEventDto
+            {
+                Key = settlementKey,
+                TotalAmount = new AmountDto
+                {
+                    Amount = amount
+                }
+            };
+
+            var mpDeposits = new List<MpDeposit>
+            {
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+                new MpDeposit(),
+            };
+
+            _depositRepository.Setup(r => r.GetDepositNamesByDepositName(It.IsAny<string>())).Returns(mpDeposits);
+
+            // Act
+            var result = _fixture.CreateDeposit(settlementEventDto, depositName);
+
+            // Assert
+            Assert.Equal(settlementKey, result.ProcessorTransferId);
+            Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
+            Assert.Equal("DEFGHIJKLMNO" + "011", result.DepositName);
+            Assert.True(15 >= result.DepositName.Length);
+        }
+
+        [Fact]
         public void ShouldSendDepositObjectToRepoLayer()
         {
             // Arrange
