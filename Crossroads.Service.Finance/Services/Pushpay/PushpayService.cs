@@ -59,10 +59,15 @@ namespace Crossroads.Service.Finance.Services
             return donation;
         }
 
-	public List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
+        public List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
         {
             var result = _pushpayClient.GetDepositsByDateRange(startDate, endDate);
             return _mapper.Map<List<SettlementEventDto>>(result);
+        }
+
+        public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment)
+        {
+            return _pushpayClient.CreateAnticipatedPayment(anticipatedPayment);
         }
     }
 }

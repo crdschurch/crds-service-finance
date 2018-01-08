@@ -1,19 +1,16 @@
-﻿using System;
+﻿using AutoMapper;
+using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Services;
 using Crossroads.Web.Common.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using AutoMapper;
-using Crossroads.Service.Finance.Interfaces;
-using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Repositories;
-using Pushpay;
 using Pushpay.Client;
-using RestSharp;
 using Pushpay.Token;
+using System;
 
 namespace Crossroads.Service.Finance
 {
@@ -69,10 +66,13 @@ namespace Crossroads.Service.Finance
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            app.UseMvcWithDefaultRoute();
 
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
