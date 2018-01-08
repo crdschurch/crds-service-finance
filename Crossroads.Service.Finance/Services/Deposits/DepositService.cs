@@ -60,9 +60,9 @@ namespace Crossroads.Service.Finance.Services
             }
 
             // limit deposit name to 15 chars or less to comply with GP export
-            if (depositName.Length > 15)
+            if (depositName.Length > 14)
             {
-                var truncateValue = depositName.Length - 15;
+                var truncateValue = depositName.Length - 14;
                 depositName = depositName.Remove(0, truncateValue);
             }
 
