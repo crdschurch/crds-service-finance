@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading;
 using Crossroads.Service.Finance.Models;
+using Newtonsoft.Json;
 using Pushpay.Models;
 using Pushpay.Token;
 using RestSharp;
@@ -13,6 +14,7 @@ namespace Pushpay.Client
     {
         private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
+        private readonly string createAnticipatedPaymentsScope = "create_anticipated_payment";
         private readonly IPushpayTokenService _pushpayTokenService;
         private readonly IRestClient _restClient;
         private const int RequestsPerSecond = 10;
@@ -138,6 +140,31 @@ namespace Pushpay.Client
             }
 
             return pushpayDepositDtos;
+        }
+
+        public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment)
+        {
+            var request = CreateRequest("anticipatedpayments", Method.POST, createAnticipatedPaymentsScope, anticipatedPayment);
+            var response = _restClient.Execute<PushpayAnticipatedPaymentDto>(request);
+            return response.Data;
+        }
+
+        private RestRequest CreateRequest(string resource, Method method, string scope, object body)
+        {
+            _restClient.BaseUrl = apiUri;
+            var request = new RestRequest(method)
+            {
+                Resource = resource,
+                 
+            };
+            var tokenResponse = _pushpayTokenService.GetOAuthToken(scope).Wait();
+            if (body != null)
+            {
+                request.AddHeader("Accept", "application/json");
+                request.AddParameter("application/json", JsonConvert.SerializeObject(body), ParameterType.RequestBody);
+            }
+            request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
+            return request;
         }
 
     }

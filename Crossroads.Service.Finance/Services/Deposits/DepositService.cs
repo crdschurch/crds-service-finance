@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
@@ -37,6 +38,34 @@ namespace Crossroads.Service.Finance.Services
 
         public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName)
         {
+            var existingDeposits = _depositRepository.GetDepositNamesByDepositName(depositName);
+
+            // append a number to the deposit, based on how many deposits already exist by that name
+            // with the datetime and deposit type
+            if (existingDeposits.Count < 10)
+            {
+                depositName = depositName + "00" + existingDeposits.Count;
+            }
+            else if (existingDeposits.Count >= 10 && existingDeposits.Count < 100)
+            {
+                depositName = depositName + "0" + existingDeposits.Count;
+            }
+            else if (existingDeposits.Count >= 100 && existingDeposits.Count < 999)
+            {
+                depositName = depositName + existingDeposits.Count;
+            }
+            else if (existingDeposits.Count >= 1000)
+            {
+                throw new Exception("Over 999 deposits for same time period");
+            }
+
+            // limit deposit name to 15 chars or less to comply with GP export
+            if (depositName.Length > 14)
+            {
+                var truncateValue = depositName.Length - 14;
+                depositName = depositName.Remove(0, truncateValue);
+            }
+
             var depositDto = new DepositDto
             {
                 // Account number must be non-null, and non-empty; using a single space to fulfill this requirement
@@ -75,7 +104,7 @@ namespace Crossroads.Service.Finance.Services
 
             var depositDtos = GetDepositsForSync(startDate, endDate);
 
-            if (!depositDtos.Any())
+            if (depositDtos == null || !depositDtos.Any())
             {
                 return;
             }
