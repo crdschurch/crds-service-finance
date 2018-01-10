@@ -34,8 +34,6 @@ namespace Crossroads.Service.Finance
                 .AddJsonFile($"./appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
-            Console.WriteLine("Configuration");
-            Console.WriteLine(Configuration.GetConnectionString("MinistryPlatformDatabase"));
         }
 
         public IConfigurationRoot Configuration { get; }

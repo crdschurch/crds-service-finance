@@ -18,14 +18,6 @@ namespace Crossroads.Service.Finance.Controllers
             _depositService = depositService;
         }
 
-        [HttpGet]
-        [Route("hello")]
-        public IActionResult Hello()
-        {
-            Console.WriteLine("hello");
-            return Ok();
-        }
-
         [HttpPost]
         [Route("sync")]
         public IActionResult SyncSettlements()

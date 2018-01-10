@@ -16,7 +16,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IDonationService _donationService;
         private readonly IMapper _mapper;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
-        private readonly int webhookDelaySeconds = 5;
+        private readonly int webhookDelayMinutes = 2;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper, IConfigurationWrapper configurationWrapper)
         {
@@ -42,7 +42,7 @@ namespace Crossroads.Service.Finance.Services
 
         public void AddUpdateDonationStatusFromPushpayJob(PushpayWebhook webhook)
         {
-            BackgroundJob.Schedule(() => Console.WriteLine(webhook), TimeSpan.FromSeconds(webhookDelaySeconds));
+            BackgroundJob.Schedule(() => UpdateDonationStatusFromPushpay(webhook), TimeSpan.FromMinutes(webhookDelayMinutes));
         }
 
         public DonationDto UpdateDonationStatusFromPushpay(PushpayWebhook webhook)
