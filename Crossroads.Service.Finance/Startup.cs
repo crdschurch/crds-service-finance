@@ -34,6 +34,8 @@ namespace Crossroads.Service.Finance
                 .AddJsonFile($"./appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
+            Console.WriteLine("Configuration");
+            Console.WriteLine(Configuration.GetConnectionString("MinistryPlatformDatabase"));
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -41,8 +43,11 @@ namespace Crossroads.Service.Finance
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHangfire(config =>
-                config.UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection")));
+            var dbUser = Environment.GetEnvironmentVariable("MP_API_DB_USER");
+            var dbPassword = Environment.GetEnvironmentVariable("MP_API_DB_PASSWORD");
+            var hangfireConnectionString = Configuration["ConnectionStrings:Hangfire"];
+            hangfireConnectionString = String.Format(hangfireConnectionString, dbUser, dbPassword);
+            services.AddHangfire(config =>config.UseSqlServerStorage(hangfireConnectionString));
             services.AddMvc();
             services.AddAutoMapper();
             services.AddDistributedMemoryCache();
@@ -71,6 +76,7 @@ namespace Crossroads.Service.Finance
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseHangfireServer();
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()

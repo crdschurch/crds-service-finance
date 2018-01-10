@@ -4,6 +4,7 @@ using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Web.Common.Configuration;
+using Hangfire;
 using Pushpay.Client;
 using Pushpay.Models;
 
@@ -15,6 +16,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IDonationService _donationService;
         private readonly IMapper _mapper;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
+        private readonly int webhookDelaySeconds = 5;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper, IConfigurationWrapper configurationWrapper)
         {
@@ -36,6 +38,11 @@ namespace Crossroads.Service.Finance.Services
         {
             var result = _pushpayClient.GetPayment(webhook);
             return _mapper.Map<PaymentDto>(result);
+        }
+
+        public void AddUpdateDonationStatusFromPushpayJob(PushpayWebhook webhook)
+        {
+            BackgroundJob.Schedule(() => Console.WriteLine(webhook), TimeSpan.FromSeconds(webhookDelaySeconds));
         }
 
         public DonationDto UpdateDonationStatusFromPushpay(PushpayWebhook webhook)
