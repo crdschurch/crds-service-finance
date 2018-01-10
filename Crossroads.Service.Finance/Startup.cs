@@ -11,6 +11,7 @@ using MinistryPlatform.Repositories;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
+using Hangfire;
 
 namespace Crossroads.Service.Finance
 {
@@ -40,6 +41,8 @@ namespace Crossroads.Service.Finance
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHangfire(config =>
+                config.UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection")));
             services.AddMvc();
             services.AddAutoMapper();
             services.AddDistributedMemoryCache();
