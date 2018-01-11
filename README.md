@@ -49,3 +49,8 @@ dotnet test
 # or if you want to watch test files for changes
 dotnet watch test
 ```
+
+
+## Hangfire
+
+[Hangfire](https://www.hangfire.io/) is being used as a job scheduler due to Pushpay sending webhooks right after a donation is created in their system and it not necessarily being created in MP by their integration at the time the webhook comes in. Currently, the job checks every minute for 10 minutes to see if it created.
