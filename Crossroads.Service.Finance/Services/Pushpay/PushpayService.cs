@@ -48,7 +48,7 @@ namespace Crossroads.Service.Finance.Services
         {
             // add incoming timestamp so that we can reprocess job for a
             //   certain amount of time
-            webhook.IncomingTime = DateTime.Now;
+            webhook.IncomingTimeUtc = DateTime.UtcNow;
             AddUpdateDonationStatusFromPushpayJob(webhook);
         }
 
@@ -81,8 +81,8 @@ namespace Crossroads.Service.Finance.Services
                 return donation;
             } catch (Exception e) {
                 // donation not created by pushpay yet
-                var now = DateTime.Now;
-                var webhookTime = webhook.IncomingTime;
+                var now = DateTime.UtcNow;
+                var webhookTime = webhook.IncomingTimeUtc;
                 // if it's been less than ten minutes, try again in a minute
                 if ((now - webhookTime).TotalMinutes < maxRetryMinutes && retry)
                 {
