@@ -47,7 +47,7 @@ namespace Crossroads.Service.Finance.Services
         public void AddUpdateStatusJob(PushpayWebhook webhook)
         {
             // add incoming timestamp so that we can reprocess job for a
-            //   certain amonut of time
+            //   certain amount of time
             webhook.IncomingTime = DateTime.Now;
             AddUpdateDonationStatusFromPushpayJob(webhook);
         }
