@@ -23,7 +23,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                _pushpayService.AddUpdateDonationStatusFromPushpayJob(pushpayWebhook);
+                _pushpayService.AddUpdateStatusJob(pushpayWebhook);
                 return Ok();
             }
             catch (Exception ex)
@@ -38,7 +38,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                _pushpayService.AddUpdateDonationStatusFromPushpayJob(pushpayWebhook);
+                _pushpayService.AddUpdateStatusJob(pushpayWebhook);
                 return Ok();
             }
             catch (Exception ex)
