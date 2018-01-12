@@ -19,15 +19,6 @@ namespace Crossroads.Service.Finance
     {
         public Startup(IHostingEnvironment env)
         {
-            try
-            {
-                DotNetEnv.Env.Load("../.env");
-            }
-            catch (Exception e)
-            {
-                // no .env file present but since not required, just write
-                Console.Write(e);
-            }
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("./appsettings.json", optional: false, reloadOnChange: true)

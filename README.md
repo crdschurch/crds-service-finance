@@ -14,6 +14,7 @@ create a .env file in the project root with the following variables and set
 values
 
 ```
+ASPNETCORE_ENVIRONMENT=Development
 API_USER=
 API_PASSWORD=
 MP_OAUTH_BASE_URL=
@@ -53,4 +54,4 @@ dotnet watch test
 
 ## Hangfire
 
-[Hangfire](https://www.hangfire.io/) is being used as a job scheduler due to Pushpay sending webhooks right after a donation is created in their system and it not necessarily being created in MP by their integration at the time the webhook comes in. Currently, the job checks every minute for 10 minutes to see if it created.
+[Hangfire](https://www.hangfire.io/) is being used as a job scheduler due to Pushpay sending webhooks right after a donation is created in their system and it not necessarily being created in MP by their integration at the time the webhook comes in. Currently, the job checks every minute for 10 minutes to see if it created. Hangfire connects directly to the Hangfire database that sits alongside Ministry Platform.

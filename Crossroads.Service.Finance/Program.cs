@@ -38,6 +38,17 @@ namespace Crossroads.Service.Finance
 
             log.Info("Application - Main is invoked");
 
+            // load environment variables from .env file for local development
+            try
+            {
+                DotNetEnv.Env.Load("../.env");
+            }
+            catch (Exception e)
+            {
+                // no .env file present but since not required, just write
+                Console.Write(e);
+            }
+
             var host = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
