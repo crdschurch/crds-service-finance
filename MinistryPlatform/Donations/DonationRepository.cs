@@ -30,6 +30,7 @@ namespace MinistryPlatform.Repositories
 
             if(!donations.Any())
             {
+                // TODO possibly refactor to create a more custom exception
                 throw new Exception($"Donation does not exist for transaction code: {transactionCode}");
             }
 
