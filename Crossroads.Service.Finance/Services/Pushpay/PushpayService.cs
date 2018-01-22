@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Web.Common.Configuration;
+using Hangfire;
+using log4net;
 using Pushpay.Client;
 using Pushpay.Models;
 
@@ -11,10 +14,13 @@ namespace Crossroads.Service.Finance.Services
 {
     public class PushpayService : IPushpayService
     {
+        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IPushpayClient _pushpayClient;
         private readonly IDonationService _donationService;
         private readonly IMapper _mapper;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
+        private readonly int webhookDelayMinutes = 1;
+        private readonly int maxRetryMinutes = 10;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper, IConfigurationWrapper configurationWrapper)
         {
@@ -38,25 +44,62 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<PaymentDto>(result);
         }
 
-        public DonationDto UpdateDonationStatusFromPushpay(PushpayWebhook webhook)
+        public void AddUpdateStatusJob(PushpayWebhook webhook)
         {
-            var pushpayPayment = _pushpayClient.GetPayment(webhook);
-            var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
-            if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
-            {
-                donation.DonationStatusId = _mpDonationStatusPending;
-            }
-            else if (pushpayPayment.IsStatusSuccess)
-            {
-                donation.DonationStatusId = _mpDonationStatusSucceeded;
+            // add incoming timestamp so that we can reprocess job for a
+            //   certain amount of time
+            webhook.IncomingTimeUtc = DateTime.UtcNow;
+            AddUpdateDonationStatusFromPushpayJob(webhook);
+        }
 
+        private void AddUpdateDonationStatusFromPushpayJob(PushpayWebhook webhook)
+        {
+            BackgroundJob.Schedule(() => UpdateDonationStatusFromPushpay(webhook, true), TimeSpan.FromMinutes(webhookDelayMinutes));
+        }
+
+        public DonationDto UpdateDonationStatusFromPushpay(PushpayWebhook webhook, bool retry=false)
+        {
+            try {
+                var pushpayPayment = _pushpayClient.GetPayment(webhook);
+                // PushPay creates the donation a variable amount of time after the webhook comes in
+                //   so it still may not be available
+                var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
+                if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
+                {
+                    donation.DonationStatusId = _mpDonationStatusPending;
+                }
+                else if (pushpayPayment.IsStatusSuccess)
+                {
+                    donation.DonationStatusId = _mpDonationStatusSucceeded;
+
+                }
+                else if (pushpayPayment.IsStatusFailed)
+                {
+                    donation.DonationStatusId = _mpDonationStatusDeclined;
+                }
+                _donationService.Update(donation);
+                return donation;
+            } catch (Exception e) {
+                // donation not created by pushpay yet
+                var now = DateTime.UtcNow;
+                var webhookTime = webhook.IncomingTimeUtc;
+                // if it's been less than ten minutes, try again in a minute
+                if ((now - webhookTime).TotalMinutes < maxRetryMinutes && retry)
+                {
+                    AddUpdateDonationStatusFromPushpayJob(webhook);
+                    // dont throw an exception as Hangfire tries to handle it
+                    _logger.Error($"Payment: {webhook.Events[0].Links.Payment} not found in MP. Trying again in a minute.", e);
+                    return null;
+                }
+                // it's been more than 10 minutes, let's chalk it up as PushPay
+                //   ain't going to create it and call it a day
+                else
+                {
+                    // dont throw an exception as Hangfire tries to handle it
+                    _logger.Error($"Payment: {webhook.Events[0].Links.Payment} not found in MP after 10 minutes of trying. Giving up.", e);
+                    return null;
+                }
             }
-            else if (pushpayPayment.IsStatusFailed)
-            {
-                donation.DonationStatusId = _mpDonationStatusDeclined;
-            }
-            _donationService.Update(donation);
-            return donation;
         }
 
         public List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)

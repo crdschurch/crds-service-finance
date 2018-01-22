@@ -8,7 +8,8 @@ namespace Crossroads.Service.Finance.Interfaces
     public interface IPushpayService
     {
         PaymentsDto GetChargesForTransfer(string settlementKey);
-        DonationDto UpdateDonationStatusFromPushpay(PushpayWebhook webhook);
+        void AddUpdateStatusJob(PushpayWebhook webhook);
+        DonationDto UpdateDonationStatusFromPushpay(PushpayWebhook webhook, bool retry = false);
         List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
         PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment);
     }
