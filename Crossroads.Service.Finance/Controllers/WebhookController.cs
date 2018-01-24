@@ -2,6 +2,7 @@
 using System.Threading;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Crossroads.Service.Finance.Controllers
@@ -22,8 +23,8 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                Thread.Sleep(60000);
-                return Ok(_pushpayService.UpdateDonationStatusFromPushpay(pushpayWebhook));
+                _pushpayService.AddUpdateStatusJob(pushpayWebhook);
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -37,8 +38,8 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                Thread.Sleep(60000);
-                return Ok(_pushpayService.UpdateDonationStatusFromPushpay(pushpayWebhook));
+                _pushpayService.AddUpdateStatusJob(pushpayWebhook);
+                return Ok();
             }
             catch (Exception ex)
             {
