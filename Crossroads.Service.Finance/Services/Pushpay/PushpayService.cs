@@ -7,6 +7,8 @@ using Crossroads.Service.Finance.Models;
 using Crossroads.Web.Common.Configuration;
 using Hangfire;
 using log4net;
+using MinistryPlatform.Interfaces;
+using MinistryPlatform.Models;
 using Pushpay.Client;
 using Pushpay.Models;
 
@@ -17,16 +19,18 @@ namespace Crossroads.Service.Finance.Services
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IPushpayClient _pushpayClient;
         private readonly IDonationService _donationService;
+        private readonly IRecurringGiftRepository _recurringGiftRepository;
         private readonly IMapper _mapper;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
         private readonly int webhookDelayMinutes = 1;
         private readonly int maxRetryMinutes = 10;
 
-        public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper, IConfigurationWrapper configurationWrapper)
+        public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper, IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository)
         {
             _pushpayClient = pushpayClient;
             _donationService = donationService;
             _mapper = mapper;
+            _recurringGiftRepository = recurringGiftRepository;
             _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
@@ -111,6 +115,13 @@ namespace Crossroads.Service.Finance.Services
         public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment)
         {
             return _pushpayClient.CreateAnticipatedPayment(anticipatedPayment);
+        }
+
+        public void CreateRecurringGift(PushpayWebhook webhook)
+        {
+            var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringGift);
+            var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
+            _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
         }
     }
 }

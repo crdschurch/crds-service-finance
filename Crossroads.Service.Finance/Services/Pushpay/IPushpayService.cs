@@ -12,5 +12,6 @@ namespace Crossroads.Service.Finance.Interfaces
         DonationDto UpdateDonationStatusFromPushpay(PushpayWebhook webhook, bool retry = false);
         List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
         PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment);
+        void CreateRecurringGift(PushpayWebhook webhook);
     }
 }
