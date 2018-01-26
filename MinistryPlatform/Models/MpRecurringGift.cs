@@ -9,8 +9,8 @@ namespace MinistryPlatform.Models
     [MpRestApiTable(Name = "Recurring_Gifts")]
     public class MpRecurringGift
     {
-        [JsonProperty("Recurring_Gift_ID")]
-        public int RecurringGiftId { get; set; }
+        //[JsonProperty("Recurring_Gift_ID")]
+        //public int RecurringGiftId { get; set; }
 
         [JsonProperty("Donor_ID")]
         public int DonorId { get; set; }

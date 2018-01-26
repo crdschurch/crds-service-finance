@@ -53,8 +53,6 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                Console.WriteLine("pushpayWebhook");
-                Console.WriteLine(pushpayWebhook);
                 _pushpayService.CreateRecurringGift(pushpayWebhook);
                 return Ok();
             }

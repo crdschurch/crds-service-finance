@@ -19,5 +19,9 @@ public class MappingProfile : Profile
         CreateMap<PushpayPaymentsDto, PaymentsDto>();
         CreateMap<PushpaySettlementDto, SettlementEventDto>();
         CreateMap<PushpaySettlementDto, SettlementDto>();
+        CreateMap<PushpayRecurringGiftDto, MpRecurringGift>()
+            .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount.Amount));
+            // TODO additional mappings
+        CreateMap<MpRecurringGift, RecurringGiftDto>();
     }
 }

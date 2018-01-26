@@ -155,6 +155,7 @@ namespace Pushpay.Client
         {
             var request = CreateRequest(resource, Method.GET, recurringGiftsScope);
             var response = _restClient.Execute<PushpayRecurringGiftDto>(request);
+            Console.WriteLine(response.Data);
             return response.Data;
         }
 
@@ -163,8 +164,7 @@ namespace Pushpay.Client
             _restClient.BaseUrl = apiUri;
             var request = new RestRequest(method)
             {
-                Resource = resource,
-
+                Resource = resource
             };
             var tokenResponse = _pushpayTokenService.GetOAuthToken(scope).Wait();
             if (body != null)
