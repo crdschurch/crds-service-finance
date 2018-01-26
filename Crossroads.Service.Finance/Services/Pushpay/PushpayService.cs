@@ -123,7 +123,6 @@ namespace Crossroads.Service.Finance.Services
             var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.Payment);
             var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
             // TODO try to match donor
-
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }
