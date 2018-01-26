@@ -7,10 +7,11 @@ namespace Pushpay.Models
 {
     public class PushpayRecurringGiftDto
     {
+        
         // TODO
 
-        //[JsonProperty("key")]
-        //public string Key { get; set; }
+        [JsonProperty("key")]
+        public string Key { get; set; }
 
         //[JsonProperty("name")]
         //public string Name { get; set; }
