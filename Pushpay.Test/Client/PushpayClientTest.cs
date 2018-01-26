@@ -171,5 +171,13 @@ namespace Pushpay.Test
 
             Assert.Equal(mockPushpayUrl, result.Links.Pay.Href);
         }
+
+        [Fact]
+        public void GetRecurringGiftTest()
+        {
+            _fixture.GetRecurringGift(null);
+
+            Assert.NotNull(null);
+        }
     }
 }

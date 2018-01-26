@@ -25,7 +25,8 @@ namespace Crossroads.Service.Finance.Services
         private readonly int webhookDelayMinutes = 1;
         private readonly int maxRetryMinutes = 10;
 
-        public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper, IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository)
+        public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
+                              IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository)
         {
             _pushpayClient = pushpayClient;
             _donationService = donationService;

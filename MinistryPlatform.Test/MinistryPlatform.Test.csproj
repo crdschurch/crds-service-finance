@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <Folder Include="Batches\" />
+    <Folder Include="RecurringGift\" />
   </ItemGroup>
 
   <ItemGroup>

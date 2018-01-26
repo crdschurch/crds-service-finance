@@ -19,6 +19,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         private readonly Mock<IDonationService> _donationService;
         private readonly Mock<IMapper> _mapper;
         private readonly Mock<IConfigurationWrapper> _configurationWrapper;
+        private readonly Mock<IRecurringGiftRepository> _recurringGiftRepository;
 
         private readonly IPushpayService _fixture;
 
@@ -28,8 +29,10 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _donationService = new Mock<IDonationService>();
             _mapper = new Mock<IMapper>();
             _configurationWrapper = new Mock<IConfigurationWrapper>();
+            _recurringGiftRepository = new Mock<IRecurringGiftRepository>();
 
-            _fixture = new PushpayService(_pushpayClient.Object, _donationService.Object, _mapper.Object, _configurationWrapper.Object);
+            _fixture = new PushpayService(_pushpayClient.Object, _donationService.Object, _mapper.Object,
+                                          _configurationWrapper.Object, _recurringGiftRepository.Object);
         }
 
         [Fact]
@@ -100,5 +103,13 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             // Assert
             Assert.NotNull(result);
         }
-    }    
+
+        [Fact]
+        public void ShouldCreateRecurringGift()
+        {
+            _fixture.CreateRecurringGift(null);
+
+            Assert.NotNull(null);
+        }
+    }
 }
