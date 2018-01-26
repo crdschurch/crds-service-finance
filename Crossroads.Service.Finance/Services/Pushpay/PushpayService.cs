@@ -118,11 +118,12 @@ namespace Crossroads.Service.Finance.Services
             return _pushpayClient.CreateAnticipatedPayment(anticipatedPayment);
         }
 
-        public void CreateRecurringGift(PushpayWebhook webhook)
+        public RecurringGiftDto CreateRecurringGift(PushpayWebhook webhook)
         {
             var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringGift);
             var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
-            _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
+            mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
+            return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }
     }
 }

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using Crossroads.Service.Finance.Models;
 using Pushpay.Models;
+using MinistryPlatform.Models;
 
 namespace Crossroads.Service.Finance.Test.Pushpay
 {
@@ -107,9 +108,29 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         [Fact]
         public void ShouldCreateRecurringGift()
         {
-            _fixture.CreateRecurringGift(null);
+            var link = "https://link.com";
+            var webhook = new PushpayWebhook()
+            {
+                Events = new List<PushpayWebhookEvent>(){
+                    new PushpayWebhookEvent()
+                    {
+                        Links = new PushpayWebhookLinks()
+                        {
+                            RecurringGift = link
+                        }
+                    }
+                }
+            };
+            var pushpayRecurringGift = new PushpayRecurringGiftDto() { };
+            var mpRecurringGift = new MpRecurringGift() { };
+            var recurringGift = new RecurringGiftDto() { };
+            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
+            _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<MpRecurringGift>())).Returns(mpRecurringGift);
+            _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<RecurringGiftDto>())).Returns(recurringGift);
 
-            Assert.NotNull(null);
+            var result = _fixture.CreateRecurringGift(webhook);
+
+            Assert.NotNull(result);
         }
     }
 }
