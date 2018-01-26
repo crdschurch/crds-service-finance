@@ -116,7 +116,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     {
                         Links = new PushpayWebhookLinks()
                         {
-                            RecurringGift = link
+                            Payment = link
                         }
                     }
                 }

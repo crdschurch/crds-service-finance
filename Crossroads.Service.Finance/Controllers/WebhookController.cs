@@ -48,11 +48,13 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost]
-        [Route("recurring/created")]
+        [Route("recurring-gift/created")]
         public IActionResult RecurringGiftCreated([FromBody] PushpayWebhook pushpayWebhook)
         {
             try
             {
+                Console.WriteLine("pushpayWebhook");
+                Console.WriteLine(pushpayWebhook);
                 _pushpayService.CreateRecurringGift(pushpayWebhook);
                 return Ok();
             }

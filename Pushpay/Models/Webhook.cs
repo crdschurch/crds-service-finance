@@ -23,12 +23,6 @@ namespace Crossroads.Service.Finance.Models
 
         [JsonProperty("merchant")]
         public string Merchant { get; set; }
-
-        [JsonProperty("anticipantedpayment")]
-        public string AnticipatedPayment { get; set; }
-
-        [JsonProperty("recurringgift")]
-        public string RecurringGift { get; set; }
     }
 
     public class PushpayWebhookEvent
