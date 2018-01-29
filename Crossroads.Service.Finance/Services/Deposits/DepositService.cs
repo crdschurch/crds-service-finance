@@ -68,7 +68,7 @@ namespace Crossroads.Service.Finance.Services
                 depositName = depositName.Remove(0, truncateValue);
             }
 
-            var estDepositDate = String.Format("{MM-dd-yyyy}", settlementEventDto.EstimatedDepositDate);
+            var estDepositDate = settlementEventDto.EstimatedDepositDate.ToString("MM-dd-yyyy");
             var depositDto = new DepositDto
             {
                 // Account number must be non-null, and non-empty; using a single space to fulfill this requirement
