@@ -61,6 +61,8 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IDepositRepository, DepositRepository>();
             services.AddSingleton<IDonationRepository, DonationRepository>();
             services.AddSingleton<IRecurringGiftRepository, RecurringGiftRepository>();
+            services.AddSingleton<IProgramRepository, ProgramRepository>();
+            services.AddSingleton<IContactRepository, ContactRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

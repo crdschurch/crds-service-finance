@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Models;
 using Pushpay.Models;
@@ -21,11 +22,13 @@ public class MappingProfile : Profile
         CreateMap<PushpaySettlementDto, SettlementDto>();
         CreateMap<PushpayRecurringGiftDto, MpRecurringGift>()
             .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount.Amount))
-            .ForMember(d => d.FrequencyId, o => o.ResolveUsing(r => {
+            .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Schedule.StartDate))
+            .ForMember(dest => dest.FrequencyId, opt => opt.ResolveUsing(r =>
+            {
                 switch (r.Schedule.Frequency)
                 {
                     case "Weekly":
-                        return 1;
+                      return 1;
                     case "Monthly":
                         return 2;
                     case "FirstAndFifteenth":
@@ -35,8 +38,23 @@ public class MappingProfile : Profile
                     default:
                         return 0;
                 }
-            }));
-            // TODO additional mappings
+            }))
+            .ForMember(dest => dest.DayOfMonth, opt => opt.ResolveUsing(r =>
+                {
+                    switch (r.Schedule.Frequency)
+                    {
+                        case "Monthly":
+                            return r.Schedule.StartDate.Day;
+                        default:
+                            return 0;
+                    }
+                }
+            ))
+            .ForMember(dest => dest.DayOfWeek, opt => opt.ResolveUsing(r =>
+                {
+                    return MpRecurringGiftDays.GetMpRecurringGiftDay(r.Schedule.StartDate);
+                }
+            ));
         CreateMap<MpRecurringGift, RecurringGiftDto>();
     }
 }

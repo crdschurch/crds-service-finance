@@ -1,8 +1,10 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
+using Newtonsoft.Json;
 
 namespace MinistryPlatform.Repositories
 {
@@ -17,10 +19,20 @@ namespace MinistryPlatform.Repositories
         {
             var token = ApiUserRepository.GetDefaultApiUserToken();
 
-            return MpRestBuilder.NewRequestBuilder()
-                .WithAuthenticationToken(token)
-                .Build()
-                .Create(mpRecurringGift);
+            try
+            {
+                Console.WriteLine(JsonConvert.SerializeObject(mpRecurringGift, Formatting.Indented));
+                return MpRestBuilder.NewRequestBuilder()
+                    .WithAuthenticationToken(token)
+                    .Build()
+                    .Create(mpRecurringGift);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("error");
+                Console.WriteLine(e);
+                return null;
+            }
         }
     }
 }

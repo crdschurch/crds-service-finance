@@ -55,5 +55,15 @@ namespace Crossroads.Service.Finance.Services
             var mpDonations = _donationRepository.Update(_mapper.Map<List<MpDonation>>(donations));
             return _mapper.Map<List<DonationDto>>(mpDonations);
         }
+
+        public MpDonor CreateDonor(MpDonor donor)
+        {
+            return _donationRepository.CreateDonor(donor);
+        }
+
+        public MpDonorAccount CreateDonorAccount(MpDonorAccount donor)
+        {
+            return _donationRepository.CreateDonorAccount(donor);
+        }
     }
 }

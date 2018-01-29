@@ -20,18 +20,23 @@ namespace Crossroads.Service.Finance.Services
         private readonly IPushpayClient _pushpayClient;
         private readonly IDonationService _donationService;
         private readonly IRecurringGiftRepository _recurringGiftRepository;
+        private readonly IProgramRepository _programRepository;
+        private readonly IContactRepository _contactRepository;
         private readonly IMapper _mapper;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
         private readonly int webhookDelayMinutes = 1;
         private readonly int maxRetryMinutes = 10;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
-                              IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository)
+                              IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
+                              IProgramRepository programRepository, IContactRepository contactRepository)
         {
             _pushpayClient = pushpayClient;
             _donationService = donationService;
             _mapper = mapper;
             _recurringGiftRepository = recurringGiftRepository;
+            _programRepository = programRepository;
+            _contactRepository = contactRepository;
             _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
@@ -122,9 +127,52 @@ namespace Crossroads.Service.Finance.Services
         {
             var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.Payment);
             var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
-            // TODO try to match donor
+            // TODO should check to see if there is one matched first (donor processor id)
+            var donorContact = FindOrCreateDonor(pushpayRecurringGift);
+
+            mpRecurringGift.DonorId = donorContact.DonorId.Value;
+            mpRecurringGift.DonorAccountId = donorContact.DonorAccountId.Value;
+            mpRecurringGift.CongregationId = 1;
+
+            mpRecurringGift.ConsecutiveFailureCount = 0;
+            mpRecurringGift.SubscriptionId = " ";
+            mpRecurringGift.DomainId = 1;
+            mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Name).ProgramId;
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
+        }
+
+        public MpContact FindOrCreateDonor(PushpayRecurringGiftDto gift)
+        {
+            var contact = _contactRepository.MatchContact(gift.Payer.FirstName, gift.Payer.LastName,
+                                            gift.Payer.MobileNumber, gift.Payer.EmailAddress);
+            if (contact != null) {
+                if (contact.DonorId == null)
+                {
+                    // create donor and attach to contact
+                    var mpDonor = new MpDonor()
+                    {
+                        ContactId = contact.ContactId,
+                        StatementFrequencyId = 2, // annual
+                        StatementTypeId = 1, // individual
+                        SetupDate = DateTime.Now
+                    };
+                    _donationService.CreateDonor(mpDonor);
+                }
+                // create donor account and attach to contact.donor_account_id
+                var isBank = gift.Account != null;
+                var mpDonorAccount = new MpDonorAccount()
+                {
+                    AccountNumber = isBank ? gift.Account.Reference : gift.Card.Reference,
+                    InstitutionName = isBank ? "Bank" : gift.Card.Brand,
+                    RoutingNumber =  isBank ? gift.Account.RoutingNumber : ""
+                };
+                var newDonorAccount = _donationService.CreateDonorAccount(mpDonorAccount);
+                contact.DonorAccountId = newDonorAccount.DonorAccountId;
+                return contact;
+            } else {
+                // TODO assign default contact
+            }
         }
     }
 }

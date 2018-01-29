@@ -20,8 +20,14 @@ namespace Pushpay.Models
         [JsonProperty("payer")]
         public PushpayPayer Payer { get; set; }
 
+        [JsonProperty("paymentMethodType")]
+        public string PaymentMethodType { get; set; }
+
         [JsonProperty("card")]
         public PushpayCard Card { get; set; }
+
+        [JsonProperty("account")]
+        public PushpayAccount Account { get; set; }
 
         [JsonProperty("fund")]
         public PushpayFund Fund { get; set; }
@@ -79,6 +85,24 @@ namespace Pushpay.Models
 
         [JsonProperty("logo")]
         public string Logo { get; set; }
+    }
+
+    public class PushpayAccount
+    {
+        [JsonProperty("routingNumber")]
+        public string RoutingNumber { get; set; }
+
+        [JsonProperty("reference")]
+        public string Reference { get; set; }
+
+        [JsonProperty("bankName")]
+        public string BankName { get; set; }
+
+        [JsonProperty("accountName")]
+        public string AccountName { get; set; }
+
+        [JsonProperty("accountType")]
+        public string AccountType { get; set; }
     }
 
     public class PushpayFund
