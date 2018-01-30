@@ -26,6 +26,9 @@ namespace Crossroads.Service.Finance.Services
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
         private readonly int webhookDelayMinutes = 1;
         private readonly int maxRetryMinutes = 10;
+        const int defaultContactId = 1;
+        const int defaultContactDonorId = 1;
+        const int defaultCongregationId = 1;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
@@ -127,52 +130,99 @@ namespace Crossroads.Service.Finance.Services
         {
             var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.Payment);
             var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
-            // TODO should check to see if there is one matched first (donor processor id)
-            var donorContact = FindOrCreateDonor(pushpayRecurringGift);
+            var donor = FindOrCreateDonorAndDonationAccount(pushpayRecurringGift);
 
-            mpRecurringGift.DonorId = donorContact.DonorId.Value;
-            mpRecurringGift.DonorAccountId = donorContact.DonorAccountId.Value;
-            mpRecurringGift.CongregationId = 1;
+            mpRecurringGift.DonorId = donor.DonorId.Value;
+            mpRecurringGift.DonorAccountId = donor.DonorAccountId.Value;
+            mpRecurringGift.CongregationId = _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
 
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.SubscriptionId = " ";
             mpRecurringGift.DomainId = 1;
-            mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Name).ProgramId;
+            mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
+
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }
 
-        public MpContact FindOrCreateDonor(PushpayRecurringGiftDto gift)
+        private MpDonor FindOrCreateDonorAndDonationAccount(PushpayRecurringGiftDto gift)
         {
-            var contact = _contactRepository.MatchContact(gift.Payer.FirstName, gift.Payer.LastName,
+            var existingMatchedDonor = _contactRepository.FindDonorByProcessorId(gift.Payer.Key);
+            if (existingMatchedDonor != null && existingMatchedDonor.DonorId.HasValue) {
+                // we found a matching donor by processor id (i.e. we have previously matched them)
+                //   create a new donor account on donor for this recurring gift
+                existingMatchedDonor.DonorAccountId = CreateDonorAccount(gift, existingMatchedDonor.DonorId.Value).DonorAccountId;
+                return existingMatchedDonor;
+            }
+            // we didn't match a donor with a processor id (i.e. previously matched), so let's
+            //   run the same stored proc that PushPay uses to   attempt to match
+            var matchedContact = _contactRepository.MatchContact(gift.Payer.FirstName, gift.Payer.LastName,
                                             gift.Payer.MobileNumber, gift.Payer.EmailAddress);
-            if (contact != null) {
-                if (contact.DonorId == null)
+
+            if (matchedContact != null)
+            {
+                // contact was matched
+                if (matchedContact.DonorId == null)
                 {
-                    // create donor and attach to contact
+                    // matched contact did not have a donor record,
+                    //   so create and attach donor to contact
                     var mpDonor = new MpDonor()
                     {
-                        ContactId = contact.ContactId,
+                        ContactId = matchedContact.ContactId,
                         StatementFrequencyId = 2, // annual
                         StatementTypeId = 1, // individual
+                        StatementMethodId = 2, // email+online
                         SetupDate = DateTime.Now
                     };
-                    _donationService.CreateDonor(mpDonor);
+                    matchedContact.DonorId = _donationService.CreateDonor(mpDonor).DonorId;
                 }
-                // create donor account and attach to contact.donor_account_id
-                var isBank = gift.Account != null;
-                var mpDonorAccount = new MpDonorAccount()
-                {
-                    AccountNumber = isBank ? gift.Account.Reference : gift.Card.Reference,
-                    InstitutionName = isBank ? "Bank" : gift.Card.Brand,
-                    RoutingNumber =  isBank ? gift.Account.RoutingNumber : ""
-                };
-                var newDonorAccount = _donationService.CreateDonorAccount(mpDonorAccount);
-                contact.DonorAccountId = newDonorAccount.DonorAccountId;
-                return contact;
+                // update processor id on donor account so we dont have to manually match next time
+                _contactRepository.UpdateProcessor(matchedContact.DonorId.Value, gift.Payer.Key);
+
+                // create donor account and attach to contact
+                matchedContact.DonorAccountId = CreateDonorAccount(gift, matchedContact.DonorId.Value).DonorAccountId;
+                return matchedContact;
             } else {
-                // TODO assign default contact
+                // donor not matched, assign to default contact
+                var donorAccount = CreateDonorAccount(gift, defaultContactDonorId);
+                var mpDoner = new MpDonor()
+                {
+                    DonorId = defaultContactId,
+                    DonorAccountId = donorAccount.DonorAccountId,
+                    CongregationId = defaultCongregationId
+                };
+                //_donationService.CreateDonor(mpDoner);
+                return mpDoner;
             }
+        }
+
+        private MpDonorAccount CreateDonorAccount(PushpayRecurringGiftDto gift, int donorId)
+        {
+            var isBank = gift.Account != null;
+            var mpDonorAccount = new MpDonorAccount()
+            {
+                AccountNumber = isBank ? gift.Account.Reference : gift.Card.Reference,
+                InstitutionName = isBank ? gift.Account.BankName : gift.Card.Brand,
+                RoutingNumber = isBank ? gift.Account.RoutingNumber : null,
+                DonorId = donorId,
+                NonAssignable = false,
+                DomainId = 1,
+                Closed = false
+            };
+            // set account type
+            switch (gift.PaymentMethodType)
+            {
+                case "ACH":
+                    mpDonorAccount.AccountTypeId = MpAccountTypes.Savings;
+                    break;
+                case "AchCheck":
+                    mpDonorAccount.AccountTypeId = MpAccountTypes.Checkings;
+                    break;
+                case "CreditCard":
+                    mpDonorAccount.AccountTypeId = MpAccountTypes.CreditCard;
+                    break;
+            }
+            return _donationService.CreateDonorAccount(mpDonorAccount);
         }
     }
 }

@@ -28,15 +28,15 @@ public class MappingProfile : Profile
                 switch (r.Schedule.Frequency)
                 {
                     case "Weekly":
-                      return 1;
+                        return MpRecurringFrequency.Weekly;
                     case "Monthly":
-                        return 2;
+                        return MpRecurringFrequency.Monthly;
                     case "FirstAndFifteenth":
-                        return 3;
+                        return MpRecurringFrequency.FirstAndFifteenth;
                     case "Fortnightly":
-                        return 4;
+                        return MpRecurringFrequency.EveryOtherWeek;
                     default:
-                        return 0;
+                        return (int?)null;
                 }
             }))
             .ForMember(dest => dest.DayOfMonth, opt => opt.ResolveUsing(r =>
@@ -46,13 +46,20 @@ public class MappingProfile : Profile
                         case "Monthly":
                             return r.Schedule.StartDate.Day;
                         default:
-                            return 0;
+                            return (int?)null;
                     }
                 }
             ))
             .ForMember(dest => dest.DayOfWeek, opt => opt.ResolveUsing(r =>
                 {
-                    return MpRecurringGiftDays.GetMpRecurringGiftDay(r.Schedule.StartDate);
+                   switch (r.Schedule.Frequency)
+                    {
+                        case "Weekly":
+                        case "Fortnightly":
+                            return MpRecurringGiftDays.GetMpRecurringGiftDay(r.Schedule.StartDate);
+                        default:
+                            return (int?)null;
+                    }
                 }
             ));
         CreateMap<MpRecurringGift, RecurringGiftDto>();

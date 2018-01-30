@@ -21,7 +21,6 @@ namespace MinistryPlatform.Repositories
 
             try
             {
-                Console.WriteLine(JsonConvert.SerializeObject(mpRecurringGift, Formatting.Indented));
                 return MpRestBuilder.NewRequestBuilder()
                     .WithAuthenticationToken(token)
                     .Build()
@@ -29,8 +28,7 @@ namespace MinistryPlatform.Repositories
             }
             catch (Exception e)
             {
-                Console.WriteLine("error");
-                Console.WriteLine(e);
+                // TODO log
                 return null;
             }
         }

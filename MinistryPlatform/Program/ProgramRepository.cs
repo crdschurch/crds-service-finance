@@ -21,7 +21,9 @@ namespace MinistryPlatform.Repositories
         {
             var token = ApiUserRepository.GetDefaultApiUserToken();
 
-            var filter = $"Program_Name LIKE '{programName}'";
+            // replace ' with '' so that we can search for
+            //  a program like I'm in
+            var filter = $"Program_Name = '{programName.Replace("'", "''")}'";
             var programs = MpRestBuilder.NewRequestBuilder()
                                 .WithAuthenticationToken(token)
                                 .WithFilter(filter)

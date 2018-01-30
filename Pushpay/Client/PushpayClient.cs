@@ -155,7 +155,6 @@ namespace Pushpay.Client
         {
             var request = CreateRequest(resource, Method.GET, recurringGiftsScope);
             var response = _restClient.Execute<PushpayRecurringGiftDto>(request);
-            Console.WriteLine(response.Data);
             return response.Data;
         }
 
