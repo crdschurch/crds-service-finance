@@ -24,11 +24,11 @@ namespace Crossroads.Service.Finance.Services
         private readonly IContactRepository _contactRepository;
         private readonly IMapper _mapper;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
-        private readonly int webhookDelayMinutes = 1;
-        private readonly int maxRetryMinutes = 10;
-        const int defaultContactId = 1;
-        const int defaultContactDonorId = 1;
-        const int defaultCongregationId = 1;
+        private const int webhookDelayMinutes = 1;
+        private const int maxRetryMinutes = 10;
+        private const int defaultContactId = 1;
+        private const int defaultContactDonorId = 1;
+        private const int defaultCongregationId = 1;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
@@ -129,6 +129,12 @@ namespace Crossroads.Service.Finance.Services
         public RecurringGiftDto CreateRecurringGift(PushpayWebhook webhook)
         {
             var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.Payment);
+            var mpRecurringGift = BuildRecurringGift(pushpayRecurringGift);
+            return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
+        }
+
+        private MpRecurringGift BuildRecurringGift (PushpayRecurringGiftDto pushpayRecurringGift)
+        {
             var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
             var donor = FindOrCreateDonorAndDonationAccount(pushpayRecurringGift);
 
@@ -136,14 +142,15 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.DonorAccountId = donor.DonorAccountId.Value;
             mpRecurringGift.CongregationId = _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
 
+            // TODO are these right?
             mpRecurringGift.ConsecutiveFailureCount = 0;
-            mpRecurringGift.SubscriptionId = " ";
             mpRecurringGift.DomainId = 1;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
-            return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
+            return mpRecurringGift;
         }
+
 
         private MpDonor FindOrCreateDonorAndDonationAccount(PushpayRecurringGiftDto gift)
         {

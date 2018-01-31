@@ -23,6 +23,7 @@ public class MappingProfile : Profile
         CreateMap<PushpayRecurringGiftDto, MpRecurringGift>()
             .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount.Amount))
             .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Schedule.StartDate))
+            .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.PaymentToken))
             .ForMember(dest => dest.FrequencyId, opt => opt.ResolveUsing(r =>
             {
                 switch (r.Schedule.Frequency)
