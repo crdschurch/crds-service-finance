@@ -162,7 +162,7 @@ namespace Crossroads.Service.Finance.Services
                 return existingMatchedDonor;
             }
             // we didn't match a donor with a processor id (i.e. previously matched), so let's
-            //   run the same stored proc that PushPay uses to   attempt to match
+            //   run the same stored proc that PushPay uses to attempt to match
             var matchedContact = _contactRepository.MatchContact(gift.Payer.FirstName, gift.Payer.LastName,
                                             gift.Payer.MobileNumber, gift.Payer.EmailAddress);
 
@@ -175,6 +175,7 @@ namespace Crossroads.Service.Finance.Services
                     //   so create and attach donor to contact
                     var mpDonor = new MpDonor()
                     {
+                        // TODO these right?
                         ContactId = matchedContact.ContactId,
                         StatementFrequencyId = 2, // annual
                         StatementTypeId = 1, // individual
@@ -196,9 +197,9 @@ namespace Crossroads.Service.Finance.Services
                 {
                     DonorId = defaultContactId,
                     DonorAccountId = donorAccount.DonorAccountId,
+                    // TODO this right?
                     CongregationId = defaultCongregationId
                 };
-                //_donationService.CreateDonor(mpDoner);
                 return mpDoner;
             }
         }
