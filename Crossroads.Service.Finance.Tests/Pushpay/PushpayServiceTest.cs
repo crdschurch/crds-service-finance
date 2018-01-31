@@ -172,23 +172,146 @@ namespace Crossroads.Service.Finance.Test.Pushpay
 
             var result = _fixture.CreateRecurringGift(webhook);
 
-            Console.WriteLine("result");
-            Console.WriteLine(result);
             Assert.Equal(1, result.DonorId);
         }
 
-        //[Fact]
-        //// match through processor id (previously manually matched through stored proc)
-        //public void ShouldCreateRecurringGiftExistingMatch()
-        //{
-        //    Assert.False(true);
-        //}
+        [Fact]
+        // match through processor id (previously manually matched through stored proc)
+        public void ShouldCreateRecurringGiftExistingMatch()
+        {
+            var link = "https://sandbox-api.pushpay.io/v1/merchant/NzkwMjY0NTpuSzZwaUgzakc4WHdZVy1xd0ZVNnlzTlF2aTg/recurringpayment/f6iVOR9VyItfcpuVMnx1gg";
+            var webhook = new PushpayWebhook()
+            {
+                Events = new List<PushpayWebhookEvent>(){
+                    new PushpayWebhookEvent()
+                    {
+                        Links = new PushpayWebhookLinks()
+                        {
+                            Payment = link
+                        }
+                    }
+                }
+            };
+            var pushpayRecurringGift = new PushpayRecurringGiftDto()
+            {
+                Payer = new PushpayPayer()
+                {
+                    Key = "payerkey"
+                },
+                Account = new PushpayAccount()
+                {
+                    Reference = "0102010111000"
+                },
+                Fund = new PushpayFund()
+                {
+                    Code = "I'm In"
+                }
+            };
+            var mpRecurringGift = new MpRecurringGift()
+            {
+                DonorId = 234
+            };
+            var mpDonor = new MpDonor()
+            {
+                DonorId = 234
+            };
+            var recurringGift = new RecurringGiftDto();
+            var mockDonorAccount = new MpDonorAccount()
+            {
+                DonorAccountId = 777
+            };
+            var mockHousehold = new MpHousehold()
+            {
+                CongregationId = 1
+            };
+            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
+            // return null donor
+            _contactRepository.Setup(m => m.FindDonorByProcessorId(It.IsAny<string>()))
+                              .Returns(mpDonor);
+            _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
+                              .Returns(mockHousehold);
+            _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
+                              .Returns(new MpProgram());
+            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>()));
+            _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
+                                .Returns(new RecurringGiftDto() { DonorId = 1 });
+            _donationService.Setup(m => m.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
+                            .Returns(mockDonorAccount);
+            _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
 
-        //[Fact]
-        //// match through stored proc
-        //public void ShouldCreateRecurringGiftManuallyMatch()
-        //{
-        //    Assert.False(true);
-        //}
+            var result = _fixture.CreateRecurringGift(webhook);
+            Assert.Equal(1, result.DonorId);
+        }
+
+        [Fact]
+        // match through stored proc
+        public void ShouldCreateRecurringGiftManuallyMatch()
+        {
+            var link = "https://sandbox-api.pushpay.io/v1/merchant/NzkwMjY0NTpuSzZwaUgzakc4WHdZVy1xd0ZVNnlzTlF2aTg/recurringpayment/f6iVOR9VyItfcpuVMnx1gg";
+            var webhook = new PushpayWebhook()
+            {
+                Events = new List<PushpayWebhookEvent>(){
+                        new PushpayWebhookEvent()
+                        {
+                            Links = new PushpayWebhookLinks()
+                            {
+                                Payment = link
+                            }
+                        }
+                    }
+            };
+            var pushpayRecurringGift = new PushpayRecurringGiftDto()
+            {
+                Payer = new PushpayPayer()
+                {
+                    Key = "payerkey"
+                },
+                Account = new PushpayAccount()
+                {
+                    Reference = "0102010111000"
+                },
+                Fund = new PushpayFund()
+                {
+                    Code = "I'm In"
+                }
+            };
+            var mpRecurringGift = new MpRecurringGift()
+            {
+                DonorId = 1
+            };
+            var recurringGift = new RecurringGiftDto();
+            var mockDonorAccount = new MpDonorAccount();
+            var mockDonor = new MpDonor()
+            {
+                DonorId = 789
+            };
+            var mockHousehold = new MpHousehold()
+            {
+                CongregationId = 1
+            };
+            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
+            // return null donor
+            _contactRepository.Setup(m => m.FindDonorByProcessorId(It.IsAny<string>()))
+                                  .Returns((MpDonor)null);
+            // don't match
+            _contactRepository.Setup(m => m.MatchContact(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                                  .Returns((MpDonor)null);
+            _donationService.Setup(m => m.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
+                                .Returns(mockDonorAccount);
+            _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
+            _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
+                                  .Returns(mockHousehold);
+            _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
+                                  .Returns(new MpProgram());
+            _contactRepository.Setup(m => m.UpdateProcessor(It.IsAny<int>(), It.IsAny<string>()));
+            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>()));
+                               //.Returns(null);
+            _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
+                                .Returns(new RecurringGiftDto() { DonorId = 1 });
+
+            var result = _fixture.CreateRecurringGift(webhook);
+
+            Assert.Equal(1, result.DonorId);
+        }
     }
 }
