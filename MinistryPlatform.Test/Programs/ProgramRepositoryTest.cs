@@ -12,7 +12,7 @@ using Xunit;
 
 namespace MinistryPlatform.Test.Donations
 {
-    public class DonationRepositoryTest
+    public class ProgramRepositoryTest
     {
         readonly Mock<IApiUserRepository> _apiUserRepository;
         readonly Mock<IConfigurationWrapper> _configurationWrapper;
@@ -21,11 +21,11 @@ namespace MinistryPlatform.Test.Donations
         readonly Mock<IMinistryPlatformRestRequest> _request;
         readonly Mock<IMapper> _mapper;
 
-        private string token = "123abc";
+        const string token = "123abc";
+        const string programName = "I'm in";
+        private readonly IProgramRepository _fixture;
 
-        private readonly IDonationRepository _fixture;
-
-        public DonationRepositoryTest()
+        public ProgramRepositoryTest()
         {
             _apiUserRepository = new Mock<IApiUserRepository>(MockBehavior.Strict);
             _restRequestBuilder = new Mock<IMinistryPlatformRestRequestBuilderFactory>(MockBehavior.Strict);
@@ -37,63 +37,39 @@ namespace MinistryPlatform.Test.Donations
             _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(It.IsAny<string>())).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
-            _fixture = new DonationRepository(_restRequestBuilder.Object,
+            _fixture = new ProgramRepository(_restRequestBuilder.Object,
                 _apiUserRepository.Object,
                 _configurationWrapper.Object,
                 _mapper.Object);
         }
 
         [Fact]
-        public void GetDonationByTransactionCode()
+        public void GetProgramByName()
         {
-            // Arrange
-            var transactionCode = "zzz111yyy222";
-
-            var mpDonations = new List<MpDonation>
+            var mockProgram = new MpProgram()
             {
-                new MpDonation
-                {
-                    TransactionCode = transactionCode
-                }
+                ProgramName = programName
             };
+            _request.Setup(m => m.Search<MpProgram>()).Returns(new List<MpProgram>() { mockProgram });
 
-            var filter = $"Transaction_Code = '{transactionCode}'";
-            _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
-            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            var result = _fixture.GetProgramByName(programName);
 
-            _request.Setup(m => m.Search<MpDonation>()).Returns(mpDonations);
-
-            // Act
-            var result = _fixture.GetDonationByTransactionCode(transactionCode);
-
-            // Assert
-            Assert.Equal(transactionCode, result.TransactionCode);
+            Assert.NotNull(result);
+            Assert.Equal(result.ProgramName, programName);
         }
 
         [Fact]
-        public void ShouldUpdateDonations()
+        public void GetProgramByNameEmpty()
         {
-            // Arrange
-            var mpDonations = new List<MpDonation>
-            {
-                new MpDonation
-                {
-                    TransactionCode = "1a"
-                }
-            };
+            // return empty list
+            _request.Setup(m => m.Search<MpProgram>()).Returns(new List<MpProgram>() {});
 
-            _request.Setup(m => m.Update(It.IsAny<List<MpDonation>>(), null)).Returns(mpDonations);
+            var result = _fixture.GetProgramByName(programName);
 
-            // Act
-            var result = _fixture.Update(mpDonations);
-
-            // Assert
-            Assert.Single(result);
+            Assert.Null(result);
         }
     }
 }

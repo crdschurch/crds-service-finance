@@ -304,8 +304,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
                                   .Returns(new MpProgram());
             _contactRepository.Setup(m => m.UpdateProcessor(It.IsAny<int>(), It.IsAny<string>()));
-            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>()));
-                               //.Returns(null);
+            //_recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
 

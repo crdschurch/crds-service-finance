@@ -32,6 +32,7 @@ namespace MinistryPlatform.Repositories
 
             if(!programs.Any())
             {
+                // TODO log
                 return null;
             }
 

@@ -58,7 +58,7 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
-            _request.Setup(m => m.Create<MpRecurringGift>(It.IsAny<MpRecurringGift>())).Returns(mpRecurringGift);
+            _request.Setup(m => m.Create<MpRecurringGift>(It.IsAny<MpRecurringGift>(), null)).Returns(mpRecurringGift);
 
             var result = _fixture.CreateRecurringGift(mpRecurringGift);
 
