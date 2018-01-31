@@ -108,7 +108,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         [Fact]
         public void ShouldCreateRecurringGift()
         {
-            var link = "https://link.com";
+            var link = "https://sandbox-api.pushpay.io/v1/merchant/NzkwMjY0NTpuSzZwaUgzakc4WHdZVy1xd0ZVNnlzTlF2aTg/recurringpayment/f6iVOR9VyItfcpuVMnx1gg";
             var webhook = new PushpayWebhook()
             {
                 Events = new List<PushpayWebhookEvent>(){

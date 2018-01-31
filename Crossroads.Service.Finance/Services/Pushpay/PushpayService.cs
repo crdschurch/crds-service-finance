@@ -220,6 +220,7 @@ namespace Crossroads.Service.Finance.Services
             // set account type
             switch (gift.PaymentMethodType)
             {
+                // TODO is this right?
                 case "ACH":
                     mpDonorAccount.AccountTypeId = MpAccountTypes.Savings;
                     break;
