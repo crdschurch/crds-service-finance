@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
+using log4net;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 
@@ -12,6 +14,8 @@ namespace MinistryPlatform.Repositories
 {
     public class ProgramRepository : MinistryPlatformBase, IProgramRepository
     {
+        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         public ProgramRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
             IConfigurationWrapper configurationWrapper,
@@ -23,7 +27,8 @@ namespace MinistryPlatform.Repositories
 
             // replace ' with '' so that we can search for
             //  a program like I'm in
-            var filter = $"Program_Name = '{programName.Replace("'", "''")}'";
+            var escapedName = programName.Replace("'", "''");
+            var filter = $"Program_Name = '{escapedName}'";
             var programs = MpRestBuilder.NewRequestBuilder()
                                 .WithAuthenticationToken(token)
                                 .WithFilter(filter)
@@ -32,7 +37,7 @@ namespace MinistryPlatform.Repositories
 
             if(!programs.Any())
             {
-                // TODO log
+                _logger.Error($"GetProgramByName: No program found with name {filter}");
                 return null;
             }
 

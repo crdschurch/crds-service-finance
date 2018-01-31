@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Reflection;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
+using log4net;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Newtonsoft.Json;
@@ -10,6 +12,8 @@ namespace MinistryPlatform.Repositories
 {
     public class RecurringGiftRepository : MinistryPlatformBase, IRecurringGiftRepository
     {
+        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         public RecurringGiftRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
             IConfigurationWrapper configurationWrapper,
@@ -28,7 +32,7 @@ namespace MinistryPlatform.Repositories
             }
             catch (Exception e)
             {
-                // TODO log
+                _logger.Error($"CreateRecurringGift: Error creating recurring gift", mpRecurringGift);
                 return null;
             }
         }
