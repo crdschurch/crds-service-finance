@@ -32,7 +32,7 @@ namespace MinistryPlatform.Repositories
             }
             catch (Exception e)
             {
-                _logger.Error($"CreateRecurringGift: Error creating recurring gift", mpRecurringGift);
+                _logger.Error($"CreateRecurringGift: Error creating recurring gift: {JsonConvert.SerializeObject(mpRecurringGift)}", e);
                 return null;
             }
         }
