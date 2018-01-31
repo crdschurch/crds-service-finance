@@ -1,8 +1,10 @@
-﻿
+﻿using Newtonsoft.Json;
+
 namespace Crossroads.Service.Finance.Models
 {
     public class RecurringGiftDto
     {
-        // TODO
+        [JsonProperty("recurringGiftId")]
+        public int RecurringGiftId { get; set; }
     }
 }

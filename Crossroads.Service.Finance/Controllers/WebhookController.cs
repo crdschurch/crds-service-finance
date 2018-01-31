@@ -53,8 +53,8 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                _pushpayService.CreateRecurringGift(pushpayWebhook);
-                return Ok();
+                var gift = _pushpayService.CreateRecurringGift(pushpayWebhook);
+                return StatusCode(201, gift);
             }
             catch (Exception ex)
             {
