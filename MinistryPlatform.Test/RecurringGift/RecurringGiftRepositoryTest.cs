@@ -12,7 +12,7 @@ using Xunit;
 
 namespace MinistryPlatform.Test.Donations
 {
-    public class DonationRepositoryTest
+    public class RecurringGiftRepositoryTest
     {
         readonly Mock<IApiUserRepository> _apiUserRepository;
         readonly Mock<IConfigurationWrapper> _configurationWrapper;
@@ -23,9 +23,9 @@ namespace MinistryPlatform.Test.Donations
 
         private string token = "123abc";
 
-        private readonly IDonationRepository _fixture;
+        private readonly IRecurringGiftRepository _fixture;
 
-        public DonationRepositoryTest()
+        public RecurringGiftRepositoryTest()
         {
             _apiUserRepository = new Mock<IApiUserRepository>(MockBehavior.Strict);
             _restRequestBuilder = new Mock<IMinistryPlatformRestRequestBuilderFactory>(MockBehavior.Strict);
@@ -39,61 +39,30 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
-            _fixture = new DonationRepository(_restRequestBuilder.Object,
+            _fixture = new RecurringGiftRepository(_restRequestBuilder.Object,
                 _apiUserRepository.Object,
                 _configurationWrapper.Object,
                 _mapper.Object);
         }
 
         [Fact]
-        public void GetDonationByTransactionCode()
+        public void CreateRecurringGift()
         {
-            // Arrange
-            var transactionCode = "zzz111yyy222";
-
-            var mpDonations = new List<MpDonation>
+            var mpRecurringGift = new MpRecurringGift
             {
-                new MpDonation
-                {
-                    TransactionCode = transactionCode
-                }
+                Amount = 12
             };
 
-            var filter = $"Transaction_Code = '{transactionCode}'";
             _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpDonation>()).Returns(mpDonations);
+            _request.Setup(m => m.Create<MpRecurringGift>(It.IsAny<MpRecurringGift>(), null)).Returns(mpRecurringGift);
 
-            // Act
-            var result = _fixture.GetDonationByTransactionCode(transactionCode);
+            var result = _fixture.CreateRecurringGift(mpRecurringGift);
 
-            // Assert
-            Assert.Equal(transactionCode, result.TransactionCode);
-        }
-
-        [Fact]
-        public void ShouldUpdateDonations()
-        {
-            // Arrange
-            var mpDonations = new List<MpDonation>
-            {
-                new MpDonation
-                {
-                    TransactionCode = "1a"
-                }
-            };
-
-            _request.Setup(m => m.Update(It.IsAny<List<MpDonation>>(), null)).Returns(mpDonations);
-
-            // Act
-            var result = _fixture.Update(mpDonations);
-
-            // Assert
-            Assert.Single(result);
+            Assert.Equal(12, result.Amount);
         }
     }
 }

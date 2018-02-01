@@ -54,5 +54,23 @@ namespace MinistryPlatform.Repositories
                 .Build()
                 .Update(donation);
         }
+
+        public MpDonor CreateDonor(MpDonor donor)
+        {
+            var token = ApiUserRepository.GetDefaultApiUserToken();
+            return MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .Build()
+                .Create(donor);
+        }
+
+        public MpDonorAccount CreateDonorAccount(MpDonorAccount donor)
+        {
+            var token = ApiUserRepository.GetDefaultApiUserToken();
+            return MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .Build()
+                .Create(donor);
+        }
     }
 }
