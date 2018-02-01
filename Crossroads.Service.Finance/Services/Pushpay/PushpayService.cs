@@ -178,7 +178,6 @@ namespace Crossroads.Service.Finance.Services
                     //   so create and attach donor to contact
                     var mpDonor = new MpDonor()
                     {
-                        // TODO these right?
                         ContactId = matchedContact.ContactId,
                         StatementFrequencyId = 2, // annual
                         StatementTypeId = 1, // individual
