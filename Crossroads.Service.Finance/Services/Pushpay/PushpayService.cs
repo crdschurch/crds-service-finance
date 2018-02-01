@@ -4,13 +4,14 @@ using System.Reflection;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
-using Crossroads.Web.Common.Configuration;
+using MinistryPlatform.Configuration;
 using Hangfire;
 using log4net;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Pushpay.Client;
 using Pushpay.Models;
+using Crossroads.Web.Common.Configuration;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -23,12 +24,12 @@ namespace Crossroads.Service.Finance.Services
         private readonly IProgramRepository _programRepository;
         private readonly IContactRepository _contactRepository;
         private readonly IMapper _mapper;
-        private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
-        private const int webhookDelayMinutes = 1;
+        private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded, _mpPushpayRecurringWebhookMinutes,
+                            _mpDefaultContactId, _mpDefaultContactDonorId, _mpDefaultCongregationId;
         private const int maxRetryMinutes = 10;
-        private const int defaultContactId = 1;
-        private const int defaultContactDonorId = 1;
-        private const int defaultCongregationId = 1;
+        //private const int defaultContactId = 1;
+        //private const int defaultContactDonorId = 1;
+        //private const int defaultCongregationId = 1;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
@@ -43,6 +44,9 @@ namespace Crossroads.Service.Finance.Services
             _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
+            _mpDefaultContactDonorId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultDonorID") ?? 1;
+            _mpDefaultCongregationId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultCongregationID") ?? 1;
+            _mpPushpayRecurringWebhookMinutes = configurationWrapper.GetAppMpConfigIntValue("PushpayJobDelayMinutes") ?? 1;
         }
 
         public PaymentsDto GetChargesForTransfer(string settlementKey)
@@ -67,7 +71,7 @@ namespace Crossroads.Service.Finance.Services
 
         private void AddUpdateDonationStatusFromPushpayJob(PushpayWebhook webhook)
         {
-            BackgroundJob.Schedule(() => UpdateDonationStatusFromPushpay(webhook, true), TimeSpan.FromMinutes(webhookDelayMinutes));
+            BackgroundJob.Schedule(() => UpdateDonationStatusFromPushpay(webhook, true), TimeSpan.FromMinutes(_mpPushpayRecurringWebhookMinutes));
         }
 
         public DonationDto UpdateDonationStatusFromPushpay(PushpayWebhook webhook, bool retry=false)
@@ -192,13 +196,12 @@ namespace Crossroads.Service.Finance.Services
                 return matchedContact;
             } else {
                 // donor not matched, assign to default contact
-                var donorAccount = CreateDonorAccount(gift, defaultContactDonorId);
+                var donorAccount = CreateDonorAccount(gift, _mpDefaultContactDonorId);
                 var mpDoner = new MpDonor()
                 {
-                    DonorId = defaultContactId,
+                    DonorId = _mpDefaultContactDonorId,
                     DonorAccountId = donorAccount.DonorAccountId,
-                    // TODO this right?
-                    CongregationId = defaultCongregationId
+                    CongregationId = _mpDefaultCongregationId
                 };
                 return mpDoner;
             }
