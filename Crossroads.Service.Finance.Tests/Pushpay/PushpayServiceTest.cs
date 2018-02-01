@@ -122,7 +122,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     {
                         Links = new PushpayWebhookLinks()
                         {
-                            Payment = link
+                            RecurringPayment = link
                         }
                     }
                 }
@@ -187,7 +187,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     {
                         Links = new PushpayWebhookLinks()
                         {
-                            Payment = link
+                            RecurringPayment = link
                         }
                     }
                 }
@@ -255,7 +255,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                         {
                             Links = new PushpayWebhookLinks()
                             {
-                                Payment = link
+                                RecurringPayment = link
                             }
                         }
                     }

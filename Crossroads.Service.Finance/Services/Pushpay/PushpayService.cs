@@ -128,7 +128,7 @@ namespace Crossroads.Service.Finance.Services
 
         public RecurringGiftDto CreateRecurringGift(PushpayWebhook webhook)
         {
-            var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.Payment);
+            var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
             var mpRecurringGift = BuildRecurringGift(pushpayRecurringGift);
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }
