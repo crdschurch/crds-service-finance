@@ -145,7 +145,6 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 DonorId = 1
             };
-            var recurringGift = new RecurringGiftDto();
             var mockDonorAccount = new MpDonorAccount();
             var mockHousehold = new MpHousehold()
             {
@@ -215,7 +214,6 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 DonorId = 234
             };
-            var recurringGift = new RecurringGiftDto();
             var mockDonorAccount = new MpDonorAccount()
             {
                 DonorAccountId = 777
@@ -279,7 +277,6 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 DonorId = 1
             };
-            var recurringGift = new RecurringGiftDto();
             var mockDonorAccount = new MpDonorAccount();
             var mockDonor = new MpDonor()
             {
@@ -304,7 +301,6 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
                                   .Returns(new MpProgram());
             _contactRepository.Setup(m => m.UpdateProcessor(It.IsAny<int>(), It.IsAny<string>()));
-            //_recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
 
