@@ -146,7 +146,6 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.DonorAccountId = donor.DonorAccountId.Value;
             mpRecurringGift.CongregationId = _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
 
-            // TODO are these right?
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.DomainId = 1;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;

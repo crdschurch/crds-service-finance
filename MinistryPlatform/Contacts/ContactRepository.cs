@@ -58,20 +58,11 @@ namespace MinistryPlatform.Repositories
                 "Congregation_ID"
             };
 
-            var filter = $"Household_ID = {householdId}";
-            var households = MpRestBuilder.NewRequestBuilder()
+            return MpRestBuilder.NewRequestBuilder()
                                 .WithAuthenticationToken(token)
                                 .WithSelectColumns(columns)
-                                .WithFilter(filter)
                                 .Build()
-                                .Search<MpHousehold>();
-
-            if (!households.Any())
-            {
-                return null;
-            }
-
-            return households.First();
+                                .Get<MpHousehold>(householdId);
         }
 
         public void UpdateProcessor(int donorId, string processorId)

@@ -1,10 +1,30 @@
 ﻿using System;
 namespace MinistryPlatform.Models
 {
-    public class MpAccountTypes
+    public class MpRecurringGiftDays
     {
-        public static int Checkings = 1;
-        public static int Savings = 2;
-        public static int CreditCard = 3;
+        public static int GetMpRecurringGiftDay(DateTime dateTime)
+        {
+  
+            switch (dateTime.DayOfWeek)
+            {
+                case DayOfWeek.Sunday:
+                    return 7;
+                case DayOfWeek.Monday:
+                    return 1;
+                case DayOfWeek.Tuesday:
+                    return 2;
+                case DayOfWeek.Wednesday:
+                    return 3;
+                case DayOfWeek.Thursday:
+                    return 4;
+                case DayOfWeek.Friday:
+                    return 5;
+                case DayOfWeek.Saturday:
+                    return 6;
+                default:
+                    return 0;
+            }
+        }
     }
 }
