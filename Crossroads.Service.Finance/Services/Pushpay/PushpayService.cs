@@ -24,12 +24,9 @@ namespace Crossroads.Service.Finance.Services
         private readonly IProgramRepository _programRepository;
         private readonly IContactRepository _contactRepository;
         private readonly IMapper _mapper;
-        private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded, _mpPushpayRecurringWebhookMinutes,
-                            _mpDefaultContactId, _mpDefaultContactDonorId, _mpDefaultCongregationId;
+        private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
+                             _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpDefaultCongregationId;
         private const int maxRetryMinutes = 10;
-        //private const int defaultContactId = 1;
-        //private const int defaultContactDonorId = 1;
-        //private const int defaultCongregationId = 1;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
@@ -221,12 +218,15 @@ namespace Crossroads.Service.Finance.Services
             // set account type
             switch (gift.PaymentMethodType)
             {
-                // TODO is this right?
                 case "ACH":
-                    mpDonorAccount.AccountTypeId = MpAccountTypes.Savings;
-                    break;
-                case "AchCheck":
-                    mpDonorAccount.AccountTypeId = MpAccountTypes.Checkings;
+                    if (gift.Account.AccountType == "Checking")
+                    {
+                        mpDonorAccount.AccountTypeId = MpAccountTypes.Checkings;
+                    } 
+                    else if (gift.Account.AccountType == "Savings")
+                    {
+                        mpDonorAccount.AccountTypeId = MpAccountTypes.Savings;
+                    }
                     break;
                 case "CreditCard":
                     mpDonorAccount.AccountTypeId = MpAccountTypes.CreditCard;
