@@ -171,5 +171,23 @@ namespace Pushpay.Test
 
             Assert.Equal(mockPushpayUrl, result.Links.Pay.Href);
         }
+
+        [Fact]
+        public void GetRecurringGiftTest()
+        {
+            _restClient.Setup(x => x.Execute<PushpayRecurringGiftDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayRecurringGiftDto>()
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Data = new PushpayRecurringGiftDto()
+                    {
+                        PaymentToken = "234234"
+                    }
+                });
+
+            var result = _fixture.GetRecurringGift("https://resource.com");
+
+            Assert.NotNull(result);
+        }
     }
 }

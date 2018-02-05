@@ -62,7 +62,7 @@ namespace MinistryPlatform.Test.Deposits
                 ProcessorTransferId = processorTransferId
             };
 
-            _request.Setup(m => m.Create(It.IsAny<MpDeposit>())).Returns(newMpDeposit);
+            _request.Setup(m => m.Create(It.IsAny<MpDeposit>(), null)).Returns(newMpDeposit);
 
             // Act
             var result = _fixture.CreateDeposit(mpDeposit);
