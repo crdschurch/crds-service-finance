@@ -33,7 +33,7 @@ namespace MinistryPlatform.Test.Donations
             _configurationWrapper = new Mock<IConfigurationWrapper>(MockBehavior.Strict);
             _restRequest = new Mock<IMinistryPlatformRestRequestBuilder>(MockBehavior.Strict);
             _mapper = new Mock<IMapper>(MockBehavior.Strict);
-            _request = new Mock<IMinistryPlatformRestRequest>();
+            _request = new Mock<IMinistryPlatformRestRequest>(MockBehavior.Strict);
 
             _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
@@ -100,7 +100,7 @@ namespace MinistryPlatform.Test.Donations
         [Fact]
         public void ShouldUpdateDonorAccount()
         {
-            _request.Setup(m => m.Update(It.IsAny<List<MpDonation>>(), "Donor_Accounts"));
+            _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts"));
             _fixture.UpdateDonorAccount(new JObject());
         }
     }
