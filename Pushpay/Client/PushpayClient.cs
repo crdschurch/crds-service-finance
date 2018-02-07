@@ -15,6 +15,7 @@ namespace Pushpay.Client
         private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
         private readonly string createAnticipatedPaymentsScope = "create_anticipated_payment";
+        private readonly string recurringGiftsScope = "merchant:view_recurring_payments";
         private readonly IPushpayTokenService _pushpayTokenService;
         private readonly IRestClient _restClient;
         private const int RequestsPerSecond = 10;
@@ -42,7 +43,8 @@ namespace Pushpay.Client
 
             // determine if we need to call again (multiple pages), then
             // determine the delay needed to avoid hitting the rate limits for Pushpay
-            if (paymentsDto == null) {
+            if (paymentsDto == null)
+            {
                 throw new Exception($"Get Settlement from Pushpay not successful: {response.Content}");
             }
 
@@ -66,7 +68,7 @@ namespace Pushpay.Client
                     request.Resource = $"settlement/{settlementKey}/payments?page={i}";
                     response = _restClient.Execute<PushpayPaymentsDto>(request);
                     paymentsDto.Items.AddRange(response.Data.Items);
-                }   
+                }
             }
             return paymentsDto;
         }
@@ -92,10 +94,10 @@ namespace Pushpay.Client
             return paymentDto;
         }
 
-	    public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
-	    {
-	        var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
-	        endDate = endDate.ToUniversalTime();
+        public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
+        {
+            var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            endDate = endDate.ToUniversalTime();
 
             var tokenResponse = _pushpayTokenService.GetOAuthToken(donationsScope).Wait();
             _restClient.BaseUrl = apiUri;
@@ -149,13 +151,19 @@ namespace Pushpay.Client
             return response.Data;
         }
 
-        private RestRequest CreateRequest(string resource, Method method, string scope, object body)
+        public PushpayRecurringGiftDto GetRecurringGift(string resource)
+        {
+            var request = CreateRequest(resource, Method.GET, recurringGiftsScope);
+            var response = _restClient.Execute<PushpayRecurringGiftDto>(request);
+            return response.Data;
+        }
+
+        private RestRequest CreateRequest(string resource, Method method, string scope, object body = null)
         {
             _restClient.BaseUrl = apiUri;
             var request = new RestRequest(method)
             {
-                Resource = resource,
-                 
+                Resource = resource
             };
             var tokenResponse = _pushpayTokenService.GetOAuthToken(scope).Wait();
             if (body != null)

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Crossroads.Service.Finance.Models;
+using MinistryPlatform.Models;
 
 namespace Crossroads.Service.Finance.Interfaces
 {
@@ -9,5 +10,7 @@ namespace Crossroads.Service.Finance.Interfaces
         DonationDto Update(DonationDto donation);
         List<DonationDto> Update(List<DonationDto> donations);
         DonationDto GetDonationByTransactionCode(string transactionCode);
+        MpDonor CreateDonor(MpDonor donor);
+        MpDonorAccount CreateDonorAccount(MpDonorAccount donor);
     }
 }

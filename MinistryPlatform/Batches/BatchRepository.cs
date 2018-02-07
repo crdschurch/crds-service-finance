@@ -34,7 +34,6 @@ namespace MinistryPlatform.Repositories
                 .WithAuthenticationToken(token)
                 .Build()
                 .Update(mpDonationBatch);
-            
         }
     }
 }

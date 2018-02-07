@@ -289,3 +289,6 @@ __pycache__/
 
 # Environment Variables file
 .env
+
+# log files
+*.log*

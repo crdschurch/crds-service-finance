@@ -22,6 +22,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IRestClient _restClient;
         private readonly int _depositProcessingOffset;
         private readonly string _financePath;
+        private readonly string _pushpayDepositEndpoint;
 
         public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, IConfigurationWrapper configurationWrapper, IRestClient restClient = null)
         {
@@ -34,6 +35,7 @@ namespace Crossroads.Service.Finance.Services
                                configurationWrapper.GetMpConfigValue("CRDS-FINANCE", "FinanceMicroservicePath", true);
 
             _depositProcessingOffset = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
+            _pushpayDepositEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_DEPOSIT_ENDPOINT");
         }
 
         public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName)
@@ -66,6 +68,7 @@ namespace Crossroads.Service.Finance.Services
                 depositName = depositName.Remove(0, truncateValue);
             }
 
+            var estDepositDate = settlementEventDto.EstimatedDepositDate.ToString("MM-dd-yyyy");
             var depositDto = new DepositDto
             {
                 // Account number must be non-null, and non-empty; using a single space to fulfill this requirement
@@ -77,7 +80,7 @@ namespace Crossroads.Service.Finance.Services
                 DepositAmount = Decimal.Parse(settlementEventDto.TotalAmount.Amount),
                 Exported = false,
                 Notes = null,
-                ProcessorTransferId = settlementEventDto.Key
+                ProcessorTransferId = $"{_pushpayDepositEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate={estDepositDate}&toDate={estDepositDate}",
             };
 
             return depositDto;

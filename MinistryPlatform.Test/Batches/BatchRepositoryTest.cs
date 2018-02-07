@@ -62,7 +62,7 @@ namespace MinistryPlatform.Test.Batches
                 ProcessorTransferId = processorTransferId
             };
 
-            _request.Setup(m => m.Create(It.IsAny<MpDonationBatch>())).Returns(newMpBatch);
+            _request.Setup(m => m.Create(It.IsAny<MpDonationBatch>(), null)).Returns(newMpBatch);
 
             // Act
             var result = _fixture.CreateDonationBatch(mpBatch);
