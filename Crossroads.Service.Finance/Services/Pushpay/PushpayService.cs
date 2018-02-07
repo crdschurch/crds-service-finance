@@ -249,7 +249,6 @@ namespace Crossroads.Service.Finance.Services
                 AccountNumber = isBank ? gift.Account.Reference : gift.Card.Reference,
                 InstitutionName = isBank ? gift.Account.BankName : gift.Card.Brand,
                 RoutingNumber = isBank ? gift.Account.RoutingNumber : null,
-                //DonorId = donorId > 0 ? donorId : null,
                 NonAssignable = false,
                 DomainId = 1,
                 Closed = false
