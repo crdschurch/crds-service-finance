@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using MinistryPlatform.Models;
+using Newtonsoft.Json.Linq;
 
 namespace MinistryPlatform.Interfaces
 {
@@ -12,5 +13,6 @@ namespace MinistryPlatform.Interfaces
         MpDonation Update(MpDonation donation);
         MpDonor CreateDonor(MpDonor donor);
         MpDonorAccount CreateDonorAccount(MpDonorAccount donor);
+        void UpdateDonorAccount(JObject donorAccount);
     }
 }
