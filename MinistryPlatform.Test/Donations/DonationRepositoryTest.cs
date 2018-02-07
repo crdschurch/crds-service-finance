@@ -9,6 +9,7 @@ using MinistryPlatform.Repositories;
 using MinistryPlatform.Models;
 using Moq;
 using Xunit;
+using Newtonsoft.Json.Linq;
 
 namespace MinistryPlatform.Test.Donations
 {
@@ -94,6 +95,13 @@ namespace MinistryPlatform.Test.Donations
 
             // Assert
             Assert.Single(result);
+        }
+
+        [Fact]
+        public void ShouldUpdateDonorAccount()
+        {
+            _request.Setup(m => m.Update(It.IsAny<List<MpDonation>>(), "Donor_Accounts"));
+            _fixture.UpdateDonorAccount(new JObject());
         }
     }
 }
