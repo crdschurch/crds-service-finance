@@ -61,5 +61,20 @@ namespace Crossroads.Service.Finance.Controllers
                 return StatusCode(400, ex);
             }
         }
+
+        [HttpPost]
+        [Route("recurring-gift/changed")]
+        public IActionResult RecurringGiftChanged([FromBody] PushpayWebhook pushpayWebhook)
+        {
+            try
+            {
+                var gift = _pushpayService.UpdateRecurringGift(pushpayWebhook);
+                return StatusCode(200, gift);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, ex);
+            }
+        }
     }
 }
