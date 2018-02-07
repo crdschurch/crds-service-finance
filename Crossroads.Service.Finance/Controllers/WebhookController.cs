@@ -18,58 +18,27 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost]
-        [Route("payment/status")]
-        public IActionResult PaymentStatusUpdate([FromBody] PushpayWebhook pushpayWebhook)
+        [Route("pushpay")]
+        public IActionResult HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
         {
             try
             {
-                _pushpayService.AddUpdateStatusJob(pushpayWebhook);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(400, ex);
-            }
-        }
-
-        [HttpPost]
-        [Route("payment/created")]
-        public IActionResult PaymentCreated([FromBody] PushpayWebhook pushpayWebhook)
-        {
-            try
-            {
-                _pushpayService.AddUpdateStatusJob(pushpayWebhook);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(400, ex);
-            }
-        }
-
-        [HttpPost]
-        [Route("recurring-gift/created")]
-        public IActionResult RecurringGiftCreated([FromBody] PushpayWebhook pushpayWebhook)
-        {
-            try
-            {
-                var gift = _pushpayService.CreateRecurringGift(pushpayWebhook);
-                return StatusCode(201, gift);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(400, ex);
-            }
-        }
-
-        [HttpPost]
-        [Route("recurring-gift/changed")]
-        public IActionResult RecurringGiftChanged([FromBody] PushpayWebhook pushpayWebhook)
-        {
-            try
-            {
-                var gift = _pushpayService.UpdateRecurringGift(pushpayWebhook);
-                return StatusCode(200, gift);
+                var pushpayEvent = pushpayWebhook.Events[0];
+                switch (pushpayEvent.EventType)
+                {
+                    case "payment_created":
+                    case "payment_status_changed":
+                        _pushpayService.AddUpdateStatusJob(pushpayWebhook);
+                        return Ok();
+                    case "recurring_payment_changed":
+                        var updatedGift = _pushpayService.UpdateRecurringGift(pushpayWebhook);
+                        return StatusCode(200, updatedGift);
+                    case "recurring_payment_created":
+                        var newGift = _pushpayService.CreateRecurringGift(pushpayWebhook);
+                        return StatusCode(201, newGift);
+                    default:
+                        return NotFound();
+                }
             }
             catch (Exception ex)
             {
