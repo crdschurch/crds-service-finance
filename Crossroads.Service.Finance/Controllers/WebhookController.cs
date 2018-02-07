@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Threading;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
-using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Crossroads.Service.Finance.Controllers
