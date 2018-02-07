@@ -139,11 +139,30 @@ namespace Crossroads.Service.Finance.Services
         {
             var updatedPushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
             var existingMpRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(updatedPushpayRecurringGift.PaymentToken);
-            var updatedMpRecurringGift = BuildUpdateRecurringGift(existingMpRecurringGift, updatedPushpayRecurringGift);
-            _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
-            var updatedDonorAccount = BuildUpdateDoorAccount(existingMpRecurringGift, updatedPushpayRecurringGift);
-            _donationService.UpdateDonorAccount(updatedDonorAccount);
+            var status = updatedPushpayRecurringGift.Status;
+            if (status == "Active")
+            {
+                var updatedMpRecurringGift = BuildUpdateRecurringGift(existingMpRecurringGift, updatedPushpayRecurringGift);
+                _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
+                var updatedDonorAccount = BuildUpdateDoorAccount(existingMpRecurringGift, updatedPushpayRecurringGift);
+                _donationService.UpdateDonorAccount(updatedDonorAccount);
+            }
+            else if (status == "Cancelled" || status == "Paused")
+            {
+                var updatedMpRecurringGift = BuildEndDatedRecurringGift(existingMpRecurringGift, updatedPushpayRecurringGift);
+                _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
+            }
             return _mapper.Map<RecurringGiftDto>(existingMpRecurringGift);
+        }
+
+        private JObject BuildEndDatedRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
+        {
+            var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
+            var donorId = _contactRepository.FindDonorByProcessorId(updatedPushpayRecurringGift.Payer.Key).DonorId;
+            return new JObject(
+                new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
+                new JProperty("End_Date", DateTime.Now)
+            );
         }
 
         private JObject BuildUpdateRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
@@ -157,7 +176,8 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Day_Of_Month", mappedMpRecurringGift.DayOfMonth),
                 new JProperty("Day_Of_Week_ID", mappedMpRecurringGift.DayOfWeek),
                 new JProperty("Start_Date", mappedMpRecurringGift.StartDate),
-                new JProperty("Program_ID", _programRepository.GetProgramByName(updatedPushpayRecurringGift.Fund.Code).ProgramId)
+                new JProperty("Program_ID", _programRepository.GetProgramByName(updatedPushpayRecurringGift.Fund.Code).ProgramId),
+                new JProperty("End_Date", null)
             );
         }
 
