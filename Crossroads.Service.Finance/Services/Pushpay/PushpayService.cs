@@ -267,7 +267,7 @@ namespace Crossroads.Service.Finance.Services
             var mpDonorAccount = new MpDonorAccount()
             {
                 AccountNumber = isBank ? gift.Account.Reference : gift.Card.Reference,
-                InstitutionName = isBank ? gift.Account.BankName : gift.Card.Brand,
+                InstitutionName = isBank ? gift.Account.BankName : GetCardBrand(gift.Card.Brand),
                 RoutingNumber = isBank ? gift.Account.RoutingNumber : null,
                 NonAssignable = false,
                 DomainId = 1,
@@ -294,6 +294,22 @@ namespace Crossroads.Service.Finance.Services
                     break;
             }
             return mpDonorAccount;
+        }
+
+        private string GetCardBrand(string pushpayCardBrand)
+        {
+            switch (pushpayCardBrand) {
+                case "VISA":
+                    return "Visa";
+                case "Discover":
+                    return "Discover";
+                case "Amex":
+                    return "AmericanExpress";
+                case "MasterCard":
+                    return "MasterCard";
+                default:
+                    return "";
+            }
         }
 
         private MpDonorAccount CreateDonorAccount(PushpayRecurringGiftDto gift, int donorId)
