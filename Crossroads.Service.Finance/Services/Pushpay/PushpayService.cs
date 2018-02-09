@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
@@ -131,6 +132,13 @@ namespace Crossroads.Service.Finance.Services
         public RecurringGiftDto CreateRecurringGift(PushpayWebhook webhook)
         {
             var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
+
+            var viewRecurringGiftDto = new PushpayLinkDto
+            {
+                Href = webhook.Events.First().Links.ViewRecurringPayment
+            };
+
+            pushpayRecurringGift.Links.ViewRecurringPayment = viewRecurringGiftDto;
             var mpRecurringGift = BuildNewRecurringGift(pushpayRecurringGift);
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }
