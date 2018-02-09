@@ -37,7 +37,7 @@ public class MappingProfile : Profile
                     case "Fortnightly":
                         return MpRecurringFrequency.EveryOtherWeek;
                     default:
-                        return (int?)null;
+                        return (int?) null;
                 }
             }))
             .ForMember(dest => dest.DayOfMonth, opt => opt.ResolveUsing(r =>
@@ -47,21 +47,24 @@ public class MappingProfile : Profile
                         case "Monthly":
                             return r.Schedule.StartDate.Day;
                         default:
-                            return (int?)null;
+                            return (int?) null;
                     }
                 }
             ))
             .ForMember(dest => dest.DayOfWeek, opt => opt.ResolveUsing(r =>
                 {
-                   switch (r.Schedule.Frequency)
+                    switch (r.Schedule.Frequency)
                     {
                         case "Weekly":
                         case "Fortnightly":
                             return MpRecurringGiftDays.GetMpRecurringGiftDay(r.Schedule.StartDate);
                         default:
-                            return (int?)null;
+                            return (int?) null;
                     }
                 }
+            ))
+            .ForMember(dest => dest.VendorDetailUrl, opt => opt.ResolveUsing(r =>
+                r.Links.ViewRecurringPayment.Href
             ));
         CreateMap<MpRecurringGift, RecurringGiftDto>();
     }
