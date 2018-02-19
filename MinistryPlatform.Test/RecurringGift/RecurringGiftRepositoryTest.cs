@@ -9,6 +9,7 @@ using MinistryPlatform.Repositories;
 using MinistryPlatform.Models;
 using Moq;
 using Xunit;
+using Newtonsoft.Json.Linq;
 
 namespace MinistryPlatform.Test.Donations
 {
@@ -63,6 +64,43 @@ namespace MinistryPlatform.Test.Donations
             var result = _fixture.CreateRecurringGift(mpRecurringGift);
 
             Assert.Equal(12, result.Amount);
+        }
+
+        [Fact]
+        public void FindRecurringGiftBySubscriptionId()
+        {
+            // Arrange
+            var subscriptionId = "234234";
+
+            var mpRecurringGifts= new List<MpRecurringGift>
+            {
+                new MpRecurringGift()
+                {
+                    SubscriptionId = subscriptionId
+                }
+            };
+
+            var filter = $"Subscription_ID = '{subscriptionId}'";
+            _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpRecurringGift>()).Returns(mpRecurringGifts);
+
+            // Act
+            var result = _fixture.FindRecurringGiftBySubscriptionId(subscriptionId);
+
+            // Assert
+            Assert.Equal(subscriptionId, result.SubscriptionId);
+        }
+
+        [Fact]
+        public void UpdateRecurringGift()
+        {
+            _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts"));
+            _fixture.UpdateRecurringGift(new JObject());
         }
     }
 }

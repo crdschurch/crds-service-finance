@@ -115,6 +115,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         public void ShouldCreateRecurringGiftNoMatch()
         {
             var link = "https://sandbox-api.pushpay.io/v1/merchant/NzkwMjY0NTpuSzZwaUgzakc4WHdZVy1xd0ZVNnlzTlF2aTg/recurringpayment/f6iVOR9VyItfcpuVMnx1gg";
+            var viewRecurringPaymentLink =
+                "https://sandbox.pushpay.io/pushpay/AzkwMjY1NTpuSzZwaRgzakc5WHdZVy1zd0ZVNnlzTlM2bTg/recurringtransaction/7v0ZiHhZCLm5YH54usQqzA";
             var webhook = new PushpayWebhook()
             {
                 Events = new List<PushpayWebhookEvent>(){
@@ -139,7 +141,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 Fund = new PushpayFund()
                 {
                     Code = "I'm In"
-                }
+                },
+                Links = new PushpayLinksDto()
             };
             var mpRecurringGift = new MpRecurringGift()
             {
@@ -179,6 +182,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         public void ShouldCreateRecurringGiftExistingMatch()
         {
             var link = "https://sandbox-api.pushpay.io/v1/merchant/NzkwMjY0NTpuSzZwaUgzakc4WHdZVy1xd0ZVNnlzTlF2aTg/recurringpayment/f6iVOR9VyItfcpuVMnx1gg";
+            var viewRecurringPaymentLink =
+                "https://sandbox.pushpay.io/pushpay/AzkwMjY1NTpuSzZwaRgzakc5WHdZVy1zd0ZVNnlzTlM2bTg/recurringtransaction/7v0ZiHhZCLm5YH54usQqzA";
             var webhook = new PushpayWebhook()
             {
                 Events = new List<PushpayWebhookEvent>(){
@@ -186,7 +191,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     {
                         Links = new PushpayWebhookLinks()
                         {
-                            RecurringPayment = link
+                            RecurringPayment = link,
+                            ViewRecurringPayment = viewRecurringPaymentLink
                         }
                     }
                 }
@@ -204,7 +210,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 Fund = new PushpayFund()
                 {
                     Code = "I'm In"
-                }
+                },
+                Links = new PushpayLinksDto()
             };
             var mpRecurringGift = new MpRecurringGift()
             {
@@ -246,6 +253,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         public void ShouldCreateRecurringGiftManuallyMatch()
         {
             var link = "https://sandbox-api.pushpay.io/v1/merchant/NzkwMjY0NTpuSzZwaUgzakc4WHdZVy1xd0ZVNnlzTlF2aTg/recurringpayment/f6iVOR9VyItfcpuVMnx1gg";
+            var viewRecurringPaymentLink =
+                "https://sandbox.pushpay.io/pushpay/AzkwMjY1NTpuSzZwaRgzakc5WHdZVy1zd0ZVNnlzTlM2bTg/recurringtransaction/7v0ZiHhZCLm5YH54usQqzA";
             var webhook = new PushpayWebhook()
             {
                 Events = new List<PushpayWebhookEvent>(){
@@ -271,7 +280,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 Fund = new PushpayFund()
                 {
                     Code = "I'm In"
-                }
+                },
+                Links = new PushpayLinksDto()
             };
             var mpRecurringGift = new MpRecurringGift()
             {
