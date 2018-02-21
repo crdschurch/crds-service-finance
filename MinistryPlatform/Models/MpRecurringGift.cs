@@ -56,5 +56,8 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Predefined_Amount")]
         public decimal? PredefinedAmount { get; set; }
+
+        [JsonProperty("Vendor_Detail_Url")]
+        public string VendorDetailUrl { get; set; }
     }
 }

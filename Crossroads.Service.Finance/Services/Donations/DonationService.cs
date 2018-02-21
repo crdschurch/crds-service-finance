@@ -4,6 +4,7 @@ using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
+using Newtonsoft.Json.Linq;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -64,6 +65,11 @@ namespace Crossroads.Service.Finance.Services
         public MpDonorAccount CreateDonorAccount(MpDonorAccount donor)
         {
             return _donationRepository.CreateDonorAccount(donor);
+        }
+
+        public void UpdateDonorAccount(JObject donorAccount)
+        {
+            _donationRepository.UpdateDonorAccount(donorAccount);
         }
     }
 }
