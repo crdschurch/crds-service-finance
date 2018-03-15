@@ -59,8 +59,5 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Vendor_Detail_Url")]
         public string VendorDetailUrl { get; set; }
-
-        [JsonProperty("Vendor_Merchant_Detail_Url")]
-        public string VendorMerchantDetailUrl { get; set; }
     }
 }

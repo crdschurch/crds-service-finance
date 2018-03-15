@@ -65,9 +65,6 @@ public class MappingProfile : Profile
             ))
             .ForMember(dest => dest.VendorDetailUrl, opt => opt.ResolveUsing(r =>
                 r.Links != null && r.Links.ViewRecurringPayment != null ? r.Links.ViewRecurringPayment.Href : null
-            ))
-            .ForMember(dest => dest.VendorMerchantDetailUrl, opt => opt.ResolveUsing(r =>
-                r.Links != null && r.Links.MerchantViewRecurringPayment != null ? r.Links.MerchantViewRecurringPayment.Href : null
             ));
         CreateMap<MpRecurringGift, RecurringGiftDto>();
     }
