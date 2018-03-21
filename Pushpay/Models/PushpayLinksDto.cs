@@ -13,8 +13,11 @@ namespace Pushpay.Models
         [JsonProperty("merchant")]
         public PushpayLinkDto Merchant { get; set; }
 
-        [JsonProperty("viewrecurringpayment")]
+        [JsonProperty("donorviewrecurringpayment")]
         public PushpayLinkDto ViewRecurringPayment { get; set; }
+
+        [JsonProperty("merchantviewrecurringpayment")]
+        public PushpayLinkDto MerchantViewRecurringPayment { get; set; }
 
         [JsonProperty("status")]
         public PushpayLinkDto Status { get; set; }

@@ -30,8 +30,11 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("recurringpayment")]
         public string RecurringPayment { get; set; }
 
-        [JsonProperty("viewrecurringpayment")]
+        [JsonProperty("donorviewrecurringpayment")]
         public string ViewRecurringPayment { get; set; }
+
+        [JsonProperty("merchantviewrecurringpayment")]
+        public string ViewMerchantRecurringPayment { get; set; }
     }
 
     public class PushpayWebhookEvent
