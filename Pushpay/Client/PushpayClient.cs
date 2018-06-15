@@ -137,7 +137,14 @@ namespace Pushpay.Client
                     Thread.Sleep(delay);
                     request.Resource = $"settlement/settlements?depositFrom={modStartDate}&page={i}";
                     response = _restClient.Execute<PushpaySettlementResponseDto>(request);
-                    pushpayDepositDtos.AddRange(response.Data.items);
+                    if (response.Data.items != null)
+                    {
+                        pushpayDepositDtos.AddRange(response.Data.items);
+                    }
+                    else
+                    {
+                        //TODO: log message here
+                    }
                 }
             }
 
