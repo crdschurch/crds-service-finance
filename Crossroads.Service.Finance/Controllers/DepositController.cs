@@ -21,7 +21,7 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpPost]
         [Route("sync")]
-        [Description("here is a sample description")]
+        [Description("Sync settlements")]
         public IActionResult SyncSettlements()
         {
             try
