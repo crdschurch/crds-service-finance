@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using System.Reflection;
 using System.Threading;
 using Crossroads.Service.Finance.Models;
+using log4net;
 using Newtonsoft.Json;
 using Pushpay.Models;
 using Pushpay.Token;
@@ -12,6 +14,7 @@ namespace Pushpay.Client
 {
     public class PushpayClient : IPushpayClient
     {
+        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
         private readonly string createAnticipatedPaymentsScope = "create_anticipated_payment";
@@ -137,7 +140,14 @@ namespace Pushpay.Client
                     Thread.Sleep(delay);
                     request.Resource = $"settlement/settlements?depositFrom={modStartDate}&page={i}";
                     response = _restClient.Execute<PushpaySettlementResponseDto>(request);
-                    pushpayDepositDtos.AddRange(response.Data.items);
+                    if (response.Data.items != null)
+                    {
+                        pushpayDepositDtos.AddRange(response.Data.items);
+                    }
+                    else
+                    {
+                        _logger.Warn($"No settlements found for start date {modStartDate} and page {i} in MP.");
+                    }
                 }
             }
 
