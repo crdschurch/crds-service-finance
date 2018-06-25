@@ -22,7 +22,6 @@ namespace MinistryPlatform.Repositories
         public MpDonor MatchContact(string firstName, string lastName, string phone, string email)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
-            //var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var parameters = new Dictionary<string, object>
             {
