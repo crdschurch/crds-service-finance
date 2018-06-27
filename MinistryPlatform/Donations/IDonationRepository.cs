@@ -14,5 +14,6 @@ namespace MinistryPlatform.Interfaces
         MpDonor CreateDonor(MpDonor donor);
         MpDonorAccount CreateDonorAccount(MpDonorAccount donor);
         void UpdateDonorAccount(JObject donorAccount);
+        MpContactDonor GetContactDonor(int contactId);
     }
 }

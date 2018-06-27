@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
@@ -14,5 +15,12 @@ namespace Crossroads.Service.Finance.Interfaces
         MpDonor CreateDonor(MpDonor donor);
         MpDonorAccount CreateDonorAccount(MpDonorAccount donor);
         void UpdateDonorAccount(JObject donorAccount);
+        
+        //MpContactDonor CreateOrUpdateContactDonor(MpContactDonor existingDonor, string encryptedKey, string firstName, string lastName, string emailAddress, string paymentProcessorToken = null, DateTime? setupDate = null);
+        //MpContactDonor GetContactDonorForAuthenticatedUser(string authToken);
+        List<RecurringGiftDto> GetRecurringGifts(string token);
+        List<PledgeDto> GetPledges(string token);
+        List<DonationDto> GetDonations(string token);
+
     }
 }

@@ -26,7 +26,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDonation GetDonationByTransactionCode(string transactionCode)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var filter = $"Transaction_Code = '{transactionCode}'";
             var donations = MpRestBuilder.NewRequestBuilder()
@@ -46,7 +46,7 @@ namespace MinistryPlatform.Repositories
 
         public List<MpDonation> Update(List<MpDonation> donations)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
@@ -55,7 +55,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDonation Update(MpDonation donation)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
@@ -64,7 +64,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDonor CreateDonor(MpDonor donor)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
@@ -73,7 +73,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDonorAccount CreateDonorAccount(MpDonorAccount donor)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
@@ -82,7 +82,7 @@ namespace MinistryPlatform.Repositories
 
         public void UpdateDonorAccount(JObject donorAccount)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             try
             {
@@ -95,6 +95,62 @@ namespace MinistryPlatform.Repositories
             {
                 _logger.Error($"UpdateRecurringGift: Error updating recurring gift: {JsonConvert.SerializeObject(donorAccount)}", e);
             }
+        }
+
+        public MpContactDonor GetContactDonor(int contactId)
+        {
+            MpContactDonor donor;
+            try
+            {
+                var token = ApiUserRepository.GetDefaultApiClientToken();
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@Contact_ID", contactId }
+                };
+
+                var filter = $"api_crds_Get_Contact_Donor";
+                var storedProcReturn = MpRestBuilder.NewRequestBuilder()
+                                .WithAuthenticationToken(token)
+                                .WithFilter(filter)
+                                .Build()
+                                .Search<MpContactDonor>();
+
+                if (storedProcReturn != null && storedProcReturn.Count > 0)
+                    donor = storedProcReturn[0];
+                else
+                {
+                    donor = new MpContactDonor
+                    {
+                        ContactId = contactId,
+                        RegisteredUser = true
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException(
+                    string.Format("GetDonorRecord failed.  Contact Id: {0}", contactId), ex);
+            }
+
+            return donor;
+        }
+
+        public List<MpRecurringGift> GetRecurringGiftsForAuthenticatedUser(string token)
+        {
+            var filter = $"Transaction_Code = '123'";
+            var recurringGifts = MpRestBuilder.NewRequestBuilder()
+                                .WithAuthenticationToken(token)
+                                .WithFilter(filter)
+                                .Build()
+                                .Search<MpRecurringGift>();
+
+            if (!recurringGifts.Any())
+            {
+                // TODO possibly refactor to create a more custom exception
+                throw new Exception($"Donation does not exist for transaction code: 123");
+            }
+
+            return recurringGifts.ToList<MpRecurringGift>();
         }
     }
 }

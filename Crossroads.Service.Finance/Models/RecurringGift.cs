@@ -9,5 +9,8 @@ namespace Crossroads.Service.Finance.Models
 
         [JsonProperty("donorId")]
         public int DonorId { get; set; }
+
+        [JsonProperty("emailAddress")]
+        public string EmailAddress { get; set; }
     }
 }
