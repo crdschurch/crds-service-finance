@@ -135,7 +135,7 @@ namespace MinistryPlatform.Repositories
             return donor;
         }
 
-        public List<MpRecurringGift> GetRecurringGiftsForAuthenticatedUser(string token)
+        public List<MpRecurringGift> GetRecurringGifts(string token)
         {
             var filter = $"Transaction_Code = '123'";
             var recurringGifts = MpRestBuilder.NewRequestBuilder()
@@ -144,13 +144,31 @@ namespace MinistryPlatform.Repositories
                                 .Build()
                                 .Search<MpRecurringGift>();
 
-            if (!recurringGifts.Any())
-            {
-                // TODO possibly refactor to create a more custom exception
-                throw new Exception($"Donation does not exist for transaction code: 123");
-            }
+            return recurringGifts.ToList();
+        }
 
-            return recurringGifts.ToList<MpRecurringGift>();
+        public List<MpPledge> GetPledges(string token)
+        {
+            var filter = $"Transaction_Code = '123'";
+            var pledges = MpRestBuilder.NewRequestBuilder()
+                                .WithAuthenticationToken(token)
+                                .WithFilter(filter)
+                                .Build()
+                                .Search<MpPledge>();
+
+            return pledges.ToList();
+        }
+
+        public List<MpDonation> GetDonations(string token)
+        {
+            //var filter = $"Transaction_Code = '123'";
+            var donations = MpRestBuilder.NewRequestBuilder()
+                                .WithAuthenticationToken(token)
+                                //.WithFilter(filter)
+                                .Build()
+                                .Search<MpDonation>();
+            
+            return donations.ToList();
         }
     }
 }

@@ -6,6 +6,7 @@ using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -75,17 +76,8 @@ namespace Crossroads.Service.Finance.Services
         
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
-            var records = _mpDonorService.GetRecurringGiftsForAuthenticatedUser(token);
-            var recurringGifts = records.Select(Mapper.Map<MpRecurringGift, RecurringGiftDto>).ToList();
-
-            // We're not currently storing routing number, postal code, or expiration date in the MpDonorAccount table.
-            // We need these for editing a gift, so populate them from Stripe
-            foreach (var gift in recurringGifts)
-            {
-                PopulateStripeInfoOnRecurringGiftSource(gift.Source);
-            }
-
-            return (recurringGifts);
+            var records = _mpDonationRepository.GetRecurringGifts(token);
+            return records.Select(Mapper.Map<MpRecurringGift, RecurringGiftDto>).ToList();
         }
 
         public List<PledgeDto> GetPledges(string token)
