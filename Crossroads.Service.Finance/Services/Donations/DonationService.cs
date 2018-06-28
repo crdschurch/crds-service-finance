@@ -6,6 +6,7 @@ using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -77,7 +78,8 @@ namespace Crossroads.Service.Finance.Services
         
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
-            throw new NotImplementedException();
+            var records = _mpDonationRepository.GetRecurringGifts(token);
+            return records.Select(Mapper.Map<MpRecurringGift, RecurringGiftDto>).ToList();
         }
 
         public IList<PledgeDto> GetPledges(string token)

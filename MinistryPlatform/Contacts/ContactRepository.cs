@@ -110,13 +110,5 @@ namespace MinistryPlatform.Repositories
 
             return donors.First();
         }
-
-        //Get ID of currently logged in user
-        //public int GetContactId()
-        //{
-        //    var token = ApiUserRepository.GetDefaultApiClientToken();
-
-        //    return _mpDonationRepository.GetContactDonor().ContactId;
-        //}
     }
 }
