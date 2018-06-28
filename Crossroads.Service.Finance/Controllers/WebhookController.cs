@@ -15,7 +15,15 @@ namespace Crossroads.Service.Finance.Controllers
             _pushpayService = pushpayService;
         }
 
+        /// <summary>
+        /// Handles the pushpay webhooks.
+        /// </summary>
+        /// <returns>The pushpay webhooks.</returns>
+        /// <param name="pushpayWebhook">Pushpay webhook.</param>
         [HttpPost("pushpay")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
         public IActionResult HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
         {
             try

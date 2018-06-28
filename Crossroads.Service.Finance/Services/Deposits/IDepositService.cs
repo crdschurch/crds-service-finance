@@ -11,8 +11,6 @@ namespace Crossroads.Service.Finance.Interfaces
         DepositDto GetDepositByProcessorTransferId(string key);
         void SyncDeposits(string hostName);
         List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate);
-        List<SettlementEventDto> GetDepositsForSyncRaw(DateTime startDate, DateTime endDate);
         void SubmitDeposits(List<SettlementEventDto> deposits, string hostName);
-        List<SettlementEventDto> GetDepositsForPendingSync();
     }
 }

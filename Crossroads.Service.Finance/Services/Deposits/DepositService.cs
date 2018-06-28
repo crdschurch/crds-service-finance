@@ -143,24 +143,7 @@ namespace Crossroads.Service.Finance.Services
             return depositsToProcess;
         }
 
-        // returns the list of all deposits that woould be pulled, if we weren't checking what is in the system -
-        // mostly to support testing and auditing
-        public List<SettlementEventDto> GetDepositsForSyncRaw(DateTime startDate, DateTime endDate)
-        {
-            var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
-            return deposits;
-        }
-
-        public List<SettlementEventDto> GetDepositsForPendingSync()
-        {
-            // we look back however many days are specified in the mp config setting
-            var startDate = DateTime.Now.AddDays(-(_depositProcessingOffset));
-            var endDate = DateTime.Now;
-
-            var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
-            return deposits;
-        }
-
+        // TODO wrap this into SyncSettlements endpoint rather than making HTTP call
         public void SubmitDeposits(List<SettlementEventDto> deposits, string hostName)
         {
             // TODO: There is some code smell around this - determine if there is a better way to handle this

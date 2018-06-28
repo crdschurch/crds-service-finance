@@ -16,6 +16,7 @@ namespace Crossroads.Service.Finance.Controllers
             _paymentEventService = paymentEventService;
         }
 
+        // TODO (delete) should be a part of deposit syncsettlements endpoint
         [HttpPost("settlement")]
         public IActionResult ProcessPaymentEvent([FromBody] SettlementEventDto settlementEventDto)
         {
@@ -30,18 +31,5 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
-        [HttpPost("anticipated")]
-        public IActionResult CreateAnticipatedPayment([FromBody] PushpayAnticipatedPaymentDto anticipatedPaymentDto)
-        {
-            try
-            {
-                var result = _paymentEventService.CreateAnticipatedPayment(anticipatedPaymentDto);
-                return StatusCode(201, result.Links.Pay.Href);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(400, ex);
-            }
-        }
     }
 }

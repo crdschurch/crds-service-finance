@@ -1,7 +1,9 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Models;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Crossroads.Service.Finance.Controllers
@@ -18,6 +20,8 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpGet("recurring-gifts")]
+        [ProducesResponseType(typeof(List<RecurringGiftDto>), 200)]
+        [ProducesResponseType(204)]
         public IActionResult GetRecurringGifts()
         {
             try
@@ -38,6 +42,8 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpGet("pledges")]
+        [ProducesResponseType(typeof(List<PledgeDto>), 200)]
+        [ProducesResponseType(204)]
         public IActionResult GetMyPledges()
         {
             try
@@ -59,6 +65,8 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpGet("donations")]
+        [ProducesResponseType(typeof(List<DonationDto>), 200)]
+        [ProducesResponseType(204)]
         public IActionResult GetDonations()
         {
             try

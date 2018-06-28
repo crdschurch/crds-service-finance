@@ -19,7 +19,15 @@ namespace Crossroads.Service.Finance.Controllers
             _depositService = depositService;
         }
 
+        /// <summary>
+        ///    Sync settlements from pushpay into MP
+        /// </summary>
+        /// <remarks>
+        ///    Called via a SyncPushpaySettlements windows scheduled task at 1pm every day
+        /// </remarks>
         [HttpPost("sync")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         [Description("Sync settlements from pushpay into MP, called via a SyncPushpaySettlements job at 1pm every day")]
         public IActionResult SyncSettlements()
         {
@@ -32,54 +40,6 @@ namespace Crossroads.Service.Finance.Controllers
             catch (Exception ex)
             {
                 _logger.Error("Error in SyncSettlements: " + ex.Message, ex);
-                return StatusCode(400, ex);
-            }
-        }
-
-        [HttpGet("active")]
-        [Description("Get active settlements, where is this called from?")]
-        public IActionResult GetActiveSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
-        {
-            try
-            {
-                var result = _depositService.GetDepositsForSync(startdate, enddate);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Error in GetActiveSettlements: " + ex.Message, ex);
-                return StatusCode(400, ex);
-            }
-        }
-
-        [HttpGet("all")]
-        [Description("Get all settlements, where is this called from?")]
-        public IActionResult GetAllSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
-        {
-            try
-            {
-                var result = _depositService.GetDepositsForSyncRaw(startdate, enddate);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Error in GetAllSettlements: " + ex.Message, ex);
-                return StatusCode(400, ex);
-            }
-        }
-
-        [HttpGet("pending-sync")]
-        [Description("Get active settlements, where is this called from?")]
-        public IActionResult GetSettlementsPendingSync()
-        {
-            try
-            {
-                var result = _depositService.GetDepositsForPendingSync();
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Error in GetSettlementsPendingSync: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }

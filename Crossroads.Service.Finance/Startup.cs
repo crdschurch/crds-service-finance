@@ -12,9 +12,9 @@ using Pushpay.Client;
 using Pushpay.Token;
 using System;
 using Hangfire;
-using NJsonSchema;
-using NSwag.AspNetCore;
-using System.Reflection;
+using Swashbuckle.AspNetCore.Swagger;
+using System.Linq;
+using System.IO;
 
 namespace Crossroads.Service.Finance
 {
@@ -49,6 +49,14 @@ namespace Crossroads.Service.Finance
             // Dependency Injection
             CrossroadsWebCommonConfig.Register(services);
 
+            // Add Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Finance Microservice"});
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, "Crossroads.Service.Finance.xml");
+                c.IncludeXmlComments(xmlPath);
+            });
+
             // Service Layer
             services.AddSingleton<IBatchService, BatchService>();
             services.AddSingleton<IDonationService, DonationService>();
@@ -72,25 +80,26 @@ namespace Crossroads.Service.Finance
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            // Enable the Swagger UI middleware and the Swagger generator -
-            // see https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-nswag?view=aspnetcore-2.1&tabs=visual-studio%2Cvisual-studio-xml
-            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings =>
-            {
-                settings.GeneratorSettings.DefaultPropertyNameHandling =
-                    PropertyNameHandling.CamelCase;
-            });
-
             app.UseHangfireServer();
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
-            app.UseMvc(routes =>
+            app.UseMvc();
+            app.UseSwagger(o =>
             {
-                routes.MapRoute("default", "api/{controller}/{route}/{id?}");
+                // ensure controller is lowercased
+                o.PreSerializeFilters.Add((document, request) =>
+                {
+                    document.Paths = document.Paths.ToDictionary(p => p.Key.ToLowerInvariant(), p => p.Value);
+                });
             });
-            //app.UseMvc();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Finance Microservice");
+                c.RoutePrefix = string.Empty;
+            });
         }
     }
 }
