@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Crossroads.Service.Finance.Controllers
 {
-    [Route("api/[controller]")]
     public class DepositController : Controller
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);

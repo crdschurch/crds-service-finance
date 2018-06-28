@@ -6,7 +6,6 @@ using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Controllers
 {
-    [Route("api/[controller]")]
     public class PaymentEventController : Controller
     {
         private readonly IPaymentEventService _paymentEventService;

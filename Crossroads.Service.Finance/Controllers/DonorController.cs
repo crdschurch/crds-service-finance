@@ -13,23 +13,14 @@ namespace Crossroads.Service.Finance.Controllers
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IDonationService _donationService;
-        // private readonly IAnalyticsService _analyticsService;
 
-        public DonorController(IDonationService donationService
-                                // IAnalyticsService analyticsService
-                                )
+        public DonorController(IDonationService donationService)
         {
             _donationService = donationService;
-            // _analyticsService = analyticsService;
         }
-        
-        /// <summary>
-        /// Retrieve list of recurring gifts for the logged-in donor.
-        /// </summary>
-        /// <returns>A list of RecurringGiftDto</returns>
-        [ProducesResponseType(typeof(List<RecurringGiftDto>), 200)]
-        [Route("donor/recurringgifts")]
+
         [HttpGet]
+        [Route("recurring-gifts")]
         public IActionResult GetRecurringGifts()
         {
             try
@@ -37,7 +28,7 @@ namespace Crossroads.Service.Finance.Controllers
                 var recurringGifts = _donationService.GetRecurringGifts("token");
                 if (recurringGifts == null || recurringGifts.Count == 0)
                 {
-                    return NotFound(new ObjectResult("No recurring gifts found"));
+                    return NoContent();
                 }
                 return Ok(recurringGifts);
             }
@@ -49,8 +40,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
         
-        [HttpGet]
-        [Route("donor/pledges")]
+        //[HttpGet("pledges")]
         public IActionResult Pledges()
         {
             try
@@ -58,7 +48,7 @@ namespace Crossroads.Service.Finance.Controllers
                 var pledges = _donationService.GetPledges("token");
                 if (pledges == null || pledges.Count == 0)
                 {
-                    return NotFound(new ObjectResult("No pledges found"));
+                    return NoContent();
                 }
 
                 return Ok(pledges);
@@ -71,14 +61,8 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
-        /// <summary>
-        /// Retrieve list of donations for the logged-in donor.
-        /// </summary>
-        /// <returns>A list of DonationDTOs</returns>
-        [ProducesResponseType(typeof(List<DonationDto>), 200)]
-        [Route("donor/donations")]
         [HttpGet]
-        [RequiresAuthorization]
+        [Route("donations")]
         public IActionResult GetDonations()
         {
             try
@@ -86,7 +70,7 @@ namespace Crossroads.Service.Finance.Controllers
                 var donations = _donationService.GetDonations("token");
                 if (donations == null || donations.Count == 0)
                 {
-                    return NotFound(new ObjectResult("No donations found"));
+                    return NoContent();
                 }
 
                 return Ok(donations);
