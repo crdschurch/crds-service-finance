@@ -19,7 +19,7 @@ namespace Crossroads.Service.Finance.Interfaces
         //MpContactDonor CreateOrUpdateContactDonor(MpContactDonor existingDonor, string encryptedKey, string firstName, string lastName, string emailAddress, string paymentProcessorToken = null, DateTime? setupDate = null);
         //MpContactDonor GetContactDonorForAuthenticatedUser(string authToken);
         List<RecurringGiftDto> GetRecurringGifts(string token);
-        List<PledgeDto> GetPledges(string token);
+        IList<PledgeDto> GetPledges(string token);
         List<DonationDto> GetDonations(string token);
 
     }

@@ -49,14 +49,9 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
         
-        /// <summary>
-        /// Retrieve list of capital campaign pledges for the logged-in donor.
-        /// </summary>
-        /// <returns>A list of PledgeDto</returns>
-        [ProducesResponseType(typeof(List<PledgeDto>), 200)]
-        [Route("donor/pledges")]
         [HttpGet]
-        public IActionResult GetPledges()
+        [Route("donor/pledges")]
+        public IActionResult Pledges()
         {
             try
             {
@@ -83,6 +78,7 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(typeof(List<DonationDto>), 200)]
         [Route("donor/donations")]
         [HttpGet]
+        [RequiresAuthorization]
         public IActionResult GetDonations()
         {
             try

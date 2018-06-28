@@ -63,6 +63,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IRecurringGiftRepository, RecurringGiftRepository>();
             services.AddSingleton<IProgramRepository, ProgramRepository>();
             services.AddSingleton<IContactRepository, ContactRepository>();
+            services.AddSingleton<IPledgeRepository, PledgeRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,7 +75,11 @@ namespace Crossroads.Service.Finance
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute("default", "api/{controller}/{action}/{id?}");
+            });
+            //app.UseMvc();
         }
     }
 }

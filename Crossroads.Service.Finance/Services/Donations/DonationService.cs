@@ -12,11 +12,13 @@ namespace Crossroads.Service.Finance.Services
     public class DonationService : IDonationService
     {
         private readonly IDonationRepository _mpDonationRepository;
+        private readonly IPledgeRepository _mpPledgeRepository;
         private readonly IMapper _mapper;
 
-        public DonationService(IDonationRepository mpDonationRepository, IContactRepository mpContactService, IMapper mapper)
+        public DonationService(IDonationRepository mpDonationRepository, IPledgeRepository mpPledgeRepository, IMapper mapper)
         {
             _mpDonationRepository = mpDonationRepository;
+            _mpPledgeRepository = mpPledgeRepository;
             _mapper = mapper;
         }
 
@@ -75,22 +77,15 @@ namespace Crossroads.Service.Finance.Services
         
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
-            var records = _mpDonorService.GetRecurringGiftsForAuthenticatedUser(token);
-            var recurringGifts = records.Select(Mapper.Map<MpRecurringGift, RecurringGiftDto>).ToList();
-
-            // We're not currently storing routing number, postal code, or expiration date in the MpDonorAccount table.
-            // We need these for editing a gift, so populate them from Stripe
-            foreach (var gift in recurringGifts)
-            {
-                PopulateStripeInfoOnRecurringGiftSource(gift.Source);
-            }
-
-            return (recurringGifts);
+            throw new NotImplementedException();
         }
 
-        public List<PledgeDto> GetPledges(string token)
+        public IList<PledgeDto> GetPledges(string token)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            int contactId = 12;
+            var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
+            return _mapper.Map<List<PledgeDto>>(mpPledges);
         }
 
         public List<DonationDto> GetDonations(string token)
