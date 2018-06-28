@@ -20,7 +20,7 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpPost]
         [ActionName("sync")]
-        [Description("Sync settlements")]
+        [Description("Sync settlements from pushpay into MP, called via a SyncPushpaySettlements job at 1pm every day")]
         public IActionResult SyncSettlements()
         {
             try
@@ -38,6 +38,7 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpGet]
         [ActionName("active")]
+        [Description("Get active settlements, where is this called from?")]
         public IActionResult GetActiveSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
         {
             try
@@ -54,6 +55,7 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpGet]
         [ActionName("all")]
+        [Description("Get all settlements, where is this called from?")]
         public IActionResult GetAllSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
         {
             try
@@ -70,6 +72,7 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpGet]
         [ActionName("pending-sync")]
+        [Description("Get active settlements, where is this called from?")]
         public IActionResult GetSettlementsPendingSync()
         {
             try

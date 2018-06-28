@@ -8,6 +8,10 @@ Finance for Micro-Services in dotnet core
 dotnet restore
 ```
 
+### See endpoints via swagger
+
+run project, visit `http://localhost:<port>/swagger`
+
 ### Environment variables
 
 create a .env file in the project root with the following variables and set

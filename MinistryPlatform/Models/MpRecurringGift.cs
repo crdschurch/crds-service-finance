@@ -1,8 +1,6 @@
 using Crossroads.Web.Common.MinistryPlatform;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using System;
-
 
 namespace MinistryPlatform.Models
 {

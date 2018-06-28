@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MinistryPlatform.Repositories

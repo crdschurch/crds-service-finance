@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Runtime.Serialization;
+﻿using System;
 
 namespace MinistryPlatform.Models
 {
@@ -54,9 +52,6 @@ namespace MinistryPlatform.Models
         public string DisplayName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public MpPostalAddress Address { get; set; }
         public int HouseholdId { get; set; }
-
-        public bool HasAddress { get { return (Address != null); } }
     }
 }
