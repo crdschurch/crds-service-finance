@@ -6,6 +6,7 @@ using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Controllers
 {
+    [Route("api/[controller]")]
     public class PaymentEventController : Controller
     {
         private readonly IPaymentEventService _paymentEventService;
@@ -15,8 +16,7 @@ namespace Crossroads.Service.Finance.Controllers
             _paymentEventService = paymentEventService;
         }
 
-        [HttpPost]
-        [ActionName("settlement")]
+        [HttpPost("settlement")]
         public IActionResult ProcessPaymentEvent([FromBody] SettlementEventDto settlementEventDto)
         {
             try
@@ -30,8 +30,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
-        [HttpPost]
-        [ActionName("anticipated")]
+        [HttpPost("anticipated")]
         public IActionResult CreateAnticipatedPayment([FromBody] PushpayAnticipatedPaymentDto anticipatedPaymentDto)
         {
             try

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Crossroads.Service.Finance.Controllers
 {
+    [Route("api/[controller]")]
     public class DepositController : Controller
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -18,8 +19,7 @@ namespace Crossroads.Service.Finance.Controllers
             _depositService = depositService;
         }
 
-        [HttpPost]
-        [ActionName("sync")]
+        [HttpPost("sync")]
         [Description("Sync settlements from pushpay into MP, called via a SyncPushpaySettlements job at 1pm every day")]
         public IActionResult SyncSettlements()
         {
@@ -36,8 +36,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
-        [HttpGet]
-        [ActionName("active")]
+        [HttpGet("active")]
         [Description("Get active settlements, where is this called from?")]
         public IActionResult GetActiveSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
         {
@@ -53,8 +52,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
-        [HttpGet]
-        [ActionName("all")]
+        [HttpGet("all")]
         [Description("Get all settlements, where is this called from?")]
         public IActionResult GetAllSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
         {
@@ -70,8 +68,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
-        [HttpGet]
-        [ActionName("pending-sync")]
+        [HttpGet("pending-sync")]
         [Description("Get active settlements, where is this called from?")]
         public IActionResult GetSettlementsPendingSync()
         {

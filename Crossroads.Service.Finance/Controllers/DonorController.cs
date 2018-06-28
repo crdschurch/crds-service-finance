@@ -1,14 +1,12 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
-using Crossroads.Service.Finance.Models;
-using Crossroads.Web.Common.Middleware;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Crossroads.Service.Finance.Controllers
 {
+    [Route("api/[controller]")]
     public class DonorController : Controller
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -19,8 +17,7 @@ namespace Crossroads.Service.Finance.Controllers
             _donationService = donationService;
         }
 
-        [HttpGet]
-        [ActionName("recurring-gifts")]
+        [HttpGet("recurring-gifts")]
         public IActionResult GetRecurringGifts()
         {
             try
@@ -39,9 +36,8 @@ namespace Crossroads.Service.Finance.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
-        [HttpGet]
-        [ActionName("pledges")]
+
+        [HttpGet("pledges")]
         public IActionResult GetMyPledges()
         {
             try
@@ -62,8 +58,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
-        [HttpGet]
-        [ActionName("donations")]
+        [HttpGet("donations")]
         public IActionResult GetDonations()
         {
             try
