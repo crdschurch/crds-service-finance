@@ -19,7 +19,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost]
-        //[ActionName("sync")]
+        [ActionName("sync")]
         [Description("Sync settlements")]
         public IActionResult SyncSettlements()
         {
