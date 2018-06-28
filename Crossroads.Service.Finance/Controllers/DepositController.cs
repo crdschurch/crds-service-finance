@@ -18,7 +18,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost]
-        [Route("sync")]
+        [ActionName("sync")]
         public IActionResult SyncSettlements()
         {
             try
@@ -35,7 +35,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpGet]
-        [Route("active")]
+        [ActionName("active")]
         public IActionResult GetActiveSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
         {
             try
@@ -51,7 +51,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpGet]
-        [Route("all")]
+        [ActionName("all")]
         public IActionResult GetAllSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
         {
             try
@@ -67,7 +67,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpGet]
-        [Route("pending-sync")]
+        [ActionName("pending-sync")]
         public IActionResult GetSettlementsPendingSync()
         {
             try

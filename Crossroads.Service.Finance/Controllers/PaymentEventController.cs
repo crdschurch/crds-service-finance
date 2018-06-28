@@ -16,7 +16,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost]
-        [Route("settlement")]
+        [ActionName("settlement")]
         public IActionResult ProcessPaymentEvent([FromBody] SettlementEventDto settlementEventDto)
         {
             try
@@ -31,7 +31,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost]
-        [Route("anticipated")]
+        [ActionName("anticipated")]
         public IActionResult CreateAnticipatedPayment([FromBody] PushpayAnticipatedPaymentDto anticipatedPaymentDto)
         {
             try

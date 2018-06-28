@@ -77,9 +77,8 @@ namespace Crossroads.Service.Finance
                 .AllowCredentials());
             app.UseMvc(routes =>
             {
-                routes.MapRoute("default", "api/{controller}/{action?}/{id?}");
+                routes.MapRoute("default", "api/{controller}/{action}/{id?}");
             });
-            //app.UseMvc();
         }
     }
 }

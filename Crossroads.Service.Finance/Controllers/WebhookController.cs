@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Crossroads.Service.Finance.Controllers
 {
-    [Route("webhook")]
     public class WebhookController : Controller
     {
         private readonly IPushpayService _pushpayService;
@@ -16,7 +15,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost]
-        [Route("pushpay")]
+        [ActionName("pushpay")]
         public IActionResult HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
         {
             try

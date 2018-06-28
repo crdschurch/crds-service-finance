@@ -20,7 +20,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpGet]
-        [Route("recurring-gifts")]
+        [ActionName("recurring-gifts")]
         public IActionResult GetRecurringGifts()
         {
             try
@@ -40,8 +40,9 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
         
-        //[HttpGet("pledges")]
-        public IActionResult Pledges()
+        [HttpGet]
+        [ActionName("pledges")]
+        public IActionResult GetMyPledges()
         {
             try
             {
@@ -62,7 +63,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpGet]
-        [Route("donations")]
+        [ActionName("donations")]
         public IActionResult GetDonations()
         {
             try
