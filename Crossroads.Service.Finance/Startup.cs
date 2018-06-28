@@ -12,6 +12,9 @@ using Pushpay.Client;
 using Pushpay.Token;
 using System;
 using Hangfire;
+using NJsonSchema;
+using NSwag.AspNetCore;
+using System.Reflection;
 
 namespace Crossroads.Service.Finance
 {
@@ -69,6 +72,14 @@ namespace Crossroads.Service.Finance
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            // Enable the Swagger UI middleware and the Swagger generator -
+            // see https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-nswag?view=aspnetcore-2.1&tabs=visual-studio%2Cvisual-studio-xml
+            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings =>
+            {
+                settings.GeneratorSettings.DefaultPropertyNameHandling =
+                    PropertyNameHandling.CamelCase;
+            });
+
             app.UseHangfireServer();
             app.UseCors(builder => builder
                 .AllowAnyOrigin()

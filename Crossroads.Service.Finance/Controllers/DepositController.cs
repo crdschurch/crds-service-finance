@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Reflection;
 using Crossroads.Service.Finance.Interfaces;
 using log4net;
