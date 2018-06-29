@@ -19,23 +19,22 @@ namespace Crossroads.Service.Finance.Services
         private readonly IDepositRepository _depositRepository;
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
+        private readonly IPaymentEventService _paymentEventService;
         private readonly IRestClient _restClient;
         private readonly int _depositProcessingOffset;
-        private readonly string _financePath;
-        private readonly string _pushpayDepositEndpoint;
+        private readonly string _pushpayWebEndpoint;
 
-        public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, IConfigurationWrapper configurationWrapper, IRestClient restClient = null)
+        public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, 
+                              IConfigurationWrapper configurationWrapper, IPaymentEventService paymentEventService, IRestClient restClient = null)
         {
             _depositRepository = depositRepository;
+            _paymentEventService = paymentEventService;
             _mapper = mapper;
             _pushpayService = pushpayService;
             _restClient = restClient ?? new RestClient();
 
-            _financePath = Environment.GetEnvironmentVariable("FINANCE_PATH") ??
-                               configurationWrapper.GetMpConfigValue("CRDS-FINANCE", "FinanceMicroservicePath", true);
-
             _depositProcessingOffset = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
-            _pushpayDepositEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_DEPOSIT_ENDPOINT");
+            _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
         }
 
         public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName)
@@ -80,7 +79,7 @@ namespace Crossroads.Service.Finance.Services
                 DepositAmount = Decimal.Parse(settlementEventDto.TotalAmount.Amount),
                 Exported = false,
                 Notes = null,
-                ProcessorTransferId = $"{_pushpayDepositEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate={estDepositDate}&toDate={estDepositDate}",
+                ProcessorTransferId = $"{_pushpayWebEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate={estDepositDate}&toDate={estDepositDate}",
             };
 
             return depositDto;
@@ -99,7 +98,7 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // this will pull desposits by a date range and determine which ones we need to create in the system
-        public void SyncDeposits(string hostName)
+        public void SyncDeposits()
         {
             // we look back however many days are specified in the mp config setting
             var startDate = DateTime.Now.AddDays(-(_depositProcessingOffset));
@@ -112,7 +111,10 @@ namespace Crossroads.Service.Finance.Services
                 return;
             }
 
-            SubmitDeposits(depositDtos, hostName);
+            foreach (var deposit in depositDtos)
+            {
+                _paymentEventService.CreateDeposit(deposit);
+            }
         }
 
         public List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate)
@@ -141,33 +143,6 @@ namespace Crossroads.Service.Finance.Services
             }
 
             return depositsToProcess;
-        }
-
-        // TODO wrap this into SyncSettlements endpoint rather than making HTTP call
-        public void SubmitDeposits(List<SettlementEventDto> deposits, string hostName)
-        {
-            // TODO: There is some code smell around this - determine if there is a better way to handle this
-            _restClient.BaseUrl = hostName.Contains("localhost") ? new Uri("http://" + hostName) : new Uri("https://" + hostName);
-
-            foreach (var deposit in deposits)
-            {
-                var request = new RestRequest(Method.POST)
-                {
-                    Resource = _financePath + "paymentevent/settlement"
-                };
-
-                request.AddHeader("Content-Type", "application/json");
-                request.JsonSerializer = new JsonSerializer(); // needed?
-                request.RequestFormat = DataFormat.Json;
-                request.AddBody(deposit);
-
-                var response = _restClient.Execute(request);
-
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    throw new Exception($"Could not find server for {_restClient.BaseUrl} & {request.Resource}");
-                }
-            }
         }
     }
 }

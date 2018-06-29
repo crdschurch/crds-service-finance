@@ -50,5 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="LowercaseDocumentFilter.cs" />
+    <Compile Remove="Controllers\PaymentEventController.cs" />
   </ItemGroup>
 </Project>

@@ -32,8 +32,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                var hostName = this.Request.Host.ToString();
-                _depositService.SyncDeposits(hostName);
+                _depositService.SyncDeposits();
                 return Ok();
             }
             catch (Exception ex)
