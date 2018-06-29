@@ -18,7 +18,9 @@ namespace Crossroads.Service.Finance.Controllers
         /// <summary>
         /// Handles the pushpay webhooks.
         /// </summary>
-        /// <returns>The pushpay webhooks.</returns>
+        /// <remarks>
+        ///    Called by Pushpay when a new donation is created, or a recurring gift is created/updated
+        /// </remarks>
         /// <param name="pushpayWebhook">Pushpay webhook.</param>
         [HttpPost("pushpay")]
         [ProducesResponseType(200)]

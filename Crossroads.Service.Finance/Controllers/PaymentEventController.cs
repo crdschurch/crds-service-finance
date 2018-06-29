@@ -17,6 +17,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         // TODO (delete) should be a part of deposit syncsettlements endpoint
+        [Obsolete]
         [HttpPost("settlement")]
         public IActionResult ProcessPaymentEvent([FromBody] SettlementEventDto settlementEventDto)
         {

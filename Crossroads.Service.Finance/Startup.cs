@@ -98,6 +98,7 @@ namespace Crossroads.Service.Finance
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Finance Microservice");
+                c.DocExpansion(DocExpansion.None);
                 c.RoutePrefix = string.Empty;
             });
         }

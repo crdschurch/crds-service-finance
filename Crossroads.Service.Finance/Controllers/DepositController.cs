@@ -28,7 +28,6 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpPost("sync")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        [Description("Sync settlements from pushpay into MP, called via a SyncPushpaySettlements job at 1pm every day")]
         public IActionResult SyncSettlements()
         {
             try

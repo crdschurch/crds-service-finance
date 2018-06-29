@@ -19,6 +19,9 @@ namespace Crossroads.Service.Finance.Controllers
             _donationService = donationService;
         }
 
+        /// <summary>
+        ///    Get recurring gifts for a user
+        /// </summary>
         [HttpGet("recurring-gifts")]
         [ProducesResponseType(typeof(List<RecurringGiftDto>), 200)]
         [ProducesResponseType(204)]
@@ -41,6 +44,9 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
+        /// <summary>
+        ///    Get recurring gifts for a user
+        /// </summary>
         [HttpGet("pledges")]
         [ProducesResponseType(typeof(List<PledgeDto>), 200)]
         [ProducesResponseType(204)]
@@ -64,6 +70,9 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
+        /// <summary>
+        ///    Get recurring gifts for a user
+        /// </summary>
         [HttpGet("donations")]
         [ProducesResponseType(typeof(List<DonationDto>), 200)]
         [ProducesResponseType(204)]
