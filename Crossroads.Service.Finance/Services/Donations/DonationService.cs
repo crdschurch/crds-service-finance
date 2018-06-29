@@ -26,6 +26,7 @@ namespace Crossroads.Service.Finance.Services
         public DonationDto GetDonationByTransactionCode(string transactionCode)
         {
             var mpDonation = _mpDonationRepository.GetDonationByTransactionCode(transactionCode);
+            if (mpDonation == null) return null;
             var donationDto = _mapper.Map<DonationDto>(mpDonation);
             return donationDto;
         }

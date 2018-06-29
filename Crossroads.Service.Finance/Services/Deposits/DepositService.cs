@@ -19,6 +19,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IDepositRepository _depositRepository;
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
+        private readonly IConfigurationWrapper _configurationWrapper;
 
         private readonly int _depositProcessingOffset;
         private readonly string _pushpayWebEndpoint;
@@ -31,8 +32,9 @@ namespace Crossroads.Service.Finance.Services
             _depositRepository = depositRepository;
             _mapper = mapper;
             _pushpayService = pushpayService;
+            _configurationWrapper = configurationWrapper;
 
-            _depositProcessingOffset = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
+            _depositProcessingOffset = _configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
         }
 

@@ -39,6 +39,7 @@ namespace Crossroads.Service.Finance.Controllers
                 {
                     _paymentEventService.CreateDeposit(deposit);
                 }
+                _logger.Info($"SyncSettlements created ${deposits.Count} deposits");
                 return Ok(new { created =  deposits.Count });
             }
             catch (Exception ex)

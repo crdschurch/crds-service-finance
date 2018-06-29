@@ -5,7 +5,7 @@ using System.Reflection;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
-using MinistryPlatform.Configuration;
+//using MinistryPlatform.Configuration;
 using Hangfire;
 using log4net;
 using MinistryPlatform.Interfaces;
@@ -80,6 +80,7 @@ namespace Crossroads.Service.Finance.Services
                 // PushPay creates the donation a variable amount of time after the webhook comes in
                 //   so it still may not be available
                 var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
+                if (donation == null) return null;
                 if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
                 {
                     donation.DonationStatusId = _mpDonationStatusPending;
