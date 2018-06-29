@@ -45,7 +45,7 @@ namespace Crossroads.Service.Finance.Services
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
             _mpDefaultContactDonorId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultDonorID") ?? 1;
             _mpDefaultCongregationId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultCongregationID") ?? 1;
-            _mpPushpayRecurringWebhookMinutes = configurationWrapper.GetAppMpConfigIntValue("PushpayJobDelayMinutes") ?? 1;
+            _mpPushpayRecurringWebhookMinutes = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "PushpayJobDelayMinutes") ?? 1;
         }
 
         public PaymentsDto GetChargesForTransfer(string settlementKey)
