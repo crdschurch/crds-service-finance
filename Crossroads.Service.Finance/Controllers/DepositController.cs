@@ -13,12 +13,13 @@ namespace Crossroads.Service.Finance.Controllers
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly IDepositService _depositService;
+        private readonly IPaymentEventService _paymentEventService;
 
-        public DepositController(IDepositService depositService)
+        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService)
         {
             _depositService = depositService;
+            _paymentEventService = paymentEventService;
         }
-        //public DepositController(){}
 
         /// <summary>
         ///    Sync settlements from pushpay into MP
@@ -33,9 +34,13 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                var depositsCount = _depositService.SyncDeposits();
-                //var depositsCount = 3;
-                return Ok(new { created =  depositsCount });
+                var deposits = _depositService.SyncDeposits();
+                foreach (var deposit in deposits)
+                {
+                    _paymentEventService.CreateDeposit(deposit);
+                }
+                _logger.Info($"SyncSettlements created ${deposits.Count} deposits");
+                return Ok(new { created =  deposits.Count });
             }
             catch (Exception ex)
             {

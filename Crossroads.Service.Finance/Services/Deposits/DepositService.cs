@@ -19,20 +19,22 @@ namespace Crossroads.Service.Finance.Services
         private readonly IDepositRepository _depositRepository;
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
-        private readonly IPaymentEventService _paymentEventService;
+        private readonly IConfigurationWrapper _configurationWrapper;
 
         private readonly int _depositProcessingOffset;
         private readonly string _pushpayWebEndpoint;
 
-        public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, 
-                              IConfigurationWrapper configurationWrapper, IPaymentEventService paymentEventService)
+        public DepositService(IDepositRepository depositRepository,
+                              IMapper mapper,
+                              IPushpayService pushpayService,
+                              IConfigurationWrapper configurationWrapper)
         {
             _depositRepository = depositRepository;
-            _paymentEventService = paymentEventService;
             _mapper = mapper;
             _pushpayService = pushpayService;
+            _configurationWrapper = configurationWrapper;
 
-            _depositProcessingOffset = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
+            _depositProcessingOffset = _configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
         }
 
@@ -97,7 +99,7 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // this will pull desposits by a date range and determine which ones we need to create in the system
-        public int SyncDeposits()
+        public List<SettlementEventDto> SyncDeposits()
         {
             // we look back however many days are specified in the mp config setting
             var startDate = DateTime.Now.AddDays(-(_depositProcessingOffset));
@@ -107,15 +109,10 @@ namespace Crossroads.Service.Finance.Services
 
             if (depositDtos == null || !depositDtos.Any())
             {
-                return 0;
+                return null;
             }
 
-            foreach (var deposit in depositDtos)
-            {
-                _paymentEventService.CreateDeposit(deposit);
-            }
-
-            return depositDtos.Count;
+            return depositDtos;
         }
 
         public List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate)

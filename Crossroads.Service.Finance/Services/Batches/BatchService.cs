@@ -45,11 +45,13 @@ namespace Crossroads.Service.Finance.Services
             foreach (var charge in charges)
             {
                 var mpDonation = _donationRepository.GetDonationByTransactionCode(charge.TransactionId);
-
-                // Add the charge amount to the batch total amount
-                batch.ItemCount++;
-                batch.BatchTotalAmount += decimal.Parse(charge.Amount.Amount);
-                batch.Donations.Add(_mapper.Map<DonationDto>(mpDonation));
+                if (mpDonation != null)
+                {
+                    // Add the charge amount to the batch total amount
+                    batch.ItemCount++;
+                    batch.BatchTotalAmount += decimal.Parse(charge.Amount.Amount);
+                    batch.Donations.Add(_mapper.Map<DonationDto>(mpDonation));
+                }
             }
 
             return batch;
