@@ -8,6 +8,7 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
+        CreateMap<MpPledge, PledgeDto>();
         CreateMap<MpDeposit, DepositDto>();
         CreateMap<DepositDto, MpDeposit>();
         CreateMap<MpDonationBatch, DonationBatchDto>();

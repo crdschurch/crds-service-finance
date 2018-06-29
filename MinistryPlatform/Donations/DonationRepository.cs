@@ -171,7 +171,7 @@ namespace MinistryPlatform.Repositories
                                 .Search<MpRecurringGift>().ToList();
         }
 
-            public List<MpDonation> GetDonations(int contactId)
+        public List<MpDonation> GetDonations(int contactId)
         {
             var token = ApiUserRepository.GetDefaultApiClientToken();
 

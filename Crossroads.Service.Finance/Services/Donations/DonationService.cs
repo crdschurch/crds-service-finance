@@ -13,12 +13,14 @@ namespace Crossroads.Service.Finance.Services
     public class DonationService : IDonationService
     {
         private readonly IDonationRepository _mpDonationRepository;
+        private readonly IDonationDistributionRepository _mpDonationDistributionRepository;
         private readonly IPledgeRepository _mpPledgeRepository;
         private readonly IMapper _mapper;
 
-        public DonationService(IDonationRepository mpDonationRepository, IPledgeRepository mpPledgeRepository, IMapper mapper)
+        public DonationService(IDonationRepository mpDonationRepository, IDonationDistributionRepository mpDonationDistributionRepository, IPledgeRepository mpPledgeRepository, IMapper mapper)
         {
             _mpDonationRepository = mpDonationRepository;
+            _mpDonationDistributionRepository = mpDonationDistributionRepository;
             _mpPledgeRepository = mpPledgeRepository;
             _mapper = mapper;
         }
@@ -86,8 +88,15 @@ namespace Crossroads.Service.Finance.Services
 
         public IList<PledgeDto> GetPledges(string token)
         {
-            int contactId = 12;
+            int contactId = 7647737;
             var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
+            // get totals donations so far for this pledge
+            // TODO this would be a lot faster if there was a single database call
+            foreach (var mpPledge in mpPledges)
+            {
+                var donationDistributions = _mpDonationDistributionRepository.GetByPledge(mpPledge.PledgeId);
+                mpPledge.PledgeDonations = donationDistributions.Sum(dd => dd.Amount);
+            }
             return _mapper.Map<List<PledgeDto>>(mpPledges);
         }
 

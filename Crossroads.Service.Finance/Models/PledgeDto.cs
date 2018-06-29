@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+using System;
 
 namespace Crossroads.Service.Finance.Models
 {
@@ -8,74 +8,29 @@ namespace Crossroads.Service.Finance.Models
     /// </summary>
     public class PledgeDto
     {
-        /// <summary>
-        /// The ID of the MP pledge. 
-        /// </summary>
-        [JsonProperty(PropertyName = "pledge_id")]
-        [Required]
+        [JsonProperty(PropertyName = "pledgeId")]
         public int PledgeId { get; set; }
 
-        /// <summary>
-        /// The ID of the MP pledge. 
-        /// </summary>
-        [JsonProperty(PropertyName = "pledge_campaign_id")]
-        [Required]
+        [JsonProperty(PropertyName = "campaignId")]
         public int PledgeCampaignId { get; set; }
 
-        /// <summary>
-        /// This is a name of the pledge campaign.
-        /// </summary>
-        [JsonProperty(PropertyName = "pledge_campaign")]
-        [Required]
-        public string PledgeCampaign { get; set; }
+        [JsonProperty(PropertyName = "statusId")]
+        public int PledgeStatusId { get; set; }
 
-        /// <summary>
-        /// The status of the pledge.
-        /// </summary>
-        [JsonProperty(PropertyName = "pledge_status")]
-        [Required]
-        public string PledgeStatus { get; set; }
+        [JsonProperty(PropertyName = "campaignName")]
+        public string CampaignName { get; set; }
 
-        /// <summary>
-        /// The date the campaign began.
-        /// </summary>
-        [JsonProperty(PropertyName = "campaign_start_date")]
-        [Required]
-        public string CampaignStartDate { get; set; }
+        [JsonProperty(PropertyName = "total")]
+        public decimal PledgeTotal { get; set; }
 
-        /// <summary>
-        /// The date the pledge ended.
-        /// </summary>
-        [JsonProperty(PropertyName = "campaign_end_date")]
-        [Required]
-
-        public string CampaignEndDate { get; set; }
-
-        /// <summary>
-        /// The total amount pledged.
-        /// </summary>
-        [JsonProperty(PropertyName = "total_pledge")]
-        [Required]
-        public decimal TotalPledge { get; set; }
-
-        /// <summary>
-        /// The total amount donated toward the pledge.
-        /// </summary>
-        [JsonProperty(PropertyName = "pledge_donations")]
-        [Required]
+        [JsonProperty(PropertyName = "donations")]
         public decimal PledgeDonations { get; set; }
 
-        /// <summary>
-        /// The campaign type ID of the pledge.
-        /// </summary>
-        [JsonProperty(PropertyName = "campaign_type_id")]
-        public int CampaignTypeId { get; set; }
+        [JsonProperty(PropertyName = "campaignStartDate")]
+        public DateTime CampaignStartDate { get; set; }
 
-        /// <summary>
-        /// The campaign type name of the pledge.
-        /// </summary>
-        [JsonProperty(PropertyName = "campaign_type_name")]
-        public string CampaignTypeName { get; set; }
+        [JsonProperty(PropertyName = "campaignEndDate")]
+        public DateTime CampaignEndDate { get; set; }
     }
 
 
