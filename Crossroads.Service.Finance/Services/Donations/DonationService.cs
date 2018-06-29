@@ -78,13 +78,13 @@ namespace Crossroads.Service.Finance.Services
         
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
-            var records = _mpDonationRepository.GetRecurringGifts(token);
+            int contactId = 7516930;
+            var records = _mpDonationRepository.GetRecurringGifts(contactId);
             return records.Select(Mapper.Map<MpRecurringGift, RecurringGiftDto>).ToList();
         }
 
         public IList<PledgeDto> GetPledges(string token)
         {
-            //throw new NotImplementedException();
             int contactId = 12;
             var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
             return _mapper.Map<List<PledgeDto>>(mpPledges);
@@ -92,7 +92,9 @@ namespace Crossroads.Service.Finance.Services
 
         public List<DonationDto> GetDonations(string token)
         {
-            throw new NotImplementedException();
+            int contactId = 7516930;
+            var records = _mpDonationRepository.GetDonations(contactId);
+            return records.Select(Mapper.Map<MpDonation, DonationDto>).ToList();
         }
 
     }
