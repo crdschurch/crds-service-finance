@@ -16,6 +16,7 @@ namespace Crossroads.Service.Finance.Test.Donations
     public class DonationServiceTest
     {
         private readonly Mock<IDonationRepository> _donationRepository;
+        private readonly Mock<IPledgeRepository> _pledgeRepository;
         private readonly Mock<IMapper> _mapper;
 
         private readonly IDonationService _fixture;
@@ -23,9 +24,10 @@ namespace Crossroads.Service.Finance.Test.Donations
         public DonationServiceTest()
         {
             _donationRepository = new Mock<IDonationRepository>();
+            _pledgeRepository = new Mock<IPledgeRepository>();
             _mapper = new Mock<IMapper>();
 
-            _fixture = new DonationService(_donationRepository.Object, _mapper.Object);
+            _fixture = new DonationService(_donationRepository.Object, _pledgeRepository.Object, _mapper.Object);
         }
 
         [Fact]
