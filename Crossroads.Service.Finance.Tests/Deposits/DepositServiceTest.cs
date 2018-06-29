@@ -19,9 +19,8 @@ namespace Crossroads.Service.Finance.Test.Deposits
         private readonly Mock<IDepositRepository> _depositRepository;
         private readonly Mock<IMapper> _mapper;
         private readonly Mock<IPushpayService> _pushpayService;
-        private readonly Mock<IRestClient> _restClient;
         private readonly Mock<IConfigurationWrapper> _configWrapper;
-        private readonly string _pushpayDepositEndpoint;
+        private readonly string _pushpayWebEndpoint;
 
         private readonly IDepositService _fixture;
 
@@ -30,11 +29,10 @@ namespace Crossroads.Service.Finance.Test.Deposits
             _depositRepository = new Mock<IDepositRepository>();
             _mapper = new Mock<IMapper>();
             _pushpayService = new Mock<IPushpayService>();
-            _restClient = new Mock<IRestClient>();
             _configWrapper = new Mock<IConfigurationWrapper>();
-            _pushpayDepositEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_DEPOSIT_ENDPOINT");
+            _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
 
-            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object, _restClient.Object);
+            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object);
         }
 
         [Fact]
@@ -67,7 +65,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             var result = _fixture.CreateDeposit(settlementEventDto, depositName);
 
             // Assert
-            Assert.Equal($"{_pushpayDepositEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
+            Assert.Equal($"{_pushpayWebEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
             Assert.Equal(result.DepositName, depositName + "002");
         }
@@ -111,7 +109,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             var result = _fixture.CreateDeposit(settlementEventDto, depositName);
 
             // Assert
-            Assert.Equal($"{_pushpayDepositEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
+            Assert.Equal($"{_pushpayWebEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
             Assert.Equal(result.DepositName, depositName + "011");
         }
@@ -155,7 +153,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             var result = _fixture.CreateDeposit(settlementEventDto, depositName);
 
             // Assert
-            Assert.Equal($"{_pushpayDepositEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
+            Assert.Equal($"{_pushpayWebEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
             Assert.Equal("EFGHIJKLMNO" + "011", result.DepositName);
             Assert.True(14 >= result.DepositName.Length);
