@@ -20,18 +20,17 @@ namespace Crossroads.Service.Finance.Services
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
         private readonly IPaymentEventService _paymentEventService;
-        private readonly IRestClient _restClient;
+
         private readonly int _depositProcessingOffset;
         private readonly string _pushpayWebEndpoint;
 
         public DepositService(IDepositRepository depositRepository, IMapper mapper, IPushpayService pushpayService, 
-                              IConfigurationWrapper configurationWrapper, IPaymentEventService paymentEventService, IRestClient restClient = null)
+                              IConfigurationWrapper configurationWrapper, IPaymentEventService paymentEventService)
         {
             _depositRepository = depositRepository;
             _paymentEventService = paymentEventService;
             _mapper = mapper;
             _pushpayService = pushpayService;
-            _restClient = restClient ?? new RestClient();
 
             _depositProcessingOffset = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
@@ -98,7 +97,7 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // this will pull desposits by a date range and determine which ones we need to create in the system
-        public void SyncDeposits()
+        public int SyncDeposits()
         {
             // we look back however many days are specified in the mp config setting
             var startDate = DateTime.Now.AddDays(-(_depositProcessingOffset));
@@ -108,13 +107,15 @@ namespace Crossroads.Service.Finance.Services
 
             if (depositDtos == null || !depositDtos.Any())
             {
-                return;
+                return 0;
             }
 
             foreach (var deposit in depositDtos)
             {
                 _paymentEventService.CreateDeposit(deposit);
             }
+
+            return depositDtos.Count;
         }
 
         public List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate)

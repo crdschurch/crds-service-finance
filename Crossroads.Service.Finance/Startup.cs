@@ -61,7 +61,6 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IBatchService, BatchService>();
             services.AddSingleton<IDonationService, DonationService>();
             services.AddSingleton<IDepositService, DepositService>();
-
             services.AddSingleton<IPaymentEventService, PaymentEventService>();
             services.AddSingleton<IPushpayService, PushpayService>();
             services.AddSingleton<IPushpayClient, PushpayClient>();

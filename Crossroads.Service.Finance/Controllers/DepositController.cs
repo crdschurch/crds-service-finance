@@ -18,6 +18,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             _depositService = depositService;
         }
+        //public DepositController(){}
 
         /// <summary>
         ///    Sync settlements from pushpay into MP
@@ -32,8 +33,9 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                _depositService.SyncDeposits();
-                return Ok();
+                var depositsCount = _depositService.SyncDeposits();
+                //var depositsCount = 3;
+                return Ok(new { created =  depositsCount });
             }
             catch (Exception ex)
             {
