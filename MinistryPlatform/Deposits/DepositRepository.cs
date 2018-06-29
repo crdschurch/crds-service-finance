@@ -19,7 +19,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDeposit CreateDeposit(MpDeposit mpDeposit)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
@@ -29,7 +29,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDeposit GetDepositByProcessorTransferId(string processorTransferId)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var columns = new string[] {
                 "Deposit_ID"
@@ -48,7 +48,7 @@ namespace MinistryPlatform.Repositories
 
         public List<MpDeposit> GetDepositsByTransferIds(List<string> transferIds)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var filter = $"Processor_Transfer_ID IN (" + string.Join(',', transferIds ) + ")";
 
@@ -63,7 +63,7 @@ namespace MinistryPlatform.Repositories
 
         public List<MpDeposit> GetDepositNamesByDepositName(string depositName)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var filter = $"Deposit_Name LIKE '%{depositName}%'";
 

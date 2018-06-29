@@ -34,7 +34,7 @@ namespace MinistryPlatform.Test.Donations
             _mapper = new Mock<IMapper>(MockBehavior.Strict);
             _request = new Mock<IMinistryPlatformRestRequest>();
 
-            _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(It.IsAny<string>())).Returns(_restRequest.Object);

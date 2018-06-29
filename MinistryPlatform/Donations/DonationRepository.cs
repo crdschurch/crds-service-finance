@@ -139,7 +139,7 @@ namespace MinistryPlatform.Repositories
 
         public List<MpRecurringGift> GetRecurringGifts(int contactId)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var columns = new string[] {
                 "Recurring_Gifts.[Recurring_Gift_ID] AS [Recurring Gift ID]",
@@ -173,7 +173,7 @@ namespace MinistryPlatform.Repositories
 
             public List<MpDonation> GetDonations(int contactId)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var columns = new string[] {
                 "Donations.[Donation_ID] AS [Donation ID]",

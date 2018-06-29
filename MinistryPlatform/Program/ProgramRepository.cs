@@ -20,7 +20,7 @@ namespace MinistryPlatform.Repositories
 
         public MpProgram GetProgramByName(string programName)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             // replace ' with '' so that we can search for
             //  a program like I'm in

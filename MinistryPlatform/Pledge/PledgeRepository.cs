@@ -22,7 +22,7 @@ namespace MinistryPlatform.Repositories
 
         public IList<MpPledge> GetActiveAndCompleted(int contactId)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var columns = new string[] {
                 "Pledge_Status_ID_Table.[Pledge_Status_ID]",
