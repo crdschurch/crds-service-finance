@@ -11,6 +11,9 @@ namespace MinistryPlatform.Models
         [JsonProperty("Donation_ID")]
         public int DonationId { get; set; }
 
+        [JsonProperty("Contact_ID")]
+        public int ContactId { get; set; }
+
         [JsonProperty("Donation_Amount")]
         public string DonationAmt { get; set; }
 

@@ -15,8 +15,8 @@ namespace MinistryPlatform.Interfaces
         MpDonorAccount CreateDonorAccount(MpDonorAccount donor);
         void UpdateDonorAccount(JObject donorAccount);
         MpContactDonor GetContactDonor(int contactId);
-        List<MpRecurringGift> GetRecurringGifts(string token);
-        List<MpPledge> GetPledges(string token);
-        List<MpDonation> GetDonations(string token);
+        List<MpRecurringGift> GetRecurringGifts(int contactId);
+        //List<MpPledge> GetPledges(string token);
+        List<MpDonation> GetDonations(int contactId);
     }
 }

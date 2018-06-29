@@ -10,6 +10,8 @@ using MinistryPlatform.Models;
 using Moq;
 using Xunit;
 using Newtonsoft.Json.Linq;
+using System.Linq;
+using Mock;
 
 namespace MinistryPlatform.Test.Donations
 {
@@ -23,6 +25,7 @@ namespace MinistryPlatform.Test.Donations
         readonly Mock<IMapper> _mapper;
 
         private string token = "123abc";
+        const int contactId = 7344;
 
         private readonly IDonationRepository _fixture;
 
@@ -102,6 +105,86 @@ namespace MinistryPlatform.Test.Donations
         {
             _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts"));
             _fixture.UpdateDonorAccount(new JObject());
+        }
+
+        [Fact]
+        public void GetRecurringGift()
+        {
+            // Arrange
+            var selectColumns = new string[] {
+                "Recurring_Gift_ID",
+                "Contact_ID",
+                "Donor_ID",
+                "Donor_Account_ID",
+                "Frequency_ID",
+                "Day_Of_Month",
+                "Day_Of_Week_ID",
+                "Amount",
+                "Start_Date",
+                "End_Date",
+                "Program_ID",
+                "Congregation_ID",
+                "Subscription_ID",
+                "Consecutive_Failure_Count",
+                "Source_Url",
+                "Predefined_Amount",
+                "Vendor_Detail_Url"
+            };
+            var filter = "Contact_ID = 7344";
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpRecurringGift>()).Returns(MpRecurringGiftMock.CreateList(contactId));
+
+            // Act
+            var responseRecurringGift = _fixture.GetRecurringGifts(contactId);
+
+            // Assert
+            Assert.Equal(contactId, responseRecurringGift.FirstOrDefault().ContactId);
+        }
+
+        [Fact]
+        public void GetContactEmpty()
+        {
+            // Arrange
+            var selectColumns = new string[] {
+                "Recurring_Gift_ID",
+                "Contact_ID",
+                "Donor_ID",
+                "Donor_Account_ID",
+                "Frequency_ID",
+                "Day_Of_Month",
+                "Day_Of_Week_ID",
+                "Amount",
+                "Start_Date",
+                "End_Date",
+                "Program_ID",
+                "Congregation_ID",
+                "Subscription_ID",
+                "Consecutive_Failure_Count",
+                "Source_Url",
+                "Predefined_Amount",
+                "Vendor_Detail_Url"
+            };
+            var filter = "Contact_ID = 7344";
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpRecurringGift>()).Returns(MpRecurringGiftMock.CreateEmptyList());
+
+            // Act
+            var responseRecurringGift = _fixture.GetRecurringGifts(123);
+
+            // Assert
+            Assert.Empty(responseRecurringGift);
         }
     }
 }
