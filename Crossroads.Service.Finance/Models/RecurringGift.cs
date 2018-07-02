@@ -7,37 +7,37 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("recurringGiftId")]
         public int RecurringGiftId { get; set; }
 
-        [JsonProperty("Contact_ID")]
+        [JsonProperty("contactId")]
         public int ContactId { get; set; }
 
-        [JsonProperty("Donor_ID")]
+        [JsonProperty("donorId")]
         public int DonorId { get; set; }
 
-        [JsonProperty("Frequency_ID")]
+        [JsonProperty("frequencyId")]
         public int FrequencyId { get; set; }
 
-        [JsonProperty("Day_Of_Month")]
+        [JsonProperty("dayOfMonth")]
         public int? DayOfMonth { get; set; }
 
-        [JsonProperty("Day_Of_Week_ID")]
+        [JsonProperty("dayOfWeekId")]
         public int? DayOfWeek { get; set; }
 
-        [JsonProperty("Amount")]
+        [JsonProperty("amount")]
         public decimal Amount { get; set; }
 
-        [JsonProperty("Program_ID")]
+        [JsonProperty("programId")]
         public int ProgramId { get; set; }
 
-        [JsonProperty("Subscription_ID")]
+        [JsonProperty("subscriptionId")]
         public string SubscriptionId { get; set; }
 
-        [JsonProperty("Source_Url")]
+        [JsonProperty("sourceUrl")]
         public string SourceUrl { get; set; }
 
-        [JsonProperty("Predefined_Amount")]
+        [JsonProperty("predefinedAmount")]
         public decimal? PredefinedAmount { get; set; }
 
-        [JsonProperty("Vendor_Detail_Url")]
+        [JsonProperty("vendorDetailUrl")]
         public string VendorDetailUrl { get; set; }
     }
 }
