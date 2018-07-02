@@ -112,23 +112,23 @@ namespace MinistryPlatform.Test.Donations
         {
             // Arrange
             var selectColumns = new string[] {
-                "Recurring_Gifts.[Recurring_Gift_ID] AS [Recurring Gift ID]",
-                "Donor_ID_Table_Contact_ID_Table.[Contact_ID] AS [Contact ID]",
-                "Donor_ID_Table.[Donor_ID] AS [Donor ID]",
-                "Donor_Account_ID_Table.[Donor_Account_ID] AS [Donor Account ID]",
-                "Frequency_ID_Table.[Frequency_ID] AS [Frequency ID]",
-                "Recurring_Gifts.[Day_Of_Month] AS [Day Of Month]",
-                "Day_Of_Week_ID_Table.[Day_Of_Week_ID] AS [Day Of Week ID]",
-                "Recurring_Gifts.[Amount] AS [Amount]",
-                "Recurring_Gifts.[Start_Date] AS [Start Date]",
-                "Recurring_Gifts.[End_Date] AS [End Date]",
-                "Program_ID_Table.[Program_ID] AS [Program ID]",
-                "Congregation_ID_Table.[Congregation_ID] AS [Congregation ID]",
-                "Recurring_Gifts.[Subscription_ID] AS [Subscription ID]",
-                "Recurring_Gifts.[Consecutive_Failure_Count] AS [Consecutive Failure Count]",
-                "Recurring_Gifts.[Source_Url] AS [Source Url]",
-                "Recurring_Gifts.[Predefined_Amount] AS [Predefined Amount]",
-                "Recurring_Gifts.[Vendor_Detail_Url] AS [Vendor Detail Url]"
+                "Recurring_Gifts.[Recurring_Gift_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donor_ID_Table.[Donor_ID]",
+                "Donor_Account_ID_Table.[Donor_Account_ID]",
+                "Frequency_ID_Table.[Frequency_ID]",
+                "Recurring_Gifts.[Day_Of_Month]",
+                "Day_Of_Week_ID_Table.[Day_Of_Week_ID]",
+                "Recurring_Gifts.[Amount]",
+                "Recurring_Gifts.[Start_Date]",
+                "Recurring_Gifts.[End_Date]",
+                "Program_ID_Table.[Program_ID]",
+                "Congregation_ID_Table.[Congregation_ID]",
+                "Recurring_Gifts.[Subscription_ID]",
+                "Recurring_Gifts.[Consecutive_Failure_Count]",
+                "Recurring_Gifts.[Source_Url]",
+                "Recurring_Gifts.[Predefined_Amount]",
+                "Recurring_Gifts.[Vendor_Detail_Url]"
             };
             var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
             _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
@@ -152,23 +152,23 @@ namespace MinistryPlatform.Test.Donations
         {
             // Arrange
             var selectColumns = new string[] {
-                "Recurring_Gifts.[Recurring_Gift_ID] AS [Recurring Gift ID]",
-                "Donor_ID_Table_Contact_ID_Table.[Contact_ID] AS [Contact ID]",
-                "Donor_ID_Table.[Donor_ID] AS [Donor ID]",
-                "Donor_Account_ID_Table.[Donor_Account_ID] AS [Donor Account ID]",
-                "Frequency_ID_Table.[Frequency_ID] AS [Frequency ID]",
-                "Recurring_Gifts.[Day_Of_Month] AS [Day Of Month]",
-                "Day_Of_Week_ID_Table.[Day_Of_Week_ID] AS [Day Of Week ID]",
-                "Recurring_Gifts.[Amount] AS [Amount]",
-                "Recurring_Gifts.[Start_Date] AS [Start Date]",
-                "Recurring_Gifts.[End_Date] AS [End Date]",
-                "Program_ID_Table.[Program_ID] AS [Program ID]",
-                "Congregation_ID_Table.[Congregation_ID] AS [Congregation ID]",
-                "Recurring_Gifts.[Subscription_ID] AS [Subscription ID]",
-                "Recurring_Gifts.[Consecutive_Failure_Count] AS [Consecutive Failure Count]",
-                "Recurring_Gifts.[Source_Url] AS [Source Url]",
-                "Recurring_Gifts.[Predefined_Amount] AS [Predefined Amount]",
-                "Recurring_Gifts.[Vendor_Detail_Url] AS [Vendor Detail Url]"
+                "Recurring_Gifts.[Recurring_Gift_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donor_ID_Table.[Donor_ID]",
+                "Donor_Account_ID_Table.[Donor_Account_ID]",
+                "Frequency_ID_Table.[Frequency_ID]",
+                "Recurring_Gifts.[Day_Of_Month]",
+                "Day_Of_Week_ID_Table.[Day_Of_Week_ID]",
+                "Recurring_Gifts.[Amount]",
+                "Recurring_Gifts.[Start_Date]",
+                "Recurring_Gifts.[End_Date]",
+                "Program_ID_Table.[Program_ID]",
+                "Congregation_ID_Table.[Congregation_ID]",
+                "Recurring_Gifts.[Subscription_ID]",
+                "Recurring_Gifts.[Consecutive_Failure_Count]",
+                "Recurring_Gifts.[Source_Url]",
+                "Recurring_Gifts.[Predefined_Amount]",
+                "Recurring_Gifts.[Vendor_Detail_Url]"
             };
             var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 123";
             _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
@@ -192,13 +192,13 @@ namespace MinistryPlatform.Test.Donations
         {
             // Arrange
             var selectColumns = new string[] {
-                "Donations.[Donation_ID] AS [Donation ID]",
-                "Donor_ID_Table_Contact_ID_Table.[Contact_ID] AS [Contact ID]",
-                "Donations.[Donation_Amount] AS [Donation Amount]",
-                "Donation_Status_ID_Table.[Donation_Status_ID] AS [Donation Status ID]",
-                "Donations.[Donation_Status_Date] AS [Donation Status Date]",
-                "Batch_ID_Table.[Batch_ID] AS [Batch ID]",
-                "Donations.[Transaction_Code] AS [Transaction Code]"
+                "Donations.[Donation_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donations.[Donation_Amount]",
+                "Donation_Status_ID_Table.[Donation_Status_ID]",
+                "Donations.[Donation_Status_Date]",
+                "Batch_ID_Table.[Batch_ID]",
+                "Donations.[Transaction_Code]"
             };
             var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
             _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
@@ -222,13 +222,13 @@ namespace MinistryPlatform.Test.Donations
         {
             // Arrange
             var selectColumns = new string[] {
-                "Donations.[Donation_ID] AS [Donation ID]",
-                "Donor_ID_Table_Contact_ID_Table.[Contact_ID] AS [Contact ID]",
-                "Donations.[Donation_Amount] AS [Donation Amount]",
-                "Donation_Status_ID_Table.[Donation_Status_ID] AS [Donation Status ID]",
-                "Donations.[Donation_Status_Date] AS [Donation Status Date]",
-                "Batch_ID_Table.[Batch_ID] AS [Batch ID]",
-                "Donations.[Transaction_Code] AS [Transaction Code]"
+                "Donations.[Donation_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donations.[Donation_Amount]",
+                "Donation_Status_ID_Table.[Donation_Status_ID]",
+                "Donations.[Donation_Status_Date]",
+                "Batch_ID_Table.[Batch_ID]",
+                "Donations.[Transaction_Code]"
             };
             var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
             _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
