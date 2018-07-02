@@ -143,24 +143,25 @@ namespace Crossroads.Service.Finance.Test.Donations
         }
 
         [Fact]
-        public void ShouldGetPledges()
+        public void ShouldCalculatePledges()
         {
             var pledgeIds = new int[] { 12, 25, 66 };
             _pledgeRepository.Setup(r => r.GetActiveAndCompleted(It.IsAny<int>())).Returns(MpPledgeMock.CreateList(pledgeIds[0], pledgeIds[1], pledgeIds[2]));
             _donationDistributionRepository.Setup(r => r.GetByPledges(It.IsAny<List<int>>())).Returns(MpDonationDistributionMock.CreateList(pledgeIds[0], pledgeIds[1]));
 
             // Act
-            var result = _fixture.GetPledges("token");
+            var result = _fixture.CalculatePledges("token");
 
-            Console.WriteLine(result);
+            Console.WriteLine("result!");
+            Console.WriteLine(result.Count);
 
             // Assert
             Assert.Equal(12, result[0].PledgeId);
-            Assert.Equal(1101.12m, result[0].PledgeDonations);
+            Assert.Equal(1101.12m, result[0].PledgeDonationsTotal);
             Assert.Equal(25, result[1].PledgeId);
-            Assert.Equal(62.10m, result[1].PledgeDonations);
+            Assert.Equal(62.10m, result[1].PledgeDonationsTotal);
             Assert.Equal(66, result[2].PledgeId);
-            Assert.Equal(0, result[2].PledgeDonations);
+            Assert.Equal(0, result[2].PledgeDonationsTotal);
         }
 
         [Fact]

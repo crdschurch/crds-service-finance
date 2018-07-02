@@ -20,7 +20,7 @@ namespace MinistryPlatform.Repositories
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public IList<MpPledge> GetActiveAndCompleted(int contactId)
+        public List<MpPledge> GetActiveAndCompleted(int contactId)
         {
             var token = ApiUserRepository.GetDefaultApiClientToken();
 

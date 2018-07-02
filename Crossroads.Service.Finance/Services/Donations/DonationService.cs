@@ -87,7 +87,15 @@ namespace Crossroads.Service.Finance.Services
             return records.Select(_mapper.Map<MpRecurringGift, RecurringGiftDto>).ToList();
         }
 
-        public IList<PledgeDto> GetPledges(string token)
+        public List<PledgeDto> GetPledges(string token)
+        {
+            //TODO: Remove hard codding and get actual contact id from token
+            int contactId = 7647737;
+            var mpPledges = CalculatePledges("token");
+            return _mapper.Map<List<PledgeDto>>(mpPledges);
+        }
+
+        public List<MpPledge> CalculatePledges(string token)
         {
             //TODO: Remove hard codding and get actual contact id from token
             int contactId = 7647737;
@@ -97,9 +105,9 @@ namespace Crossroads.Service.Finance.Services
             foreach (var mpPledge in mpPledges)
             {
                 var donationsForPledge = donationDistributions.Where(dd => dd.PledgeId == mpPledge.PledgeId).ToList();
-                mpPledge.PledgeDonations = donationsForPledge.Sum(dd => dd.Amount);
+                mpPledge.PledgeDonationsTotal = donationsForPledge.Sum(dd => dd.Amount);
             }
-            return _mapper.Map<List<PledgeDto>>(mpPledges);
+            return mpPledges;
         }
 
         public List<DonationDto> GetDonations(string token)

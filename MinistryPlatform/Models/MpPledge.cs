@@ -23,7 +23,8 @@ namespace MinistryPlatform.Models
         public decimal PledgeTotal { get; set; }
 
         // total amount pledged so far
-        public decimal? PledgeDonations { get; set; }
+        [JsonProperty(PropertyName = "Total_Pledge_Donations")]
+        public decimal? PledgeDonationsTotal { get; set; }
 
         [JsonProperty(PropertyName = "Campaign_Start_Date")]
         public DateTime? CampaignStartDate { get; set; }

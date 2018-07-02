@@ -24,7 +24,7 @@ namespace Crossroads.Service.Finance.Models
         public decimal PledgeTotal { get; set; }
 
         [JsonProperty(PropertyName = "donations")]
-        public decimal PledgeDonations { get; set; }
+        public decimal PledgeDonationsTotal { get; set; }
 
         [JsonProperty(PropertyName = "campaignStartDate")]
         public DateTime? CampaignStartDate { get; set; }
