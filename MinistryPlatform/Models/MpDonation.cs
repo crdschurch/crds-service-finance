@@ -15,7 +15,7 @@ namespace MinistryPlatform.Models
         public int ContactId { get; set; }
 
         [JsonProperty("Donation_Amount")]
-        public double DonationAmt { get; set; }
+        public decimal DonationAmt { get; set; }
 
         [JsonProperty("Donation_Status_ID")]
         public int DonationStatusId { get; set; }
