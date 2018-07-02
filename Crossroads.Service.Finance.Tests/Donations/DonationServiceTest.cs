@@ -10,12 +10,15 @@ using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Moq;
 using Xunit;
+using Mock;
 
 namespace Crossroads.Service.Finance.Test.Donations
 {
     public class DonationServiceTest
     {
         private readonly Mock<IDonationRepository> _donationRepository;
+        private readonly Mock<IDonationDistributionRepository> _donationDistributionRepository;
+        private readonly Mock<IPledgeRepository> _pledgeRepository;
         private readonly Mock<IMapper> _mapper;
 
         private readonly IDonationService _fixture;
@@ -23,9 +26,11 @@ namespace Crossroads.Service.Finance.Test.Donations
         public DonationServiceTest()
         {
             _donationRepository = new Mock<IDonationRepository>();
+            _donationDistributionRepository = new Mock<IDonationDistributionRepository>();
+            _pledgeRepository = new Mock<IPledgeRepository>();
             _mapper = new Mock<IMapper>();
 
-            _fixture = new DonationService(_donationRepository.Object, _mapper.Object);
+            _fixture = new DonationService(_donationRepository.Object, _donationDistributionRepository.Object, _pledgeRepository.Object, _mapper.Object);
         }
 
         [Fact]
@@ -99,6 +104,82 @@ namespace Crossroads.Service.Finance.Test.Donations
             
             // Assert
             Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void ShouldCreateAndReturnRecurringGiftObject()
+        {
+            // Arrange
+            var recurringGiftDto = new List<RecurringGiftDto>
+            {
+                new RecurringGiftDto {
+                    RecurringGiftId = 1,
+                    ContactId = 123,
+                    DonorId = 456,
+                    FrequencyId = 1,
+                    DayOfMonth = 15,
+                    DayOfWeek = 1,
+                    Amount = 25,
+                    ProgramId = 1,
+                    SubscriptionId = "123",
+                    SourceUrl = "localhost",
+                    PredefinedAmount = 50,
+                    VendorDetailUrl = "localhost"
+                }
+            };
+
+            _mapper.Setup(m => m.Map<List<RecurringGiftDto>>(It.IsAny<List<MpRecurringGift>>())).Returns(recurringGiftDto);
+            _donationRepository.Setup(r => r.GetRecurringGifts(It.IsAny<int>())).Returns(MpRecurringGiftMock.CreateList(123));
+
+            // Act
+            var result = _fixture.GetRecurringGifts("token");
+
+            // Assert
+            Assert.Single(result);
+        }
+
+        [Fact]
+        public void ShouldCalculatePledges()
+        {
+            var pledgeIds = new int[] { 12, 25, 66 };
+            _pledgeRepository.Setup(r => r.GetActiveAndCompleted(It.IsAny<int>())).Returns(MpPledgeMock.CreateList(pledgeIds[0], pledgeIds[1], pledgeIds[2]));
+            _donationDistributionRepository.Setup(r => r.GetByPledges(It.IsAny<List<int>>())).Returns(MpDonationDistributionMock.CreateList(pledgeIds[0], pledgeIds[1]));
+
+            // Act
+            var result = _fixture.CalculatePledges("token");
+
+            // Assert
+            Assert.Equal(12, result[0].PledgeId);
+            Assert.Equal(1101.12m, result[0].PledgeDonationsTotal);
+            Assert.Equal(25, result[1].PledgeId);
+            Assert.Equal(62.10m, result[1].PledgeDonationsTotal);
+            Assert.Equal(66, result[2].PledgeId);
+            Assert.Equal(0, result[2].PledgeDonationsTotal);
+        }
+
+        [Fact]
+        public void ShouldCreateAndReturnDonationObject()
+        {
+            // Arrange
+            var donationDto = new List<DonationDto>
+            {
+                new DonationDto {
+                DonationId = 1,
+                DonationAmt = 25,
+                DonationStatusId = 1,
+                BatchId = 456,
+                TransactionCode = "Test"
+                }
+            };
+
+            _mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationDto);
+            _donationRepository.Setup(r => r.GetDonations(It.IsAny<int>())).Returns(MpDonationsMock.CreateList());
+
+            // Act
+            var result = _fixture.GetDonations("token");
+
+            // Assert
+            Assert.Single(result);
         }
     }
 }

@@ -7,22 +7,22 @@ namespace Crossroads.Service.Finance.Models
 {
     public class DonationDto
     {
-        [JsonProperty("donation_id")]
+        [JsonProperty("donationId")]
         public int DonationId { get; set; }
 
         [JsonProperty("amount")]
-        public string DonationAmt { get; set; }
+        public decimal DonationAmt { get; set; }
 
-        [JsonProperty("status_id")]
+        [JsonProperty("statusId")]
         public int DonationStatusId { get; set; }
 
-        [JsonProperty("date_status_date")]
+        [JsonProperty("donationStatusDate")]
         public DateTime DonationStatusDate { get; set; }
 
-        [JsonProperty(PropertyName = "batch_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(PropertyName = "batchId", NullValueHandling = NullValueHandling.Ignore)]
         public int? BatchId { get; set; }
 
-        [JsonProperty("transaction_code")]
+        [JsonProperty("transactionCode")]
         public string TransactionCode { get; set; }
     }
 

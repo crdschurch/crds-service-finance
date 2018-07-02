@@ -34,7 +34,7 @@ namespace MinistryPlatform.Test.Deposits
             _mapper = new Mock<IMapper>(MockBehavior.Strict);
             _request = new Mock<IMinistryPlatformRestRequest>();
 
-            _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
@@ -83,7 +83,7 @@ namespace MinistryPlatform.Test.Deposits
             };
 
             var filter = $"Processor_Transfer_ID IN (" + string.Join(',', transferIds) + ")";
-            _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
@@ -122,7 +122,7 @@ namespace MinistryPlatform.Test.Deposits
             };
 
             var filter = $"Deposit_Name LIKE '%{depositName}%'";
-            _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
