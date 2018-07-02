@@ -13,7 +13,7 @@ namespace Mock
             {
                 new MpDonationDistribution
                 {
-                    Amount = 23m,
+                    Amount = 231m,
                     PledgeId = pledgeId1,
                     DonationId = 12
                 },
@@ -25,7 +25,7 @@ namespace Mock
                 },
                 new MpDonationDistribution
                 {
-                    Amount = 87.12m,
+                    Amount = 870.12m,
                     PledgeId = pledgeId1,
                     DonationId = 188
                 },

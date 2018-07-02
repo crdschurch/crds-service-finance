@@ -26,9 +26,9 @@ namespace MinistryPlatform.Models
         public decimal? PledgeDonations { get; set; }
 
         [JsonProperty(PropertyName = "Campaign_Start_Date")]
-        public DateTime CampaignStartDate { get; set; }
+        public DateTime? CampaignStartDate { get; set; }
 
         [JsonProperty(PropertyName = "Campaign_End_Date")]
-        public DateTime CampaignEndDate { get; set; }
+        public DateTime? CampaignEndDate { get; set; }
     }
 }

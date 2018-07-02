@@ -15,22 +15,22 @@ namespace Mock
                 PledgeTotal = 1200
             };
 
-        public static List<MpPledge> CreateList() =>
+        public static List<MpPledge> CreateList(int pledge1 = 22, int pledge2 = 266, int pledge3 = 45) =>
             new List<MpPledge>
             {
                 new MpPledge
                 {
-                    PledgeId = 22,
+                    PledgeId = pledge1,
                     PledgeTotal = 1200
                 },
                 new MpPledge
                 {
-                    PledgeId = 266,
+                    PledgeId = pledge2,
                     PledgeTotal = 10000
                 },
                 new MpPledge
                 {
-                    PledgeId = 45,
+                    PledgeId = pledge3,
                     PledgeTotal = 6400
                 },
             };

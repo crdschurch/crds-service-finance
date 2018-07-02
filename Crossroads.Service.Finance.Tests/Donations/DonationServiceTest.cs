@@ -10,6 +10,7 @@ using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Moq;
 using Xunit;
+using Mock;
 
 namespace Crossroads.Service.Finance.Test.Donations
 {
@@ -142,40 +143,29 @@ namespace Crossroads.Service.Finance.Test.Donations
         }
 
         [Fact]
-        public void ShouldCreateAndReturnDonationObject()
+        public void ShouldGetPledges()
         {
-            // Arrange            
-            var mpDonations = new List<MpDonation>
-            {
-                new MpDonation {
-                DonationId = 1,
-                ContactId = 123,
-                DonationAmt = 100,
-                DonationStatusId = 1,
-                DonationStatusDate = DateTime.Now,
-                BatchId = 1,
-                TransactionCode = "Test"
-                },
-                new MpDonation {
-                DonationId = 2,
-                ContactId = 123,
-                DonationAmt = 200,
-                DonationStatusId = 1,
-                DonationStatusDate = DateTime.Now,
-                BatchId = 1,
-                TransactionCode = "Test"
-                }
-            };
-
-            _mapper.Setup(m => m.Map<List<MpDonation>>(It.IsAny<List<DonationDto>>())).Returns(mpDonations);
-            //_mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationDtos);
-            _donationRepository.Setup(r => r.GetDonations(It.IsAny<int>())).Returns(mpDonations);
+            var pledgeIds = new int[] { 12, 25, 66 };
+            _pledgeRepository.Setup(r => r.GetActiveAndCompleted(It.IsAny<int>())).Returns(MpPledgeMock.CreateList(pledgeIds[0], pledgeIds[1], pledgeIds[2]));
+            _donationDistributionRepository.Setup(r => r.GetByPledges(It.IsAny<List<int>>())).Returns(MpDonationDistributionMock.CreateList(pledgeIds[0], pledgeIds[1]));
 
             // Act
-            var result = _fixture.GetDonations("token");
+            var result = _fixture.GetPledges("token");
+
+            Console.WriteLine(result);
 
             // Assert
-            Assert.Equal(2, result.Count);
+            Assert.Equal(12, result[0].PledgeId);
+            Assert.Equal(1101.12m, result[0].PledgeDonations);
+            Assert.Equal(25, result[1].PledgeId);
+            Assert.Equal(62.10m, result[1].PledgeDonations);
+            Assert.Equal(66, result[2].PledgeId);
+            Assert.Equal(0, result[2].PledgeDonations);
+        }
+
+        [Fact]
+        public void ShouldCreateAndReturnDonationObject()
+        {
         }
     }
 }
