@@ -16,7 +16,7 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("statusId")]
         public int DonationStatusId { get; set; }
 
-        [JsonProperty("dateStatusDate")]
+        [JsonProperty("donationStatusDate")]
         public DateTime DonationStatusDate { get; set; }
 
         [JsonProperty(PropertyName = "batchId", NullValueHandling = NullValueHandling.Ignore)]
