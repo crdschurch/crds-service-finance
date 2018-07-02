@@ -186,5 +186,65 @@ namespace MinistryPlatform.Test.Donations
             // Assert
             Assert.Empty(responseRecurringGift);
         }
+
+        [Fact]
+        public void GetDonation()
+        {
+            // Arrange
+            var selectColumns = new string[] {
+                "Donations.[Donation_ID] AS [Donation ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID] AS [Contact ID]",
+                "Donations.[Donation_Amount] AS [Donation Amount]",
+                "Donation_Status_ID_Table.[Donation_Status_ID] AS [Donation Status ID]",
+                "Donations.[Donation_Status_Date] AS [Donation Status Date]",
+                "Batch_ID_Table.[Batch_ID] AS [Batch ID]",
+                "Donations.[Transaction_Code] AS [Transaction Code]"
+            };
+            var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpDonation>()).Returns(MpDonationsMock.CreateList());
+
+            // Act
+            var responseDonations = _fixture.GetDonations(contactId);
+
+            // Assert
+            Assert.Equal(3, responseDonations.Count);
+        }
+
+        [Fact]
+        public void GetDonationEmpty()
+        {
+            // Arrange
+            var selectColumns = new string[] {
+                "Donations.[Donation_ID] AS [Donation ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID] AS [Contact ID]",
+                "Donations.[Donation_Amount] AS [Donation Amount]",
+                "Donation_Status_ID_Table.[Donation_Status_ID] AS [Donation Status ID]",
+                "Donations.[Donation_Status_Date] AS [Donation Status Date]",
+                "Batch_ID_Table.[Batch_ID] AS [Batch ID]",
+                "Donations.[Transaction_Code] AS [Transaction Code]"
+            };
+            var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpDonation>()).Returns(MpDonationsMock.CreateEmpty());
+
+            // Act
+            var responseDonations = _fixture.GetDonations(contactId);
+
+            // Assert
+            Assert.Empty(responseDonations);
+        }
     }
 }
