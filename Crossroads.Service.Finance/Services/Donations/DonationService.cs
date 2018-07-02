@@ -91,11 +91,11 @@ namespace Crossroads.Service.Finance.Services
             int contactId = 7647737;
             var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
             // get totals donations so far for this pledge
-            // TODO this would be a lot faster if there was a single database call
+            var donationDistributions = _mpDonationDistributionRepository.GetByPledges(mpPledges.Select(r => r.PledgeId).ToList());
             foreach (var mpPledge in mpPledges)
             {
-                var donationDistributions = _mpDonationDistributionRepository.GetByPledge(mpPledge.PledgeId);
-                mpPledge.PledgeDonations = donationDistributions.Sum(dd => dd.Amount);
+                var donationsForPledge = donationDistributions.Where(dd => dd.PledgeId == mpPledge.PledgeId).ToList();
+                mpPledge.PledgeDonations = donationsForPledge.Sum(dd => dd.Amount);
             }
             return _mapper.Map<List<PledgeDto>>(mpPledges);
         }

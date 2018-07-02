@@ -15,7 +15,7 @@
     <Folder Include="RecurringGift\" />
     <Folder Include="Program\" />
     <Folder Include="Contacts\" />
-    <Folder Include="Pledge\" />
+    <Folder Include="Pledges\" />
     <Folder Include="DonationDistributions\" />
   </ItemGroup>
   <ItemGroup>

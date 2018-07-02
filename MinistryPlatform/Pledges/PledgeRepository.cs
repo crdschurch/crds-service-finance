@@ -38,13 +38,12 @@ namespace MinistryPlatform.Repositories
 
             var filter = $"Pledge_Status_ID_Table.[Pledge_Status_ID] IN ({pledgeStatusActive},{pledgeStatusCompleted})";
             filter += $" AND Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
-            var x=  MpRestBuilder.NewRequestBuilder()
+            return MpRestBuilder.NewRequestBuilder()
                                 .WithSelectColumns(columns)
                                 .WithAuthenticationToken(token)
                                 .WithFilter(filter)
                                 .Build()
                                 .Search<MpPledge>();
-            return x;
         }
     }
 }

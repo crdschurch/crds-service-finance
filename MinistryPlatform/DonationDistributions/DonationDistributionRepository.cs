@@ -20,7 +20,7 @@ namespace MinistryPlatform.Repositories
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
         
-        public List<MpDonationDistribution> GetByPledge(int pledgeId)
+        public List<MpDonationDistribution> GetByPledges(List<int> pledgeIds)
         {
             var token = ApiUserRepository.GetDefaultApiClientToken();
 
@@ -30,7 +30,7 @@ namespace MinistryPlatform.Repositories
                 "Donation_Distributions.[Amount]"
             };
 
-            var filter = $"Pledge_ID_Table.[Pledge_ID] = {pledgeId}";
+            var filter = $"Pledge_ID_Table.[Pledge_ID] IN ({string.Join(",", pledgeIds)})";
 
             return MpRestBuilder.NewRequestBuilder()
                                 .WithSelectColumns(columns)

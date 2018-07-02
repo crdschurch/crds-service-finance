@@ -5,6 +5,6 @@ namespace MinistryPlatform.Interfaces
 {
     public interface IDonationDistributionRepository
     {
-        List<MpDonationDistribution> GetByPledge(int pledgeId);
+        List<MpDonationDistribution> GetByPledges(List<int> pledgeIds);
     }
 }
