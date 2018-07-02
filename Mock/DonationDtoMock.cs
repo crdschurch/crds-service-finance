@@ -9,7 +9,7 @@ namespace Mock
             new DonationDto
             {
                 TransactionCode = transactionCode,
-                DonationAmt = "14",
+                DonationAmt = 14,
                 DonationStatusId = 1 // pending
             };
 
@@ -17,7 +17,7 @@ namespace Mock
             new DonationDto
             {
                 TransactionCode = transactionCode,
-                DonationAmt = "14",
+                DonationAmt = 14,
                 DonationStatusId = 3 // declined
                     };
 
@@ -25,7 +25,7 @@ namespace Mock
             new DonationDto
             {
                 TransactionCode = transactionCode,
-                DonationAmt = "14",
+                DonationAmt = 14,
                 DonationStatusId = 4 // succeeded
                     };
 

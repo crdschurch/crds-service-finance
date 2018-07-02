@@ -16,6 +16,7 @@ namespace Crossroads.Service.Finance.Test.Donations
     public class DonationServiceTest
     {
         private readonly Mock<IDonationRepository> _donationRepository;
+        private readonly Mock<IDonationDistributionRepository> _donationDistributionRepository;
         private readonly Mock<IPledgeRepository> _pledgeRepository;
         private readonly Mock<IMapper> _mapper;
 
@@ -24,10 +25,11 @@ namespace Crossroads.Service.Finance.Test.Donations
         public DonationServiceTest()
         {
             _donationRepository = new Mock<IDonationRepository>();
+            _donationDistributionRepository = new Mock<IDonationDistributionRepository>();
             _pledgeRepository = new Mock<IPledgeRepository>();
             _mapper = new Mock<IMapper>();
 
-            _fixture = new DonationService(_donationRepository.Object, _pledgeRepository.Object, _mapper.Object);
+            _fixture = new DonationService(_donationRepository.Object, _donationDistributionRepository.Object, _pledgeRepository.Object, _mapper.Object);
         }
 
         [Fact]
@@ -101,6 +103,79 @@ namespace Crossroads.Service.Finance.Test.Donations
             
             // Assert
             Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void ShouldCreateAndReturnRecurringGiftObject()
+        {
+            // Arrange
+            var mpRecurringGifts = new List<MpRecurringGift>
+            {
+                new MpRecurringGift {
+                RecurringGiftId = 1,
+                ContactId = 123,
+                DonorId = 456,
+                DonorAccountId = 789,
+                FrequencyId = 1,
+                DayOfMonth = 15,
+                DayOfWeek = 1,
+                Amount = 50,
+                StartDate = Convert.ToDateTime("2018-06-01"),
+                ProgramId = 1,
+                CongregationId = 1,
+                SubscriptionId = "Test",
+                ConsecutiveFailureCount = 0,
+                SourceUrl = "localhost",
+                PredefinedAmount = 100,
+                VendorDetailUrl = "localhost"
+                }
+            };
+
+            _mapper.Setup(m => m.Map<List<MpRecurringGift>>(It.IsAny<List<RecurringGiftDto>>())).Returns(mpRecurringGifts);
+            _donationRepository.Setup(r => r.GetRecurringGifts(It.IsAny<int>())).Returns(mpRecurringGifts);
+
+            // Act
+            var result = _fixture.GetRecurringGifts("token");
+
+            // Assert
+            Assert.Single(result);
+        }
+
+        [Fact]
+        public void ShouldCreateAndReturnDonationObject()
+        {
+            // Arrange            
+            var mpDonations = new List<MpDonation>
+            {
+                new MpDonation {
+                DonationId = 1,
+                ContactId = 123,
+                DonationAmt = 100,
+                DonationStatusId = 1,
+                DonationStatusDate = DateTime.Now,
+                BatchId = 1,
+                TransactionCode = "Test"
+                },
+                new MpDonation {
+                DonationId = 2,
+                ContactId = 123,
+                DonationAmt = 200,
+                DonationStatusId = 1,
+                DonationStatusDate = DateTime.Now,
+                BatchId = 1,
+                TransactionCode = "Test"
+                }
+            };
+
+            _mapper.Setup(m => m.Map<List<MpDonation>>(It.IsAny<List<DonationDto>>())).Returns(mpDonations);
+            //_mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationDtos);
+            _donationRepository.Setup(r => r.GetDonations(It.IsAny<int>())).Returns(mpDonations);
+
+            // Act
+            var result = _fixture.GetDonations("token");
+
+            // Assert
+            Assert.Equal(2, result.Count);
         }
     }
 }

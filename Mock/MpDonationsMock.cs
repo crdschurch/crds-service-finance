@@ -35,6 +35,6 @@ namespace Mock
                 },
             };
 
-        public static MpDonation CreateEmpty() => new MpDonation { };
+        public static List<MpDonation> CreateEmpty() => new List<MpDonation> { };
     }
 }

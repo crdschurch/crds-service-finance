@@ -20,8 +20,9 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         /// <summary>
-        ///    Get recurring gifts for a user
+        /// Get recurring gifts for a user
         /// </summary>
+        /// <returns></returns>
         [HttpGet("recurring-gifts")]
         [ProducesResponseType(typeof(List<RecurringGiftDto>), 200)]
         [ProducesResponseType(204)]
@@ -29,6 +30,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
+                //TODO remove hardcoded "token" value and add authentication
                 var recurringGifts = _donationService.GetRecurringGifts("token");
                 if (recurringGifts == null || recurringGifts.Count == 0)
                 {
@@ -45,8 +47,9 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         /// <summary>
-        ///    Get recurring gifts for a user
+        /// Get pledges for a user
         /// </summary>
+        /// <returns></returns>
         [HttpGet("pledges")]
         [ProducesResponseType(typeof(List<PledgeDto>), 200)]
         [ProducesResponseType(204)]
@@ -54,6 +57,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
+                //TODO remove hardcoded "token" value and add authentication
                 var pledges = _donationService.GetPledges("token");
                 if (pledges == null || pledges.Count == 0)
                 {
@@ -71,8 +75,9 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         /// <summary>
-        ///    Get recurring gifts for a user
+        /// Get donations (donation history) for a user
         /// </summary>
+        /// <returns></returns>
         [HttpGet("donations")]
         [ProducesResponseType(typeof(List<DonationDto>), 200)]
         [ProducesResponseType(204)]
@@ -80,6 +85,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
+                //TODO remove hardcoded "token" value and add authentication
                 var donations = _donationService.GetDonations("token");
                 if (donations == null || donations.Count == 0)
                 {
