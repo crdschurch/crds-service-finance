@@ -110,30 +110,26 @@ namespace Crossroads.Service.Finance.Test.Donations
         public void ShouldCreateAndReturnRecurringGiftObject()
         {
             // Arrange
-            var mpRecurringGifts = new List<MpRecurringGift>
+            var recurringGiftDto = new List<RecurringGiftDto>
             {
-                new MpRecurringGift {
-                RecurringGiftId = 1,
-                ContactId = 123,
-                DonorId = 456,
-                DonorAccountId = 789,
-                FrequencyId = 1,
-                DayOfMonth = 15,
-                DayOfWeek = 1,
-                Amount = 50,
-                StartDate = Convert.ToDateTime("2018-06-01"),
-                ProgramId = 1,
-                CongregationId = 1,
-                SubscriptionId = "Test",
-                ConsecutiveFailureCount = 0,
-                SourceUrl = "localhost",
-                PredefinedAmount = 100,
-                VendorDetailUrl = "localhost"
+                new RecurringGiftDto {
+                    RecurringGiftId = 1,
+                    ContactId = 123,
+                    DonorId = 456,
+                    FrequencyId = 1,
+                    DayOfMonth = 15,
+                    DayOfWeek = 1,
+                    Amount = 25,
+                    ProgramId = 1,
+                    SubscriptionId = "123",
+                    SourceUrl = "localhost",
+                    PredefinedAmount = 50,
+                    VendorDetailUrl = "localhost"
                 }
             };
 
-            _mapper.Setup(m => m.Map<List<MpRecurringGift>>(It.IsAny<List<RecurringGiftDto>>())).Returns(mpRecurringGifts);
-            _donationRepository.Setup(r => r.GetRecurringGifts(It.IsAny<int>())).Returns(mpRecurringGifts);
+            _mapper.Setup(m => m.Map<List<RecurringGiftDto>>(It.IsAny<List<MpRecurringGift>>())).Returns(recurringGiftDto);
+            _donationRepository.Setup(r => r.GetRecurringGifts(It.IsAny<int>())).Returns(MpRecurringGiftMock.CreateList(123));
 
             // Act
             var result = _fixture.GetRecurringGifts("token");
@@ -164,6 +160,26 @@ namespace Crossroads.Service.Finance.Test.Donations
         [Fact]
         public void ShouldCreateAndReturnDonationObject()
         {
+            // Arrange
+            var donationDto = new List<DonationDto>
+            {
+                new DonationDto {
+                DonationId = 1,
+                DonationAmt = 25,
+                DonationStatusId = 1,
+                BatchId = 456,
+                TransactionCode = "Test"
+                }
+            };
+
+            _mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationDto);
+            _donationRepository.Setup(r => r.GetDonations(It.IsAny<int>())).Returns(MpDonationsMock.CreateList());
+
+            // Act
+            var result = _fixture.GetDonations("token");
+
+            // Assert
+            Assert.Single(result);
         }
     }
 }

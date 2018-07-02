@@ -81,7 +81,7 @@ namespace Crossroads.Service.Finance.Services
         
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
-            //TODO: Remove hard codding and get actual contact id from token
+            //TODO: Remove hard coding and get actual contact id from token
             int contactId = 7516930;
             var records = _mpDonationRepository.GetRecurringGifts(contactId);
             return _mapper.Map<List<RecurringGiftDto>>(records);
@@ -89,7 +89,7 @@ namespace Crossroads.Service.Finance.Services
 
         public List<PledgeDto> GetPledges(string token)
         {
-            //TODO: Remove hard codding and get actual contact id from token
+            //TODO: Remove hard coding and get actual contact id from token
             int contactId = 7647737;
             var mpPledges = CalculatePledges("token");
             return _mapper.Map<List<PledgeDto>>(mpPledges);
@@ -97,7 +97,7 @@ namespace Crossroads.Service.Finance.Services
 
         public List<MpPledge> CalculatePledges(string token)
         {
-            //TODO: Remove hard codding and get actual contact id from token
+            //TODO: Remove hard coding and get actual contact id from token
             int contactId = 7647737;
             var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
             // get totals donations so far for this pledge
@@ -112,7 +112,7 @@ namespace Crossroads.Service.Finance.Services
 
         public List<DonationDto> GetDonations(string token)
         {
-            //TODO: Remove hard codding and get actual contact id from token
+            //TODO: Remove hard coding and get actual contact id from token
             int contactId = 7516930;
             var records = _mpDonationRepository.GetDonations(contactId);
             return _mapper.Map<List<DonationDto>>(records);
