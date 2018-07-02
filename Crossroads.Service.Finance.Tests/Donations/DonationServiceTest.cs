@@ -152,9 +152,6 @@ namespace Crossroads.Service.Finance.Test.Donations
             // Act
             var result = _fixture.CalculatePledges("token");
 
-            Console.WriteLine("result!");
-            Console.WriteLine(result.Count);
-
             // Assert
             Assert.Equal(12, result[0].PledgeId);
             Assert.Equal(1101.12m, result[0].PledgeDonationsTotal);
