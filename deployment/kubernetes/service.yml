@@ -2,12 +2,13 @@
 kind: Service 
 metadata: 
   name: crds-service-finance
+  namespace: api
   labels: 
     app: crds-service-finance
 spec: 
   ports: 
   - name: dotnet 
-    port: 80 
-    targetPort: 5050 
+    port: 80
+    targetPort: 80 
   selector: 
     app: crds-service-finance
