@@ -1,5 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <ItemGroup>
+    <Compile Remove="deployment\**" />
+    <Content Remove="deployment\**" />
+    <EmbeddedResource Remove="deployment\**" />
+    <None Remove="deployment\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="HangFire" Version="1.6.17" />
     <PackageReference Include="HangFire.SqlServer" Version="1.6.17" />
     <PackageReference Include="log4net" Version="2.0.8" />
