@@ -17,7 +17,7 @@ spec:
     spec: 
       containers: 
         - name: crds-finance
-          image: crdschurch/crds-finance:$DOCKER_TAG 
+          image: crdschurch/crds-service-finance:$DOCKER_TAG 
           imagePullPolicy: Always 
           ports: 
             - containerPort: 5050 
