@@ -1,25 +1,31 @@
 ﻿version: '3' 
 services: 
-  Crossroads.Service.Finanace: 
+  CrossroadsServiceFinance: 
     build: 
       context: ../../ 
-      dockerfile: ./deployment/docker/Dockerfile 
-      args:
-        - CRDS_EMBED_ENV=${CRDS_EMBED_ENV:-int}
-    container_name: Crossroads.Service.Finanace 
-    image: crdschurch/Crossroads.Service.Finanace:${DOCKER_TAG:-local} 
+      dockerfile: ./deployment/docker/prod.Dockerfile
+    container_name: crds-service-finance
+    image: crdschurch/crds-service-finance:${DOCKER_TAG:-local} 
+    env_file:
+      - ../../.env
+    # entrypoint: /bin/bash
+    # stdin_open: true
+    # tty: true
     ports:
-      - "5000:5050" 
+      - "5000:80"
     environment: 
-      - CRDS_EMBED_ENV=${CRDS_EMBED_ENV:-int} 
-      - CRDS_ENV=${CRDS_ENV:-int} 
-      - CRDS_WEB=${CRDS_WEB:-https://int.crossroads.net} 
-      - CRDS_FORMIO_API_ENDPOINT=${CRDS_FORMIO_API_ENDPOINT:-https://int-crds.form.io} 
+      - APP_LOG_ROOT=${APP_LOG_ROOT}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - CRDS_ENV=${CRDS_ENV}
       - CRDS_MP_COMMON_CLIENT_ID=${CRDS_MP_COMMON_CLIENT_ID}
-      - CRDS_MP_COMMON_CLIENT_SECRET=${CRDS_MP_COMMON_CLIENT_SECRET} 
-      - MP_REST_API_ENDPOINT=${MP_REST_API_ENDPOINT:-https://adminint.crossroads.net/ministryplatformapi} 
-      - MP_OAUTH_BASE_URL=${MP_OAUTH_BASE_URL:-https://adminint.crossroads.net/ministryplatform/oauth} 
-      - API_USER=${API_USER}
-      - API_PASSWORD=${API_PASSWORD}
-      - ASTRONOMER_APPLICATION_ID=${ASTRONOMER_APPLICATION_ID}
-      - FRED_PATH_BASE=${FRED_PATH_BASE}
+      - CRDS_MP_COMMON_CLIENT_SECRET=${CRDS_MP_COMMON_CLIENT_SECRET}
+      - MP_API_DB_USER=${MP_API_DB_USER}
+      - MP_API_DB_PASSWORD=${MP_API_DB_PASSWORD}
+      - MP_OAUTH_BASE_URL=${MP_OAUTH_BASE_URL}
+      - MP_REST_API_ENDPOINT=${MP_REST_API_ENDPOINT}
+      - PUSHPAY_API_ENDPOINT=${PUSHPAY_API_ENDPOINT}
+      - PUSHPAY_AUTH_ENDPOINT=${PUSHPAY_AUTH_ENDPOINT}
+      - PUSHPAY_WEB_ENDPOINT=${PUSHPAY_WEB_ENDPOINT}
+      - PUSHPAY_CLIENT_ID=${PUSHPAY_CLIENT_ID}
+      - PUSHPAY_CLIENT_SECRET=${PUSHPAY_CLIENT_SECRET}
+      - PUSHPAY_MERCHANT_KEY=${PUSHPAY_MERCHANT_KEY}

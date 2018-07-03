@@ -18,7 +18,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Demo|AnyCPU'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Integration|AnyCPU'" />
+  <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">  
+    <ItemGroup>
+      <DocFile Include="bin\$(Configuration)\$(TargetFramework)\*.xml" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DocFile)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="false" />
+  </Target>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DocumentationFile>bin\Debug\netcoreapp2.0\Crossroads.Service.Finance.xml</DocumentationFile>
+    <NoWarn>1701;1702;1705;1591;</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Integration|AnyCPU' ">
     <DocumentationFile>bin\Debug\netcoreapp2.0\Crossroads.Service.Finance.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;1591;</NoWarn>
   </PropertyGroup>

@@ -1,7 +1,7 @@
 ﻿apiVersion: extensions/v1beta1 
 kind: Deployment 
 metadata: 
-  name: Crossroads.Service.Finanace 
+  name: Crossroads.Service.Finance 
 spec: 
   replicas: 1 
   strategy: 
@@ -12,11 +12,11 @@ spec:
   template: 
     metadata: 
       labels: 
-        app: Crossroads.Service.Finanace 
+        app: Crossroads.Service.Finance 
     spec: 
       containers: 
-        - name: Crossroads.Service.Finanace 
-          image: crdschurch/Crossroads.Service.Finanace:$DOCKER_TAG 
+        - name: Crossroads.Service.Finance 
+          image: crdschurch/Crossroads.Service.Finance:$DOCKER_TAG 
           imagePullPolicy: Always 
           ports: 
             - containerPort: 5050 

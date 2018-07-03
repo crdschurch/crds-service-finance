@@ -50,12 +50,16 @@ namespace Crossroads.Service.Finance
             CrossroadsWebCommonConfig.Register(services);
 
             // Add Swagger
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "Finance Microservice"});
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, "Crossroads.Service.Finance.xml");
-                c.IncludeXmlComments(xmlPath);
-            });
+            // try {
+            //     services.AddSwaggerGen(c =>
+            //     {
+            //         c.SwaggerDoc("v1", new Info { Title = "Finance Microservice"});
+            //         var xmlPath = Path.Combine(AppContext.BaseDirectory, "Crossroads.Service.Finance.xml");
+            //         c.IncludeXmlComments(xmlPath);
+            //     });
+            // } catch (Exception e) {
+            //     Console.WriteLine(e.Message);
+            // }
 
             // Service Layer
             services.AddSingleton<IBatchService, BatchService>();
@@ -91,20 +95,20 @@ namespace Crossroads.Service.Finance
                 .AllowAnyHeader()
                 .AllowCredentials());
             app.UseMvc();
-            app.UseSwagger(o =>
-            {
-                // ensure controller is lowercased
-                o.PreSerializeFilters.Add((document, request) =>
-                {
-                    document.Paths = document.Paths.ToDictionary(p => p.Key.ToLowerInvariant(), p => p.Value);
-                });
-            });
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Finance Microservice");
-                c.DocExpansion(DocExpansion.None);
-                c.RoutePrefix = string.Empty;
-            });
+            // app.UseSwagger(o =>
+            // {
+            //     // ensure controller is lowercased
+            //     o.PreSerializeFilters.Add((document, request) =>
+            //     {
+            //         document.Paths = document.Paths.ToDictionary(p => p.Key.ToLowerInvariant(), p => p.Value);
+            //     });
+            // });
+            // app.UseSwaggerUI(c =>
+            // {
+            //     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Finance Microservice");
+            //     c.DocExpansion(DocExpansion.None);
+            //     c.RoutePrefix = string.Empty;
+            // });
         }
     }
 }
