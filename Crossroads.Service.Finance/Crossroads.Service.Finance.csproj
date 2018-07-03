@@ -1,5 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <ItemGroup>
+    <Compile Remove="deployment\**" />
+    <Content Remove="deployment\**" />
+    <EmbeddedResource Remove="deployment\**" />
+    <None Remove="deployment\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="HangFire" Version="1.6.17" />
     <PackageReference Include="HangFire.SqlServer" Version="1.6.17" />
     <PackageReference Include="log4net" Version="2.0.8" />
@@ -51,21 +57,5 @@
   <ItemGroup>
     <Compile Remove="LowercaseDocumentFilter.cs" />
     <Compile Remove="Controllers\PaymentEventController.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="deployment\docker\docker-compose.yml" />
-    <None Remove="deployment\kubernetes\deployment.yml" />
-    <None Remove="deployment\kubernetes\service.yml" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="deployment\docker\docker-compose.yml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
-    <EmbeddedResource Include="deployment\kubernetes\deployment.yml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
-    <EmbeddedResource Include="deployment\kubernetes\service.yml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>
