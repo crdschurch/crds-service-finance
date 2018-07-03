@@ -52,4 +52,20 @@
     <Compile Remove="LowercaseDocumentFilter.cs" />
     <Compile Remove="Controllers\PaymentEventController.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="deployment\docker\docker-compose.yml" />
+    <None Remove="deployment\kubernetes\deployment.yml" />
+    <None Remove="deployment\kubernetes\service.yml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="deployment\docker\docker-compose.yml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="deployment\kubernetes\deployment.yml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="deployment\kubernetes\service.yml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

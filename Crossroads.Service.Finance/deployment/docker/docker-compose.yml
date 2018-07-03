@@ -1,0 +1,25 @@
+﻿version: '3' 
+services: 
+  Crossroads.Service.Finanace: 
+    build: 
+      context: ../../ 
+      dockerfile: ./deployment/docker/Dockerfile 
+      args:
+        - CRDS_EMBED_ENV=${CRDS_EMBED_ENV:-int}
+    container_name: Crossroads.Service.Finanace 
+    image: crdschurch/Crossroads.Service.Finanace:${DOCKER_TAG:-local} 
+    ports:
+      - "5000:5050" 
+    environment: 
+      - CRDS_EMBED_ENV=${CRDS_EMBED_ENV:-int} 
+      - CRDS_ENV=${CRDS_ENV:-int} 
+      - CRDS_WEB=${CRDS_WEB:-https://int.crossroads.net} 
+      - CRDS_FORMIO_API_ENDPOINT=${CRDS_FORMIO_API_ENDPOINT:-https://int-crds.form.io} 
+      - CRDS_MP_COMMON_CLIENT_ID=${CRDS_MP_COMMON_CLIENT_ID}
+      - CRDS_MP_COMMON_CLIENT_SECRET=${CRDS_MP_COMMON_CLIENT_SECRET} 
+      - MP_REST_API_ENDPOINT=${MP_REST_API_ENDPOINT:-https://adminint.crossroads.net/ministryplatformapi} 
+      - MP_OAUTH_BASE_URL=${MP_OAUTH_BASE_URL:-https://adminint.crossroads.net/ministryplatform/oauth} 
+      - API_USER=${API_USER}
+      - API_PASSWORD=${API_PASSWORD}
+      - ASTRONOMER_APPLICATION_ID=${ASTRONOMER_APPLICATION_ID}
+      - FRED_PATH_BASE=${FRED_PATH_BASE}

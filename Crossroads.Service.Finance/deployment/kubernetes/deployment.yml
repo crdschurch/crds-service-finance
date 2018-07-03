@@ -1,0 +1,54 @@
+﻿apiVersion: extensions/v1beta1 
+kind: Deployment 
+metadata: 
+  name: Crossroads.Service.Finanace 
+spec: 
+  replicas: 1 
+  strategy: 
+    type: RollingUpdate 
+    rollingUpdate: 
+      maxSurge: 1 
+      maxUnavailable: 0 
+  template: 
+    metadata: 
+      labels: 
+        app: Crossroads.Service.Finanace 
+    spec: 
+      containers: 
+        - name: Crossroads.Service.Finanace 
+          image: crdschurch/Crossroads.Service.Finanace:$DOCKER_TAG 
+          imagePullPolicy: Always 
+          ports: 
+            - containerPort: 5050 
+          resources: 
+            limits: 
+              memory: "512Mi" 
+              cpu: "700m" 
+            requests: 
+              memory: "16Mi" 
+              cpu: "100m" 
+          env: 
+            - name: CRDS_EMBED_ENV 
+              value: $CRDS_EMBED_ENV 
+            - name: CRDS_WEB 
+              value: $CRDS_WEB 
+            - name: CRDS_FORMIO_API_ENDPOINT 
+              value: $CRDS_FORMIO_API_ENDPOINT 
+            - name: CRDS_FORMIO_API_TOKEN 
+              value: $CRDS_FORMIO_API_TOKEN 
+            - name: CRDS_MP_COMMON_CLIENT_ID 
+              value: $CRDS_MP_COMMON_CLIENT_ID 
+            - name: CRDS_MP_COMMON_CLIENT_SECRET 
+              value: $CRDS_MP_COMMON_CLIENT_SECRET 
+            - name: MP_REST_API_ENDPOINT 
+              value: $MP_REST_API_ENDPOINT 
+            - name: MP_OAUTH_BASE_URL 
+              value: $MP_OAUTH_BASE_URL 
+            - name: API_USER 
+              value: $API_USER 
+            - name: API_PASSWORD 
+              value: $API_PASSWORD 
+            - name: ASTRONOMER_APPLICATION_ID 
+              value: $ASTRONOMER_APPLICATION_ID
+            - name: FRED_PATH_BASE
+              value: $FRED_PATH_BASE

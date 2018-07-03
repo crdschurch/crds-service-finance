@@ -1,0 +1,13 @@
+﻿apiVersion: v1 
+kind: Service 
+metadata: 
+  name: Crossroads.Service.Finanace 
+  labels: 
+    app: Crossroads.Service.Finanace 
+spec: 
+  ports: 
+  - name: dotnet 
+    port: 80 
+    targetPort: 5050 
+  selector: 
+    app: Crossroads.Service.Finanace
