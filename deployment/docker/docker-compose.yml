@@ -8,9 +8,6 @@ services:
     image: crdschurch/crds-service-finance:${DOCKER_TAG:-local} 
     env_file:
       - ../../.env
-    # entrypoint: /bin/bash
-    # stdin_open: true
-    # tty: true
     ports:
       - "5000:80"
     environment: 
