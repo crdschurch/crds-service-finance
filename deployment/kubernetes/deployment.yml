@@ -2,6 +2,7 @@
 kind: Deployment 
 metadata: 
   name: crds-service-finance
+  namespace: api
 spec: 
   replicas: 1 
   strategy: 
