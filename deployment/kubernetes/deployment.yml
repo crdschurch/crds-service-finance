@@ -1,7 +1,7 @@
 ﻿apiVersion: extensions/v1beta1 
 kind: Deployment 
 metadata: 
-  name: crds-service-finance
+  name: crds-finance
   namespace: api
 spec: 
   replicas: 1 
@@ -13,11 +13,11 @@ spec:
   template: 
     metadata: 
       labels: 
-        app: crds-service-finance
+        app: crds-finance
     spec: 
       containers: 
-        - name: crds-service-finance
-          image: crdschurch/crds-service-finance:$DOCKER_TAG 
+        - name: crds-finance
+          image: crdschurch/crds-finance:$DOCKER_TAG 
           imagePullPolicy: Always 
           ports: 
             - containerPort: 5050 

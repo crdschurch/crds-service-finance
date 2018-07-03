@@ -1,14 +1,14 @@
 ﻿apiVersion: v1 
 kind: Service 
 metadata: 
-  name: crds-service-finance
+  name: crds-finance-service
   namespace: api
   labels: 
-    app: crds-service-finance
+    app: crds-finance-service
 spec: 
   ports: 
   - name: dotnet 
     port: 80
     targetPort: 80 
   selector: 
-    app: crds-service-finance
+    app: crds-finance
