@@ -28,27 +28,33 @@ spec:
               memory: "16Mi" 
               cpu: "100m" 
           env: 
-            - name: CRDS_EMBED_ENV 
-              value: $CRDS_EMBED_ENV 
-            - name: CRDS_WEB 
-              value: $CRDS_WEB 
-            - name: CRDS_FORMIO_API_ENDPOINT 
-              value: $CRDS_FORMIO_API_ENDPOINT 
-            - name: CRDS_FORMIO_API_TOKEN 
-              value: $CRDS_FORMIO_API_TOKEN 
-            - name: CRDS_MP_COMMON_CLIENT_ID 
-              value: $CRDS_MP_COMMON_CLIENT_ID 
-            - name: CRDS_MP_COMMON_CLIENT_SECRET 
-              value: $CRDS_MP_COMMON_CLIENT_SECRET 
-            - name: MP_REST_API_ENDPOINT 
-              value: $MP_REST_API_ENDPOINT 
-            - name: MP_OAUTH_BASE_URL 
-              value: $MP_OAUTH_BASE_URL 
-            - name: API_USER 
-              value: $API_USER 
-            - name: API_PASSWORD 
-              value: $API_PASSWORD 
-            - name: ASTRONOMER_APPLICATION_ID 
-              value: $ASTRONOMER_APPLICATION_ID
-            - name: FRED_PATH_BASE
-              value: $FRED_PATH_BASE
+            - name: APP_LOG_ROOT=
+              value: $APP_LOG_ROOT=
+            - name: ASPNETCORE_ENVIRONMENT=
+              value: $ASPNETCORE_ENVIRONMENT=
+            - name: CRDS_ENV=
+              value: $CRDS_ENV=
+            - name: CRDS_MP_COMMON_CLIENT_ID=
+              value: $CRDS_MP_COMMON_CLIENT_ID=
+            - name: CRDS_MP_COMMON_CLIENT_SECRET=
+              value: $CRDS_MP_COMMON_CLIENT_SECRET=
+            - name: MP_API_DB_USER=
+              value: $MP_API_DB_USER=
+            - name: MP_API_DB_PASSWORD=
+              value: $MP_API_DB_PASSWORD=
+            - name: MP_OAUTH_BASE_URL=
+              value: $MP_OAUTH_BASE_URL=
+            - name: MP_REST_API_ENDPOINT=
+              value: $MP_REST_API_ENDPOINT=
+            - name: PUSHPAY_API_ENDPOINT=
+              value: $PUSHPAY_API_ENDPOINT=
+            - name: PUSHPAY_AUTH_ENDPOINT=
+              value: $PUSHPAY_AUTH_ENDPOINT=
+            - name: PUSHPAY_WEB_ENDPOINT=
+              value: $PUSHPAY_WEB_ENDPOINT=
+            - name: PUSHPAY_CLIENT_ID=
+              value: $PUSHPAY_CLIENT_ID=
+            - name: PUSHPAY_CLIENT_SECRET=
+              value: $PUSHPAY_CLIENT_SECRET=
+            - name: PUSHPAY_MERCHANT_KEY=            
+              value: $PUSHPAY_MERCHANT_KEY=
