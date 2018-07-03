@@ -49,6 +49,9 @@ namespace Crossroads.Service.Finance
             // Dependency Injection
             CrossroadsWebCommonConfig.Register(services);
 
+            // commenting this out as "Crossroads.Service.Finance.xml" file is not being
+            // generated when building
+
             // Add Swagger
             // try {
             //     services.AddSwaggerGen(c =>
@@ -95,6 +98,10 @@ namespace Crossroads.Service.Finance
                 .AllowAnyHeader()
                 .AllowCredentials());
             app.UseMvc();
+
+            // commenting this out as "Crossroads.Service.Finance.xml" file is not being
+            // generated when building
+
             // app.UseSwagger(o =>
             // {
             //     // ensure controller is lowercased
