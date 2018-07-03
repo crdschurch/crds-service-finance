@@ -19,24 +19,24 @@ namespace Crossroads.Service.Finance
 
         public static void Main(string[] args)
         {
-            // // load logging here to capture issues in starting the services
-            // var loggingEnv = Environment.GetEnvironmentVariable("CRDS_ENV");
-            // var loggingPath = Environment.GetEnvironmentVariable("APP_LOG_ROOT");
+             // load logging here to capture issues in starting the services
+             var loggingEnv = Environment.GetEnvironmentVariable("CRDS_ENV");
+             var loggingPath = Environment.GetEnvironmentVariable("APP_LOG_ROOT");
 
-            // XmlDocument log4netConfig = new XmlDocument();
+             XmlDocument log4netConfig = new XmlDocument();
 
-            // log4netConfig.Load(!string.IsNullOrEmpty(loggingEnv)
-            //     ? File.OpenRead($"log4net.{loggingEnv}.config")
-            //     : File.OpenRead($"log4net.config"));
+             log4netConfig.Load(!string.IsNullOrEmpty(loggingEnv)
+                 ? File.OpenRead($"log4net.{loggingEnv}.config")
+                 : File.OpenRead($"log4net.config"));
 
-            // log4netConfig.InnerXml = log4netConfig.InnerXml.Replace("${APP_LOG_ROOT}", loggingPath);
+             log4netConfig.InnerXml = log4netConfig.InnerXml.Replace("${APP_LOG_ROOT}", loggingPath);
 
-            // var repo = log4net.LogManager.CreateRepository(
-            //     Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
+             var repo = log4net.LogManager.CreateRepository(
+                 Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
 
-            // log4net.Config.XmlConfigurator.Configure(repo, log4netConfig["log4net"]);
+             log4net.Config.XmlConfigurator.Configure(repo, log4netConfig["log4net"]);
 
-            // log.Info("Application - Main is invoked");
+             log.Info("Application - Main is invoked");
 
             // load environment variables from .env file for local development
             try
