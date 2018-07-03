@@ -6,8 +6,8 @@ services:
       dockerfile: ./deployment/docker/prod.Dockerfile
     container_name: crds-service-finance
     image: crdschurch/crds-service-finance:${DOCKER_TAG:-local} 
-    env_file:
-      - ../../.env
+    # env_file:
+    #   - ../../.env
     ports:
       - "5000:80"
     # environment: 
