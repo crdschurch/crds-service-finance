@@ -52,3 +52,4 @@ docker-compose -f deployment/docker/docker-compose.yml build
 ```
 docker-compose -f deployment/docker/docker-compose.yml up
 ```
+ 
