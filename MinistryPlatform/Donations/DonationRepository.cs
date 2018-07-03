@@ -194,5 +194,28 @@ namespace MinistryPlatform.Repositories
                                 .Build()
                                 .Search<MpDonation>().ToList();
         }
+
+        public List<MpDonationHistory> GetDonationHistoryByContactId(int contactId)
+        {
+            var token = ApiUserRepository.GetDefaultApiClientToken();
+
+            var selectColumns = new string[] {
+                "Donation_Distributions.[Donation_ID]",
+                "Donation_Distributions.[Donation_Distribution_ID]",
+                "Donation_ID_Table.[Donation_Status_Date]",
+                "Program_ID_Table.[Program_Name]",
+                "Donation_ID_Table.[Donation_Status_ID]",
+                "Donation_Distributions.[Amount]"
+            };
+
+            var filter = $"Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithSelectColumns(selectColumns)
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .Build()
+                .Search<MpDonationHistory>().ToList();
+        }
     }
 }

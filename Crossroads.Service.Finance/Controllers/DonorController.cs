@@ -78,6 +78,7 @@ namespace Crossroads.Service.Finance.Controllers
         /// Get donations (donation history) for a user
         /// </summary>
         /// <returns></returns>
+        [Obsolete]
         [HttpGet("donations")]
         [ProducesResponseType(typeof(List<DonationDto>), 200)]
         [ProducesResponseType(204)]
@@ -97,6 +98,34 @@ namespace Crossroads.Service.Finance.Controllers
             catch (Exception ex)
             {
                 var msg = "DonationController: GetDonations";
+                _logger.Error(msg, ex);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get donations (donation history) for a user
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("{contactId}/donations")]
+        [ProducesResponseType(typeof(List<DonationDto>), 200)]
+        [ProducesResponseType(204)]
+        public IActionResult GetDonationHistory(int contactId)
+        {
+            try
+            {
+                //TODO remove hardcoded "token" value and add authentication
+                var donations = _donationService.GetDonationHistoryByContactId(contactId);// ("token");
+                if (donations == null || donations.Count == 0)
+                {
+                    return NoContent();
+                }
+
+                return Ok(donations);
+            }
+            catch (Exception ex)
+            {
+                var msg = "DonationController: GetDonationHistory";
                 _logger.Error(msg, ex);
                 return BadRequest(ex.Message);
             }

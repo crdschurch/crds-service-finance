@@ -18,5 +18,6 @@ namespace MinistryPlatform.Interfaces
         List<MpRecurringGift> GetRecurringGifts(int contactId);
         //List<MpPledge> GetPledges(string token);
         List<MpDonation> GetDonations(int contactId);
+        List<MpDonationHistory> GetDonationHistoryByContactId(int contactId);
     }
 }
