@@ -44,12 +44,12 @@ dotnet watch test
 ##### build an image
 
 ```
-docker-compose -f deployment/docker/docker-compose.yml build
+docker-compose -f deployment/docker/docker-compose-prod.yml build
 ```
 
 ##### create container, run image
 
 ```
-docker-compose -f deployment/docker/docker-compose.yml up
+docker-compose -f deployment/docker/docker-compose-prod.yml up
 ```
  
