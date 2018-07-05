@@ -246,5 +246,46 @@ namespace MinistryPlatform.Test.Donations
             // Assert
             Assert.Empty(responseDonations);
         }
+
+        [Fact]
+        public void ShouldGetDonationHistoriesByContactId()
+        {
+            // Arrange
+            var contactId = 1234567;
+
+            var mpDonationHistories = new List<MpDonationHistory>
+            {
+                new MpDonationHistory
+                {
+                    DonationId = 5544555
+                }
+            };
+
+            // Arrange
+            var selectColumns = new string[] {
+                "Donation_Distributions.[Donation_ID]",
+                "Donation_Distributions.[Donation_Distribution_ID]",
+                "Donation_ID_Table.[Donation_Status_Date]",
+                "Program_ID_Table.[Program_Name]",
+                "Donation_ID_Table.[Donation_Status_ID]",
+                "Donation_Distributions.[Amount]"
+            };
+
+            var filter = "Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 1234567";
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpDonationHistory>()).Returns(mpDonationHistories);
+
+            // Act
+            var result = _fixture.GetDonationHistoryByContactId(contactId);
+
+            // Assert
+            Assert.NotNull(result);
+        }
     }
 }

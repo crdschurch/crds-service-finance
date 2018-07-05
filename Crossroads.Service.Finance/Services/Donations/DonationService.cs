@@ -118,5 +118,10 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<List<DonationDto>>(records);
         }
 
+        public List<DonationHistoryDto> GetDonationHistoryByContactId(int contactId)
+        {
+            var donationHistoryDtos = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
+            return _mapper.Map<List<DonationHistoryDto>>(donationHistoryDtos);
+        }
     }
 }

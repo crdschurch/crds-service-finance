@@ -181,5 +181,38 @@ namespace Crossroads.Service.Finance.Test.Donations
             // Assert
             Assert.Single(result);
         }
+
+        [Fact]
+        public void ShouldGetDonationHistoryObjects()
+        {
+            // Arrange
+            var contactId = 1234567;
+
+            var donationHistoryDtos = new List<DonationHistoryDto>
+            {
+                new DonationHistoryDto
+                {
+                    DonationId = 5544555
+                }
+            };
+
+            var mpDonationHistories = new List<MpDonationHistory>
+            {
+                new MpDonationHistory
+                {
+                    DonationId = 5544555
+                }
+            };
+
+            _mapper.Setup(m => m.Map<List<DonationHistoryDto>>(It.IsAny<List<MpDonationHistory>>())).Returns(donationHistoryDtos);
+            _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId)).Returns(mpDonationHistories);
+
+            // Act
+            var result = _fixture.GetDonationHistoryByContactId(contactId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(5544555, result[0].DonationId);
+        }
     }
 }
