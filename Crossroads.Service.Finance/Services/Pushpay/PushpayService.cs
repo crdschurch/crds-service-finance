@@ -281,8 +281,9 @@ namespace Crossroads.Service.Finance.Services
                 RoutingNumber = isBank ? gift.Account.RoutingNumber : null,
                 NonAssignable = false,
                 DomainId = 1,
-                Closed = false
-            };
+                Closed = false,
+                ProcessorTypeId = pushpayProcessorTypeId
+        };
             if (donorId != null) {
                 mpDonorAccount.DonorId = donorId.Value;
             }
@@ -301,7 +302,6 @@ namespace Crossroads.Service.Finance.Services
                     break;
                 case "CreditCard":
                     mpDonorAccount.AccountTypeId = MpAccountTypes.CreditCard;
-                    mpDonorAccount.ProcessorTypeId = pushpayProcessorTypeId;
                     break;
             }
             return mpDonorAccount;
