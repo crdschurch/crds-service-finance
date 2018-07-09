@@ -5,7 +5,7 @@ using System.Reflection;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
-using MinistryPlatform.Configuration;
+//using MinistryPlatform.Configuration;
 using Hangfire;
 using log4net;
 using MinistryPlatform.Interfaces;
@@ -45,7 +45,7 @@ namespace Crossroads.Service.Finance.Services
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
             _mpDefaultContactDonorId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultDonorID") ?? 1;
             _mpDefaultCongregationId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultCongregationID") ?? 1;
-            _mpPushpayRecurringWebhookMinutes = configurationWrapper.GetAppMpConfigIntValue("PushpayJobDelayMinutes") ?? 1;
+            _mpPushpayRecurringWebhookMinutes = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "PushpayJobDelayMinutes") ?? 1;
         }
 
         public PaymentsDto GetChargesForTransfer(string settlementKey)
@@ -80,6 +80,7 @@ namespace Crossroads.Service.Finance.Services
                 // PushPay creates the donation a variable amount of time after the webhook comes in
                 //   so it still may not be available
                 var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
+                if (donation == null) return null;
                 if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
                 {
                     donation.DonationStatusId = _mpDonationStatusPending;
@@ -211,7 +212,7 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.CongregationId = _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
 
             mpRecurringGift.ConsecutiveFailureCount = 0;
-            mpRecurringGift.DomainId = 1;
+            //mpRecurringGift.DomainId = 1;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);

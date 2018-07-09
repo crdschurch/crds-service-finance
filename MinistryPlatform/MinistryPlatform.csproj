@@ -15,5 +15,10 @@
     <Folder Include="RecurringGift\" />
     <Folder Include="Program\" />
     <Folder Include="Contacts\" />
+    <Folder Include="Pledges\" />
+    <Folder Include="DonationDistributions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Models\MpPostalAddress.cs" />
   </ItemGroup>
 </Project>

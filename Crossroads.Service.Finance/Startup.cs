@@ -12,9 +12,9 @@ using Pushpay.Client;
 using Pushpay.Token;
 using System;
 using Hangfire;
-using NJsonSchema;
-using NSwag.AspNetCore;
-using System.Reflection;
+using Swashbuckle.AspNetCore.Swagger;
+using System.Linq;
+using System.IO;
 
 namespace Crossroads.Service.Finance
 {
@@ -49,11 +49,25 @@ namespace Crossroads.Service.Finance
             // Dependency Injection
             CrossroadsWebCommonConfig.Register(services);
 
+            // commenting this out as "Crossroads.Service.Finance.xml" file is not being
+            // generated when building
+
+            // Add Swagger
+            // try {
+            //     services.AddSwaggerGen(c =>
+            //     {
+            //         c.SwaggerDoc("v1", new Info { Title = "Finance Microservice"});
+            //         var xmlPath = Path.Combine(AppContext.BaseDirectory, "Crossroads.Service.Finance.xml");
+            //         c.IncludeXmlComments(xmlPath);
+            //     });
+            // } catch (Exception e) {
+            //     Console.WriteLine(e.Message);
+            // }
+
             // Service Layer
             services.AddSingleton<IBatchService, BatchService>();
             services.AddSingleton<IDonationService, DonationService>();
             services.AddSingleton<IDepositService, DepositService>();
-
             services.AddSingleton<IPaymentEventService, PaymentEventService>();
             services.AddSingleton<IPushpayService, PushpayService>();
             services.AddSingleton<IPushpayClient, PushpayClient>();
@@ -66,19 +80,17 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IRecurringGiftRepository, RecurringGiftRepository>();
             services.AddSingleton<IProgramRepository, ProgramRepository>();
             services.AddSingleton<IContactRepository, ContactRepository>();
+            services.AddSingleton<IPledgeRepository, PledgeRepository>();
+            services.AddSingleton<IDonationDistributionRepository, DonationDistributionRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            // Enable the Swagger UI middleware and the Swagger generator -
-            // see https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-nswag?view=aspnetcore-2.1&tabs=visual-studio%2Cvisual-studio-xml
-            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings =>
+            if (env.IsDevelopment())
             {
-                settings.GeneratorSettings.DefaultPropertyNameHandling =
-                    PropertyNameHandling.CamelCase;
-            });
-
+                app.UseDeveloperExceptionPage();
+            }
             app.UseHangfireServer();
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
@@ -87,7 +99,23 @@ namespace Crossroads.Service.Finance
                 .AllowCredentials());
             app.UseMvc();
 
-            
+            // commenting this out as "Crossroads.Service.Finance.xml" file is not being
+            // generated when building
+
+            // app.UseSwagger(o =>
+            // {
+            //     // ensure controller is lowercased
+            //     o.PreSerializeFilters.Add((document, request) =>
+            //     {
+            //         document.Paths = document.Paths.ToDictionary(p => p.Key.ToLowerInvariant(), p => p.Value);
+            //     });
+            // });
+            // app.UseSwaggerUI(c =>
+            // {
+            //     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Finance Microservice");
+            //     c.DocExpansion(DocExpansion.None);
+            //     c.RoutePrefix = string.Empty;
+            // });
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Models;
@@ -8,6 +9,7 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
+        CreateMap<MpPledge, PledgeDto>();
         CreateMap<MpDeposit, DepositDto>();
         CreateMap<DepositDto, MpDeposit>();
         CreateMap<MpDonationBatch, DonationBatchDto>();
@@ -67,5 +69,7 @@ public class MappingProfile : Profile
                 r.Links != null && r.Links.ViewRecurringPayment != null ? r.Links.ViewRecurringPayment.Href : null
             ));
         CreateMap<MpRecurringGift, RecurringGiftDto>();
+        CreateMap<MpDonationHistory, DonationHistoryDto>();
+        CreateMap<DonationHistoryDto, MpDonationHistory>();
     }
 }

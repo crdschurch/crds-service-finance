@@ -1,5 +1,4 @@
-﻿using System;
-namespace MinistryPlatform.Models
+﻿namespace MinistryPlatform.Models
 {
     public class MpAccountTypes
     {
