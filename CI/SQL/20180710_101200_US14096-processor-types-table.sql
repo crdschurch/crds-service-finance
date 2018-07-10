@@ -63,3 +63,21 @@ INSERT INTO [dbo].[dp_Pages]
            ,0)
 END
 GO
+
+INSERT INTO [dbo].[cr_Processor_Types]
+           ([Processor_Type])
+     VALUES
+           ('Default')
+GO
+
+INSERT INTO [dbo].[cr_Processor_Types]
+           ([Processor_Type])
+     VALUES
+           ('Stripe')
+GO
+
+INSERT INTO [dbo].[cr_Processor_Types]
+           ([Processor_Type])
+     VALUES
+           ('Pushpay')
+GO
