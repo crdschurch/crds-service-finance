@@ -64,20 +64,29 @@ INSERT INTO [dbo].[dp_Pages]
 END
 GO
 
+IF NOT EXISTS (SELECT 1 FROM cr_Processor_Types WHERE Processor_Type = 'Default')
+BEGIN
 INSERT INTO [dbo].[cr_Processor_Types]
            ([Processor_Type])
      VALUES
            ('Default')
+END
 GO
 
+IF NOT EXISTS (SELECT 1 FROM cr_Processor_Types WHERE Processor_Type = 'Stripe')
+BEGIN
 INSERT INTO [dbo].[cr_Processor_Types]
            ([Processor_Type])
      VALUES
            ('Stripe')
+END
 GO
 
+IF NOT EXISTS (SELECT 1 FROM cr_Processor_Types WHERE Processor_Type = 'Pushpay')
+BEGIN
 INSERT INTO [dbo].[cr_Processor_Types]
            ([Processor_Type])
      VALUES
            ('Pushpay')
+END
 GO
