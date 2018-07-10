@@ -29,6 +29,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
                              _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpDefaultCongregationId;
         private const int maxRetryMinutes = 10;
+        private const int pushpayProcessorTypeId = 1;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
@@ -280,8 +281,9 @@ namespace Crossroads.Service.Finance.Services
                 RoutingNumber = isBank ? gift.Account.RoutingNumber : null,
                 NonAssignable = false,
                 DomainId = 1,
-                Closed = false
-            };
+                Closed = false,
+                ProcessorTypeId = pushpayProcessorTypeId
+        };
             if (donorId != null) {
                 mpDonorAccount.DonorId = donorId.Value;
             }
