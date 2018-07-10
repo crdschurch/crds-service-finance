@@ -29,7 +29,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
                              _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpDefaultCongregationId;
         private const int maxRetryMinutes = 10;
-        private const int pushpayProcessorTypeId = 4;
+        private const int pushpayProcessorTypeId = 3;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
