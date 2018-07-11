@@ -13,74 +13,38 @@ namespace Crossroads.Service.Finance.Controllers
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly IDepositService _depositService;
+        private readonly IPaymentEventService _paymentEventService;
 
-        public DepositController(IDepositService depositService)
+        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService)
         {
             _depositService = depositService;
+            _paymentEventService = paymentEventService;
         }
 
-        [HttpPost]
-        [Route("sync")]
-        [Description("Sync settlements")]
+        /// <summary>
+        ///    Sync settlements from pushpay into MP
+        /// </summary>
+        /// <remarks>
+        ///    Called via a SyncPushpaySettlements windows scheduled task at 1pm every day
+        /// </remarks>
+        [HttpPost("sync")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         public IActionResult SyncSettlements()
         {
             try
             {
-                var hostName = this.Request.Host.ToString();
-                _depositService.SyncDeposits(hostName);
-                return Ok();
+                var deposits = _depositService.SyncDeposits();
+                foreach (var deposit in deposits)
+                {
+                    _paymentEventService.CreateDeposit(deposit);
+                }
+                _logger.Info($"SyncSettlements created ${deposits.Count} deposits");
+                return Ok(new { created =  deposits.Count });
             }
             catch (Exception ex)
             {
                 _logger.Error("Error in SyncSettlements: " + ex.Message, ex);
-                return StatusCode(400, ex);
-            }
-        }
-
-        [HttpGet]
-        [Route("active")]
-        public IActionResult GetActiveSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
-        {
-            try
-            {
-                var result = _depositService.GetDepositsForSync(startdate, enddate);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Error in GetActiveSettlements: " + ex.Message, ex);
-                return StatusCode(400, ex);
-            }
-        }
-
-        [HttpGet]
-        [Route("all")]
-        public IActionResult GetAllSettlements([FromQuery] DateTime startdate, [FromQuery] DateTime enddate)
-        {
-            try
-            {
-                var result = _depositService.GetDepositsForSyncRaw(startdate, enddate);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Error in GetAllSettlements: " + ex.Message, ex);
-                return StatusCode(400, ex);
-            }
-        }
-
-        [HttpGet]
-        [Route("pending-sync")]
-        public IActionResult GetSettlementsPendingSync()
-        {
-            try
-            {
-                var result = _depositService.GetDepositsForPendingSync();
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Error in GetSettlementsPendingSync: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }

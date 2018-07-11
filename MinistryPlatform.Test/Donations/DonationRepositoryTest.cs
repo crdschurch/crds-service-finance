@@ -10,6 +10,8 @@ using MinistryPlatform.Models;
 using Moq;
 using Xunit;
 using Newtonsoft.Json.Linq;
+using System.Linq;
+using Mock;
 
 namespace MinistryPlatform.Test.Donations
 {
@@ -23,6 +25,7 @@ namespace MinistryPlatform.Test.Donations
         readonly Mock<IMapper> _mapper;
 
         private string token = "123abc";
+        const int contactId = 7344;
 
         private readonly IDonationRepository _fixture;
 
@@ -35,7 +38,7 @@ namespace MinistryPlatform.Test.Donations
             _mapper = new Mock<IMapper>(MockBehavior.Strict);
             _request = new Mock<IMinistryPlatformRestRequest>(MockBehavior.Strict);
 
-            _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
@@ -61,7 +64,7 @@ namespace MinistryPlatform.Test.Donations
             };
 
             var filter = $"Transaction_Code = '{transactionCode}'";
-            _apiUserRepository.Setup(r => r.GetDefaultApiUserToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
@@ -102,6 +105,187 @@ namespace MinistryPlatform.Test.Donations
         {
             _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts"));
             _fixture.UpdateDonorAccount(new JObject());
+        }
+
+        [Fact]
+        public void GetRecurringGift()
+        {
+            // Arrange
+            var selectColumns = new string[] {
+                "Recurring_Gifts.[Recurring_Gift_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donor_ID_Table.[Donor_ID]",
+                "Donor_Account_ID_Table.[Donor_Account_ID]",
+                "Frequency_ID_Table.[Frequency_ID]",
+                "Recurring_Gifts.[Day_Of_Month]",
+                "Day_Of_Week_ID_Table.[Day_Of_Week_ID]",
+                "Recurring_Gifts.[Amount]",
+                "Recurring_Gifts.[Start_Date]",
+                "Recurring_Gifts.[End_Date]",
+                "Program_ID_Table.[Program_ID]",
+                "Congregation_ID_Table.[Congregation_ID]",
+                "Recurring_Gifts.[Subscription_ID]",
+                "Recurring_Gifts.[Consecutive_Failure_Count]",
+                "Recurring_Gifts.[Source_Url]",
+                "Recurring_Gifts.[Predefined_Amount]",
+                "Recurring_Gifts.[Vendor_Detail_Url]"
+            };
+            var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);            
+
+            _request.Setup(m => m.Search<MpRecurringGift>()).Returns(MpRecurringGiftMock.CreateList(contactId));
+
+            // Act
+            var responseRecurringGift = _fixture.GetRecurringGifts(contactId);
+
+            // Assert
+            Assert.Equal(contactId, responseRecurringGift.FirstOrDefault().ContactId);
+        }
+
+        [Fact]
+        public void GetRecurringGiftEmpty()
+        {
+            // Arrange
+            var selectColumns = new string[] {
+                "Recurring_Gifts.[Recurring_Gift_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donor_ID_Table.[Donor_ID]",
+                "Donor_Account_ID_Table.[Donor_Account_ID]",
+                "Frequency_ID_Table.[Frequency_ID]",
+                "Recurring_Gifts.[Day_Of_Month]",
+                "Day_Of_Week_ID_Table.[Day_Of_Week_ID]",
+                "Recurring_Gifts.[Amount]",
+                "Recurring_Gifts.[Start_Date]",
+                "Recurring_Gifts.[End_Date]",
+                "Program_ID_Table.[Program_ID]",
+                "Congregation_ID_Table.[Congregation_ID]",
+                "Recurring_Gifts.[Subscription_ID]",
+                "Recurring_Gifts.[Consecutive_Failure_Count]",
+                "Recurring_Gifts.[Source_Url]",
+                "Recurring_Gifts.[Predefined_Amount]",
+                "Recurring_Gifts.[Vendor_Detail_Url]"
+            };
+            var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 123";
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpRecurringGift>()).Returns(MpRecurringGiftMock.CreateEmptyList());
+
+            // Act
+            var responseRecurringGift = _fixture.GetRecurringGifts(123);
+
+            // Assert
+            Assert.Empty(responseRecurringGift);
+        }
+
+        [Fact]
+        public void GetDonation()
+        {
+            // Arrange
+            var selectColumns = new string[] {
+                "Donations.[Donation_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donations.[Donation_Amount]",
+                "Donation_Status_ID_Table.[Donation_Status_ID]",
+                "Donations.[Donation_Status_Date]",
+                "Batch_ID_Table.[Batch_ID]",
+                "Donations.[Transaction_Code]"
+            };
+            var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpDonation>()).Returns(MpDonationsMock.CreateList());
+
+            // Act
+            var responseDonations = _fixture.GetDonations(contactId);
+
+            // Assert
+            Assert.Equal(3, responseDonations.Count);
+        }
+
+        [Fact]
+        public void GetDonationEmpty()
+        {
+            // Arrange
+            var selectColumns = new string[] {
+                "Donations.[Donation_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donations.[Donation_Amount]",
+                "Donation_Status_ID_Table.[Donation_Status_ID]",
+                "Donations.[Donation_Status_Date]",
+                "Batch_ID_Table.[Batch_ID]",
+                "Donations.[Transaction_Code]"
+            };
+            var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpDonation>()).Returns(MpDonationsMock.CreateEmpty());
+
+            // Act
+            var responseDonations = _fixture.GetDonations(contactId);
+
+            // Assert
+            Assert.Empty(responseDonations);
+        }
+
+        [Fact]
+        public void ShouldGetDonationHistoriesByContactId()
+        {
+            // Arrange
+            var contactId = 1234567;
+
+            var mpDonationHistories = new List<MpDonationHistory>
+            {
+                new MpDonationHistory
+                {
+                    DonationId = 5544555
+                }
+            };
+
+            // Arrange
+            var selectColumns = new string[] {
+                "Donation_Distributions.[Donation_ID]",
+                "Donation_Distributions.[Donation_Distribution_ID]",
+                "Donation_ID_Table.[Donation_Status_Date]",
+                "Program_ID_Table.[Program_Name]",
+                "Donation_ID_Table.[Donation_Status_ID]",
+                "Donation_Distributions.[Amount]"
+            };
+
+            var filter = "Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 1234567";
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpDonationHistory>()).Returns(mpDonationHistories);
+
+            // Act
+            var result = _fixture.GetDonationHistoryByContactId(contactId);
+
+            // Assert
+            Assert.NotNull(result);
         }
     }
 }

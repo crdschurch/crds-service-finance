@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
-using System.Text;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -23,7 +20,7 @@ namespace MinistryPlatform.Repositories
 
         public MpProgram GetProgramByName(string programName)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             // replace ' with '' so that we can search for
             //  a program like I'm in

@@ -19,7 +19,7 @@ namespace Crossroads.Service.Finance
 
         public static void Main(string[] args)
         {
-            // load logging here to capture issues in starting the services
+             // load logging here to capture issues in starting the services
             var loggingEnv = Environment.GetEnvironmentVariable("CRDS_ENV");
             var loggingPath = Environment.GetEnvironmentVariable("APP_LOG_ROOT");
 

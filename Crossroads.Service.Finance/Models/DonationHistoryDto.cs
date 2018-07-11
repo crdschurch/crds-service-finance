@@ -1,0 +1,26 @@
+﻿using Newtonsoft.Json;
+using System;
+
+namespace Crossroads.Service.Finance.Models
+{
+    public class DonationHistoryDto
+    {
+        [JsonProperty("donationId")]
+        public int DonationId { get; set; }
+
+        [JsonProperty("donationDistributionId")]
+        public int DonationDistributionId { get; set; }
+
+        [JsonProperty("donationStatusDate")]
+        public DateTime DonationStatusDate { get; set; }
+
+        [JsonProperty("programName")]
+        public string ProgramName { get; set; }
+
+        [JsonProperty("donationStatusId")]
+        public int DonationStatusId { get; set; }
+
+        [JsonProperty("amount")]
+        public decimal Amount { get; set; }
+    }
+}

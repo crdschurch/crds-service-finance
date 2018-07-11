@@ -24,7 +24,7 @@ namespace MinistryPlatform.Repositories
 
         public MpRecurringGift FindRecurringGiftBySubscriptionId(string subscriptionId)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var filter = $"Subscription_ID = '{subscriptionId}'";
             var gifts = MpRestBuilder.NewRequestBuilder()
@@ -43,7 +43,7 @@ namespace MinistryPlatform.Repositories
 
         public MpRecurringGift CreateRecurringGift(MpRecurringGift mpRecurringGift)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             try
             {
@@ -61,7 +61,7 @@ namespace MinistryPlatform.Repositories
 
         public void UpdateRecurringGift(JObject mpRecurringGift)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             try
             {

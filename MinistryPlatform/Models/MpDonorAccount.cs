@@ -1,5 +1,4 @@
-﻿using System;
-using Crossroads.Web.Common.MinistryPlatform;
+﻿using Crossroads.Web.Common.MinistryPlatform;
 using Newtonsoft.Json;
 
 namespace MinistryPlatform.Models
@@ -33,5 +32,23 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Routing_Number")]
         public string RoutingNumber { get; set; }
+
+        // ****Below items were copied in from old MpDonorAccount class
+        //public string ProcessorAccountId { get; set; }
+        //public string ProcessorId { get; set; }
+        //public string EncryptedAccount { get; set; }
+        //public string Token { get; set; }
+
+        //public bool HasToken { get { return !string.IsNullOrWhiteSpace(Token); } }
+
+        //public bool HasPaymentProcessorInfo()
+        //{
+        //    if (String.IsNullOrWhiteSpace(ProcessorId) || String.IsNullOrWhiteSpace(ProcessorAccountId))
+        //    {
+        //        return false;
+        //    }
+
+        //    return true;
+        //}
     }
 }

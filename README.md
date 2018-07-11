@@ -8,28 +8,13 @@ Finance for Micro-Services in dotnet core
 dotnet restore
 ```
 
+### See endpoints via swagger
+
+run project, visit `http://localhost:<port>`
+
 ### Environment variables
 
-create a .env file in the project root with the following variables and set
-values
-
-```
-ASPNETCORE_ENVIRONMENT=Development
-API_USER=
-API_PASSWORD=
-MP_OAUTH_BASE_URL=
-MP_REST_API_ENDPOINT=
-CRDS_MP_COMMON_CLIENT_ID=
-PUSHPAY_CLIENT_ID=
-PUSHPAY_CLIENT_SECRET=
-PUSHPAY_AUTH_ENDPOINT=
-PUSHPAY_API_ENDPOINT=
-PUSHPAY_MERCHANT_KEY=
-PUSHPAY_DEPOSIT_ENDPOINT=
-FINANCE_PATH=
-MP_API_DB_USER=
-MP_API_DB_PASSWORD=
-```
+copy the .env.example file to a .env file at the root directory, filling out the values for each
 
 ### Running the app
 
@@ -40,13 +25,10 @@ dotnet run
 dotnet watch run
 ```
 
-> Your project will run at http://localhost:5000 and a 'hello world' route can
-> be found at GET http://localhost:5000/api/contact/hello
-
 ### Running tests
 
 ```sh
-cd Crossroads.Service.Finance.Tests
+cd Crossroads.Service.Finance.Test
 dotnet test
 # or if you want to watch test files for changes
 dotnet watch test
@@ -56,3 +38,18 @@ dotnet watch test
 ## Hangfire
 
 [Hangfire](https://www.hangfire.io/) is being used as a job scheduler due to Pushpay sending webhooks right after a donation is created in their system and it not necessarily being created in MP by their integration at the time the webhook comes in. Currently, the job checks every minute for 10 minutes to see if it created. Hangfire connects directly to the Hangfire database that sits alongside Ministry Platform.
+
+## Container
+
+##### build an image
+
+```
+docker-compose -f deployment/docker/docker-compose-prod.yml build
+```
+
+##### create container, run image
+
+```
+docker-compose -f deployment/docker/docker-compose-prod.yml up
+```
+ 

@@ -1,23 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MinistryPlatform.Repositories
 {
     public class ContactRepository : MinistryPlatformBase, IContactRepository
     {
+        private readonly IDonationRepository _mpDonationRepository;
+
         public ContactRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
+            IDonationRepository mpDonationRepository,
             IConfigurationWrapper configurationWrapper,
-            IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
+            IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) {
+            _mpDonationRepository = mpDonationRepository;
+        }
 
         public MpDonor MatchContact(string firstName, string lastName, string phone, string email)
         {
@@ -52,7 +54,7 @@ namespace MinistryPlatform.Repositories
 
         public MpHousehold GetHousehold(int householdId)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
             var columns = new string[] {
                 "Household_ID",
                 "Congregation_ID"
@@ -67,7 +69,7 @@ namespace MinistryPlatform.Repositories
 
         public void UpdateProcessor(int donorId, string processorId)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var fields = new JObject(
                 new JProperty("Donor_ID", donorId),
@@ -82,7 +84,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDonor FindDonorByProcessorId(string processorId)
         {
-            var token = ApiUserRepository.GetDefaultApiUserToken();
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var columns = new string[] {
                 "Donors.[Donor_ID]",

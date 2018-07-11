@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Crossroads.Service.Finance.Controllers
 {
-    [Route("api/webhook")]
+    [Route("api/[controller]")]
     public class WebhookController : Controller
     {
         private readonly IPushpayService _pushpayService;
@@ -15,8 +15,17 @@ namespace Crossroads.Service.Finance.Controllers
             _pushpayService = pushpayService;
         }
 
-        [HttpPost]
-        [Route("pushpay")]
+        /// <summary>
+        /// Handles the pushpay webhooks.
+        /// </summary>
+        /// <remarks>
+        ///    Called by Pushpay when a new donation is created, or a recurring gift is created/updated
+        /// </remarks>
+        /// <param name="pushpayWebhook">Pushpay webhook.</param>
+        [HttpPost("pushpay")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
         public IActionResult HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
         {
             try

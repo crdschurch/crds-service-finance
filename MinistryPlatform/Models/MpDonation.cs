@@ -1,5 +1,4 @@
 ﻿using Crossroads.Web.Common.MinistryPlatform;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using System;
 
@@ -12,8 +11,11 @@ namespace MinistryPlatform.Models
         [JsonProperty("Donation_ID")]
         public int DonationId { get; set; }
 
+        [JsonProperty("Contact_ID")]
+        public int ContactId { get; set; }
+
         [JsonProperty("Donation_Amount")]
-        public string DonationAmt { get; set; }
+        public decimal DonationAmt { get; set; }
 
         [JsonProperty("Donation_Status_ID")]
         public int DonationStatusId { get; set; }

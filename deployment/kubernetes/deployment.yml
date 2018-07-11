@@ -1,0 +1,61 @@
+﻿apiVersion: extensions/v1beta1 
+kind: Deployment 
+metadata: 
+  name: crds-finance
+  namespace: api
+spec: 
+  replicas: 1 
+  strategy: 
+    type: RollingUpdate 
+    rollingUpdate: 
+      maxSurge: 1 
+      maxUnavailable: 0 
+  template: 
+    metadata: 
+      labels: 
+        app: crds-finance
+    spec: 
+      containers: 
+        - name: crds-finance
+          image: crdschurch/crds-service-finance:$DOCKER_TAG 
+          imagePullPolicy: Always 
+          ports: 
+            - containerPort: 5050 
+          resources: 
+            limits: 
+              memory: "512Mi" 
+              cpu: "700m" 
+            requests: 
+              memory: "16Mi" 
+              cpu: "100m" 
+          env: 
+            - name: APP_LOG_ROOT
+              value: $APP_LOG_ROOT
+            - name: ASPNETCORE_ENVIRONMENT
+              value: $ASPNETCORE_ENVIRONMENT
+            - name: CRDS_ENV
+              value: $CRDS_ENV
+            - name: CRDS_MP_COMMON_CLIENT_ID
+              value: $CRDS_MP_COMMON_CLIENT_ID
+            - name: CRDS_MP_COMMON_CLIENT_SECRET
+              value: $CRDS_MP_COMMON_CLIENT_SECRET
+            - name: MP_API_DB_USER
+              value: $MP_API_DB_USER
+            - name: MP_API_DB_PASSWORD
+              value: $MP_API_DB_PASSWORD
+            - name: MP_OAUTH_BASE_URL
+              value: $MP_OAUTH_BASE_URL
+            - name: MP_REST_API_ENDPOINT
+              value: $MP_REST_API_ENDPOINT
+            - name: PUSHPAY_API_ENDPOINT
+              value: $PUSHPAY_API_ENDPOINT
+            - name: PUSHPAY_AUTH_ENDPOINT
+              value: $PUSHPAY_AUTH_ENDPOINT
+            - name: PUSHPAY_WEB_ENDPOINT
+              value: $PUSHPAY_WEB_ENDPOINT
+            - name: PUSHPAY_CLIENT_ID
+              value: $PUSHPAY_CLIENT_ID
+            - name: PUSHPAY_CLIENT_SECRET
+              value: $PUSHPAY_CLIENT_SECRET
+            - name: PUSHPAY_MERCHANT_KEY            
+              value: $PUSHPAY_MERCHANT_KEY
