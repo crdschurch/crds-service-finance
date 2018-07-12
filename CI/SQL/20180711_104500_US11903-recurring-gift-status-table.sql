@@ -104,4 +104,11 @@ INSERT INTO [dbo].[dp_Pages]
 END
 GO
 
+-- Set default values for Recurring Gift Status ID
+UPDATE Recurring_Gifts
+SET Recurring_Gift_Status_ID = 1
+WHERE End_Date is null
 
+UPDATE Recurring_Gifts
+SET Recurring_Gift_Status_ID = 3
+WHERE End_Date is not null
