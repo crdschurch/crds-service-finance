@@ -6,6 +6,8 @@
 -- =============================================
 USE [MinistryPlatform]
 GO
+DECLARE @RoleName NVARCHAR(30) = 'Pushpay'
+DECLARE @RoleDescription NVARCHAR(255) = 'Ability to access Pushpay features'
 
 INSERT INTO [dbo].[dp_Roles]
             ([Role_Name]
@@ -14,8 +16,8 @@ INSERT INTO [dbo].[dp_Roles]
             ,[Mass_Email_Quota]
             ,[_AdminRole])
      VALUES
-           ('Pushpay'
-            ,'Ability to access Pushpay features.'
+           (@RoleName
+            ,@RoleDescription
             ,1
             ,NULL
             ,0)
