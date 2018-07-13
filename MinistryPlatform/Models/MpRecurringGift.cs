@@ -59,6 +59,7 @@ namespace MinistryPlatform.Models
         public string VendorDetailUrl { get; set; }
 
         [JsonProperty("Recurring_Gift_Status")]
+        [JsonIgnore]
         public string Status { get; set; }
 
         [JsonProperty("Recurring_Gift_Status_ID")]
