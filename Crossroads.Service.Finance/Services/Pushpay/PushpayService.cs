@@ -336,11 +336,11 @@ namespace Crossroads.Service.Finance.Services
             switch (recurringGiftStatus)
             {
                 case PushpayRecurringGiftStatus.Active:
-                    return 1;
+                    return MpRecurringGiftStatus.Active;
                 case PushpayRecurringGiftStatus.Paused:
-                    return 2;
+                    return MpRecurringGiftStatus.Paused;
                 case PushpayRecurringGiftStatus.Cancelled:
-                    return 3;                
+                    return MpRecurringGiftStatus.Cancelled;
                 default:
                     return 0;
             }
