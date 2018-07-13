@@ -154,7 +154,7 @@ namespace Crossroads.Service.Finance.Services
             {
                 var updatedMpRecurringGift = BuildUpdateRecurringGift(existingMpRecurringGift, updatedPushpayRecurringGift);
                 _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
-                var updatedDonorAccount = BuildUpdateDoorAccount(existingMpRecurringGift, updatedPushpayRecurringGift);
+                var updatedDonorAccount = BuildUpdateDonorAccount(existingMpRecurringGift, updatedPushpayRecurringGift);
                 _donationService.UpdateDonorAccount(updatedDonorAccount);
             }
             else if (status == "Cancelled" || status == "Paused")
@@ -171,7 +171,8 @@ namespace Crossroads.Service.Finance.Services
             var donorId = _contactRepository.FindDonorByProcessorId(updatedPushpayRecurringGift.Payer.Key).DonorId;
             return new JObject(
                 new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
-                new JProperty("End_Date", DateTime.Now)
+                new JProperty("End_Date", DateTime.Now),
+                new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status))
             );
         }
 
@@ -187,11 +188,12 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Day_Of_Week_ID", mappedMpRecurringGift.DayOfWeek),
                 new JProperty("Start_Date", mappedMpRecurringGift.StartDate),
                 new JProperty("Program_ID", _programRepository.GetProgramByName(updatedPushpayRecurringGift.Fund.Code).ProgramId),
-                new JProperty("End_Date", null)
+                new JProperty("End_Date", null),
+                new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status))
             );
         }
 
-        private JObject BuildUpdateDoorAccount(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
+        private JObject BuildUpdateDonorAccount(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mpDonorAccount = MapDonorAccountPaymentDetails(updatedPushpayRecurringGift);
             return new JObject(
@@ -327,6 +329,21 @@ namespace Crossroads.Service.Finance.Services
         {
             var mpDonorAccount = MapDonorAccountPaymentDetails(gift, donorId);
             return _donationService.CreateDonorAccount(mpDonorAccount);
+        }
+
+        private int GetRecurringGiftStatusId(string recurringGiftStatus)
+        {
+            switch (recurringGiftStatus)
+            {
+                case PushpayRecurringGiftStatus.Active:
+                    return MpRecurringGiftStatus.Active;
+                case PushpayRecurringGiftStatus.Paused:
+                    return MpRecurringGiftStatus.Paused;
+                case PushpayRecurringGiftStatus.Cancelled:
+                    return MpRecurringGiftStatus.Cancelled;
+                default:
+                    return 0;
+            }
         }
     }
 }

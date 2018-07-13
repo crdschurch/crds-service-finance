@@ -39,5 +39,8 @@ namespace Crossroads.Service.Finance.Models
 
         [JsonProperty("vendorDetailUrl")]
         public string VendorDetailUrl { get; set; }
+
+        [JsonProperty("recurringGiftStatusId")]
+        public int RecurringGiftStatusId { get; set; }
     }
 }
