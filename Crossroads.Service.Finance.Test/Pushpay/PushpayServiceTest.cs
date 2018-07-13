@@ -382,8 +382,6 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
 
             var result = _fixture.UpdateRecurringGift(webhook);
-
-            Assert.Equal(1, result.RecurringGiftStatusId);
         }
 
     }
