@@ -108,7 +108,17 @@ GO
 UPDATE Recurring_Gifts
 SET Recurring_Gift_Status_ID = 1
 WHERE End_Date is null
+GO
 
 UPDATE Recurring_Gifts
 SET Recurring_Gift_Status_ID = 3
 WHERE End_Date is not null
+GO
+
+ALTER TABLE dbo.Recurring_Gifts 
+	ALTER COLUMN Recurring_Gift_Status_ID int NOT NULL;
+GO
+
+ALTER TABLE dbo.Recurring_Gifts
+	ADD CONSTRAINT DF_Recurring_Gift_Status_ID_Active DEFAULT (1) FOR Recurring_Gift_Status_ID
+GO
