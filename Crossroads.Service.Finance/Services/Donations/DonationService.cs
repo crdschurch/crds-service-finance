@@ -82,9 +82,21 @@ namespace Crossroads.Service.Finance.Services
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
             //TODO: Remove hard coding and get actual contact id from token
-            int contactId = 7516930;
+            //int contactId = 7516930;
+            int contactId = 7643172;
             var records = _mpDonationRepository.GetRecurringGifts(contactId);
-            return _mapper.Map<List<RecurringGiftDto>>(records);
+            var dtos = _mapper.Map<List<RecurringGiftDto>>(records);
+
+            // mark stripe gifts as not having a valid subscription status
+            foreach (var dto in dtos)
+            {
+                if (dto.SubscriptionId.Take(4).ToString() == "sub_")
+                {
+                    dto.RecurringGiftStatusId = 0;
+                }
+            }
+
+            return dtos;
         }
 
         public List<PledgeDto> GetPledges(string token)
