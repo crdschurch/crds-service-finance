@@ -163,12 +163,15 @@ namespace MinistryPlatform.Repositories
                 "Recurring_Gifts.[Recurring_Gift_Status_ID]"
             };
 
-            var filter = $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
+            var filters = new string[] {
+                $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
+                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[End_Date] > '{DateTime.Now:yyyy-MM-dd}')",
+            };
 
             return MpRestBuilder.NewRequestBuilder()
                                 .WithSelectColumns(columns)
                                 .WithAuthenticationToken(token)
-                                .WithFilter(filter)
+                                .WithFilter(String.Join(" AND ", filters))
                                 .Build()
                                 .Search<MpRecurringGift>().ToList();
         }
