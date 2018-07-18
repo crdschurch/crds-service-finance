@@ -40,6 +40,9 @@ namespace MinistryPlatform.Models
         [JsonProperty("Program_ID")]
         public int ProgramId { get; set; }
 
+        [JsonProperty("Program_Name")]
+        public string ProgramName { get; set; }
+
         [JsonProperty("Congregation_ID")]
         public int CongregationId { get; set; }
 
