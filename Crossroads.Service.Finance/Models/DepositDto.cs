@@ -34,5 +34,8 @@ namespace Crossroads.Service.Finance.Models
 
         [JsonProperty("processor_transfer_id")]
         public string ProcessorTransferId { get; set; }
+
+        [JsonProperty("vendor_detail_url")]
+        public string VendorDetailUrl { get; set; }
     }
 }

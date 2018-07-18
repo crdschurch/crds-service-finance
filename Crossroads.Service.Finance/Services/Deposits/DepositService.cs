@@ -34,7 +34,7 @@ namespace Crossroads.Service.Finance.Services
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
         }
 
-        public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName)
+        public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName, string depositKey)
         {
             var existingDeposits = _depositRepository.GetDepositNamesByDepositName(depositName);
 
@@ -76,7 +76,8 @@ namespace Crossroads.Service.Finance.Services
                 DepositAmount = Decimal.Parse(settlementEventDto.TotalAmount.Amount),
                 Exported = false,
                 Notes = null,
-                ProcessorTransferId = $"{_pushpayWebEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate={estDepositDate}&toDate={estDepositDate}",
+                ProcessorTransferId = depositKey,
+                VendorDetailUrl = $"{_pushpayWebEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate={estDepositDate}&toDate={estDepositDate}",
             };
 
             return depositDto;
@@ -101,6 +102,7 @@ namespace Crossroads.Service.Finance.Services
             var startDate = DateTime.Now.AddDays(-(_depositProcessingOffset));
             var endDate = DateTime.Now;
 
+            Console.WriteLine($"Checking pushpay for deposits between {startDate} and {endDate}");
             var depositDtos = GetDepositsForSync(startDate, endDate);
 
             if (depositDtos == null || !depositDtos.Any())
@@ -114,6 +116,7 @@ namespace Crossroads.Service.Finance.Services
         public List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate)
         {
             var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
+            Console.WriteLine($"{deposits.Count} found in pushpay");
 
             if (!deposits.Any())
             {
@@ -124,6 +127,7 @@ namespace Crossroads.Service.Finance.Services
 
             // check to see if any of the deposits we're pulling over have already been deposited
             var existingDeposits = _depositRepository.GetDepositsByTransferIds(transferIds);
+            Console.WriteLine($"{existingDeposits.Count} of these deposits found in MP");
             var existingDepositIds = existingDeposits.Select(r => r.ProcessorTransferId).ToList();
 
             var depositsToProcess = new List<SettlementEventDto>();
@@ -132,7 +136,12 @@ namespace Crossroads.Service.Finance.Services
             {
                 if (!existingDepositIds.Contains(deposit.Key))
                 {
+                    Console.WriteLine($"{deposit.Key} deposit ProcessorTransferId not found in MP, adding to sync list");
                     depositsToProcess.Add(deposit);
+                }
+                else
+                {
+                    Console.WriteLine($"{deposit.Key} found in MP, skipping");   
                 }
             }
 

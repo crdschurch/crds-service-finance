@@ -33,6 +33,7 @@ namespace Crossroads.Service.Finance.Services
 
         public void CreateDeposit(SettlementEventDto settlementEventDto)
         {
+            Console.WriteLine($"Creating deposit: {settlementEventDto.Key}");
             // TODO: Verify logger is working once we get to testing
             //_logger.LogInformation($"Processing transfer.paid event for transfer id: {settlementEventDto.Key}");
 
@@ -41,7 +42,9 @@ namespace Crossroads.Service.Finance.Services
             if (existingDeposit != null)
             {
                 //_logger.LogError($"Deposit already exists for settlement: {settlementEventDto.Key}");
-                throw new Exception($"Deposit already exists for settlement: {settlementEventDto.Key}");
+                // throw new Exception($"Deposit already exists for settlement: {settlementEventDto.Key}");
+                Console.WriteLine($"Deposit already exists for settlement: {settlementEventDto.Key}");
+                return;
             }
 
             // 2. Get all payments associated with a settlement from Pushpay's API. Throw an exception
@@ -50,7 +53,9 @@ namespace Crossroads.Service.Finance.Services
             if (settlementPayments.items == null || settlementPayments.items.Count <= 0)
             {
                 //_logger.LogError($"No charges found for settlement: {settlementEventDto.Key}");
-                throw new Exception($"No charges found for settlement: {settlementEventDto.Key}");
+                // throw new Exception($"No charges found for settlement: {settlementEventDto.Key}");
+                Console.WriteLine($"No charges found for settlement: {settlementEventDto.Key}");
+                return;
             }
 
             // 3. Create and Save the Batch to MP.
@@ -64,7 +69,7 @@ namespace Crossroads.Service.Finance.Services
             _donationService.Update(updateDonations);
 
             // 5. Create Deposit with the associated batch (should be one batch for one deposit)
-            var deposit = _depositService.CreateDeposit(settlementEventDto, settlementEventDto.Name);
+            var deposit = _depositService.CreateDeposit(settlementEventDto, settlementEventDto.Name, settlementEventDto.Key);
             deposit = _depositService.SaveDeposit(deposit);
 
             // 6. Update batch with deposit id and name and resave

@@ -6,7 +6,7 @@ namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IDepositService
     {
-        DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName);
+        DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName, string depositKey);
         DepositDto SaveDeposit(DepositDto depositDto);
         DepositDto GetDepositByProcessorTransferId(string key);
         List<SettlementEventDto> SyncDeposits();
