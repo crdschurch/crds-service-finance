@@ -20,6 +20,9 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty(PropertyName = "emailAddress")]
         public string EmailAddress { get; set; }
 
+        [JsonProperty(PropertyName = "mobilePhone")]
+        public string MobilePhone { get; set; }
+
         [JsonProperty(PropertyName = "firstName")]
         public string FirstName { get; set; }
 

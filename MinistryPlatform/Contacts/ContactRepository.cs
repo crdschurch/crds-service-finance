@@ -127,6 +127,7 @@ namespace MinistryPlatform.Repositories
                 "Household_ID",
                 "Email_Address",
                 "First_Name",
+                "Mobile_Phone",
                 "Last_Name",
                 "Date_of_Birth",
                 "Participant_Record"
