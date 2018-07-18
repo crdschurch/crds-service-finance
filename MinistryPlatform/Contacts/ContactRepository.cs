@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
+using Crossroads.Web.Common.Security;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
@@ -12,12 +14,16 @@ namespace MinistryPlatform.Repositories
     public class ContactRepository : MinistryPlatformBase, IContactRepository
     {
         private readonly IDonationRepository _mpDonationRepository;
+        IAuthenticationRepository _authRepo;
 
         public ContactRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
             IDonationRepository mpDonationRepository,
             IConfigurationWrapper configurationWrapper,
-            IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) {
+            IMapper mapper,
+            IAuthenticationRepository authenticationRepository) : base(builder, apiUserRepository, configurationWrapper, mapper)
+        {
+            _authRepo = authenticationRepository;
             _mpDonationRepository = mpDonationRepository;
         }
 
@@ -106,6 +112,37 @@ namespace MinistryPlatform.Repositories
             }
 
             return donors.First();
+        }
+
+        public int GetBySessionId(string sessionId)
+        {
+            return _authRepo.GetContactId(sessionId);
+        }
+
+        public MpContact GetContact(int contactId)
+        {
+            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var columns = new string[] {
+                "Contact_ID",
+                "Household_ID",
+                "Email_Address",
+                "First_Name",
+                "Last_Name",
+                "Date_of_Birth",
+                "Participant_Record"
+            };
+            var filter = $"Contact_ID = {contactId}";
+            var contacts = MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .WithSelectColumns(columns)
+                .WithFilter(filter)
+                .Build()
+                .Search<MpContact>();
+            if (!contacts.Any())
+            {
+                throw new Exception($"No contact found for contact: {contactId}");
+            }
+            return contacts.FirstOrDefault();
         }
     }
 }

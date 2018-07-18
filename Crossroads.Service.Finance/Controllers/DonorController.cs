@@ -5,18 +5,57 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Crossroads.Service.Finance.Security;
+using Crossroads.Web.Common.Security;
+using Crossroads.Web.Common.Services;
 
 namespace Crossroads.Service.Finance.Controllers
 {
     [Route("api/[controller]")]
-    public class DonorController : Controller
+    public class DonorController : MpAuthBaseController
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IDonationService _donationService;
 
-        public DonorController(IDonationService donationService)
+        public DonorController(IAuthTokenExpiryService authTokenExpiryService,
+            IAuthenticationRepository authenticationRepository,
+            IDonationService donationService)
+            : base(authenticationRepository, authTokenExpiryService)
         {
             _donationService = donationService;
+        }
+
+        // TODO: test endpoints for auth - remove at some point
+        [HttpGet]
+        [Route("unauthenticated")]
+        public IActionResult HelloUnauthenticated()
+        {
+            try
+            {
+                return Ok("Hello world");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Error in unauthenticated Hello World: " + ex.Message, ex);
+                return StatusCode(204, ex);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Hello()
+        {
+            return Authorized(token =>
+            {
+                try
+                {
+                    return Ok("Hello world");
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Error in Hello World: " + ex.Message, ex);
+                    return StatusCode(204, ex);
+                }
+            });
         }
 
         /// <summary>
@@ -28,22 +67,25 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetRecurringGifts()
         {
-            try
-            {
-                //TODO remove hardcoded "token" value and add authentication
-                var recurringGifts = _donationService.GetRecurringGifts("token");
-                if (recurringGifts == null || recurringGifts.Count == 0)
+            return Authorized(token =>
                 {
-                    return NoContent();
+                try
+                {
+                    //TODO remove hardcoded "token" value and add authentication
+                    var recurringGifts = _donationService.GetRecurringGifts(token);
+                    if (recurringGifts == null || recurringGifts.Count == 0)
+                    {
+                        return NoContent();
+                    }
+                    return Ok(recurringGifts);
                 }
-                return Ok(recurringGifts);
-            }
-            catch (Exception ex)
-            {
-                var msg = "DonorController: GetRecurringGifts";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
-            }
+                catch (Exception ex)
+                {
+                    var msg = "DonorController: GetRecurringGifts";
+                    _logger.Error(msg, ex);
+                    return BadRequest(ex.Message);
+                }
+            });
         }
 
         /// <summary>

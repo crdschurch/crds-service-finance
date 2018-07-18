@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Crossroads.Service.Finance.Services.Contacts;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -16,13 +17,16 @@ namespace Crossroads.Service.Finance.Services
         private readonly IDonationDistributionRepository _mpDonationDistributionRepository;
         private readonly IPledgeRepository _mpPledgeRepository;
         private readonly IMapper _mapper;
+        private readonly IContactService _contactService;
 
-        public DonationService(IDonationRepository mpDonationRepository, IDonationDistributionRepository mpDonationDistributionRepository, IPledgeRepository mpPledgeRepository, IMapper mapper)
+        public DonationService(IDonationRepository mpDonationRepository, IDonationDistributionRepository mpDonationDistributionRepository, IPledgeRepository mpPledgeRepository, IMapper mapper,
+            IContactService contactService)
         {
             _mpDonationRepository = mpDonationRepository;
             _mpDonationDistributionRepository = mpDonationDistributionRepository;
             _mpPledgeRepository = mpPledgeRepository;
             _mapper = mapper;
+            _contactService = contactService;
         }
 
         public DonationDto GetDonationByTransactionCode(string transactionCode)

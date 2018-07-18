@@ -6,6 +6,7 @@ using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
+using Crossroads.Service.Finance.Services.Contacts;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Moq;
@@ -20,6 +21,7 @@ namespace Crossroads.Service.Finance.Test.Donations
         private readonly Mock<IDonationDistributionRepository> _donationDistributionRepository;
         private readonly Mock<IPledgeRepository> _pledgeRepository;
         private readonly Mock<IMapper> _mapper;
+        private readonly Mock<IContactService> _contactService;
 
         private readonly IDonationService _fixture;
 
@@ -29,8 +31,9 @@ namespace Crossroads.Service.Finance.Test.Donations
             _donationDistributionRepository = new Mock<IDonationDistributionRepository>();
             _pledgeRepository = new Mock<IPledgeRepository>();
             _mapper = new Mock<IMapper>();
+            _contactService = new Mock<IContactService>();
 
-            _fixture = new DonationService(_donationRepository.Object, _donationDistributionRepository.Object, _pledgeRepository.Object, _mapper.Object);
+            _fixture = new DonationService(_donationRepository.Object, _donationDistributionRepository.Object, _pledgeRepository.Object, _mapper.Object, _contactService.Object);
         }
 
         [Fact]
