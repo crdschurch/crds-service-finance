@@ -216,6 +216,7 @@ namespace MinistryPlatform.Repositories
                 .WithSelectColumns(selectColumns)
                 .WithAuthenticationToken(token)
                 .WithFilter(filter)
+                .OrderBy("Donation_ID_Table.[Donation_Date] DESC")
                 .Build()
                 .Search<MpDonationHistory>().ToList();
         }
