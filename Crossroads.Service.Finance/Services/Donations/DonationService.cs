@@ -82,7 +82,7 @@ namespace Crossroads.Service.Finance.Services
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
             //TODO: Remove hard coding and get actual contact id from token
-            int contactId = 7516930;
+            int contactId = 7767555;
             var records = _mpDonationRepository.GetRecurringGifts(contactId);
             var dtos = _mapper.Map<List<RecurringGiftDto>>(records);
 
