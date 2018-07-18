@@ -205,7 +205,9 @@ namespace MinistryPlatform.Repositories
                 "Donation_ID_Table.[Donation_Status_Date]",
                 "Program_ID_Table.[Program_Name]",
                 "Donation_ID_Table.[Donation_Status_ID]",
-                "Donation_Distributions.[Amount]"
+                "Donation_Distributions.[Amount]",
+                "Donation_ID_Table.[Donation_Date]",
+                "Donation_Status_ID_Table.[Donation_Status]"
             };
 
             var filter = $"Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";

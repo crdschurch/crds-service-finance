@@ -24,5 +24,11 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Amount")]
         public decimal Amount { get; set; }
+
+        [JsonProperty("Donation_Date")]
+        public DateTime DonationDate { get; set; }
+
+        [JsonProperty("Donation_Status")]
+        public string DonationStatus { get; set; }
     }
 }
