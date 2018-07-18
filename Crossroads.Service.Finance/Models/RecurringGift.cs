@@ -45,8 +45,5 @@ namespace Crossroads.Service.Finance.Models
 
         [JsonProperty("recurringGiftStatusId")]
         public int RecurringGiftStatusId { get; set; }
-
-        [JsonProperty("recurringGiftStatusType")]
-        public int RecurringGiftStatusType { get; set; }
     }
 }
