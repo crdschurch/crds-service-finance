@@ -1,8 +1,9 @@
 ﻿using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Interfaces;
 using AutoMapper;
+using Crossroads.Service.Finance.Interfaces;
 
-namespace Crossroads.Service.Finance.Services.Contacts
+namespace Crossroads.Service.Finance.Services
 {
     public class ContactService : IContactService
     {

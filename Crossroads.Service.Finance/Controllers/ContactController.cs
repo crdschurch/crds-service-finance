@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Reflection;
 using Crossroads.Service.Finance.Security;
-using Crossroads.Service.Finance.Services.Contacts;
 using Crossroads.Web.Common.Services;
+using Crossroads.Service.Finance.Interfaces;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -50,7 +50,7 @@ namespace Crossroads.Service.Finance.Controllers
             });
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("session")]
         public IActionResult GetContactBySessionId(string sessionId)
         {
