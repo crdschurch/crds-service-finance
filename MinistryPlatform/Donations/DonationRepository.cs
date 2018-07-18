@@ -153,7 +153,7 @@ namespace MinistryPlatform.Repositories
                 "Recurring_Gifts.[Start_Date]",
                 "Recurring_Gifts.[End_Date]",
                 "Program_ID_Table.[Program_ID]",
-                "Program_ID_Table.[Program_Name]", // JPC: Verify
+                "Program_ID_Table.[Program_Name]",
                 "Congregation_ID_Table.[Congregation_ID]",
                 "Recurring_Gifts.[Subscription_ID]",
                 "Recurring_Gifts.[Consecutive_Failure_Count]",
