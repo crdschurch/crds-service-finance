@@ -5,16 +5,22 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Crossroads.Service.Finance.Security;
+using Crossroads.Web.Common.Security;
+using Crossroads.Web.Common.Services;
 
 namespace Crossroads.Service.Finance.Controllers
 {
     [Route("api/[controller]")]
-    public class DonorController : Controller
+    public class DonorController : MpAuthBaseController
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IDonationService _donationService;
 
-        public DonorController(IDonationService donationService)
+        public DonorController(IAuthTokenExpiryService authTokenExpiryService,
+            IAuthenticationRepository authenticationRepository,
+            IDonationService donationService)
+            : base(authenticationRepository, authTokenExpiryService)
         {
             _donationService = donationService;
         }
@@ -28,22 +34,24 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetRecurringGifts()
         {
-            try
+            return Authorized(token =>
             {
-                //TODO remove hardcoded "token" value and add authentication
-                var recurringGifts = _donationService.GetRecurringGifts("token");
-                if (recurringGifts == null || recurringGifts.Count == 0)
+                try
                 {
-                    return NoContent();
+                    var recurringGifts = _donationService.GetRecurringGifts(token);
+                    if (recurringGifts == null || recurringGifts.Count == 0)
+                    {
+                        return NoContent();
+                    }
+                    return Ok(recurringGifts);
                 }
-                return Ok(recurringGifts);
-            }
-            catch (Exception ex)
-            {
-                var msg = "DonorController: GetRecurringGifts";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
-            }
+                catch (Exception ex)
+                {
+                    var msg = "DonorController: GetRecurringGifts";
+                    _logger.Error(msg, ex);
+                    return BadRequest(ex.Message);
+                }
+            });
         }
 
         /// <summary>
@@ -55,23 +63,25 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetMyPledges()
         {
-            try
+            return Authorized(token =>
             {
-                //TODO remove hardcoded "token" value and add authentication
-                var pledges = _donationService.GetPledges("token");
-                if (pledges == null || pledges.Count == 0)
+                try
                 {
-                    return NoContent();
-                }
+                    var pledges = _donationService.GetPledges(token);
+                    if (pledges == null || pledges.Count == 0)
+                    {
+                        return NoContent();
+                    }
 
-                return Ok(pledges);
-            }
-            catch (Exception ex)
-            {
-                var msg = "DonorController: GetPledges";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
-            }
+                    return Ok(pledges);
+                }
+                catch (Exception ex)
+                {
+                    var msg = "DonorController: GetPledges";
+                    _logger.Error(msg, ex);
+                    return BadRequest(ex.Message);
+                }
+            });
         }
 
         /// <summary>
@@ -84,23 +94,25 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetDonations()
         {
-            try
+            return Authorized(token =>
             {
-                //TODO remove hardcoded "token" value and add authentication
-                var donations = _donationService.GetDonations("token");
-                if (donations == null || donations.Count == 0)
+                try
                 {
-                    return NoContent();
-                }
+                    var donations = _donationService.GetDonations(token);
+                    if (donations == null || donations.Count == 0)
+                    {
+                        return NoContent();
+                    }
 
-                return Ok(donations);
-            }
-            catch (Exception ex)
-            {
-                var msg = "DonationController: GetDonations";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
-            }
+                    return Ok(donations);
+                }
+                catch (Exception ex)
+                {
+                    var msg = "DonationController: GetDonations";
+                    _logger.Error(msg, ex);
+                    return BadRequest(ex.Message);
+                }
+            });
         }
 
         /// <summary>
@@ -112,23 +124,25 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetDonationHistory(int contactId)
         {
-            try
+            return Authorized(token =>
             {
-                //TODO remove hardcoded "token" value and add authentication
-                var donations = _donationService.GetDonationHistoryByContactId(contactId);// ("token");
-                if (donations == null || donations.Count == 0)
+                try
                 {
-                    return NoContent();
-                }
+                    var donations = _donationService.GetDonationHistoryByContactId(contactId, token);
+                    if (donations == null || donations.Count == 0)
+                    {
+                        return NoContent();
+                    }
 
-                return Ok(donations);
-            }
-            catch (Exception ex)
-            {
-                var msg = "DonationController: GetDonationHistory";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
-            }
+                    return Ok(donations);
+                }
+                catch (Exception ex)
+                {
+                    var msg = "DonationController: GetDonationHistory";
+                    _logger.Error(msg, ex);
+                    return BadRequest(ex.Message);
+                }
+            });
         }
     }
 }

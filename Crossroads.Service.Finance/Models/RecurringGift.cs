@@ -28,6 +28,9 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("programId")]
         public int ProgramId { get; set; }
 
+        [JsonProperty("programName")]
+        public string ProgramName { get; set; }
+
         [JsonProperty("subscriptionId")]
         public string SubscriptionId { get; set; }
 
