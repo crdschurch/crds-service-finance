@@ -32,15 +32,7 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
-                    //return Ok(_contactService.GetContact(contactId)); // Don't delete
-                    var contact = _contactService.GetContact(contactId);
-
-                    if (contact.ContactId == 0)
-                    {
-                        _logger.Error("Default contact id of 0 for token: " + token);
-                    }
-
-                    return Ok(contact);
+                    return Ok(_contactService.GetContact(contactId));
                 }
                 catch (Exception ex)
                 {
