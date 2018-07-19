@@ -128,7 +128,7 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
-                    var donations = _donationService.GetDonationHistoryByContactId(token);
+                    var donations = _donationService.GetDonationHistoryByContactId(contactId, token);
                     if (donations == null || donations.Count == 0)
                     {
                         return NoContent();

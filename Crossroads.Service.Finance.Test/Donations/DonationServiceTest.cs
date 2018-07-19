@@ -217,7 +217,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId)).Returns(mpDonationHistories);
 
             // Act
-            var result = _fixture.GetDonationHistoryByContactId(token);
+            var result = _fixture.GetDonationHistoryByContactId(contactId, token);
 
             // Assert
             Assert.NotNull(result);

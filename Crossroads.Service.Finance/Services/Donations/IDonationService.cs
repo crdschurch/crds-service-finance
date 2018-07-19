@@ -19,6 +19,6 @@ namespace Crossroads.Service.Finance.Interfaces
         List<PledgeDto> GetPledges(string token);
         List<DonationDto> GetDonations(string token);
         List<MpPledge> CalculatePledges(string token);
-        List<DonationHistoryDto> GetDonationHistoryByContactId(string token);
+        List<DonationHistoryDto> GetDonationHistoryByContactId(int contactId, string token);
     }
 }

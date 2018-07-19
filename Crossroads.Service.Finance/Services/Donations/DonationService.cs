@@ -127,9 +127,11 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<List<DonationDto>>(records);
         }
 
-        public List<DonationHistoryDto> GetDonationHistoryByContactId(string token)
+        public List<DonationHistoryDto> GetDonationHistoryByContactId(int contactId, string token)
         {
-            var contactId = _contactService.GetContactIdBySessionId(token);
+            // TODO: Use the token to determine if the contact id being passed down is one that the user has
+            // the permissions to see (e.g. a viewing a co-givers donations, etc)
+            var userContactId = _contactService.GetContactIdBySessionId(token);
             var donationHistoryDtos = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
             return _mapper.Map<List<DonationHistoryDto>>(donationHistoryDtos);
         }
