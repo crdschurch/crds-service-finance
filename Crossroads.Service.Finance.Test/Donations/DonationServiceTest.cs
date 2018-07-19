@@ -6,7 +6,6 @@ using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
-using Crossroads.Service.Finance.Services.Contacts;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Moq;
@@ -144,12 +143,17 @@ namespace Crossroads.Service.Finance.Test.Donations
         [Fact]
         public void ShouldCalculatePledges()
         {
+            // Arrange
+            var token = "123abc";
+            var contactId = 1234567;
             var pledgeIds = new int[] { 12, 25, 66 };
+
+            _contactService.Setup(m => m.GetContactIdBySessionId(token)).Returns(contactId);
             _pledgeRepository.Setup(r => r.GetActiveAndCompleted(It.IsAny<int>())).Returns(MpPledgeMock.CreateList(pledgeIds[0], pledgeIds[1], pledgeIds[2]));
             _donationDistributionRepository.Setup(r => r.GetByPledges(It.IsAny<List<int>>())).Returns(MpDonationDistributionMock.CreateList(pledgeIds[0], pledgeIds[1]));
 
             // Act
-            var result = _fixture.CalculatePledges("token");
+            var result = _fixture.CalculatePledges(token);
 
             // Assert
             Assert.Equal(12, result[0].PledgeId);
@@ -190,6 +194,7 @@ namespace Crossroads.Service.Finance.Test.Donations
         {
             // Arrange
             var contactId = 1234567;
+            var token = "123abc";
 
             var donationHistoryDtos = new List<DonationHistoryDto>
             {
@@ -207,11 +212,12 @@ namespace Crossroads.Service.Finance.Test.Donations
                 }
             };
 
+            _contactService.Setup(m => m.GetContactIdBySessionId(token)).Returns(contactId);
             _mapper.Setup(m => m.Map<List<DonationHistoryDto>>(It.IsAny<List<MpDonationHistory>>())).Returns(donationHistoryDtos);
             _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId)).Returns(mpDonationHistories);
 
             // Act
-            var result = _fixture.GetDonationHistoryByContactId(contactId);
+            var result = _fixture.GetDonationHistoryByContactId(token);
 
             // Assert
             Assert.NotNull(result);

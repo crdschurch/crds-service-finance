@@ -25,39 +25,6 @@ namespace Crossroads.Service.Finance.Controllers
             _donationService = donationService;
         }
 
-        // TODO: test endpoints for auth - remove at some point
-        [HttpGet]
-        [Route("unauthenticated")]
-        public IActionResult HelloUnauthenticated()
-        {
-            try
-            {
-                return Ok("Hello world");
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Error in unauthenticated Hello World: " + ex.Message, ex);
-                return StatusCode(204, ex);
-            }
-        }
-
-        [HttpGet]
-        public IActionResult Hello()
-        {
-            return Authorized(token =>
-            {
-                try
-                {
-                    return Ok("Hello world");
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error("Error in Hello World: " + ex.Message, ex);
-                    return StatusCode(204, ex);
-                }
-            });
-        }
-
         /// <summary>
         /// Get recurring gifts for a user
         /// </summary>
@@ -68,10 +35,9 @@ namespace Crossroads.Service.Finance.Controllers
         public IActionResult GetRecurringGifts()
         {
             return Authorized(token =>
-                {
+            {
                 try
                 {
-                    //TODO remove hardcoded "token" value and add authentication
                     var recurringGifts = _donationService.GetRecurringGifts(token);
                     if (recurringGifts == null || recurringGifts.Count == 0)
                     {
@@ -97,23 +63,25 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetMyPledges()
         {
-            try
+            return Authorized(token =>
             {
-                //TODO remove hardcoded "token" value and add authentication
-                var pledges = _donationService.GetPledges("token");
-                if (pledges == null || pledges.Count == 0)
+                try
                 {
-                    return NoContent();
-                }
+                    var pledges = _donationService.GetPledges(token);
+                    if (pledges == null || pledges.Count == 0)
+                    {
+                        return NoContent();
+                    }
 
-                return Ok(pledges);
-            }
-            catch (Exception ex)
-            {
-                var msg = "DonorController: GetPledges";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
-            }
+                    return Ok(pledges);
+                }
+                catch (Exception ex)
+                {
+                    var msg = "DonorController: GetPledges";
+                    _logger.Error(msg, ex);
+                    return BadRequest(ex.Message);
+                }
+            });
         }
 
         /// <summary>
@@ -126,23 +94,25 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetDonations()
         {
-            try
+            return Authorized(token =>
             {
-                //TODO remove hardcoded "token" value and add authentication
-                var donations = _donationService.GetDonations("token");
-                if (donations == null || donations.Count == 0)
+                try
                 {
-                    return NoContent();
-                }
+                    var donations = _donationService.GetDonations(token);
+                    if (donations == null || donations.Count == 0)
+                    {
+                        return NoContent();
+                    }
 
-                return Ok(donations);
-            }
-            catch (Exception ex)
-            {
-                var msg = "DonationController: GetDonations";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
-            }
+                    return Ok(donations);
+                }
+                catch (Exception ex)
+                {
+                    var msg = "DonationController: GetDonations";
+                    _logger.Error(msg, ex);
+                    return BadRequest(ex.Message);
+                }
+            });
         }
 
         /// <summary>
@@ -154,23 +124,25 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetDonationHistory(int contactId)
         {
-            try
+            return Authorized(token =>
             {
-                //TODO remove hardcoded "token" value and add authentication
-                var donations = _donationService.GetDonationHistoryByContactId(contactId);// ("token");
-                if (donations == null || donations.Count == 0)
+                try
                 {
-                    return NoContent();
-                }
+                    var donations = _donationService.GetDonationHistoryByContactId(token);
+                    if (donations == null || donations.Count == 0)
+                    {
+                        return NoContent();
+                    }
 
-                return Ok(donations);
-            }
-            catch (Exception ex)
-            {
-                var msg = "DonationController: GetDonationHistory";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
-            }
+                    return Ok(donations);
+                }
+                catch (Exception ex)
+                {
+                    var msg = "DonationController: GetDonationHistory";
+                    _logger.Error(msg, ex);
+                    return BadRequest(ex.Message);
+                }
+            });
         }
     }
 }

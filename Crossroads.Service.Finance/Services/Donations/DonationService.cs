@@ -84,8 +84,7 @@ namespace Crossroads.Service.Finance.Services
         
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
-            //TODO: Remove hard coding and get actual contact id from token
-            int contactId = 7767555;
+            var contactId = _contactService.GetContactIdBySessionId(token);
             var records = _mpDonationRepository.GetRecurringGifts(contactId);
             var dtos = _mapper.Map<List<RecurringGiftDto>>(records);
 
@@ -103,16 +102,13 @@ namespace Crossroads.Service.Finance.Services
 
         public List<PledgeDto> GetPledges(string token)
         {
-            //TODO: Remove hard coding and get actual contact id from token
-            int contactId = 7647737;
-            var mpPledges = CalculatePledges("token");
+            var mpPledges = CalculatePledges(token);
             return _mapper.Map<List<PledgeDto>>(mpPledges);
         }
 
         public List<MpPledge> CalculatePledges(string token)
         {
-            //TODO: Remove hard coding and get actual contact id from token
-            int contactId = 7647737;
+            var contactId = _contactService.GetContactIdBySessionId(token);
             var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
             // get totals donations so far for this pledge
             var donationDistributions = _mpDonationDistributionRepository.GetByPledges(mpPledges.Select(r => r.PledgeId).ToList());
@@ -126,14 +122,14 @@ namespace Crossroads.Service.Finance.Services
 
         public List<DonationDto> GetDonations(string token)
         {
-            //TODO: Remove hard coding and get actual contact id from token
-            int contactId = 7516930;
+            var contactId = _contactService.GetContactIdBySessionId(token);
             var records = _mpDonationRepository.GetDonations(contactId);
             return _mapper.Map<List<DonationDto>>(records);
         }
 
-        public List<DonationHistoryDto> GetDonationHistoryByContactId(int contactId)
+        public List<DonationHistoryDto> GetDonationHistoryByContactId(string token)
         {
+            var contactId = _contactService.GetContactIdBySessionId(token);
             var donationHistoryDtos = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
             return _mapper.Map<List<DonationHistoryDto>>(donationHistoryDtos);
         }

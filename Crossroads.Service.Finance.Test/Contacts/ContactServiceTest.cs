@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using Crossroads.Service.Finance.Services.Contacts;
+using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
 using Moq;
 using Xunit;
