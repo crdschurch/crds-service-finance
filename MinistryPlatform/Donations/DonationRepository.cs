@@ -16,7 +16,7 @@ namespace MinistryPlatform.Repositories
 {
     public class DonationRepository : MinistryPlatformBase, IDonationRepository
     {
-        private const int PausedRecurringGiftStatus = 2;
+        private const int PausedRecurringGiftStatusId = 2;
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public DonationRepository(IMinistryPlatformRestRequestBuilderFactory builder,
@@ -165,7 +165,7 @@ namespace MinistryPlatform.Repositories
 
             var filters = new string[] {
                 $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
-                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[Recurring_Gift_Status] = {PausedRecurringGiftStatus})"
+                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[Recurring_Gift_Status_ID] = {PausedRecurringGiftStatusId})"
             };
 
             return MpRestBuilder.NewRequestBuilder()
