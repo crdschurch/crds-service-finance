@@ -21,6 +21,7 @@ public class MappingProfile : Profile
         CreateMap<PushpayLinkDto, LinkDto>();
         CreateMap<PushpayPaymentDto, PaymentDto>();
         CreateMap<PushpayPaymentsDto, PaymentsDto>();
+        CreateMap<PushpayRefundPaymentDto, RefundPaymentDto>();
         CreateMap<PushpaySettlementDto, SettlementEventDto>();
         CreateMap<PushpaySettlementDto, SettlementDto>();
         CreateMap<PushpayRecurringGiftDto, MpRecurringGift>()

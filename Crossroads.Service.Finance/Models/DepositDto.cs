@@ -8,22 +8,22 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("id")]
         public int Id { get; set; }
 
-        [JsonProperty("account_number")]
+        [JsonProperty("accountNumber")]
         public string AccountNumber { get; set; }
 
-        [JsonProperty("batch_count")]
+        [JsonProperty("batchCount")]
         public int BatchCount { get; set; }
 
-        [JsonProperty("deposit_date_time")]
+        [JsonProperty("depositDateTime")]
         public DateTime DepositDateTime { get; set; }
 
-        [JsonProperty("deposit_name")]
+        [JsonProperty("depositName")]
         public string DepositName { get; set; }
 
-        [JsonProperty("deposit_total_amount")]
+        [JsonProperty("depositTotalAmount")]
         public decimal DepositTotalAmount { get; set; }
 
-        [JsonProperty("deposit_amount")]
+        [JsonProperty("depositAmount")]
         public decimal DepositAmount { get; set; }
 
         [JsonProperty("exported")]
@@ -32,7 +32,10 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("notes")]
         public string Notes { get; set; }
 
-        [JsonProperty("processor_transfer_id")]
+        [JsonProperty("processorTransferId")]
         public string ProcessorTransferId { get; set; }
+
+        [JsonProperty("vendorDetailUrl")]
+        public string VendorDetailUrl { get; set; }
     }
 }

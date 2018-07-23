@@ -35,11 +35,15 @@ namespace Crossroads.Service.Finance.Controllers
             try
             {
                 var deposits = _depositService.SyncDeposits();
+                if (deposits.Count == 0){
+                    Console.WriteLine($"No deposits to sync");
+                    return NoContent();
+                }
                 foreach (var deposit in deposits)
                 {
                     _paymentEventService.CreateDeposit(deposit);
                 }
-                _logger.Info($"SyncSettlements created ${deposits.Count} deposits");
+                Console.WriteLine($"SyncSettlements created {deposits.Count} deposits");
                 return Ok(new { created =  deposits.Count });
             }
             catch (Exception ex)

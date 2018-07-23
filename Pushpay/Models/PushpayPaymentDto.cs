@@ -22,8 +22,19 @@ namespace Pushpay.Models
         [JsonProperty("paymentToken")]
         public string PaymentToken { get; set; }
 
+        [JsonProperty("refundedBy")]
+        public PushpayRefundPaymentDto RefundedBy { get; set; }
+
         [JsonProperty("amount")]
         public PushpayAmountDto Amount { get; set; }
+
+        public bool IsRefund
+        {
+            get
+            {
+                return RefundedBy !=null && RefundedBy.TransactionId != null;
+            }
+        }
 
         public bool IsStatusSuccess {
             get {
