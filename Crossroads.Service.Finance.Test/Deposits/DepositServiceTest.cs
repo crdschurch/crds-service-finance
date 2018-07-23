@@ -45,6 +45,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
 
             var settlementEventDto = new SettlementEventDto
             {
+                Name = depositName,
                 EstimatedDepositDate = new DateTime(2018, 02, 03),
                 Key = settlementKey,
                 TotalAmount = new AmountDto
@@ -56,18 +57,18 @@ namespace Crossroads.Service.Finance.Test.Deposits
             var mpDeposits = new List<MpDeposit>
             {
                 new MpDeposit(),
-                new MpDeposit()
+                new MpDeposit(),
             };
 
-            _depositRepository.Setup(r => r.GetDepositNamesByDepositName(It.IsAny<string>())).Returns(mpDeposits);
+            _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(mpDeposits);
 
             // Act
-            var result = _fixture.CreateDeposit(settlementEventDto, depositName);
+            var result = _fixture.CreateDeposit(settlementEventDto);
 
             // Assert
-            Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
+            Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.VendorDetailUrl);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
-            Assert.Equal(result.DepositName, depositName + "002");
+            Assert.Equal(depositName + "002", result.DepositName);
         }
 
         [Fact]
@@ -80,6 +81,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
 
             var settlementEventDto = new SettlementEventDto
             {
+                Name = depositName,
                 EstimatedDepositDate = new DateTime(2018, 2, 3),
                 Key = settlementKey,
                 TotalAmount = new AmountDto
@@ -103,15 +105,15 @@ namespace Crossroads.Service.Finance.Test.Deposits
                 new MpDeposit(),
             };
 
-            _depositRepository.Setup(r => r.GetDepositNamesByDepositName(It.IsAny<string>())).Returns(mpDeposits);
+            _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(mpDeposits);
 
             // Act
-            var result = _fixture.CreateDeposit(settlementEventDto, depositName);
+            var result = _fixture.CreateDeposit(settlementEventDto);
 
             // Assert
-            Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
+            Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.VendorDetailUrl);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
-            Assert.Equal(result.DepositName, depositName + "011");
+            Assert.Equal(depositName + "011", result.DepositName);
         }
 
         [Fact]
@@ -134,26 +136,26 @@ namespace Crossroads.Service.Finance.Test.Deposits
 
             var mpDeposits = new List<MpDeposit>
             {
-                new MpDeposit(),
-                new MpDeposit(),
-                new MpDeposit(),
-                new MpDeposit(),
-                new MpDeposit(),
-                new MpDeposit(),
-                new MpDeposit(),
-                new MpDeposit(),
-                new MpDeposit(),
-                new MpDeposit(),
-                new MpDeposit(),
+                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() { DepositName = depositName },
             };
 
-            _depositRepository.Setup(r => r.GetDepositNamesByDepositName(It.IsAny<string>())).Returns(mpDeposits);
+            _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(mpDeposits);
 
             // Act
-            var result = _fixture.CreateDeposit(settlementEventDto, depositName);
+            var result = _fixture.CreateDeposit(settlementEventDto);
 
             // Assert
-            Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
+            Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.VendorDetailUrl);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
             Assert.Equal("EFGHIJKLMNO" + "011", result.DepositName);
             Assert.True(14 >= result.DepositName.Length);
@@ -236,7 +238,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             };
 
             _pushpayService.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(depositDtos);
-            _depositRepository.Setup(m => m.GetDepositsByTransferIds(It.IsAny<List<string>>()))
+            _depositRepository.Setup(m => m.GetByTransferIds(It.IsAny<List<string>>()))
                 .Returns(new List<MpDeposit>());
 
             // Act
