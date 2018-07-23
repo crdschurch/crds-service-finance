@@ -126,6 +126,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
 
             var settlementEventDto = new SettlementEventDto
             {
+                Name = depositName,
                 EstimatedDepositDate = new DateTime(2018, 2, 3),
                 Key = settlementKey,
                 TotalAmount = new AmountDto
