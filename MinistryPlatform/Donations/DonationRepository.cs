@@ -16,7 +16,7 @@ namespace MinistryPlatform.Repositories
 {
     public class DonationRepository : MinistryPlatformBase, IDonationRepository
     {
-
+        private const int PausedRecurringGiftStatusId = 2;
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public DonationRepository(IMinistryPlatformRestRequestBuilderFactory builder,
@@ -153,20 +153,25 @@ namespace MinistryPlatform.Repositories
                 "Recurring_Gifts.[Start_Date]",
                 "Recurring_Gifts.[End_Date]",
                 "Program_ID_Table.[Program_ID]",
+                "Program_ID_Table.[Program_Name]",
                 "Congregation_ID_Table.[Congregation_ID]",
                 "Recurring_Gifts.[Subscription_ID]",
                 "Recurring_Gifts.[Consecutive_Failure_Count]",
                 "Recurring_Gifts.[Source_Url]",
                 "Recurring_Gifts.[Predefined_Amount]",
-                "Recurring_Gifts.[Vendor_Detail_Url]"
+                "Recurring_Gifts.[Vendor_Detail_Url]",
+                "Recurring_Gifts.[Recurring_Gift_Status_ID]"
             };
 
-            var filter = $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
+            var filters = new string[] {
+                $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
+                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[Recurring_Gift_Status_ID] = {PausedRecurringGiftStatusId})"
+            };
 
             return MpRestBuilder.NewRequestBuilder()
                                 .WithSelectColumns(columns)
                                 .WithAuthenticationToken(token)
-                                .WithFilter(filter)
+                                .WithFilter(String.Join(" AND ", filters))
                                 .Build()
                                 .Search<MpRecurringGift>().ToList();
         }
@@ -205,7 +210,9 @@ namespace MinistryPlatform.Repositories
                 "Donation_ID_Table.[Donation_Status_Date]",
                 "Program_ID_Table.[Program_Name]",
                 "Donation_ID_Table.[Donation_Status_ID]",
-                "Donation_Distributions.[Amount]"
+                "Donation_Distributions.[Amount]",
+                "Donation_ID_Table.[Donation_Date]",
+                "Donation_ID_Table_Donation_Status_ID_Table.[Donation_Status]"
             };
 
             var filter = $"Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
@@ -214,6 +221,7 @@ namespace MinistryPlatform.Repositories
                 .WithSelectColumns(selectColumns)
                 .WithAuthenticationToken(token)
                 .WithFilter(filter)
+                .OrderBy("Donation_ID_Table.[Donation_Date] DESC")
                 .Build()
                 .Search<MpDonationHistory>().ToList();
         }

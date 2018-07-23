@@ -40,6 +40,9 @@ namespace MinistryPlatform.Models
         [JsonProperty("Program_ID")]
         public int ProgramId { get; set; }
 
+        [JsonProperty("Program_Name")]
+        public string ProgramName { get; set; }
+
         [JsonProperty("Congregation_ID")]
         public int CongregationId { get; set; }
 
@@ -57,5 +60,12 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Vendor_Detail_Url")]
         public string VendorDetailUrl { get; set; }
+
+        [JsonProperty("Recurring_Gift_Status")]
+        [JsonIgnore]
+        public string Status { get; set; }
+
+        [JsonProperty("Recurring_Gift_Status_ID")]
+        public int RecurringGiftStatusId { get; set; }
     }
 }

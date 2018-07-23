@@ -123,19 +123,24 @@ namespace MinistryPlatform.Test.Donations
                 "Recurring_Gifts.[Start_Date]",
                 "Recurring_Gifts.[End_Date]",
                 "Program_ID_Table.[Program_ID]",
+                "Program_ID_Table.[Program_Name]",
                 "Congregation_ID_Table.[Congregation_ID]",
                 "Recurring_Gifts.[Subscription_ID]",
                 "Recurring_Gifts.[Consecutive_Failure_Count]",
                 "Recurring_Gifts.[Source_Url]",
                 "Recurring_Gifts.[Predefined_Amount]",
-                "Recurring_Gifts.[Vendor_Detail_Url]"
+                "Recurring_Gifts.[Vendor_Detail_Url]",
+                "Recurring_Gifts.[Recurring_Gift_Status_ID]"
             };
-            var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
+            var filters = new string[] {
+                $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
+                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[End_Date] > '{DateTime.Now:yyyy-MM-dd}')",
+            };
             _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(String.Join(" AND ", filters))).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);            
 
             _request.Setup(m => m.Search<MpRecurringGift>()).Returns(MpRecurringGiftMock.CreateList(contactId));
@@ -163,25 +168,30 @@ namespace MinistryPlatform.Test.Donations
                 "Recurring_Gifts.[Start_Date]",
                 "Recurring_Gifts.[End_Date]",
                 "Program_ID_Table.[Program_ID]",
+                "Program_ID_Table.[Program_Name]",
                 "Congregation_ID_Table.[Congregation_ID]",
                 "Recurring_Gifts.[Subscription_ID]",
                 "Recurring_Gifts.[Consecutive_Failure_Count]",
                 "Recurring_Gifts.[Source_Url]",
                 "Recurring_Gifts.[Predefined_Amount]",
-                "Recurring_Gifts.[Vendor_Detail_Url]"
+                "Recurring_Gifts.[Vendor_Detail_Url]",
+                "Recurring_Gifts.[Recurring_Gift_Status_ID]"
             };
-            var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 123";
+            var filters = new string[] {
+                $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
+                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[End_Date] > '{DateTime.Now:yyyy-MM-dd}')",
+            };
             _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(String.Join(" AND ", filters))).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
             _request.Setup(m => m.Search<MpRecurringGift>()).Returns(MpRecurringGiftMock.CreateEmptyList());
 
             // Act
-            var responseRecurringGift = _fixture.GetRecurringGifts(123);
+            var responseRecurringGift = _fixture.GetRecurringGifts(contactId);
 
             // Assert
             Assert.Empty(responseRecurringGift);

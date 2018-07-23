@@ -16,13 +16,16 @@ namespace Crossroads.Service.Finance.Services
         private readonly IDonationDistributionRepository _mpDonationDistributionRepository;
         private readonly IPledgeRepository _mpPledgeRepository;
         private readonly IMapper _mapper;
+        private readonly IContactService _contactService;
 
-        public DonationService(IDonationRepository mpDonationRepository, IDonationDistributionRepository mpDonationDistributionRepository, IPledgeRepository mpPledgeRepository, IMapper mapper)
+        public DonationService(IDonationRepository mpDonationRepository, IDonationDistributionRepository mpDonationDistributionRepository, IPledgeRepository mpPledgeRepository, IMapper mapper,
+            IContactService contactService)
         {
             _mpDonationRepository = mpDonationRepository;
             _mpDonationDistributionRepository = mpDonationDistributionRepository;
             _mpPledgeRepository = mpPledgeRepository;
             _mapper = mapper;
+            _contactService = contactService;
         }
 
         public DonationDto GetDonationByTransactionCode(string transactionCode)
@@ -81,24 +84,31 @@ namespace Crossroads.Service.Finance.Services
         
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
-            //TODO: Remove hard coding and get actual contact id from token
-            int contactId = 7516930;
+            var contactId = _contactService.GetContactIdBySessionId(token);
             var records = _mpDonationRepository.GetRecurringGifts(contactId);
-            return _mapper.Map<List<RecurringGiftDto>>(records);
+            var dtos = _mapper.Map<List<RecurringGiftDto>>(records);
+
+            // mark stripe gifts as not having a valid subscription status
+            foreach (var dto in dtos)
+            {
+                if (dto.SubscriptionId.Take(4).ToString() == "sub_")
+                {
+                    dto.RecurringGiftStatusId = 0;
+                }
+            }
+
+            return dtos;
         }
 
         public List<PledgeDto> GetPledges(string token)
         {
-            //TODO: Remove hard coding and get actual contact id from token
-            int contactId = 7647737;
-            var mpPledges = CalculatePledges("token");
+            var mpPledges = CalculatePledges(token);
             return _mapper.Map<List<PledgeDto>>(mpPledges);
         }
 
         public List<MpPledge> CalculatePledges(string token)
         {
-            //TODO: Remove hard coding and get actual contact id from token
-            int contactId = 7647737;
+            var contactId = _contactService.GetContactIdBySessionId(token);
             var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
             // get totals donations so far for this pledge
             var donationDistributions = _mpDonationDistributionRepository.GetByPledges(mpPledges.Select(r => r.PledgeId).ToList());
@@ -112,15 +122,17 @@ namespace Crossroads.Service.Finance.Services
 
         public List<DonationDto> GetDonations(string token)
         {
-            //TODO: Remove hard coding and get actual contact id from token
-            int contactId = 7516930;
+            var contactId = _contactService.GetContactIdBySessionId(token);
             var records = _mpDonationRepository.GetDonations(contactId);
             return _mapper.Map<List<DonationDto>>(records);
         }
 
-        public List<DonationHistoryDto> GetDonationHistoryByContactId(int contactId)
+        public List<DonationHistoryDto> GetDonationHistoryByContactId(int contactId, string token)
         {
-            var donationHistoryDtos = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
+            // TODO: Use the token to determine if the contact id being passed down is one that the user has
+            // the permissions to see (e.g. a viewing a co-givers donations, etc)
+            var userContactId = _contactService.GetContactIdBySessionId(token);
+            var donationHistoryDtos = _mpDonationRepository.GetDonationHistoryByContactId(userContactId);
             return _mapper.Map<List<DonationHistoryDto>>(donationHistoryDtos);
         }
     }

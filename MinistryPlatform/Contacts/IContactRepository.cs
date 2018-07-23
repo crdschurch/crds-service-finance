@@ -9,5 +9,7 @@ namespace MinistryPlatform.Interfaces
         MpHousehold GetHousehold(int householdId);
         void UpdateProcessor(int donorId, string processorId);
         MpDonor FindDonorByProcessorId(string processorId);
+        int GetBySessionId(string sessionId);
+        MpContact GetContact(int contactId);
     }
 }
