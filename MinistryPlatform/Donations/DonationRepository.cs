@@ -202,7 +202,7 @@ namespace MinistryPlatform.Repositories
 
         public List<MpDonationHistory> GetDonationHistoryByContactId(int contactId)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var selectColumns = new string[] {
                 "Donation_Distributions.[Donation_ID]",
@@ -217,11 +217,13 @@ namespace MinistryPlatform.Repositories
 
             var filter = $"Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
 
+            var order = "Donation_ID_Table.[Donation_Date] DESC";
+
             return MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(selectColumns)
                 .WithAuthenticationToken(token)
                 .WithFilter(filter)
-                .OrderBy("Donation_ID_Table.[Donation_Date] DESC")
+                .OrderBy(order)
                 .Build()
                 .Search<MpDonationHistory>().ToList();
         }

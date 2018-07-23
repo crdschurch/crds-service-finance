@@ -15,6 +15,7 @@ namespace MinistryPlatform.Repositories
     {
         private readonly IDonationRepository _mpDonationRepository;
         IAuthenticationRepository _authRepo;
+        private const int cogiverRelationshipId = 42;
 
         public ContactRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
@@ -144,6 +145,35 @@ namespace MinistryPlatform.Repositories
                 throw new Exception($"No contact found for contact: {contactId}");
             }
             return contacts.FirstOrDefault();
+        }
+
+        public List<MpContact> GetCogivers(int contactId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var columns = new string[] {
+                "Contact_Relationship_ID",
+                "Contact_ID_Table.[Contact_ID]",
+                "Relationship_ID_Table.[Relationship_ID]",
+                "Related_Contact_ID_Table.[Contact_ID] AS [Related_Contact_ID]",
+                "Start_Date",
+                "End_Date",
+                "Notes"
+            };
+            var filter = $"Contact_ID_Table.[Contact_ID] = {contactId} AND Relationship_ID_Table.[Relationship_ID] = {cogiverRelationshipId}";
+            var relatedContacts = MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .WithSelectColumns(columns)
+                .WithFilter(filter)
+                .Build()
+                .Search<MpContactRelationship>();
+
+            var cogivers = new List<MpContact>();
+            cogivers.Add(GetContact(contactId));
+            foreach (MpContactRelationship relatedContact in relatedContacts)
+            {
+                cogivers.Add(GetContact(relatedContact.RelatedContactId));
+            }
+            return cogivers;
         }
     }
 }

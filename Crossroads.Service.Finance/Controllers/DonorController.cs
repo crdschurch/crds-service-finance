@@ -8,6 +8,7 @@ using System.Reflection;
 using Crossroads.Service.Finance.Security;
 using Crossroads.Web.Common.Security;
 using Crossroads.Web.Common.Services;
+using System.Linq;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -16,13 +17,16 @@ namespace Crossroads.Service.Finance.Controllers
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IDonationService _donationService;
+        private readonly IContactService _contactService;
 
         public DonorController(IAuthTokenExpiryService authTokenExpiryService,
             IAuthenticationRepository authenticationRepository,
-            IDonationService donationService)
+            IDonationService donationService, 
+            IContactService contactService)
             : base(authenticationRepository, authTokenExpiryService)
         {
             _donationService = donationService;
+            _contactService = contactService;
         }
 
         /// <summary>
@@ -139,6 +143,29 @@ namespace Crossroads.Service.Finance.Controllers
                 catch (Exception ex)
                 {
                     var msg = "DonationController: GetDonationHistory";
+                    _logger.Error(msg, ex);
+                    return BadRequest(ex.Message);
+                }
+            });
+        }
+
+        [HttpGet("cogivers")]
+        [ProducesResponseType(typeof(List<ContactDto>), 200)]
+        [ProducesResponseType(204)]
+        public IActionResult GetCogivers()
+        {
+            return Authorized(token =>
+            {
+                try
+                {
+                    var userContactId = _contactService.GetContactIdBySessionId(token);
+                    var cogivers = _contactService.GetCogiversByContactId(userContactId);
+
+                    return Ok(cogivers.OrderBy(c => c.FirstName));
+                }
+                catch (Exception ex)
+                {
+                    var msg = "DonationController: GetCogivers";
                     _logger.Error(msg, ex);
                     return BadRequest(ex.Message);
                 }

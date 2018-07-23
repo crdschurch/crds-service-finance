@@ -196,7 +196,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             var contactId = 1234567;
             var token = "123abc";
 
-            var donationHistoryDtos = new List<DonationHistoryDto>
+            var donationHistory = new List<DonationHistoryDto>
             {
                 new DonationHistoryDto
                 {
@@ -212,8 +212,17 @@ namespace Crossroads.Service.Finance.Test.Donations
                 }
             };
 
+            var contacts = new List<ContactDto>
+            {
+                new ContactDto
+                {
+                    ContactId = 1234567
+                }
+            };
+
             _contactService.Setup(m => m.GetContactIdBySessionId(token)).Returns(contactId);
-            _mapper.Setup(m => m.Map<List<DonationHistoryDto>>(It.IsAny<List<MpDonationHistory>>())).Returns(donationHistoryDtos);
+            _contactService.Setup(m => m.GetCogiversByContactId(contactId)).Returns(contacts);
+            _mapper.Setup(m => m.Map<List<DonationHistoryDto>>(It.IsAny<List<MpDonationHistory>>())).Returns(donationHistory);
             _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId)).Returns(mpDonationHistories);
 
             // Act
