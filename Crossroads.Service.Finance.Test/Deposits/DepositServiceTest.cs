@@ -137,17 +137,17 @@ namespace Crossroads.Service.Finance.Test.Deposits
 
             var mpDeposits = new List<MpDeposit>
             {
-                new MpDeposit() { DepositName = depositName },
-                new MpDeposit() { DepositName = depositName },
-                new MpDeposit() { DepositName = depositName },
-                new MpDeposit() { DepositName = depositName },
-                new MpDeposit() { DepositName = depositName },
-                new MpDeposit() { DepositName = depositName },
-                new MpDeposit() { DepositName = depositName },
-                new MpDeposit() { DepositName = depositName },
-                new MpDeposit() { DepositName = depositName },
-                new MpDeposit() { DepositName = depositName },
-                new MpDeposit() { DepositName = depositName },
+                new MpDeposit() {},
+                new MpDeposit() {},
+                new MpDeposit() {},
+                new MpDeposit() {},
+                new MpDeposit() {},
+                new MpDeposit() {},
+                new MpDeposit() {},
+                new MpDeposit() {},
+                new MpDeposit() {},
+                new MpDeposit() {},
+                new MpDeposit() {},
             };
 
             _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(mpDeposits);
