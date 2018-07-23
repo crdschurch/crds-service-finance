@@ -66,6 +66,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             var result = _fixture.CreateDeposit(settlementEventDto);
 
             // Assert
+            Assert.Equal(settlementKey, result.ProcessorTransferId);
             Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.VendorDetailUrl);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
             Assert.Equal(depositName + "002", result.DepositName);
