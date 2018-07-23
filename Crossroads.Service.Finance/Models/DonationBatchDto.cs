@@ -11,25 +11,25 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("id")]
         public int Id { get; set; }
 
-        [JsonProperty("batch_name")]
+        [JsonProperty("batchName")]
         public string BatchName { get; set; }
 
-        [JsonProperty("setup_date_time")]
+        [JsonProperty("setupDateTime")]
         public DateTime SetupDateTime { get; set; }
 
-        [JsonProperty("batch_total_amount")]
+        [JsonProperty("batchTotalAmount")]
         public decimal BatchTotalAmount { get; set; }
 
-        [JsonProperty("item_count")]
+        [JsonProperty("itemCount")]
         public int ItemCount { get; set; }
 
-        [JsonProperty("batch_entry_type")]
+        [JsonProperty("batchEntryType")]
         public int BatchEntryType { get; set; }
 
-        [JsonProperty("deposit_id")]
+        [JsonProperty("depositId")]
         public int? DepositId { get; set; }
 
-        [JsonProperty("finalized_date_time")]
+        [JsonProperty("finalizedDateTime")]
         public DateTime FinalizedDateTime { get; set; }
 
         #region Donations property and accessor
@@ -39,7 +39,7 @@ namespace Crossroads.Service.Finance.Models
         public List<DonationDto> Donations { get { return (_donations); } }
         #endregion
 
-        [JsonProperty("processor_transfer_id")]
+        [JsonProperty("processorTransferIds")]
         public string ProcessorTransferId { get; set; }
     }
 }

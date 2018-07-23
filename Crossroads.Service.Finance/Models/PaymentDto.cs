@@ -31,5 +31,17 @@ namespace Crossroads.Service.Finance.Models
 
         [JsonProperty("_links")]
         public List<LinkDto> Links { get; set; }
+
+        [JsonProperty("refundedBy")]
+        public RefundPaymentDto RefundedBy { get; set; }
+
+        public bool IsRefund
+        {
+            get
+            {
+                return RefundedBy != null && RefundedBy.TransactionId != null;
+            }
+        }
+
     }
 }

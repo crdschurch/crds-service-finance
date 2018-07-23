@@ -49,10 +49,16 @@ namespace Crossroads.Service.Finance.Services
                 {
                     // Add the charge amount to the batch total amount
                     batch.ItemCount++;
-                    batch.BatchTotalAmount += decimal.Parse(charge.Amount.Amount);
+                    // Pushpay always gives a positive amount, so let's check
+                    //  RefundedBy field to see if it should be negative
+                    if (charge.IsRefund) {
+                        batch.BatchTotalAmount -= decimal.Parse(charge.Amount.Amount);
+                    } else {
+                        batch.BatchTotalAmount += decimal.Parse(charge.Amount.Amount);
+                    }
                     batch.Donations.Add(_mapper.Map<DonationDto>(mpDonation));
                 }
-            }
+            }   
 
             return batch;
         }

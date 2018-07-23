@@ -65,7 +65,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             var result = _fixture.CreateDeposit(settlementEventDto, depositName);
 
             // Assert
-            Assert.Equal($"{_pushpayWebEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
+            Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
             Assert.Equal(result.DepositName, depositName + "002");
         }
@@ -109,7 +109,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             var result = _fixture.CreateDeposit(settlementEventDto, depositName);
 
             // Assert
-            Assert.Equal($"{_pushpayWebEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
+            Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
             Assert.Equal(result.DepositName, depositName + "011");
         }
@@ -153,7 +153,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             var result = _fixture.CreateDeposit(settlementEventDto, depositName);
 
             // Assert
-            Assert.Equal($"{_pushpayWebEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
+            Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.ProcessorTransferId);
             Assert.Equal(Decimal.Parse(amount), result.DepositTotalAmount);
             Assert.Equal("EFGHIJKLMNO" + "011", result.DepositName);
             Assert.True(14 >= result.DepositName.Length);

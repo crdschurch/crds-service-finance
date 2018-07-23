@@ -77,7 +77,7 @@ namespace Crossroads.Service.Finance.Services
                 Exported = false,
                 Notes = null,
                 ProcessorTransferId = depositKey,
-                VendorDetailUrl = $"{_pushpayWebEndpoint}?includeCardSettlements=True&includeAchSettlements=True&fromDate={estDepositDate}&toDate={estDepositDate}",
+                VendorDetailUrl = $"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate={estDepositDate}&toDate={estDepositDate}",
             };
 
             return depositDto;
