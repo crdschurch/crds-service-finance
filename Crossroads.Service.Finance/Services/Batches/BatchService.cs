@@ -58,6 +58,10 @@ namespace Crossroads.Service.Finance.Services
                     }
                     batch.Donations.Add(_mapper.Map<DonationDto>(mpDonation));
                 }
+                else
+                {
+                    Console.WriteLine($"Donation not found in MP for transaction code: ${charge.TransactionId}. Batch total will not match deposit total.")
+                }
             }   
 
             return batch;

@@ -34,8 +34,10 @@ namespace Crossroads.Service.Finance.Services
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
         }
 
-        public DepositDto CreateDeposit(SettlementEventDto settlementEventDto, string depositName, string depositKey)
+        public DepositDto CreateDeposit(SettlementEventDto settlementEventDto)
         {
+            var depositName = settlementEventDto.Name;
+            var depositKey = settlementEventDto.Key;
             var existingDeposits = _depositRepository.GetDepositNamesByDepositName(depositName);
 
             // append a number to the deposit, based on how many deposits already exist by that name

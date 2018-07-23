@@ -66,7 +66,7 @@ namespace Crossroads.Service.Finance.Services
             Console.WriteLine($"Updated donations for batch: {donationBatch.Id}");
 
             // 5. Create Deposit with the associated batch (should be one batch for one deposit)
-            var deposit = _depositService.CreateDeposit(settlementEventDto, settlementEventDto.Name, settlementEventDto.Key);
+            var deposit = _depositService.CreateDeposit(settlementEventDto);
             deposit = _depositService.SaveDeposit(deposit);
             Console.WriteLine($"Deposit created: {deposit.Id}");
 
