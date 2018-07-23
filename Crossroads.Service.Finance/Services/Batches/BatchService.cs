@@ -49,8 +49,7 @@ namespace Crossroads.Service.Finance.Services
                 {
                     // Add the charge amount to the batch total amount
                     batch.ItemCount++;
-                    // Pushpay always gives a positive amount, so let's check
-                    //  RefundedBy field to see if it should be negative
+                    // Pushpay amounts are always positive, so check if refund
                     if (charge.IsRefund) {
                         batch.BatchTotalAmount -= decimal.Parse(charge.Amount.Amount);
                     } else {
@@ -60,7 +59,7 @@ namespace Crossroads.Service.Finance.Services
                 }
                 else
                 {
-                    Console.WriteLine($"Donation not found in MP for transaction code: ${charge.TransactionId}. Batch total will not match deposit total.")
+                    Console.WriteLine($"Donation not found in MP for transaction code: ${charge.TransactionId}. Batch total will not match deposit total.");
                 }
             }   
 
