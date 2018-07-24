@@ -129,11 +129,18 @@ namespace Crossroads.Service.Finance.Services
 
         public List<DonationHistoryDto> GetDonationHistoryByContactId(int contactId, string token)
         {
-            // TODO: Use the token to determine if the contact id being passed down is one that the user has
-            // the permissions to see (e.g. a viewing a co-givers donations, etc)
             var userContactId = _contactService.GetContactIdBySessionId(token);
-            var donationHistoryDtos = _mpDonationRepository.GetDonationHistoryByContactId(userContactId);
-            return _mapper.Map<List<DonationHistoryDto>>(donationHistoryDtos);
+            var contacts = _contactService.GetCogiversByContactId(userContactId);
+            contacts.Add(_contactService.GetContact(userContactId));
+            foreach (var contact in contacts)
+            {
+                if (contact.ContactId == contactId)
+                {
+                    var donationHistory = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
+                    return _mapper.Map<List<DonationHistoryDto>>(donationHistory);
+                }
+            }
+            return new List<DonationHistoryDto>();
         }
     }
 }

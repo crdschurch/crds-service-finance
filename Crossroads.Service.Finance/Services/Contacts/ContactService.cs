@@ -2,6 +2,7 @@
 using MinistryPlatform.Interfaces;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
+using System.Collections.Generic;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -37,6 +38,12 @@ namespace Crossroads.Service.Finance.Services
             var contactId = _contactRepository.GetBySessionId(sessionId);
             var mpContact = _contactRepository.GetContact(contactId);
             return _mapper.Map<ContactDto>(mpContact);
+        }
+
+        public List<ContactDto> GetCogiversByContactId(int contactId)
+        {
+            var cogivers = _contactRepository.GetCogivers(contactId);
+            return _mapper.Map <List<ContactDto>>(cogivers);
         }
     }
 }

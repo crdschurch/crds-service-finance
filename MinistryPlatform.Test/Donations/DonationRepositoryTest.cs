@@ -278,15 +278,20 @@ namespace MinistryPlatform.Test.Donations
                 "Donation_ID_Table.[Donation_Status_Date]",
                 "Program_ID_Table.[Program_Name]",
                 "Donation_ID_Table.[Donation_Status_ID]",
-                "Donation_Distributions.[Amount]"
+                "Donation_Distributions.[Amount]",
+                "Donation_ID_Table.[Donation_Date]",
+                "Donation_ID_Table_Donation_Status_ID_Table.[Donation_Status]"
             };
 
             var filter = "Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 1234567";
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            var order = "Donation_ID_Table.[Donation_Date] DESC";
+
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.OrderBy(order)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
             _request.Setup(m => m.Search<MpDonationHistory>()).Returns(mpDonationHistories);
