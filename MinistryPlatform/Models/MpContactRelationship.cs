@@ -14,7 +14,7 @@ namespace MinistryPlatform.Models
         public int ContactId { get; set; }
 
         [JsonProperty(PropertyName = "Relationship_ID")]
-        public int Relationship_Id { get; set; }
+        public int RelationshipId { get; set; }
 
         [JsonProperty(PropertyName = "Related_Contact_ID")]
         public int RelatedContactId { get; set; }

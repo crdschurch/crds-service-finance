@@ -25,6 +25,9 @@ namespace MinistryPlatform.Models
         [JsonProperty(PropertyName = "Mobile_Phone")]
         public string MobilePhone { get; set; }
 
+        [JsonProperty(PropertyName = "Nickname")]
+        public string Nickname { get; set; }
+
         [JsonProperty(PropertyName = "First_Name")]
         public string FirstName { get; set; }
 

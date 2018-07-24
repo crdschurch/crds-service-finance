@@ -23,6 +23,9 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty(PropertyName = "mobilePhone")]
         public string MobilePhone { get; set; }
 
+        [JsonProperty(PropertyName = "nickname")]
+        public string Nickname { get; set; }
+
         [JsonProperty(PropertyName = "firstName")]
         public string FirstName { get; set; }
 

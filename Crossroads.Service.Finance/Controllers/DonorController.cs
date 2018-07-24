@@ -123,7 +123,7 @@ namespace Crossroads.Service.Finance.Controllers
         /// Get donations (donation history) for a user
         /// </summary>
         /// <returns></returns>
-        [HttpGet("{contactId}/donations")]
+        [HttpGet("contact/{contactId}/donations")]
         [ProducesResponseType(typeof(List<DonationDto>), 200)]
         [ProducesResponseType(204)]
         public IActionResult GetDonationHistory(int contactId)
@@ -161,7 +161,7 @@ namespace Crossroads.Service.Finance.Controllers
                     var userContactId = _contactService.GetContactIdBySessionId(token);
                     var cogivers = _contactService.GetCogiversByContactId(userContactId);
 
-                    return Ok(cogivers.OrderBy(c => c.FirstName));
+                    return Ok(cogivers.OrderBy(c => c.Nickname).ThenBy(c => c.FirstName).ThenBy(c => c.LastName));
                 }
                 catch (Exception ex)
                 {

@@ -202,7 +202,7 @@ namespace MinistryPlatform.Repositories
 
         public List<MpDonationHistory> GetDonationHistoryByContactId(int contactId)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = ApiUserRepository.GetDefaultApiClientToken();
 
             var selectColumns = new string[] {
                 "Donation_Distributions.[Donation_ID]",
