@@ -131,6 +131,7 @@ namespace Crossroads.Service.Finance.Services
         {
             var userContactId = _contactService.GetContactIdBySessionId(token);
             var contacts = _contactService.GetCogiversByContactId(userContactId);
+            contacts.Add(_contactService.GetContact(userContactId));
             foreach (var contact in contacts)
             {
                 if (contact.ContactId == contactId)

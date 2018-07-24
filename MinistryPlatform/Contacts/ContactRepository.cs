@@ -169,7 +169,6 @@ namespace MinistryPlatform.Repositories
                 .Search<MpContactRelationship>();
 
             var cogivers = new List<MpContact>();
-            cogivers.Add(GetContact(contactId));
             foreach (MpContactRelationship relatedContact in relatedContacts)
             {
                 cogivers.Add(GetContact(relatedContact.RelatedContactId));
