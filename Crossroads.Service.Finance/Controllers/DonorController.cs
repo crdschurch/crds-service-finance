@@ -159,10 +159,11 @@ namespace Crossroads.Service.Finance.Controllers
                 try
                 {
                     var userContactId = _contactService.GetContactIdBySessionId(token);
-                    var cogivers = _contactService.GetCogiversByContactId(userContactId);
-                    cogivers.Add(_contactService.GetContact(userContactId));
-
-                    return Ok(cogivers.OrderBy(c => c.Nickname).ThenBy(c => c.FirstName).ThenBy(c => c.LastName));
+                    var cogivers = _contactService.GetCogiversByContactId(userContactId)
+                        .OrderBy(c => c.Nickname).ThenBy(c => c.FirstName).ThenBy(c => c.LastName).ToList();
+                    cogivers.Insert(0, _contactService.GetContact(userContactId));
+               
+                    return Ok(cogivers);
                 }
                 catch (Exception ex)
                 {

@@ -160,11 +160,20 @@ namespace MinistryPlatform.Repositories
                 "End_Date",
                 "Notes"
             };
+
+            var filters = new string[]
+            {
+                $"Contact_ID_Table.[Contact_ID] = {contactId}",
+                $"Relationship_ID_Table.[Relationship_ID] = {cogiverRelationshipId}",
+                $"[Start_Date] <= '{DateTime.Now:yyyy-MM-dd}'",
+                $"([End_Date] IS NULL OR [End_Date] > '{DateTime.Now:yyyy-MM-dd}')"
+            };
+
             var filter = $"Contact_ID_Table.[Contact_ID] = {contactId} AND Relationship_ID_Table.[Relationship_ID] = {cogiverRelationshipId}";
             var relatedContacts = MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithSelectColumns(columns)
-                .WithFilter(filter)
+                .WithFilter(String.Join(" AND ", filters))
                 .Build()
                 .Search<MpContactRelationship>();
 
