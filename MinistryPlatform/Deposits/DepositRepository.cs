@@ -46,7 +46,7 @@ namespace MinistryPlatform.Repositories
             return deposits.FirstOrDefault();
         }
 
-        public List<MpDeposit> GetDepositsByTransferIds(List<string> transferIds)
+        public List<MpDeposit> GetByTransferIds(List<string> transferIds)
         {
             var token = ApiUserRepository.GetDefaultApiClientToken();
 
@@ -61,7 +61,7 @@ namespace MinistryPlatform.Repositories
             return deposits;
         }
 
-        public List<MpDeposit> GetDepositNamesByDepositName(string depositName)
+        public List<MpDeposit> GetByName(string depositName)
         {
             var token = ApiUserRepository.GetDefaultApiClientToken();
 

@@ -11,5 +11,6 @@ namespace Crossroads.Service.Finance.Interfaces
         int GetContactIdBySessionId(string sessionId);
         ContactDto GetContact(int contactId);
         ContactDto GetBySessionId(string sessionId);
+        List<ContactDto> GetCogiversByContactId(int contactId);
     }
 }

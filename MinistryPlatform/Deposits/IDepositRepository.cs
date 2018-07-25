@@ -9,7 +9,7 @@ namespace MinistryPlatform.Interfaces
     {
         MpDeposit CreateDeposit(MpDeposit mpDeposit);
         MpDeposit GetDepositByProcessorTransferId(string processorTransferId);
-        List<MpDeposit> GetDepositsByTransferIds(List<string> transferIds);
-        List<MpDeposit> GetDepositNamesByDepositName(string DepositName);
+        List<MpDeposit> GetByTransferIds(List<string> transferIds);
+        List<MpDeposit> GetByName(string DepositName);
     }
 }

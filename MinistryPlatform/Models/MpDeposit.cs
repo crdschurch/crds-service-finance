@@ -37,5 +37,8 @@ namespace MinistryPlatform.Models
 
         [JsonProperty(PropertyName = "Processor_Transfer_ID")]
         public string ProcessorTransferId { get; set; }
+
+        [JsonProperty("Vendor_Detail_Url")]
+        public string VendorDetailUrl { get; set; }
     }
 }

@@ -92,7 +92,7 @@ namespace MinistryPlatform.Test.Deposits
             _request.Setup(m => m.Search<MpDeposit>()).Returns(new List<MpDeposit>());
 
             // Act
-            var result = _fixture.GetDepositsByTransferIds(transferIds);
+            var result = _fixture.GetByTransferIds(transferIds);
 
             // Assert
             Assert.NotNull(result);
@@ -131,7 +131,7 @@ namespace MinistryPlatform.Test.Deposits
             _request.Setup(m => m.Search<MpDeposit>()).Returns(deposits);
 
             // Act
-            var result = _fixture.GetDepositNamesByDepositName(depositName);
+            var result = _fixture.GetByName(depositName);
 
             // Assert
             Assert.NotNull(result);
