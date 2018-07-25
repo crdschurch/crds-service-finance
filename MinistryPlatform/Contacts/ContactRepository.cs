@@ -169,7 +169,6 @@ namespace MinistryPlatform.Repositories
                 $"([End_Date] IS NULL OR [End_Date] > '{DateTime.Now:yyyy-MM-dd}')"
             };
 
-            var filter = $"Contact_ID_Table.[Contact_ID] = {contactId} AND Relationship_ID_Table.[Relationship_ID] = {cogiverRelationshipId}";
             var relatedContacts = MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithSelectColumns(columns)
