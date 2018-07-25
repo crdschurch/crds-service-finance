@@ -25,7 +25,8 @@ namespace MinistryPlatform.Test.Donations
         readonly Mock<IMapper> _mapper;
 
         private string token = "123abc";
-        const int contactId = 7344;
+        private const int contactId = 7344;
+        private const int PausedRecurringGiftStatusId = 2;
 
         private readonly IDonationRepository _fixture;
 
@@ -134,7 +135,7 @@ namespace MinistryPlatform.Test.Donations
             };
             var filters = new string[] {
                 $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
-                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[End_Date] > '{DateTime.Now:yyyy-MM-dd}')",
+                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[Recurring_Gift_Status_ID] = {PausedRecurringGiftStatusId})"
             };
             _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
@@ -179,7 +180,7 @@ namespace MinistryPlatform.Test.Donations
             };
             var filters = new string[] {
                 $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
-                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[End_Date] > '{DateTime.Now:yyyy-MM-dd}')",
+                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[Recurring_Gift_Status_ID] = {PausedRecurringGiftStatusId})"
             };
             _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
