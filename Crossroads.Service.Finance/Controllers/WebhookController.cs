@@ -30,7 +30,9 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
+                Console.WriteLine("^$%*#&$)- webhook received -*()$%)$)^");
                 var pushpayEvent = pushpayWebhook.Events[0];
+                Console.WriteLine(pushpayEvent.EntityType);
                 switch (pushpayEvent.EventType)
                 {
                     case "payment_created":
