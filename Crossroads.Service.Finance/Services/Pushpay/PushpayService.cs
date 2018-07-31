@@ -255,8 +255,11 @@ namespace Crossroads.Service.Finance.Services
                     };
                     matchedContact.DonorId = _donationService.CreateDonor(mpDonor).DonorId;
                 }
-                // update processor id on donor account so we dont have to manually match next time
-                _contactRepository.UpdateProcessor(matchedContact.DonorId.Value, gift.Payer.Key);
+
+                // TODO - this was removed to address the issue of creating a Pushpay recurring gift overwriting a Stripe processor id - remove
+                // this code permanently when this is tested fully
+                //// update processor id on donor account so we dont have to manually match next time
+                //_contactRepository.UpdateProcessor(matchedContact.DonorId.Value, gift.Payer.Key);
 
                 // create donor account and attach to contact
                 matchedContact.DonorAccountId = CreateDonorAccount(gift, matchedContact.DonorId.Value).DonorAccountId;
@@ -285,6 +288,7 @@ namespace Crossroads.Service.Finance.Services
                 NonAssignable = false,
                 DomainId = 1,
                 Closed = false,
+                ProcessorId = gift.Payer.Key,
                 ProcessorTypeId = pushpayProcessorTypeId
         };
             if (donorId != null) {
