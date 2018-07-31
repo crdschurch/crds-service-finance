@@ -33,6 +33,9 @@ namespace MinistryPlatform.Models
         [JsonProperty("Routing_Number")]
         public string RoutingNumber { get; set; }
 
+        [JsonProperty("Processor_ID")]
+        public string ProcessorId { get; set; }
+
         [JsonProperty("Processor_Type_ID")]
         public int ProcessorTypeId { get; set; }
     }
