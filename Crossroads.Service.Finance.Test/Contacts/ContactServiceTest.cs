@@ -1,7 +1,10 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
+using MinistryPlatform.Models;
 using Moq;
 using Xunit;
 
@@ -37,6 +40,41 @@ namespace Crossroads.Service.Finance.Test.Contacts
 
             // Assert
             Assert.Equal(1234567, result);
+        }
+
+        [Fact]
+        public void ShouldGetCogivers()
+        {
+            // Arrange
+            var contactId = 5544555;
+            var cogiverRealationshipId = 42;
+
+            var mpContactRelationships = new List<MpContactRelationship>
+            {
+                new MpContactRelationship
+                {
+                    ContactId = 6778899,
+                    RelatedContactId = 9988776
+                }
+            };
+
+            var mpContact = new MpContact();
+
+            var contactDtos = new List<ContactDto>
+            {
+                new ContactDto()
+            };
+
+            _contactRepository.Setup(m => m.GetContactRelationships(5544555, cogiverRealationshipId)).Returns(mpContactRelationships);
+            _contactRepository.Setup(m => m.GetContact(9988776)).Returns(mpContact);
+            _mapper.Setup(m => m.Map<List<ContactDto>>(It.IsAny<List<MpContact>>())).Returns(contactDtos);
+
+            // Act
+            var result = _fixture.GetCogiversByContactId(contactId);
+
+            // Assert
+            Assert.NotNull(result);
+            _contactRepository.VerifyAll();
         }
     }
 }

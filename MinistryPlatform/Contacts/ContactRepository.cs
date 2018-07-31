@@ -15,17 +15,17 @@ namespace MinistryPlatform.Repositories
     {
         private readonly IDonationRepository _mpDonationRepository;
         IAuthenticationRepository _authRepo;
-        private const int cogiverRelationshipId = 42;
+
 
         public ContactRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
-            IDonationRepository mpDonationRepository,
+            //IDonationRepository mpDonationRepository,
             IConfigurationWrapper configurationWrapper,
             IMapper mapper,
             IAuthenticationRepository authenticationRepository) : base(builder, apiUserRepository, configurationWrapper, mapper)
         {
             _authRepo = authenticationRepository;
-            _mpDonationRepository = mpDonationRepository;
+            //_mpDonationRepository = mpDonationRepository;
         }
 
         public MpDonor MatchContact(string firstName, string lastName, string phone, string email)
@@ -148,7 +148,7 @@ namespace MinistryPlatform.Repositories
             return contacts.FirstOrDefault();
         }
 
-        public List<MpContact> GetCogivers(int contactId)
+        public List<MpContactRelationship> GetContactRelationships(int contactId, int contactRelationshipId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
@@ -164,7 +164,7 @@ namespace MinistryPlatform.Repositories
             var filters = new string[]
             {
                 $"Contact_ID_Table.[Contact_ID] = {contactId}",
-                $"Relationship_ID_Table.[Relationship_ID] = {cogiverRelationshipId}",
+                $"Relationship_ID_Table.[Relationship_ID] = {contactRelationshipId}",
                 $"[Start_Date] <= '{DateTime.Now:yyyy-MM-dd}'",
                 $"([End_Date] IS NULL OR [End_Date] > '{DateTime.Now:yyyy-MM-dd}')"
             };
@@ -176,12 +176,7 @@ namespace MinistryPlatform.Repositories
                 .Build()
                 .Search<MpContactRelationship>();
 
-            var cogivers = new List<MpContact>();
-            foreach (MpContactRelationship relatedContact in relatedContacts)
-            {
-                cogivers.Add(GetContact(relatedContact.RelatedContactId));
-            }
-            return cogivers;
+            return relatedContacts;
         }
     }
 }

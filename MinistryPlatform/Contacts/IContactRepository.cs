@@ -11,6 +11,6 @@ namespace MinistryPlatform.Interfaces
         MpDonor FindDonorByProcessorId(string processorId);
         int GetBySessionId(string sessionId);
         MpContact GetContact(int contactId);
-        List<MpContact> GetCogivers(int contactId);
+        List<MpContactRelationship> GetContactRelationships(int contactId, int contactRelationshipId);
     }
 }

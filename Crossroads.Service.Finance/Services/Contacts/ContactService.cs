@@ -3,6 +3,7 @@ using MinistryPlatform.Interfaces;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using System.Collections.Generic;
+using MinistryPlatform.Models;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -10,6 +11,8 @@ namespace Crossroads.Service.Finance.Services
     {
         private readonly IContactRepository _contactRepository;
         IMapper _mapper;
+
+        private const int cogiverRelationshipId = 42;
 
         public ContactService(IContactRepository contactRepository, IMapper mapper)
         {
@@ -42,7 +45,17 @@ namespace Crossroads.Service.Finance.Services
 
         public List<ContactDto> GetCogiversByContactId(int contactId)
         {
-            var cogivers = _contactRepository.GetCogivers(contactId);
+            // TODO: If the performance needs to be improved, consider moving to a proc to
+            // reduce number of service calls
+            var contactRelationships = _contactRepository.GetContactRelationships(contactId, cogiverRelationshipId);
+
+            var cogivers = new List<MpContact>();
+            foreach (MpContactRelationship relatedContact in contactRelationships)
+            {
+                var contact = _contactRepository.GetContact(relatedContact.RelatedContactId);
+                cogivers.Add(contact);
+            }
+
             return _mapper.Map <List<ContactDto>>(cogivers);
         }
     }
