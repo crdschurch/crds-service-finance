@@ -47,7 +47,7 @@ namespace Crossroads.Service.Finance.Test.Contacts
         {
             // Arrange
             var contactId = 5544555;
-            var cogiverRealationshipId = 42;
+            var cogiverRelationshipId = 42;
 
             var mpContactRelationships = new List<MpContactRelationship>
             {
@@ -65,7 +65,7 @@ namespace Crossroads.Service.Finance.Test.Contacts
                 new ContactDto()
             };
 
-            _contactRepository.Setup(m => m.GetContactRelationships(5544555, cogiverRealationshipId)).Returns(mpContactRelationships);
+            _contactRepository.Setup(m => m.GetContactRelationships(5544555, cogiverRelationshipId)).Returns(mpContactRelationships);
             _contactRepository.Setup(m => m.GetContact(9988776)).Returns(mpContact);
             _mapper.Setup(m => m.Map<List<ContactDto>>(It.IsAny<List<MpContact>>())).Returns(contactDtos);
 

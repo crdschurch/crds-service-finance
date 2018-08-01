@@ -175,5 +175,37 @@ namespace MinistryPlatform.Test.Donors
             // Assert
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public void ShouldGetNullDonorByDonorId()
+        {
+            // Arrange
+            var donorId = 7766888;
+
+            var donorColumns = new string[] {
+                "Donors.[Donor_ID]",
+                "Contact_ID_Table.[Contact_ID]",
+                "Contact_ID_Table_Household_ID_Table.[Household_ID]"
+            };
+
+            var donorFilter = $"Donor_ID = '{donorId}'";
+
+            _apiUserRepository.Setup(m => m.GetApiClientToken(clientId)).Returns(token);
+
+            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(donorFilter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(donorColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Get<MpDonor>(donorId)).Returns((MpDonor)null);
+
+            // Act
+            var result = _fixture.GetDonorByDonorId(donorId);
+
+            // Assert
+            Assert.Null(result);
+        }
     }
 }

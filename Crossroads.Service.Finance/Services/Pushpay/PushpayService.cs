@@ -227,8 +227,8 @@ namespace Crossroads.Service.Finance.Services
         private MpDonor FindOrCreateDonorAndDonorAccount(PushpayRecurringGiftDto gift)
         {
             var donorId = _donorRepository.GetDonorIdByProcessorId(gift.Payer.Key);
-            var existingMatchedDonor = _donorRepository.GetDonorByDonorId(donorId.GetValueOrDefault());
-            if (existingMatchedDonor != null && existingMatchedDonor.DonorId.HasValue) {
+            if (donorId != null) {
+                var existingMatchedDonor = _donorRepository.GetDonorByDonorId(donorId.GetValueOrDefault());
                 // we found a matching donor by processor id (i.e. we have previously matched them)
                 //   create a new donor account on donor for this recurring gift
                 existingMatchedDonor.DonorAccountId = CreateDonorAccount(gift, existingMatchedDonor.DonorId.Value).DonorAccountId;
