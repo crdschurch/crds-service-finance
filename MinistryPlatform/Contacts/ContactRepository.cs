@@ -87,58 +87,6 @@ namespace MinistryPlatform.Repositories
                          .Update(fields, "Donors");
         }
 
-        //// (this previously was hitting donors table - now it hits the donor accounts table to find the donor)
-        //// look at all donor accounts with the processor id to see if a donor exists
-        //public MpDonor FindDonorByProcessorId(string processorId)
-        //{
-        //    var token = ApiUserRepository.GetDefaultApiClientToken();
-
-        //    var columns = new string[] {
-        //        "Donor_Accounts.[Donor_Account_ID]",
-        //        "Donor_Accounts.[Donor_ID]",
-        //        "Donor_Accounts.[Non-Assignable]",
-        //        "Donor_Accounts.[Domain_ID]",
-        //        "Donor_Accounts.[Account_Type_ID]",
-        //        "Donor_Accounts.[Closed]",
-        //        "Donor_Accounts.[Institution_Name]",
-        //        "Donor_Accounts.[Account_Number]",
-        //        "Donor_Accounts.[Routing_Number]",
-        //        "Donor_Accounts.[Processor_ID]",
-        //        "Donor_Accounts.[Processor_Type_ID]"
-        //    };
-
-        //    var filter = $"Processor_ID = '{processorId}' AND Processor_Type_ID = {pushpayProcessorType}";
-        //    var donorAccounts = MpRestBuilder.NewRequestBuilder()
-        //                        .WithAuthenticationToken(token)
-        //                        .WithSelectColumns(columns)
-        //                        .WithFilter(filter)
-        //                        .Build()
-        //                        .Search<MpDonorAccount>();
-
-        //    if (!donorAccounts.Any())
-        //    {
-        //        return null;
-        //    }
-        //    else
-        //    {
-        //        var donorColumns = new string[] {
-        //            "Donors.[Donor_ID]",
-        //            "Contact_ID_Table.[Contact_ID]",
-        //            "Contact_ID_Table_Household_ID_Table.[Household_ID]"
-        //        };
-
-        //        var donorFilter = $"Processor_ID = '{processorId}'";
-        //        var donors = MpRestBuilder.NewRequestBuilder()
-        //            .WithAuthenticationToken(token)
-        //            .WithSelectColumns(donorColumns)
-        //            .WithFilter(donorFilter)
-        //            .Build()
-        //            .Search<MpDonor>();
-
-        //        return donors.First();
-        //    }          
-        //}
-
         public int GetBySessionId(string sessionId)
         {
             return _authRepo.GetContactId(sessionId);

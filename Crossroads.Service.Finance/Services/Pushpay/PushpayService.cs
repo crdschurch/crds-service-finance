@@ -171,7 +171,6 @@ namespace Crossroads.Service.Finance.Services
         private JObject BuildEndDatedRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
-            //var donorId = _donorRepository.GetDonorIdByProcessorId(updatedPushpayRecurringGift.Payer.Key);
             return new JObject(
                 new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
                 new JProperty("End_Date", DateTime.Now),
@@ -182,7 +181,6 @@ namespace Crossroads.Service.Finance.Services
         private JObject BuildUpdateRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
-            //var donorId = _donorRepository.GetDonorIdByProcessorId(updatedPushpayRecurringGift.Payer.Key);
             return new JObject( 
                 new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
                 new JProperty("Amount", mappedMpRecurringGift.Amount),
@@ -218,7 +216,6 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.CongregationId = _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
 
             mpRecurringGift.ConsecutiveFailureCount = 0;
-            //mpRecurringGift.DomainId = 1;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
             mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
 
