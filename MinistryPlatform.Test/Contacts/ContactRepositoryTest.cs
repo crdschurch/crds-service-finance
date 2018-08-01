@@ -28,6 +28,7 @@ namespace MinistryPlatform.Test.Contacts
 
         private string token = "123abc";
         private string clientId = "CRDS.Service.Finance";
+        private int pushpayProcessorType = 1;
 
         public ContactRepositoryTest()
         {
@@ -142,42 +143,6 @@ namespace MinistryPlatform.Test.Contacts
 
             // Assert
             _restRequest.VerifyAll();
-        }
-
-        [Fact]
-        public void ShouldFindDonorByProcessorId()
-        {
-            // Arrange
-            var processorId = "ABC123def456";
-
-            var mpDonor = new List<MpDonor>
-            {
-                new MpDonor()
-            };
-
-            var columns = new string[] {
-                "Donors.[Donor_ID]",
-                "Contact_ID_Table.[Contact_ID]",
-                "Contact_ID_Table_Household_ID_Table.[Household_ID]"
-            };
-
-            var filter = $"Processor_ID = '{processorId}'";
-
-            _apiUserRepository.Setup(m => m.GetApiClientToken(clientId)).Returns(token);
-
-            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.WithSelectColumns(columns)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
-
-            _request.Setup(m => m.Search<MpDonor>()).Returns(mpDonor);
-
-            // Act
-            var result = _fixture.FindDonorByProcessorId(processorId);
-
-            // Assert
-            Assert.NotNull(result);
         }
 
         [Fact]
