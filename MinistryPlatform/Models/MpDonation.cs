@@ -28,5 +28,14 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Transaction_Code")]
         public string TransactionCode { get; set; }
+
+        [JsonProperty("Subscription_Code")]
+        public string SubscriptionCode { get; set; }
+
+        [JsonProperty("Is_Recurring_Gift")]
+        public bool? IsRecurringGift { get; set; }
+
+        [JsonProperty("Recurring_Gift_ID")]
+        public int? RecurringGiftId { get; set; }
     }
 }

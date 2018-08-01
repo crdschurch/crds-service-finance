@@ -82,6 +82,24 @@ namespace Crossroads.Service.Finance.Services
                 //   so it still may not be available
                 var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
                 if (donation == null) return null;
+                // add payment token so that we can identify easier via api
+                if (pushpayPayment.PaymentToken != null)
+                {
+                    donation.SubscriptionCode = pushpayPayment.PaymentToken;
+                }
+                // if donation from a recurring gift, let's put that on donation
+                if (pushpayPayment.RecurringPaymentToken != null)
+                {
+                    donation.IsRecurringGift = true;
+                    var mpRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPayment.RecurringPaymentToken);
+                    if (mpRecurringGift != null) {
+                        donation.RecurringGiftId = mpRecurringGift.RecurringGiftId;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
+                    }
+                }
                 if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
                 {
                     donation.DonationStatusId = _mpDonationStatusPending;
