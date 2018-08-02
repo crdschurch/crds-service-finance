@@ -9,7 +9,7 @@ namespace Crossroads.Service.Finance.Models
         public int ContactId { get; set; }
 
         [JsonProperty(PropertyName = "householdId")]
-        public int HouseholdId { get; set; }
+        public int? HouseholdId { get; set; }
 
         [JsonProperty(PropertyName = "dateOfBirth")]
         public DateTime? DateOfBirth { get; set; }

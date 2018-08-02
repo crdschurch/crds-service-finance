@@ -11,7 +11,7 @@ namespace MinistryPlatform.Models
         public int ContactId { get; set; }
 
         [JsonProperty(PropertyName = "Household_ID")]
-        public int HouseholdId { get; set; }
+        public int? HouseholdId { get; set; }
 
         [JsonProperty(PropertyName = "Date_of_Birth")]
         public DateTime? DateOfBirth { get; set; }
