@@ -22,8 +22,19 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty(PropertyName = "batchId", NullValueHandling = NullValueHandling.Ignore)]
         public int? BatchId { get; set; }
 
+        // this is the numeric id that pushpay stores on our donation
         [JsonProperty("transactionCode")]
         public string TransactionCode { get; set; }
+
+        // this is the alphanumeric id that we save to identify pushpay donations via api
+        [JsonProperty("subscriptionCode")]
+        public string SubscriptionCode { get; set; }
+
+        [JsonProperty("isRecurringGift")]
+        public bool? IsRecurringGift { get; set; }
+
+        [JsonProperty("recurringGiftId")]
+        public int? RecurringGiftId { get; set; }
     }
 
     public enum DonationStatus
