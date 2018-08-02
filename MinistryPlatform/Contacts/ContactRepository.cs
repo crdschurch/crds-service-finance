@@ -61,7 +61,6 @@ namespace MinistryPlatform.Repositories
         {
             var token = ApiUserRepository.GetDefaultApiClientToken();
             var columns = new string[] {
-                "Household_ID",
                 "Congregation_ID"
             };
 
@@ -97,7 +96,6 @@ namespace MinistryPlatform.Repositories
             var token = ApiUserRepository.GetDefaultApiClientToken();
             var columns = new string[] {
                 "Contact_ID",
-                "Household_ID",
                 "Email_Address",
                 "First_Name",
                 "Mobile_Phone",
