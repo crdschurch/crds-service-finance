@@ -97,7 +97,6 @@ namespace MinistryPlatform.Test.Contacts
             var householdId = 7766888;
 
             var columns = new string[] {
-                "Household_ID",
                 "Congregation_ID"
             };
 
@@ -158,7 +157,6 @@ namespace MinistryPlatform.Test.Contacts
 
             var columns = new string[] {
                 "Contact_ID",
-                "Household_ID",
                 "Email_Address",
                 "First_Name",
                 "Mobile_Phone",
