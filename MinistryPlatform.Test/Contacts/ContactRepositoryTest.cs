@@ -118,33 +118,6 @@ namespace MinistryPlatform.Test.Contacts
         }
 
         [Fact]
-        public void ShouldUpdateProcessor()
-        {
-            // Arrange
-            var donorId = 5566777;
-            var processorId = "JsHa8F8s";
-
-            _apiUserRepository.Setup(m => m.GetApiClientToken(clientId)).Returns(token);
-
-            var fields = new JObject(
-                new JProperty("Donor_ID", 5566777),
-                new JProperty("Processor_ID", "JsHa8F8s")
-            );
-
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
-            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
-            _request.Setup(m => m.Update(fields, "Donors"));
-
-            // Act
-            _fixture.UpdateProcessor(donorId, processorId);
-
-            // Assert
-            _restRequest.VerifyAll();
-        }
-
-        [Fact]
         public void ShouldGetContact()
         {
             // Arrange

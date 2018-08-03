@@ -267,7 +267,7 @@ namespace Crossroads.Service.Finance.Services
                     var mpDonor = new MpDonor()
                     {
                         ContactId = matchedContact.ContactId,
-                        StatementFrequencyId = 2, // annual
+                        StatementFrequencyId = 1, // quarterly
                         StatementTypeId = 1, // individual
                         StatementMethodId = 2, // email+online
                         SetupDate = DateTime.Now
