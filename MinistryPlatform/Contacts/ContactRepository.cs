@@ -71,21 +71,6 @@ namespace MinistryPlatform.Repositories
                                 .Get<MpHousehold>(householdId);
         }
 
-        public void UpdateProcessor(int donorId, string processorId)
-        {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
-
-            var fields = new JObject(
-                new JProperty("Donor_ID", donorId),
-                new JProperty("Processor_ID", processorId)
-            );
-
-            MpRestBuilder.NewRequestBuilder()
-                         .WithAuthenticationToken(token)
-                         .Build()
-                         .Update(fields, "Donors");
-        }
-
         public int GetBySessionId(string sessionId)
         {
             return _authRepo.GetContactId(sessionId);
