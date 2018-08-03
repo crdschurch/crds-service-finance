@@ -220,7 +220,8 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Account_Number", mpDonorAccount.AccountNumber),
                 new JProperty("Routing_Number", mpDonorAccount.RoutingNumber),
                 new JProperty("Institution_Name", mpDonorAccount.InstitutionName),
-                new JProperty("Account_Type_ID", mpDonorAccount.AccountTypeId)
+                new JProperty("Account_Type_ID", mpDonorAccount.AccountTypeId),
+                new JProperty("Processor_ID", mpDonorAccount.ProcessorId)
             );
         }
 
