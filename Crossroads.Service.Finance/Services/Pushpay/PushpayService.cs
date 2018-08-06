@@ -174,6 +174,9 @@ namespace Crossroads.Service.Finance.Services
             if (status == "Active")
             {
                 var updatedMpRecurringGift = BuildUpdateRecurringGift(existingMpRecurringGift, updatedPushpayRecurringGift);
+
+                // vendor detail url is not available in the pushpay api when getting a recurring gift
+                updatedMpRecurringGift.Add(new JProperty("Vendor_Detail_URL", webhook.Events[0].Links.ViewRecurringPayment));
                 _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
                 var updatedDonorAccount = BuildUpdateDonorAccount(existingMpRecurringGift, updatedPushpayRecurringGift);
                 _donationService.UpdateDonorAccount(updatedDonorAccount);
@@ -181,6 +184,9 @@ namespace Crossroads.Service.Finance.Services
             else if (status == "Cancelled" || status == "Paused")
             {
                 var updatedMpRecurringGift = BuildEndDatedRecurringGift(existingMpRecurringGift, updatedPushpayRecurringGift);
+
+                // vendor detail url is not available in the pushpay api when getting a recurring gift
+                updatedMpRecurringGift.Add(new JProperty("Vendor_Detail_URL", webhook.Events[0].Links.ViewRecurringPayment));
                 _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
             }
             return _mapper.Map<RecurringGiftDto>(existingMpRecurringGift);
