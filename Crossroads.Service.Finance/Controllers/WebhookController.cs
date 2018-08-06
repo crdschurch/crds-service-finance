@@ -2,6 +2,7 @@
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -30,9 +31,10 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                Console.WriteLine("^$%*#&$)- webhook received -*()$%)$)^");
+                Console.WriteLine("⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡ Incoming webhook ⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️");
+                Console.WriteLine(JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
                 var pushpayEvent = pushpayWebhook.Events[0];
-                Console.WriteLine(pushpayEvent.EntityType);
+
                 switch (pushpayEvent.EventType)
                 {
                     case "payment_created":

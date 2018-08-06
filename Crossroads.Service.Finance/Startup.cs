@@ -15,6 +15,7 @@ using Hangfire;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Linq;
 using System.IO;
+using MinistryPlatform.Donors;
 
 namespace Crossroads.Service.Finance
 {
@@ -78,6 +79,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IBatchRepository, BatchRepository>();
             services.AddSingleton<IDepositRepository, DepositRepository>();
             services.AddSingleton<IDonationRepository, DonationRepository>();
+            services.AddSingleton<IDonorRepository, DonorRepository>();
             services.AddSingleton<IRecurringGiftRepository, RecurringGiftRepository>();
             services.AddSingleton<IProgramRepository, ProgramRepository>();
             services.AddSingleton<IContactRepository, ContactRepository>();

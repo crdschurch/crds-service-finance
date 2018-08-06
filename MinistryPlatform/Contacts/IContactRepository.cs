@@ -7,10 +7,8 @@ namespace MinistryPlatform.Interfaces
     {
         MpDonor MatchContact(string firstName, string lastName, string phone, string email);
         MpHousehold GetHousehold(int householdId);
-        void UpdateProcessor(int donorId, string processorId);
-        MpDonor FindDonorByProcessorId(string processorId);
         int GetBySessionId(string sessionId);
         MpContact GetContact(int contactId);
-        List<MpContact> GetCogivers(int contactId);
+        List<MpContactRelationship> GetContactRelationships(int contactId, int contactRelationshipId);
     }
 }

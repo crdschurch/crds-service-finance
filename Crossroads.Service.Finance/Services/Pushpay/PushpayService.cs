@@ -13,6 +13,7 @@ using MinistryPlatform.Models;
 using Pushpay.Client;
 using Pushpay.Models;
 using Crossroads.Web.Common.Configuration;
+using MinistryPlatform.Donors;
 using Newtonsoft.Json.Linq;
 
 namespace Crossroads.Service.Finance.Services
@@ -25,6 +26,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IRecurringGiftRepository _recurringGiftRepository;
         private readonly IProgramRepository _programRepository;
         private readonly IContactRepository _contactRepository;
+        private readonly IDonorRepository _donorRepository;
         private readonly IMapper _mapper;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
                              _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpDefaultCongregationId;
@@ -33,7 +35,7 @@ namespace Crossroads.Service.Finance.Services
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
-                              IProgramRepository programRepository, IContactRepository contactRepository)
+                              IProgramRepository programRepository, IContactRepository contactRepository, IDonorRepository donorRepository)
         {
             _pushpayClient = pushpayClient;
             _donationService = donationService;
@@ -41,6 +43,7 @@ namespace Crossroads.Service.Finance.Services
             _recurringGiftRepository = recurringGiftRepository;
             _programRepository = programRepository;
             _contactRepository = contactRepository;
+            _donorRepository = donorRepository;
             _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
@@ -82,6 +85,24 @@ namespace Crossroads.Service.Finance.Services
                 //   so it still may not be available
                 var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
                 if (donation == null) return null;
+                // add payment token so that we can identify easier via api
+                if (pushpayPayment.PaymentToken != null)
+                {
+                    donation.SubscriptionCode = pushpayPayment.PaymentToken;
+                }
+                // if donation from a recurring gift, let's put that on donation
+                if (pushpayPayment.RecurringPaymentToken != null)
+                {
+                    donation.IsRecurringGift = true;
+                    var mpRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPayment.RecurringPaymentToken);
+                    if (mpRecurringGift != null) {
+                        donation.RecurringGiftId = mpRecurringGift.RecurringGiftId;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
+                    }
+                }
                 if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
                 {
                     donation.DonationStatusId = _mpDonationStatusPending;
@@ -153,6 +174,9 @@ namespace Crossroads.Service.Finance.Services
             if (status == "Active")
             {
                 var updatedMpRecurringGift = BuildUpdateRecurringGift(existingMpRecurringGift, updatedPushpayRecurringGift);
+
+                // vendor detail url is not available in the pushpay api when getting a recurring gift
+                updatedMpRecurringGift.Add(new JProperty("Vendor_Detail_URL", webhook.Events[0].Links.ViewRecurringPayment));
                 _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
                 var updatedDonorAccount = BuildUpdateDonorAccount(existingMpRecurringGift, updatedPushpayRecurringGift);
                 _donationService.UpdateDonorAccount(updatedDonorAccount);
@@ -160,6 +184,9 @@ namespace Crossroads.Service.Finance.Services
             else if (status == "Cancelled" || status == "Paused")
             {
                 var updatedMpRecurringGift = BuildEndDatedRecurringGift(existingMpRecurringGift, updatedPushpayRecurringGift);
+
+                // vendor detail url is not available in the pushpay api when getting a recurring gift
+                updatedMpRecurringGift.Add(new JProperty("Vendor_Detail_URL", webhook.Events[0].Links.ViewRecurringPayment));
                 _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
             }
             return _mapper.Map<RecurringGiftDto>(existingMpRecurringGift);
@@ -168,7 +195,6 @@ namespace Crossroads.Service.Finance.Services
         private JObject BuildEndDatedRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
-            var donorId = _contactRepository.FindDonorByProcessorId(updatedPushpayRecurringGift.Payer.Key).DonorId;
             return new JObject(
                 new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
                 new JProperty("End_Date", DateTime.Now),
@@ -179,7 +205,6 @@ namespace Crossroads.Service.Finance.Services
         private JObject BuildUpdateRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
-            var donorId = _contactRepository.FindDonorByProcessorId(updatedPushpayRecurringGift.Payer.Key).DonorId;
             return new JObject( 
                 new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
                 new JProperty("Amount", mappedMpRecurringGift.Amount),
@@ -201,7 +226,8 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Account_Number", mpDonorAccount.AccountNumber),
                 new JProperty("Routing_Number", mpDonorAccount.RoutingNumber),
                 new JProperty("Institution_Name", mpDonorAccount.InstitutionName),
-                new JProperty("Account_Type_ID", mpDonorAccount.AccountTypeId)
+                new JProperty("Account_Type_ID", mpDonorAccount.AccountTypeId),
+                new JProperty("Processor_ID", mpDonorAccount.ProcessorId)
             );
         }
 
@@ -215,7 +241,6 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.CongregationId = _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
 
             mpRecurringGift.ConsecutiveFailureCount = 0;
-            //mpRecurringGift.DomainId = 1;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
             mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
 
@@ -226,8 +251,9 @@ namespace Crossroads.Service.Finance.Services
 
         private MpDonor FindOrCreateDonorAndDonorAccount(PushpayRecurringGiftDto gift)
         {
-            var existingMatchedDonor = _contactRepository.FindDonorByProcessorId(gift.Payer.Key);
-            if (existingMatchedDonor != null && existingMatchedDonor.DonorId.HasValue) {
+            var donorId = _donorRepository.GetDonorIdByProcessorId(gift.Payer.Key);
+            if (donorId != null) {
+                var existingMatchedDonor = _donorRepository.GetDonorByDonorId(donorId.GetValueOrDefault());
                 // we found a matching donor by processor id (i.e. we have previously matched them)
                 //   create a new donor account on donor for this recurring gift
                 existingMatchedDonor.DonorAccountId = CreateDonorAccount(gift, existingMatchedDonor.DonorId.Value).DonorAccountId;
@@ -248,15 +274,18 @@ namespace Crossroads.Service.Finance.Services
                     var mpDonor = new MpDonor()
                     {
                         ContactId = matchedContact.ContactId,
-                        StatementFrequencyId = 2, // annual
+                        StatementFrequencyId = 1, // quarterly
                         StatementTypeId = 1, // individual
                         StatementMethodId = 2, // email+online
                         SetupDate = DateTime.Now
                     };
                     matchedContact.DonorId = _donationService.CreateDonor(mpDonor).DonorId;
                 }
-                // update processor id on donor account so we dont have to manually match next time
-                _contactRepository.UpdateProcessor(matchedContact.DonorId.Value, gift.Payer.Key);
+
+                // TODO - this was removed to address the issue of creating a Pushpay recurring gift overwriting a Stripe processor id - remove
+                // this code permanently when this is tested fully
+                //// update processor id on donor account so we dont have to manually match next time
+                //_contactRepository.UpdateProcessor(matchedContact.DonorId.Value, gift.Payer.Key);
 
                 // create donor account and attach to contact
                 matchedContact.DonorAccountId = CreateDonorAccount(gift, matchedContact.DonorId.Value).DonorAccountId;
@@ -285,6 +314,7 @@ namespace Crossroads.Service.Finance.Services
                 NonAssignable = false,
                 DomainId = 1,
                 Closed = false,
+                ProcessorId = gift.Payer.Key,
                 ProcessorTypeId = pushpayProcessorTypeId
         };
             if (donorId != null) {

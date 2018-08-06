@@ -22,6 +22,12 @@ namespace Pushpay.Models
         [JsonProperty("paymentToken")]
         public string PaymentToken { get; set; }
 
+        // this is on a payment when there is a refunded credit card
+        //  payment and these details have the original payment
+        [JsonProperty("refundFor")]
+        public PushpayRefundPaymentDto RefundFor { get; set; }
+
+        // this links to a payment that refunded this payment
         [JsonProperty("refundedBy")]
         public PushpayRefundPaymentDto RefundedBy { get; set; }
 

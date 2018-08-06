@@ -15,17 +15,15 @@ namespace MinistryPlatform.Repositories
     {
         private readonly IDonationRepository _mpDonationRepository;
         IAuthenticationRepository _authRepo;
-        private const int cogiverRelationshipId = 42;
+        private const int pushpayProcessorType = 1;
 
         public ContactRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
-            IDonationRepository mpDonationRepository,
             IConfigurationWrapper configurationWrapper,
             IMapper mapper,
             IAuthenticationRepository authenticationRepository) : base(builder, apiUserRepository, configurationWrapper, mapper)
         {
             _authRepo = authenticationRepository;
-            _mpDonationRepository = mpDonationRepository;
         }
 
         public MpDonor MatchContact(string firstName, string lastName, string phone, string email)
@@ -63,7 +61,6 @@ namespace MinistryPlatform.Repositories
         {
             var token = ApiUserRepository.GetDefaultApiClientToken();
             var columns = new string[] {
-                "Household_ID",
                 "Congregation_ID"
             };
 
@@ -72,47 +69,6 @@ namespace MinistryPlatform.Repositories
                                 .WithSelectColumns(columns)
                                 .Build()
                                 .Get<MpHousehold>(householdId);
-        }
-
-        public void UpdateProcessor(int donorId, string processorId)
-        {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
-
-            var fields = new JObject(
-                new JProperty("Donor_ID", donorId),
-                new JProperty("Processor_ID", processorId)
-            );
-
-            MpRestBuilder.NewRequestBuilder()
-                         .WithAuthenticationToken(token)
-                         .Build()
-                         .Update(fields, "Donors");
-        }
-
-        public MpDonor FindDonorByProcessorId(string processorId)
-        {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
-
-            var columns = new string[] {
-                "Donors.[Donor_ID]",
-                "Contact_ID_Table.[Contact_ID]",
-                "Contact_ID_Table_Household_ID_Table.[Household_ID]"
-            };
-
-            var filter = $"Processor_ID = '{processorId}'";
-            var donors = MpRestBuilder.NewRequestBuilder()
-                                .WithAuthenticationToken(token)
-                                .WithSelectColumns(columns)
-                                .WithFilter(filter)
-                                .Build()
-                                .Search<MpDonor>();
-
-            if (!donors.Any())
-            {
-                return null;
-            }
-
-            return donors.First();
         }
 
         public int GetBySessionId(string sessionId)
@@ -125,7 +81,6 @@ namespace MinistryPlatform.Repositories
             var token = ApiUserRepository.GetDefaultApiClientToken();
             var columns = new string[] {
                 "Contact_ID",
-                "Household_ID",
                 "Email_Address",
                 "First_Name",
                 "Mobile_Phone",
@@ -148,7 +103,7 @@ namespace MinistryPlatform.Repositories
             return contacts.FirstOrDefault();
         }
 
-        public List<MpContact> GetCogivers(int contactId)
+        public List<MpContactRelationship> GetContactRelationships(int contactId, int contactRelationshipId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
@@ -164,7 +119,7 @@ namespace MinistryPlatform.Repositories
             var filters = new string[]
             {
                 $"Contact_ID_Table.[Contact_ID] = {contactId}",
-                $"Relationship_ID_Table.[Relationship_ID] = {cogiverRelationshipId}",
+                $"Relationship_ID_Table.[Relationship_ID] = {contactRelationshipId}",
                 $"[Start_Date] <= '{DateTime.Now:yyyy-MM-dd}'",
                 $"([End_Date] IS NULL OR [End_Date] > '{DateTime.Now:yyyy-MM-dd}')"
             };
@@ -176,12 +131,7 @@ namespace MinistryPlatform.Repositories
                 .Build()
                 .Search<MpContactRelationship>();
 
-            var cogivers = new List<MpContact>();
-            foreach (MpContactRelationship relatedContact in relatedContacts)
-            {
-                cogivers.Add(GetContact(relatedContact.RelatedContactId));
-            }
-            return cogivers;
+            return relatedContacts;
         }
     }
 }

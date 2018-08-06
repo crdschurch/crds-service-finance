@@ -9,6 +9,7 @@ using Crossroads.Web.Common.Configuration;
 using System;
 using System.Collections.Generic;
 using Crossroads.Service.Finance.Models;
+using MinistryPlatform.Donors;
 using Pushpay.Models;
 using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
@@ -24,6 +25,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         private readonly Mock<IRecurringGiftRepository> _recurringGiftRepository;
         private readonly Mock<IProgramRepository> _programRepository;
         private readonly Mock<IContactRepository> _contactRepository;
+        private readonly Mock<IDonorRepository> _donorRepository;
 
         private readonly IPushpayService _fixture;
 
@@ -36,10 +38,11 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _recurringGiftRepository = new Mock<IRecurringGiftRepository>();
             _programRepository = new Mock<IProgramRepository>();
             _contactRepository = new Mock<IContactRepository>();
+            _donorRepository = new Mock<IDonorRepository>();
 
             _fixture = new PushpayService(_pushpayClient.Object, _donationService.Object, _mapper.Object,
                                           _configurationWrapper.Object, _recurringGiftRepository.Object,
-                                          _programRepository.Object, _contactRepository.Object);
+                                          _programRepository.Object, _contactRepository.Object, _donorRepository.Object);
         }
 
         [Fact]
@@ -154,7 +157,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             };
             _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
             // return null donor
-            _contactRepository.Setup(m => m.FindDonorByProcessorId(It.IsAny<string>()))
+            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns((int?)null);
+            _donorRepository.Setup(m => m.GetDonorByDonorId(It.IsAny<int>()))
                               .Returns((MpDonor)null);
             // don't match
             _contactRepository.Setup(m => m.MatchContact(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -230,7 +234,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             };
             _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
             // return null donor
-            _contactRepository.Setup(m => m.FindDonorByProcessorId(It.IsAny<string>()))
+            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns(1234567);
+            _donorRepository.Setup(m => m.GetDonorByDonorId(It.IsAny<int>()))
                               .Returns(mpDonor);
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
                               .Returns(mockHousehold);
@@ -295,8 +300,9 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             };
             _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
             // return null donor
-            _contactRepository.Setup(m => m.FindDonorByProcessorId(It.IsAny<string>()))
-                                  .Returns((MpDonor)null);
+            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns((int?)null);
+            _donorRepository.Setup(m => m.GetDonorByDonorId(It.IsAny<int>()))
+                .Returns((MpDonor)null);
             // don't match
             _contactRepository.Setup(m => m.MatchContact(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                                   .Returns((MpDonor)null);
@@ -307,7 +313,6 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                                   .Returns(mockHousehold);
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
                                   .Returns(new MpProgram());
-            _contactRepository.Setup(m => m.UpdateProcessor(It.IsAny<int>(), It.IsAny<string>()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
 
@@ -366,8 +371,9 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftBySubscriptionId(pushpayRecurringGift.PaymentToken)).Returns((MpRecurringGift)mpRecurringGift);
             // return null donor
-            _contactRepository.Setup(m => m.FindDonorByProcessorId(It.IsAny<string>()))
-                              .Returns((MpDonor)mpDonor);
+            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns(1234567);
+            _donorRepository.Setup(m => m.GetDonorByDonorId(It.IsAny<int>()))
+                .Returns(mpDonor);
             // don't match
             _contactRepository.Setup(m => m.MatchContact(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                               .Returns((MpDonor)null);
