@@ -36,7 +36,6 @@ namespace Crossroads.Service.Finance.Services
          * This is done by calling crds-angular gateway code and impersonating
          * the user to do so. This is scheduled to be used for the first few months
          * of the pushpay migration for credit cards migrations.
-         * 
          */
         public void CancelStripeRecurringGift(string stripeSubscriptionId)
         {
