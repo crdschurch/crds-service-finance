@@ -39,15 +39,22 @@ namespace Crossroads.Service.Finance.Services
          */
         public void CancelStripeRecurringGift(string stripeSubscriptionId)
         {
-            var stripeRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(stripeSubscriptionId);
-            var donor = _donorRepository.GetDonorByDonorId(stripeRecurringGift.DonorId);
-            var tokenWithImpersonate = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            try
+            {
+                var stripeRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(stripeSubscriptionId);
+                var donor = _donorRepository.GetDonorByDonorId(stripeRecurringGift.DonorId);
+                var tokenWithImpersonate = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
-            var restRequest = new RestRequest($"api/donor/recurrence/{stripeRecurringGift.RecurringGiftId}", Method.DELETE);
-            restRequest.AddHeader("ImpersonateUserId", donor.EmailAddress);
-            restRequest.AddHeader("Authorization", tokenWithImpersonate);
+                var restRequest = new RestRequest($"api/donor/recurrence/{stripeRecurringGift.RecurringGiftId}", Method.DELETE);
+                restRequest.AddHeader("ImpersonateUserId", donor.EmailAddress);
+                restRequest.AddHeader("Authorization", tokenWithImpersonate);
 
-            IRestResponse response = _restClient.Execute(restRequest);
+                IRestResponse response = _restClient.Execute(restRequest);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"CancelStripeRecurringGift error for stripe subscription id: {stripeSubscriptionId}");
+            }
         }
     }
 }
