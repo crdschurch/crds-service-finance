@@ -3,6 +3,12 @@
  * for importing recurring schedules into pushpay.
  * There should be an accompanying person file for import
  */
+ 
+ /*
+  * Email address is modified so that emails do not
+  * get sent out when the result file is imported
+  * in PushPay's system
+  */
 
 SELECT
 	  rg.Subscription_ID AS "Schedule ID" 
@@ -19,7 +25,8 @@ SELECT
 	   END AS "Method"
 	, rg.Subscription_ID AS "Memo" -- this is duplicate, but derrin from pushpay recommends we set this so we can get it back in webhook
 	, c.Contact_GUID AS "Person ID" -- TODO only needed if person file
-	, c.Email_Address AS "Email"
+	--, c.Email_Address AS "Email"
+	, CONCAT(SUBSTRING(c.Email_Address, 1, CHARINDEX('@', c.Email_Address)-1), '_____', SUBSTRING(c.Email_Address, CHARINDEX('@', c.Email_Address), 1000)) AS "Email"
 	, ISNULL(c.Mobile_Phone,'') AS "Mobile Number"
 	, c.Nickname AS "First Name"
 	, c.Last_Name AS "Last Name"
