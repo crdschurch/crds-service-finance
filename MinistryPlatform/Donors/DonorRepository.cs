@@ -68,6 +68,7 @@ namespace MinistryPlatform.Donors
             var donorColumns = new string[] {
                 "Donors.[Donor_ID]",
                 "Contact_ID_Table.[Contact_ID]",
+                "Contact_ID_Table.[Email_Address]",
                 "Contact_ID_Table_Household_ID_Table.[Household_ID]"
             };
 
