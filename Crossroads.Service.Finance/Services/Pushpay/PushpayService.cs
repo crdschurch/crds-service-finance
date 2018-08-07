@@ -27,6 +27,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IProgramRepository _programRepository;
         private readonly IContactRepository _contactRepository;
         private readonly IDonorRepository _donorRepository;
+        private readonly IGatewayService _gatewayService;
         private readonly IMapper _mapper;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
                              _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpDefaultCongregationId;
@@ -35,7 +36,8 @@ namespace Crossroads.Service.Finance.Services
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
-                              IProgramRepository programRepository, IContactRepository contactRepository, IDonorRepository donorRepository)
+                              IProgramRepository programRepository, IContactRepository contactRepository, IDonorRepository donorRepository,
+                              IGatewayService gatewayService)
         {
             _pushpayClient = pushpayClient;
             _donationService = donationService;
@@ -44,6 +46,7 @@ namespace Crossroads.Service.Finance.Services
             _programRepository = programRepository;
             _contactRepository = contactRepository;
             _donorRepository = donorRepository;
+            _gatewayService = gatewayService;
             _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
@@ -162,7 +165,7 @@ namespace Crossroads.Service.Finance.Services
             };
 
             pushpayRecurringGift.Links.ViewRecurringPayment = viewRecurringGiftDto;
-            var mpRecurringGift = BuildNewRecurringGift(pushpayRecurringGift);
+            var mpRecurringGift = BuildAndCreateNewRecurringGift(pushpayRecurringGift);
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }
 
@@ -225,7 +228,7 @@ namespace Crossroads.Service.Finance.Services
             );
         }
 
-        private MpRecurringGift BuildNewRecurringGift (PushpayRecurringGiftDto pushpayRecurringGift)
+        private MpRecurringGift BuildAndCreateNewRecurringGift (PushpayRecurringGiftDto pushpayRecurringGift)
         {
             var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
             var donor = FindOrCreateDonorAndDonorAccount(pushpayRecurringGift);
@@ -239,6 +242,12 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
+
+            // TODO uncomment this when pushpay passes us back the stripe subscription id
+            //   so that we can cancel the credit card recurring gift in stripe
+            //var testStripeSubscriptionId = "sub_DMzghxNY9dXv7i";
+            //_gatewayService.CancelStripeRecurringGift(testStripeSubscriptionId);
+
             return mpRecurringGift;
         }
 
