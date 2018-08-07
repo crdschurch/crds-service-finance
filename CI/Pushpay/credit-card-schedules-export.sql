@@ -3,6 +3,12 @@
  * for importing recurring schedules into pushpay.
  * There should be an accompanying person file for import
  */
+ 
+ /*
+  * Email address is modified so that emails do not
+  * get sent out when the result file is imported
+  * in PushPay's system
+  */
 
 SELECT
 	  rg.Subscription_ID AS "Schedule ID" 
