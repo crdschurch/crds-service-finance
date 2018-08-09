@@ -179,8 +179,17 @@ namespace Crossroads.Service.Finance.Test.Donations
                 }
             };
 
+            var donationHistory = new List<DonationHistoryDto>
+            {
+                new DonationHistoryDto
+                {
+                    DonationId = 5544555
+                }
+            };
+
             _mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationDto);
-            _donationRepository.Setup(r => r.GetDonations(It.IsAny<int>())).Returns(MpDonationsMock.CreateList());
+            _donationRepository.Setup(r => r.GetDonationHistoryByContactId(It.IsAny<int>(), null, null)).Returns(MpDonationHistoryMock.CreateList());
+            _mapper.Setup(m => m.Map<List<DonationHistoryDto>>(It.IsAny<List<MpDonationHistory>>())).Returns(donationHistory);
 
             // Act
             var result = _fixture.GetDonations("token");
@@ -223,10 +232,10 @@ namespace Crossroads.Service.Finance.Test.Donations
             _contactService.Setup(m => m.GetContactIdBySessionId(token)).Returns(contactId);
             _contactService.Setup(m => m.GetCogiversByContactId(contactId)).Returns(contacts);
             _mapper.Setup(m => m.Map<List<DonationHistoryDto>>(It.IsAny<List<MpDonationHistory>>())).Returns(donationHistory);
-            _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId)).Returns(mpDonationHistories);
+            _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId, null, null)).Returns(mpDonationHistories);
 
             // Act
-            var result = _fixture.GetDonationHistoryByContactId(contactId, token);
+            var result = _fixture.GetDonations(contactId);
 
             // Assert
             Assert.NotNull(result);
