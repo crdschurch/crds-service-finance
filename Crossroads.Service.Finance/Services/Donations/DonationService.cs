@@ -120,26 +120,31 @@ namespace Crossroads.Service.Finance.Services
             return mpPledges;
         }
 
-        public List<DonationDto> GetDonations(string token)
+        public List<DonationHistoryDto> GetDonations(string token)
         {
             var contactId = _contactService.GetContactIdBySessionId(token);
-            var records = _mpDonationRepository.GetDonations(contactId);
-            return _mapper.Map<List<DonationDto>>(records);
+            var records = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
+            return _mapper.Map<List<DonationHistoryDto>>(records);
         }
 
-        public List<DonationHistoryDto> GetDonationHistoryByContactId(int contactId, string token)
+        public List<DonationHistoryDto> GetDonations(int contactId)
         {
-            var userContactId = _contactService.GetContactIdBySessionId(token);
-            var contacts = _contactService.GetCogiversByContactId(userContactId);
-            contacts.Add(_contactService.GetContact(userContactId));
-            foreach (var contact in contacts)
+            var records = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
+            return _mapper.Map<List<DonationHistoryDto>>(records);
+        }
+
+        public List<DonationHistoryDto> GetCogiverDonationHistory(int userContactId, int cogiverContactId)
+        {
+            // validate user has cogiver relationship with contact
+            var cogiverContactRelationship = _contactService.GetCogiverContactRelationship(userContactId, cogiverContactId);
+            if (cogiverContactRelationship != null)
             {
-                if (contact.ContactId == contactId)
-                {
-                    var donationHistory = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
-                    return _mapper.Map<List<DonationHistoryDto>>(donationHistory);
-                }
+                var donationHistory = _mpDonationRepository.GetDonationHistoryByContactId(cogiverContactId, 
+                                                                                          cogiverContactRelationship.StartDate,
+                                                                                          cogiverContactRelationship.EndDate);
+                return _mapper.Map<List<DonationHistoryDto>>(donationHistory);
             }
+            Console.WriteLine($"No cogiver contact relationship for contact: {userContactId} with cogiver: {cogiverContactId}");
             return new List<DonationHistoryDto>();
         }
     }

@@ -11,6 +11,7 @@ public class MappingProfile : Profile
     {
         CreateMap<MpPledge, PledgeDto>();
         CreateMap<MpContact, ContactDto>();
+        CreateMap<MpContactRelationship, ContactRelationship>();
         CreateMap<MpDeposit, DepositDto>();
         CreateMap<DepositDto, MpDeposit>();
         CreateMap<MpDonationBatch, DonationBatchDto>();

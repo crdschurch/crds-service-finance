@@ -130,8 +130,28 @@ namespace MinistryPlatform.Repositories
                 .WithFilter(String.Join(" AND ", filters))
                 .Build()
                 .Search<MpContactRelationship>();
-
+            
             return relatedContacts;
+        }
+
+        public MpContactRelationship GetContactRelationship(int contactId, int relatedContactId, int contactRelationshipId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var filters = new string[]
+            {
+                $"Contact_ID_Table.[Contact_ID] = {contactId}",
+                $"Related_Contact_ID_Table.[Contact_ID] = {relatedContactId}",
+                $"Relationship_ID_Table.[Relationship_ID] = {contactRelationshipId}"
+            };
+
+            var contactRelationships = MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .WithFilter(String.Join(" AND ", filters))
+                .Build()
+                .Search<MpContactRelationship>();
+
+            return contactRelationships.FirstOrDefault();
         }
     }
 }

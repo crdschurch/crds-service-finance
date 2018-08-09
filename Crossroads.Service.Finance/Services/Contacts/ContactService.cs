@@ -58,5 +58,11 @@ namespace Crossroads.Service.Finance.Services
 
             return _mapper.Map <List<ContactDto>>(cogivers);
         }
+
+        public ContactRelationship GetCogiverContactRelationship(int contactId, int relatedContactId)
+        {
+            var contactRelationship = _contactRepository.GetContactRelationship(contactId, relatedContactId, cogiverRelationshipId);
+            return _mapper.Map<ContactRelationship>(contactRelationship);
+        }
     }
 }
