@@ -22,4 +22,7 @@ FROM
 	JOIN [MinistryPlatform].[dbo].[Programs] p ON p.Program_ID = dd.Program_ID
 WHERE
 	d.Payment_Type_ID IN (1, 4, 5)
-	AND d.Donation_Date >= '2017-01-01';
+	AND d.Donation_Date >= '2017-01-01'
+	AND c.Company = 0
+	AND c.User_Account IS NOT NULL
+	AND c.Display_Name != 'Guest Giver'
