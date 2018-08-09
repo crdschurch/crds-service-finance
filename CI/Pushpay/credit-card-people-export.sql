@@ -40,3 +40,4 @@ WHERE
 	-- AND da.Account_Type_ID in (1, 2) -- Only export bank accounts (Checking, Savings), since we are not importing Credit Card recurring gifts
 	AND da.Account_Type_ID = 3 -- Only export credit card
 	AND rg.Subscription_ID LIKE 'sub_%' -- only way I can think of to identify stripe gifts vs. pushpay gifts
+	AND c.Display_Name != 'Guest Giver'
