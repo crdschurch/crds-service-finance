@@ -7,6 +7,7 @@ using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Moq;
 using Xunit;
+using Mock;
 
 namespace Crossroads.Service.Finance.Test.Contacts
 {
@@ -75,6 +76,24 @@ namespace Crossroads.Service.Finance.Test.Contacts
             // Assert
             Assert.NotNull(result);
             _contactRepository.VerifyAll();
+        }
+
+        [Fact]
+        public void ShouldGetDonorRelatedContacts()
+        {
+            var token = "token-567";
+            var mockContactId = 5565;
+            _contactRepository.Setup(m => m.GetBySessionId(token)).Returns(mockContactId);
+            _contactRepository.Setup(m => m.GetContact(mockContactId)).Returns(MpContactMock.Create());
+            _mapper.Setup(m => m.Map<ContactDto>(It.IsAny<MpContact>())).Returns(ContactMock.Create());
+            _contactRepository.Setup(m => m.GetContactRelationships(mockContactId, 2)).Returns(MpContactRelationshipMock.CreateList());
+            // doesn't matter because this gets mapped
+            _contactRepository.Setup(m => m.GetContact(It.IsAny<int>())).Returns(MpContactMock.Create());
+            _mapper.Map<List<ContactDto>>(cogivers);
+            _contactRepository.Setup(m => m.GetHouseholdMinorChildren(It.IsAny<int>())).Returns(MpContactMock.CreateList());
+            _mapper.Map<List<ContactDto>>(householdMinorChildren);
+
+            var result = _fixture.GetDonorRelatedContacts(token);
         }
     }
 }
