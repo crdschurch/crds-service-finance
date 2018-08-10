@@ -28,7 +28,6 @@ namespace MinistryPlatform.Test.Contacts
 
         private string token = "123abc";
         private string clientId = "CRDS.Service.Finance";
-        private int pushpayProcessorType = 1;
 
         public ContactRepositoryTest()
         {
@@ -130,6 +129,7 @@ namespace MinistryPlatform.Test.Contacts
 
             var columns = new string[] {
                 "Contact_ID",
+                "Household_ID",
                 "Email_Address",
                 "First_Name",
                 "Mobile_Phone",

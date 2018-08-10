@@ -13,7 +13,6 @@ namespace MinistryPlatform.Repositories
 {
     public class ContactRepository : MinistryPlatformBase, IContactRepository
     {
-        private readonly IDonationRepository _mpDonationRepository;
         IAuthenticationRepository _authRepo;
         private const int pushpayProcessorType = 1;
         private const int householdPositionMinorChild = 2;

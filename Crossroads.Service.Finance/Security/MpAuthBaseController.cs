@@ -81,6 +81,7 @@ namespace Crossroads.Service.Finance.Security
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return actionWhenNotAuthorized();
             }
         }
