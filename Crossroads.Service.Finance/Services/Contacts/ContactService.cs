@@ -5,6 +5,7 @@ using Crossroads.Service.Finance.Interfaces;
 using System.Collections.Generic;
 using MinistryPlatform.Models;
 using System.Linq;
+using System;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -81,7 +82,7 @@ namespace Crossroads.Service.Finance.Services
             var householdMinorChildren = GetHouseholdMinorChildren(userContact.HouseholdId.Value);
             userDonationVisibleContacts.AddRange(cogivers);
             userDonationVisibleContacts.AddRange(householdMinorChildren);
-            userDonationVisibleContacts.OrderBy(c => c.Nickname).ThenBy(c => c.FirstName).ThenBy(c => c.LastName).ToList();
+            userDonationVisibleContacts = userDonationVisibleContacts.OrderBy(c => c.Nickname).ThenBy(c => c.FirstName).ThenBy(c => c.LastName).ToList();
             userDonationVisibleContacts.Insert(0, userContact);
             return userDonationVisibleContacts;
         }

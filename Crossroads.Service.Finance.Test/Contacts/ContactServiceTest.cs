@@ -84,16 +84,27 @@ namespace Crossroads.Service.Finance.Test.Contacts
             var token = "token-567";
             var mockContactId = 5565;
             _contactRepository.Setup(m => m.GetBySessionId(token)).Returns(mockContactId);
-            _contactRepository.Setup(m => m.GetContact(mockContactId)).Returns(MpContactMock.Create());
+            _contactRepository.Setup(m => m.GetContact(It.IsAny<int>())).Returns(MpContactMock.Create());
             _mapper.Setup(m => m.Map<ContactDto>(It.IsAny<MpContact>())).Returns(ContactMock.Create());
-            _contactRepository.Setup(m => m.GetContactRelationships(mockContactId, 2)).Returns(MpContactRelationshipMock.CreateList());
+            _contactRepository.Setup(m => m.GetContactRelationships(mockContactId, 42)).Returns(MpContactRelationshipMock.CreateList());
             // doesn't matter because this gets mapped
             _contactRepository.Setup(m => m.GetContact(It.IsAny<int>())).Returns(MpContactMock.Create());
-            _mapper.Map<List<ContactDto>>(cogivers);
+            _mapper.Setup(m => m.Map<List<ContactDto>>(It.IsAny<List<MpContact>>())).Returns(ContactMock.CreateList());
+            // doesn't matter because this gets mapped
             _contactRepository.Setup(m => m.GetHouseholdMinorChildren(It.IsAny<int>())).Returns(MpContactMock.CreateList());
-            _mapper.Map<List<ContactDto>>(householdMinorChildren);
+            _mapper.Setup(m => m.Map<List<ContactDto>>(It.IsAny<List<MpContact>>())).Returns(ContactMock.CreateList());
 
             var result = _fixture.GetDonorRelatedContacts(token);
+
+            _contactRepository.VerifyAll();
+
+            Assert.Equal(5, result.Count);
+            // ensure ordered by logged in user, then nickname/first name/last name
+            Assert.Equal("Charles", result[0].Nickname);
+            Assert.Equal("Bob", result[1].Nickname);
+            Assert.Equal("Bob", result[2].Nickname);
+            Assert.Equal("George", result[3].Nickname);
+            Assert.Equal("George", result[4].Nickname);
         }
     }
 }
