@@ -92,37 +92,6 @@ namespace Crossroads.Service.Finance.Controllers
         /// Get donations (donation history) for a user
         /// </summary>
         /// <returns></returns>
-        [Obsolete]
-        [HttpGet("donations")]
-        [ProducesResponseType(typeof(List<DonationDto>), 200)]
-        [ProducesResponseType(204)]
-        public IActionResult GetDonations()
-        {
-            return Authorized(token =>
-            {
-                try
-                {
-                    var donations = _donationService.GetDonations(token);
-                    if (donations == null || donations.Count == 0)
-                    {
-                        return NoContent();
-                    }
-
-                    return Ok(donations);
-                }
-                catch (Exception ex)
-                {
-                    var msg = "DonationController: GetDonations";
-                    _logger.Error(msg, ex);
-                    return BadRequest(ex.Message);
-                }
-            });
-        }
-
-        /// <summary>
-        /// Get donations (donation history) for a user
-        /// </summary>
-        /// <returns></returns>
         [HttpGet("contact/{contactId}/donations")]
         [ProducesResponseType(typeof(List<DonationDto>), 200)]
         [ProducesResponseType(204)]
@@ -132,7 +101,18 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
-                    var donations = _donationService.GetDonationHistoryByContactId(contactId, token);
+                    List<DonationHistoryDto> donations;
+                    var userContactId = _contactService.GetContactIdBySessionId(token);
+                    if (contactId == userContactId)
+                    {
+                        // get logged in user's donations
+                        donations = _donationService.GetDonations(userContactId);
+                    }
+                    else
+                    {
+                        // get related contact donations (minor child in household or active co-giver)
+                        donations = _donationService.GetRelatedContactDonations(userContactId, contactId);
+                    }
                     if (donations == null || donations.Count == 0)
                     {
                         return NoContent();
@@ -149,25 +129,21 @@ namespace Crossroads.Service.Finance.Controllers
             });
         }
 
-        [HttpGet("cogivers")]
+        [HttpGet("contacts/related")]
         [ProducesResponseType(typeof(List<ContactDto>), 200)]
         [ProducesResponseType(204)]
-        public IActionResult GetCogivers()
+        public IActionResult GetDonorRelatedContacts()
         {
             return Authorized(token =>
             {
                 try
                 {
-                    var userContactId = _contactService.GetContactIdBySessionId(token);
-                    var cogivers = _contactService.GetCogiversByContactId(userContactId)
-                        .OrderBy(c => c.Nickname).ThenBy(c => c.FirstName).ThenBy(c => c.LastName).ToList();
-                    cogivers.Insert(0, _contactService.GetContact(userContactId));
-               
-                    return Ok(cogivers);
+                    var userDonationVisibleContacts = _contactService.GetDonorRelatedContacts(token);
+                    return Ok(userDonationVisibleContacts);
                 }
                 catch (Exception ex)
                 {
-                    var msg = "DonationController: GetCogivers";
+                    var msg = "DonationController: GetDonorRelatedContacts";
                     _logger.Error(msg, ex);
                     return BadRequest(ex.Message);
                 }

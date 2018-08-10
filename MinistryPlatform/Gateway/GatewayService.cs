@@ -54,6 +54,7 @@ namespace Crossroads.Service.Finance.Services
             catch (Exception e)
             {
                 Console.WriteLine($"CancelStripeRecurringGift error for stripe subscription id: {stripeSubscriptionId}");
+                Console.WriteLine(e.Message);
             }
         }
     }

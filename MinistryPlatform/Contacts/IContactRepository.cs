@@ -10,5 +10,7 @@ namespace MinistryPlatform.Interfaces
         int GetBySessionId(string sessionId);
         MpContact GetContact(int contactId);
         List<MpContactRelationship> GetContactRelationships(int contactId, int contactRelationshipId);
+        MpContactRelationship GetContactRelationship(int contactId, int relatedContactId, int contactRelationshipId);
+        List<MpContact> GetHouseholdMinorChildren(int householdId);
     }
 }

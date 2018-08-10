@@ -14,6 +14,9 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty(PropertyName = "participantId")]
         public int ParticipantId { get; set; }
 
+        [JsonProperty(PropertyName = "householdId")]
+        public int? HouseholdId { get; set; }
+
         [JsonProperty(PropertyName = "emailAddress")]
         public string EmailAddress { get; set; }
 

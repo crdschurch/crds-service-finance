@@ -13,7 +13,6 @@ namespace MinistryPlatform.Donors
 {
     public class DonorRepository : MinistryPlatformBase, IDonorRepository
     {
-        private readonly IDonationRepository _mpDonationRepository;
         IAuthenticationRepository _authRepo;
         private const int pushpayProcessorType = 1;
 

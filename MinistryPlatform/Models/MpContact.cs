@@ -16,6 +16,9 @@ namespace MinistryPlatform.Models
         [JsonProperty(PropertyName = "Participant_Record")]
         public int ParticipantId { get; set; }
 
+        [JsonProperty(PropertyName = "Household_ID")]
+        public int? HouseholdId { get; set; }
+
         [JsonProperty(PropertyName = "Email_Address")]
         public string EmailAddress { get; set; }
 
