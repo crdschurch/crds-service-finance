@@ -61,3 +61,7 @@ spec:
               value: $PUSHPAY_CLIENT_SECRET
             - name: PUSHPAY_MERCHANT_KEY            
               value: $PUSHPAY_MERCHANT_KEY
+            - name: NEW_RELIC_LICENSE_KEY            
+              value: $NR_INSTALL_KEY
+            - name: NEW_RELIC_APP_NAME  
+              value: $NR_APP_NAME

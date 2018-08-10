@@ -46,7 +46,7 @@ namespace Crossroads.Service.Finance
             catch (Exception e)
             {
                 // no .env file present but since not required, just write
-                Console.Write(e);
+                Console.WriteLine("no .env file found, reading environment variables from machine");
             }
 
             var host = new WebHostBuilder()
