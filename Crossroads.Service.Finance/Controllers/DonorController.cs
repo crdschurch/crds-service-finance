@@ -110,8 +110,8 @@ namespace Crossroads.Service.Finance.Controllers
                     }
                     else
                     {
-                        // get cogiver's donations
-                        donations = _donationService.GetCogiverDonationHistory(userContactId, contactId);
+                        // get related contact donations (minor child in household or active co-giver)
+                        donations = _donationService.GetRelatedContactDonations(userContactId, contactId);
                     }
                     if (donations == null || donations.Count == 0)
                     {
@@ -129,25 +129,21 @@ namespace Crossroads.Service.Finance.Controllers
             });
         }
 
-        [HttpGet("cogivers")]
+        [HttpGet("contacts/related")]
         [ProducesResponseType(typeof(List<ContactDto>), 200)]
         [ProducesResponseType(204)]
-        public IActionResult GetCogivers()
+        public IActionResult GetDonorRelatedContacts()
         {
             return Authorized(token =>
             {
                 try
                 {
-                    var userContactId = _contactService.GetContactIdBySessionId(token);
-                    var cogivers = _contactService.GetCogiversByContactId(userContactId)
-                        .OrderBy(c => c.Nickname).ThenBy(c => c.FirstName).ThenBy(c => c.LastName).ToList();
-                    cogivers.Insert(0, _contactService.GetContact(userContactId));
-               
-                    return Ok(cogivers);
+                    var userDonationVisibleContacts = _contactService.GetDonorRelatedContacts(token);
+                    return Ok(userDonationVisibleContacts);
                 }
                 catch (Exception ex)
                 {
-                    var msg = "DonationController: GetCogivers";
+                    var msg = "DonationController: GetDonorRelatedContacts";
                     _logger.Error(msg, ex);
                     return BadRequest(ex.Message);
                 }

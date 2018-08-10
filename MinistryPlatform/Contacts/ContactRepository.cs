@@ -16,6 +16,7 @@ namespace MinistryPlatform.Repositories
         private readonly IDonationRepository _mpDonationRepository;
         IAuthenticationRepository _authRepo;
         private const int pushpayProcessorType = 1;
+        private const int householdPositionMinorChild = 2;
 
         public ContactRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
@@ -81,6 +82,7 @@ namespace MinistryPlatform.Repositories
             var token = ApiUserRepository.GetDefaultApiClientToken();
             var columns = new string[] {
                 "Contact_ID",
+                "Household_ID",
                 "Email_Address",
                 "First_Name",
                 "Mobile_Phone",
@@ -152,6 +154,35 @@ namespace MinistryPlatform.Repositories
                 .Search<MpContactRelationship>();
 
             return contactRelationships.FirstOrDefault();
+        }
+
+        public List<MpContact> GetHouseholdMinorChildren(int householdId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var columns = new string[] {
+                "Contact_ID",
+                "Email_Address",
+                "First_Name",
+                "Mobile_Phone",
+                "Last_Name",
+                "Date_of_Birth",
+                "Participant_Record",
+                "Nickname"
+            };
+
+            var filters = new string[]
+            {
+                $"Household_ID_Table.[Household_ID] = {householdId}",
+                $"Household_Position_ID_Table.[Household_Position_ID] = {householdPositionMinorChild}"
+            };
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithSelectColumns(columns)
+                .WithAuthenticationToken(token)
+                .WithFilter(String.Join(" AND ", filters))
+                .Build()
+                .Search<MpContact>();
         }
     }
 }

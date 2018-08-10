@@ -4,6 +4,7 @@ using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using System.Collections.Generic;
 using MinistryPlatform.Models;
+using System.Linq;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -56,13 +57,33 @@ namespace Crossroads.Service.Finance.Services
                 cogivers.Add(contact);
             }
 
-            return _mapper.Map <List<ContactDto>>(cogivers);
+            return _mapper.Map<List<ContactDto>>(cogivers);
         }
 
         public ContactRelationship GetCogiverContactRelationship(int contactId, int relatedContactId)
         {
             var contactRelationship = _contactRepository.GetContactRelationship(contactId, relatedContactId, cogiverRelationshipId);
             return _mapper.Map<ContactRelationship>(contactRelationship);
+        }
+
+        public List<ContactDto> GetHouseholdMinorChildren(int householdId)
+        {
+            var householdMinorChildren = _contactRepository.GetHouseholdMinorChildren(householdId);
+            return _mapper.Map<List<ContactDto>>(householdMinorChildren);
+        }
+
+        public List<ContactDto> GetDonorRelatedContacts(string token)
+        {
+            var userContactId = GetContactIdBySessionId(token);
+            var userContact = GetContact(userContactId);
+            var cogivers = GetCogiversByContactId(userContactId);
+            var userDonationVisibleContacts = new List<ContactDto>();
+            var householdMinorChildren = GetHouseholdMinorChildren(userContact.HouseholdId.Value);
+            userDonationVisibleContacts.AddRange(cogivers);
+            userDonationVisibleContacts.AddRange(householdMinorChildren);
+            userDonationVisibleContacts.OrderBy(c => c.Nickname).ThenBy(c => c.FirstName).ThenBy(c => c.LastName).ToList();
+            userDonationVisibleContacts.Insert(0, userContact);
+            return userDonationVisibleContacts;
         }
     }
 }
