@@ -109,15 +109,17 @@ namespace Crossroads.Service.Finance.Services
                 if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
                 {
                     donation.DonationStatusId = _mpDonationStatusPending;
+                    donation.DonationStatusDate = DateTime.Now;
                 }
                 else if (pushpayPayment.IsStatusSuccess)
                 {
                     donation.DonationStatusId = _mpDonationStatusSucceeded;
-
+                    donation.DonationStatusDate = DateTime.Now;
                 }
                 else if (pushpayPayment.IsStatusFailed)
                 {
                     donation.DonationStatusId = _mpDonationStatusDeclined;
+                    donation.DonationStatusDate = DateTime.Now;
                 }
                 _donationService.Update(donation);
                 return donation;
