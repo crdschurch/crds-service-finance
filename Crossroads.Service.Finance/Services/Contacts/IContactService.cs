@@ -12,5 +12,8 @@ namespace Crossroads.Service.Finance.Interfaces
         ContactDto GetContact(int contactId);
         ContactDto GetBySessionId(string sessionId);
         List<ContactDto> GetCogiversByContactId(int contactId);
+        ContactRelationship GetCogiverContactRelationship(int contactId, int relatedContactId);
+        List<ContactDto> GetHouseholdMinorChildren(int householdId);
+        List<ContactDto> GetDonorRelatedContacts(string token);
     }
 }

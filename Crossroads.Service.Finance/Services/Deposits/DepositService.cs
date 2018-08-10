@@ -81,8 +81,6 @@ namespace Crossroads.Service.Finance.Services
                 ProcessorTransferId = depositKey,
                 VendorDetailUrl = $"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate={estDepositDate}&toDate={estDepositDate}",
             };
-            Console.WriteLine("depositDto");
-            Console.WriteLine(depositDto.DepositName);
             return depositDto;
         }
 

@@ -1,5 +1,7 @@
 # crds-service-finance
 
+[![Teamcity Status](<https://ci.crossroads.net/app/rest/builds/buildType:(id:Api_Finance_Deploy_2_1Integration)/statusIcon.svg>)](https://ci.crossroads.net/viewType.html?buildTypeId=Api_Finance_Deploy_2_1Integration)
+
 Finance for Micro-Services in dotnet core
 
 ### Install dependencies

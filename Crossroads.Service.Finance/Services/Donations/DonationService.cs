@@ -120,27 +120,39 @@ namespace Crossroads.Service.Finance.Services
             return mpPledges;
         }
 
-        public List<DonationDto> GetDonations(string token)
+        public List<DonationHistoryDto> GetDonations(string token)
         {
             var contactId = _contactService.GetContactIdBySessionId(token);
-            var records = _mpDonationRepository.GetDonations(contactId);
-            return _mapper.Map<List<DonationDto>>(records);
+            var records = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
+            return _mapper.Map<List<DonationHistoryDto>>(records);
         }
 
-        public List<DonationHistoryDto> GetDonationHistoryByContactId(int contactId, string token)
+        public List<DonationHistoryDto> GetDonations(int contactId)
         {
-            var userContactId = _contactService.GetContactIdBySessionId(token);
-            var contacts = _contactService.GetCogiversByContactId(userContactId);
-            contacts.Add(_contactService.GetContact(userContactId));
-            foreach (var contact in contacts)
+            var records = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
+            return _mapper.Map<List<DonationHistoryDto>>(records);
+        }
+
+        public List<DonationHistoryDto> GetRelatedContactDonations(int userContactId, int relatedContactId)
+        {
+            // check if relatedContactId has an active co-giver contact relationship with userContactId
+            var cogiverContactRelationship = _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
+            if (cogiverContactRelationship != null)
             {
-                if (contact.ContactId == contactId)
-                {
-                    var donationHistory = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
-                    return _mapper.Map<List<DonationHistoryDto>>(donationHistory);
-                }
+                // relatedContactId is a cogiver contact relationship
+                var mpDonationHistory = _mpDonationRepository.GetDonationHistoryByContactId(relatedContactId, 
+                                                                           cogiverContactRelationship.StartDate,
+                                                                           cogiverContactRelationship.EndDate);
+                return _mapper.Map<List<DonationHistoryDto>>(mpDonationHistory);
             }
-            return new List<DonationHistoryDto>();
+            var userContact = _contactService.GetContact(userContactId);
+            var householdMinorChildren = _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
+            if (householdMinorChildren.Exists(householdChild => householdChild.ContactId == relatedContactId))
+            {
+                var mpDonationHistory = GetDonations(relatedContactId);
+                return _mapper.Map<List<DonationHistoryDto>>(mpDonationHistory);
+            }
+            throw new Exception($"Contact {userContactId} does not have access to view giving history for contact {relatedContactId}");
         }
     }
 }
