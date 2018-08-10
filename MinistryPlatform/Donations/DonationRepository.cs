@@ -229,6 +229,8 @@ namespace MinistryPlatform.Repositories
                 filters.Add($"Donation_ID_Table.[Donation_Date] <= '{endDate:yyyy-MM-dd}'");
             }
 
+            Console.WriteLine(String.Join(" AND ", filters));
+
             var order = "Donation_ID_Table.[Donation_Date] DESC";
 
             return MpRestBuilder.NewRequestBuilder()
