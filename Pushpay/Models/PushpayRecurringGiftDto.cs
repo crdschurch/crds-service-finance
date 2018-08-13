@@ -24,6 +24,9 @@ namespace Pushpay.Models
         [JsonProperty("paymentToken")]
         public string PaymentToken { get; set; }
 
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
+
         [JsonProperty("card")]
         public PushpayCard Card { get; set; }
 

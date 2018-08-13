@@ -251,10 +251,11 @@ namespace Crossroads.Service.Finance.Services
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
-            // TODO uncomment this when pushpay passes us back the stripe subscription id
-            //   so that we can cancel the credit card recurring gift in stripe
-            //var testStripeSubscriptionId = "sub_DMzghxNY9dXv7i";
-            //_gatewayService.CancelStripeRecurringGift(testStripeSubscriptionId);
+            // cancel the recurring gift in stripe, if exists
+            if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
+            {
+                _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes);
+            }
 
             return mpRecurringGift;
         }
