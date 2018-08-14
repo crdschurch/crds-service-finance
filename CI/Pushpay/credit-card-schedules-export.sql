@@ -15,7 +15,7 @@ SELECT
 	, cast(rg.Amount as decimal(10,2)) AS "Amount" -- Rounding decimals up, it appears PushPay wants whole numbers
 	, CASE rgf.Frequency_ID 
 		WHEN 1 THEN CONCAT('Every Week ', rd.Day_Of_Week) 
-		ELSE CONCAT('Event Month ', CONVERT(varchar, rg.Day_Of_Month)) 
+		ELSE CONCAT('Every Month ', CONVERT(varchar, rg.Day_Of_Month)) 
 	  END AS "Frequency"
 	, FORMAT(rg.Start_Date, 'yyyy-MM-dd') AS "Start Date" -- TODO do we want this?
 	, p.Program_Name AS "Fund Name"
