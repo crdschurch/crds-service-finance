@@ -22,7 +22,7 @@ namespace MinistryPlatform.Repositories
         
         public List<MpDonationDistribution> GetByPledges(List<int> pledgeIds)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var columns = new string[] {
                 "Pledge_ID_Table.[Pledge_ID]",

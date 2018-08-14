@@ -18,7 +18,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDonationBatch CreateDonationBatch(MpDonationBatch mpDonationBatch)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
@@ -28,7 +28,7 @@ namespace MinistryPlatform.Repositories
 
         public void UpdateDonationBatch(MpDonationBatch mpDonationBatch)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
