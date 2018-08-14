@@ -49,7 +49,9 @@ namespace Crossroads.Service.Finance.Services
                 restRequest.AddHeader("ImpersonateUserId", donor.EmailAddress);
                 restRequest.AddHeader("Authorization", tokenWithImpersonate);
 
+                Console.WriteLine($"Cancelling stripe recurring gift ({stripeSubscriptionId})");
                 IRestResponse response = _restClient.Execute(restRequest);
+                Console.WriteLine($"Status code: {response.StatusCode}");
             }
             catch (Exception e)
             {
