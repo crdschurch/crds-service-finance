@@ -35,6 +35,9 @@ namespace Crossroads.Service.Finance.Models
 
         [JsonProperty("recurringGiftId")]
         public int? RecurringGiftId { get; set; }
+        
+        [JsonProperty("paymentTypeId")]
+        public int PaymentTypeId { get; set; }
     }
 
     public enum DonationStatus

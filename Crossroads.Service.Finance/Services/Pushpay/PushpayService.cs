@@ -121,6 +121,14 @@ namespace Crossroads.Service.Finance.Services
                     donation.DonationStatusId = _mpDonationStatusDeclined;
                     donation.DonationStatusDate = DateTime.Now;
                 }
+
+                // Set payment type for refunds
+                var refund = _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
+                if (refund != null)
+                {
+                    donation.PaymentTypeId = refund.PaymentTypeId;
+                }
+
                 _donationService.Update(donation);
                 return donation;
             } catch (Exception e) {
