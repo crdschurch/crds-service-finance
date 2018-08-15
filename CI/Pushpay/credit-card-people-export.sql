@@ -17,7 +17,7 @@
 USE MinistryPlatform
 
 SELECT DISTINCT
-	c.Contact_GUID AS "Person ID" -- TODO only needed if person file
+	c.Contact_GUID AS "Person ID" -- needed for person file
 	, c.Nickname AS "First Name"
 	, c.Last_Name AS "Last Name"
 	-- TODO make sure this is set correctly

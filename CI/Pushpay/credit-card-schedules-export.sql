@@ -7,7 +7,8 @@
  */
 
 SELECT
-	  rg.Subscription_ID AS "Schedule ID" 
+	  c.Contact_GUID AS "Person ID" -- this points to record in person file
+	, rg.Subscription_ID AS "Schedule ID" 
 	, cast(rg.Amount as decimal(10,2)) AS "Amount" -- Rounding decimals up, it appears PushPay wants whole numbers
 	, CASE rgf.Frequency_ID 
 		WHEN 1 THEN CONCAT('Every Week ',  RTRIM(rd.Day_Of_Week)) 
@@ -20,7 +21,6 @@ SELECT
 		   ELSE NULL
 	   END AS "Method"
 	, rg.Subscription_ID AS "Memo" -- this is duplicate, but derrin from pushpay recommends we set this so we can get it back in webhook
-	, c.Contact_GUID AS "Person ID" -- this points to record in person file
 FROM
 	[MinistryPlatform].[dbo].[Contacts] c
 	LEFT OUTER JOIN [MinistryPlatform].[dbo].[Households] h ON h.Household_ID = c.Household_ID
