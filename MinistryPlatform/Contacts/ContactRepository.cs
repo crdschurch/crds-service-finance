@@ -36,7 +36,7 @@ namespace MinistryPlatform.Repositories
                 {"@LastName", lastName},
                 {"@Phone", phone},
                 {"@EmailAddress", email},
-                {"@RequireEmail", email.Length > 0},
+                {"@RequireEmail", email != null && email.Length > 0},
                 {"@DomainId", 1},
             };
 
@@ -59,7 +59,7 @@ namespace MinistryPlatform.Repositories
 
         public MpHousehold GetHousehold(int householdId)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
                 "Congregation_ID"
             };
@@ -78,7 +78,7 @@ namespace MinistryPlatform.Repositories
 
         public MpContact GetContact(int contactId)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
                 "Contact_ID",
                 "Household_ID",

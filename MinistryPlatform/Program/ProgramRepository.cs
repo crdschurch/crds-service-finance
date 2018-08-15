@@ -20,7 +20,7 @@ namespace MinistryPlatform.Repositories
 
         public MpProgram GetProgramByName(string programName)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             // replace ' with '' so that we can search for
             //  a program like I'm in
