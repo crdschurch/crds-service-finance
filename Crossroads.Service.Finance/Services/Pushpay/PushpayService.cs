@@ -126,6 +126,7 @@ namespace Crossroads.Service.Finance.Services
                 var refund = _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
                 if (refund != null)
                 {
+                    Console.WriteLine("Refunded Transaction Id: " + refund.TransactionCode);
                     donation.PaymentTypeId = refund.PaymentTypeId;
                 }
 
