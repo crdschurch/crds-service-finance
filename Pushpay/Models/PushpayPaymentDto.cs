@@ -34,6 +34,9 @@ namespace Pushpay.Models
         [JsonProperty("amount")]
         public PushpayAmountDto Amount { get; set; }
 
+        [JsonProperty("paymentTypeId")]
+        public int PaymentTypeId { get; set; }
+
         public bool IsRefund
         {
             get
