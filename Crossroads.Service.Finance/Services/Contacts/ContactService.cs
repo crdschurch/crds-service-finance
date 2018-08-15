@@ -49,7 +49,7 @@ namespace Crossroads.Service.Finance.Services
         {
             // TODO: If the performance needs to be improved, consider moving to a proc to
             // reduce number of service calls
-            var contactRelationships = _contactRepository.GetContactRelationships(contactId, cogiverRelationshipId);
+            var contactRelationships = _contactRepository.GetActiveContactRelationships(contactId, cogiverRelationshipId);
 
             var cogivers = new List<MpContact>();
             foreach (MpContactRelationship relatedContact in contactRelationships)
@@ -63,7 +63,7 @@ namespace Crossroads.Service.Finance.Services
 
         public ContactRelationship GetCogiverContactRelationship(int contactId, int relatedContactId)
         {
-            var contactRelationship = _contactRepository.GetContactRelationship(contactId, relatedContactId, cogiverRelationshipId);
+            var contactRelationship = _contactRepository.GetActiveContactRelationship(contactId, relatedContactId, cogiverRelationshipId);
             return _mapper.Map<ContactRelationship>(contactRelationship);
         }
 

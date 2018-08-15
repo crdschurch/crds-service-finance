@@ -45,7 +45,7 @@ namespace MinistryPlatform.Repositories
                             .Build()
                             .ExecuteStoredProc<MpDonor>("api_Common_FindMatchingContact", parameters);
                          
-            if(!result.Any())
+            if(!result.Any() || !result.First().Any())
             {
                 return null;
             }
@@ -104,7 +104,7 @@ namespace MinistryPlatform.Repositories
             return contacts.FirstOrDefault();
         }
 
-        public List<MpContactRelationship> GetContactRelationships(int contactId, int contactRelationshipId)
+        public List<MpContactRelationship> GetActiveContactRelationships(int contactId, int contactRelationshipId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
@@ -135,7 +135,7 @@ namespace MinistryPlatform.Repositories
             return relatedContacts;
         }
 
-        public MpContactRelationship GetContactRelationship(int contactId, int relatedContactId, int contactRelationshipId)
+        public MpContactRelationship GetActiveContactRelationship(int contactId, int relatedContactId, int contactRelationshipId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -143,7 +143,9 @@ namespace MinistryPlatform.Repositories
             {
                 $"Contact_ID_Table.[Contact_ID] = {contactId}",
                 $"Related_Contact_ID_Table.[Contact_ID] = {relatedContactId}",
-                $"Relationship_ID_Table.[Relationship_ID] = {contactRelationshipId}"
+                $"Relationship_ID_Table.[Relationship_ID] = {contactRelationshipId}",
+                $"Contact_Relationships.[Start_Date] <= '{DateTime.Now:yyyy-MM-dd}'",
+                $"(Contact_Relationships.[End_Date] IS NULL OR Contact_Relationships.[End_Date] > '{DateTime.Now:yyyy-MM-dd}'"
             };
 
             var contactRelationships = MpRestBuilder.NewRequestBuilder()

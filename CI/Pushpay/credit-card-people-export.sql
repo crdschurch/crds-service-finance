@@ -1,11 +1,13 @@
 ------------  People File ------------------------
 
-/* 
- * Exports credit card recurring gift data to be used
- * for importing recurring schedules into pushpay.
- * There should be an accompanying person file for import
- */
- 
+ /*
+  * Exports person information for credit card
+  * recurring gift contacts. This should be used in
+  * conjunction with the credit-card-schedules-export
+  * where "Person ID" columns match up
+  */
+
+
  /*
   * Email address is modified so that emails do not
   * get sent out when the result file is imported
@@ -15,9 +17,10 @@
 USE MinistryPlatform
 
 SELECT DISTINCT
-	c.Contact_GUID AS "Person ID" -- TODO only needed if person file
+	c.Contact_GUID AS "Person ID" -- needed for person file
 	, c.Nickname AS "First Name"
 	, c.Last_Name AS "Last Name"
+	-- TODO make sure this is set correctly
 	--, c.Email_Address AS "Email"
 	, CONCAT(SUBSTRING(c.Email_Address, 1, CHARINDEX('@', c.Email_Address)-1), '_____', SUBSTRING(c.Email_Address, CHARINDEX('@', c.Email_Address), 1000)) AS "Email"
 	, LTRIM(RTRIM(COALESCE(c.Mobile_Phone, ''))) AS "Mobile Number"
