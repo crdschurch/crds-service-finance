@@ -198,7 +198,7 @@ namespace MinistryPlatform.Test.Contacts
             _request.Setup(m => m.Search<MpContactRelationship>()).Returns(mpContactRelationships);
 
             // Act
-            var result = _fixture.GetContactRelationships(contactId, cogiverRelationshipId);
+            var result = _fixture.GetActiveContactRelationships(contactId, cogiverRelationshipId);
 
             // Assert
             Assert.NotNull(result);
