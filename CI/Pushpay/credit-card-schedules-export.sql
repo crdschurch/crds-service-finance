@@ -1,20 +1,16 @@
+------------  Schedules File ------------------------
+
 /* 
  * Exports credit card recurring gift data to be used
  * for importing recurring schedules into pushpay.
  * There should be an accompanying person file for import
  */
- 
- /*
-  * Email address is modified so that emails do not
-  * get sent out when the result file is imported
-  * in PushPay's system
-  */
 
 SELECT
 	  rg.Subscription_ID AS "Schedule ID" 
 	, cast(rg.Amount as decimal(10,2)) AS "Amount" -- Rounding decimals up, it appears PushPay wants whole numbers
 	, CASE rgf.Frequency_ID 
-		WHEN 1 THEN CONCAT('Every Week ', rd.Day_Of_Week) 
+		WHEN 1 THEN CONCAT('Every Week ',  RTRIM(rd.Day_Of_Week)) 
 		ELSE CONCAT('Every Month ', CONVERT(varchar, rg.Day_Of_Month)) 
 	  END AS "Frequency"
 	, FORMAT(rg.Start_Date, 'yyyy-MM-dd') AS "Start Date" -- TODO do we want this?
@@ -24,12 +20,7 @@ SELECT
 		   ELSE NULL
 	   END AS "Method"
 	, rg.Subscription_ID AS "Memo" -- this is duplicate, but derrin from pushpay recommends we set this so we can get it back in webhook
-	, c.Contact_GUID AS "Person ID" -- TODO only needed if person file
-	--, c.Email_Address AS "Email"
-	, CONCAT(SUBSTRING(c.Email_Address, 1, CHARINDEX('@', c.Email_Address)-1), '_____', SUBSTRING(c.Email_Address, CHARINDEX('@', c.Email_Address), 1000)) AS "Email"
-	, ISNULL(c.Mobile_Phone,'') AS "Mobile Number"
-	, c.Nickname AS "First Name"
-	, c.Last_Name AS "Last Name"
+	, c.Contact_GUID AS "Person ID" -- this points to record in person file
 FROM
 	[MinistryPlatform].[dbo].[Contacts] c
 	LEFT OUTER JOIN [MinistryPlatform].[dbo].[Households] h ON h.Household_ID = c.Household_ID

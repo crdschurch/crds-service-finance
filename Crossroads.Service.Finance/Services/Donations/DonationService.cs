@@ -135,6 +135,15 @@ namespace Crossroads.Service.Finance.Services
 
         public List<DonationHistoryDto> GetRelatedContactDonations(int userContactId, int relatedContactId)
         {
+            // check if household minor child
+            var userContact = _contactService.GetContact(userContactId);
+            var householdMinorChildren = _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
+            if (householdMinorChildren.Exists(householdChild => householdChild.ContactId == relatedContactId))
+            {
+                var mpDonationHistory = GetDonations(relatedContactId);
+                return _mapper.Map<List<DonationHistoryDto>>(mpDonationHistory);
+            }
+
             // check if relatedContactId has an active co-giver contact relationship with userContactId
             var cogiverContactRelationship = _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
             if (cogiverContactRelationship != null)
@@ -143,13 +152,6 @@ namespace Crossroads.Service.Finance.Services
                 var mpDonationHistory = _mpDonationRepository.GetDonationHistoryByContactId(relatedContactId, 
                                                                            cogiverContactRelationship.StartDate,
                                                                            cogiverContactRelationship.EndDate);
-                return _mapper.Map<List<DonationHistoryDto>>(mpDonationHistory);
-            }
-            var userContact = _contactService.GetContact(userContactId);
-            var householdMinorChildren = _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
-            if (householdMinorChildren.Exists(householdChild => householdChild.ContactId == relatedContactId))
-            {
-                var mpDonationHistory = GetDonations(relatedContactId);
                 return _mapper.Map<List<DonationHistoryDto>>(mpDonationHistory);
             }
             throw new Exception($"Contact {userContactId} does not have access to view giving history for contact {relatedContactId}");
