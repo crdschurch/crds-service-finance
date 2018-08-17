@@ -4,6 +4,11 @@
     <Content Remove="deployment\**" />
     <EmbeddedResource Remove="deployment\**" />
     <None Remove="deployment\**" />
+    <Content Remove="appsettings.Demo.json" />
+    <Content Remove="appsettings.Development.json" />
+    <Content Remove="appsettings.Integration.json" />
+    <Content Remove="appsettings.Production.json" />
+    <Content Remove="appsettings.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HangFire" Version="1.6.17" />

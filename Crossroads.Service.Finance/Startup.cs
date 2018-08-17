@@ -25,8 +25,6 @@ namespace Crossroads.Service.Finance
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("./appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"./appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -36,10 +34,7 @@ namespace Crossroads.Service.Finance
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var dbUser = Environment.GetEnvironmentVariable("MP_API_DB_USER");
-            var dbPassword = Environment.GetEnvironmentVariable("MP_API_DB_PASSWORD");
-            var hangfireConnectionString = Configuration["ConnectionStrings:Hangfire"];
-            hangfireConnectionString = String.Format(hangfireConnectionString, dbUser, dbPassword);
+            var hangfireConnectionString = Environment.GetEnvironmentVariable("HANGFIRE_URL");
             services.AddHangfire(config =>config.UseSqlServerStorage(hangfireConnectionString));
             services.AddMvc();
             services.AddAutoMapper();
