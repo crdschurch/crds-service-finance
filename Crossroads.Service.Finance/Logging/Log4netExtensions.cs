@@ -14,7 +14,7 @@ namespace Crossroads.Service.Finance.Logging
 
         public static ILoggerFactory AddLog4Net(this ILoggerFactory factory)
         {
-            factory.AddProvider(new Log4NetProvider("log4net.config"));
+            factory.AddProvider(new Log4NetProvider("Logging/log4net.config"));
             return factory;
         }
     }
