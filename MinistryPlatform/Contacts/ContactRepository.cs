@@ -145,7 +145,7 @@ namespace MinistryPlatform.Repositories
                 $"Related_Contact_ID_Table.[Contact_ID] = {relatedContactId}",
                 $"Relationship_ID_Table.[Relationship_ID] = {contactRelationshipId}",
                 $"Contact_Relationships.[Start_Date] <= '{DateTime.Now:yyyy-MM-dd}'",
-                $"(Contact_Relationships.[End_Date] IS NULL OR Contact_Relationships.[End_Date] > '{DateTime.Now:yyyy-MM-dd}'"
+                $"(Contact_Relationships.[End_Date] IS NULL OR Contact_Relationships.[End_Date] > '{DateTime.Now:yyyy-MM-dd}')"
             };
 
             var contactRelationships = MpRestBuilder.NewRequestBuilder()
