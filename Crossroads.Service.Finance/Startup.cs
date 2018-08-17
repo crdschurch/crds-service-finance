@@ -35,6 +35,12 @@ namespace Crossroads.Service.Finance
         public void ConfigureServices(IServiceCollection services)
         {
             var hangfireConnectionString = Environment.GetEnvironmentVariable("HANGFIRE_URL");
+            var x = Environment.GetEnvironmentVariable("CRDS_GATEWAY_CLIENT_ENDPOINT");
+            var y = Environment.GetEnvironmentVariable("CRDS_MP_COMMON_CLIENT_SECRET");
+            Console.WriteLine("hangfireurl");
+            Console.WriteLine(hangfireConnectionString);
+            Console.WriteLine(x);
+            Console.WriteLine(y);
             services.AddHangfire(config =>config.UseSqlServerStorage(hangfireConnectionString));
             services.AddMvc();
             services.AddAutoMapper();

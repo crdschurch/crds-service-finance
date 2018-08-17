@@ -33,8 +33,6 @@ spec:
               value: $APP_LOG_ROOT
             - name: ASPNETCORE_ENVIRONMENT
               value: $ASPNETCORE_ENVIRONMENT
-            - name: CRDS_ENV
-              value: $CRDS_ENV
             - name: CRDS_MP_COMMON_CLIENT_ID
               value: $CRDS_MP_COMMON_CLIENT_ID
             - name: CRDS_MP_COMMON_CLIENT_SECRET

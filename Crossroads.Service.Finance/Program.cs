@@ -20,14 +20,11 @@ namespace Crossroads.Service.Finance
         public static void Main(string[] args)
         {
              // load logging here to capture issues in starting the services
-            var loggingEnv = Environment.GetEnvironmentVariable("CRDS_ENV");
             var loggingPath = Environment.GetEnvironmentVariable("APP_LOG_ROOT");
 
             XmlDocument log4netConfig = new XmlDocument();
 
-            log4netConfig.Load(!string.IsNullOrEmpty(loggingEnv)
-                ? File.OpenRead($"Logging/log4net.{loggingEnv}.config")
-                : File.OpenRead($"Logging/log4net.config"));
+            log4netConfig.Load(File.OpenRead($"Logging/log4net.config"));
 
             log4netConfig.InnerXml = log4netConfig.InnerXml.Replace("${APP_LOG_ROOT}", loggingPath);
 
