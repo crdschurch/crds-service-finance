@@ -13,7 +13,6 @@ namespace MinistryPlatform.Donors
 {
     public class DonorRepository : MinistryPlatformBase, IDonorRepository
     {
-        private readonly IDonationRepository _mpDonationRepository;
         IAuthenticationRepository _authRepo;
         private const int pushpayProcessorType = 1;
 
@@ -28,7 +27,7 @@ namespace MinistryPlatform.Donors
 
         public int? GetDonorIdByProcessorId(string processorId)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var columns = new string[] {
                 "Donor_Accounts.[Donor_Account_ID]",
@@ -63,11 +62,12 @@ namespace MinistryPlatform.Donors
 
         public MpDonor GetDonorByDonorId(int donorId)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var donorColumns = new string[] {
                 "Donors.[Donor_ID]",
                 "Contact_ID_Table.[Contact_ID]",
+                "Contact_ID_Table.[Email_Address]",
                 "Contact_ID_Table_Household_ID_Table.[Household_ID]"
             };
 

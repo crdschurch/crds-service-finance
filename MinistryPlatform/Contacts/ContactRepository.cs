@@ -13,9 +13,9 @@ namespace MinistryPlatform.Repositories
 {
     public class ContactRepository : MinistryPlatformBase, IContactRepository
     {
-        private readonly IDonationRepository _mpDonationRepository;
         IAuthenticationRepository _authRepo;
         private const int pushpayProcessorType = 1;
+        private const int householdPositionMinorChild = 2;
 
         public ContactRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
@@ -36,7 +36,7 @@ namespace MinistryPlatform.Repositories
                 {"@LastName", lastName},
                 {"@Phone", phone},
                 {"@EmailAddress", email},
-                {"@RequireEmail", email.Length > 0},
+                {"@RequireEmail", email != null && email.Length > 0},
                 {"@DomainId", 1},
             };
 
@@ -45,7 +45,7 @@ namespace MinistryPlatform.Repositories
                             .Build()
                             .ExecuteStoredProc<MpDonor>("api_Common_FindMatchingContact", parameters);
                          
-            if(!result.Any())
+            if(!result.Any() || !result.First().Any())
             {
                 return null;
             }
@@ -59,7 +59,7 @@ namespace MinistryPlatform.Repositories
 
         public MpHousehold GetHousehold(int householdId)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
                 "Congregation_ID"
             };
@@ -78,9 +78,10 @@ namespace MinistryPlatform.Repositories
 
         public MpContact GetContact(int contactId)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
                 "Contact_ID",
+                "Household_ID",
                 "Email_Address",
                 "First_Name",
                 "Mobile_Phone",
@@ -103,7 +104,7 @@ namespace MinistryPlatform.Repositories
             return contacts.FirstOrDefault();
         }
 
-        public List<MpContactRelationship> GetContactRelationships(int contactId, int contactRelationshipId)
+        public List<MpContactRelationship> GetActiveContactRelationships(int contactId, int contactRelationshipId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
@@ -130,8 +131,59 @@ namespace MinistryPlatform.Repositories
                 .WithFilter(String.Join(" AND ", filters))
                 .Build()
                 .Search<MpContactRelationship>();
-
+            
             return relatedContacts;
+        }
+
+        public MpContactRelationship GetActiveContactRelationship(int contactId, int relatedContactId, int contactRelationshipId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var filters = new string[]
+            {
+                $"Contact_ID_Table.[Contact_ID] = {contactId}",
+                $"Related_Contact_ID_Table.[Contact_ID] = {relatedContactId}",
+                $"Relationship_ID_Table.[Relationship_ID] = {contactRelationshipId}",
+                $"Contact_Relationships.[Start_Date] <= '{DateTime.Now:yyyy-MM-dd}'",
+                $"(Contact_Relationships.[End_Date] IS NULL OR Contact_Relationships.[End_Date] > '{DateTime.Now:yyyy-MM-dd}')"
+            };
+
+            var contactRelationships = MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .WithFilter(String.Join(" AND ", filters))
+                .Build()
+                .Search<MpContactRelationship>();
+
+            return contactRelationships.FirstOrDefault();
+        }
+
+        public List<MpContact> GetHouseholdMinorChildren(int householdId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var columns = new string[] {
+                "Contact_ID",
+                "Email_Address",
+                "First_Name",
+                "Mobile_Phone",
+                "Last_Name",
+                "Date_of_Birth",
+                "Participant_Record",
+                "Nickname"
+            };
+
+            var filters = new string[]
+            {
+                $"Household_ID_Table.[Household_ID] = {householdId}",
+                $"Household_Position_ID_Table.[Household_Position_ID] = {householdPositionMinorChild}"
+            };
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithSelectColumns(columns)
+                .WithAuthenticationToken(token)
+                .WithFilter(String.Join(" AND ", filters))
+                .Build()
+                .Search<MpContact>();
         }
     }
 }

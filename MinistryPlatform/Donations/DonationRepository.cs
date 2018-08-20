@@ -26,7 +26,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDonation GetDonationByTransactionCode(string transactionCode)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var filter = $"Transaction_Code = '{transactionCode}'";
             var donations = MpRestBuilder.NewRequestBuilder()
@@ -48,7 +48,7 @@ namespace MinistryPlatform.Repositories
 
         public List<MpDonation> Update(List<MpDonation> donations)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
@@ -57,7 +57,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDonation Update(MpDonation donation)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
@@ -66,7 +66,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDonor CreateDonor(MpDonor donor)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
@@ -75,7 +75,7 @@ namespace MinistryPlatform.Repositories
 
         public MpDonorAccount CreateDonorAccount(MpDonorAccount donor)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
@@ -84,7 +84,7 @@ namespace MinistryPlatform.Repositories
 
         public void UpdateDonorAccount(JObject donorAccount)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             try
             {
@@ -104,7 +104,7 @@ namespace MinistryPlatform.Repositories
             MpContactDonor donor;
             try
             {
-                var token = ApiUserRepository.GetDefaultApiClientToken();
+                var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
                 var parameters = new Dictionary<string, object>
                 {
                     { "@Contact_ID", contactId }
@@ -139,7 +139,7 @@ namespace MinistryPlatform.Repositories
 
         public List<MpRecurringGift> GetRecurringGifts(int contactId)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var columns = new string[] {
                 "Recurring_Gifts.[Recurring_Gift_ID]",
@@ -178,7 +178,7 @@ namespace MinistryPlatform.Repositories
 
         public List<MpDonation> GetDonations(int contactId)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var columns = new string[] {
                 "Donations.[Donation_ID]",
@@ -200,9 +200,9 @@ namespace MinistryPlatform.Repositories
                                 .Search<MpDonation>().ToList();
         }
 
-        public List<MpDonationHistory> GetDonationHistoryByContactId(int contactId)
+        public List<MpDonationHistory> GetDonationHistoryByContactId(int contactId, DateTime? startDate, DateTime? endDate)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var selectColumns = new string[] {
                 "Donation_Distributions.[Donation_ID]",
@@ -215,14 +215,28 @@ namespace MinistryPlatform.Repositories
                 "Donation_ID_Table_Donation_Status_ID_Table.[Donation_Status]"
             };
 
-            var filter = $"Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
+            var filters = new List<string> {
+                $"Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
+            };
+
+            if (startDate != null)
+            {
+                filters.Add($"Donation_ID_Table.[Donation_Date] >= '{startDate:yyyy-MM-dd}'");
+            }
+
+            if (endDate != null)
+            {
+                filters.Add($"Donation_ID_Table.[Donation_Date] <= '{endDate:yyyy-MM-dd}'");
+            }
+
+            Console.WriteLine(String.Join(" AND ", filters));
 
             var order = "Donation_ID_Table.[Donation_Date] DESC";
 
             return MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(selectColumns)
                 .WithAuthenticationToken(token)
-                .WithFilter(filter)
+                .WithFilter(String.Join(" AND ", filters))
                 .OrderBy(order)
                 .Build()
                 .Search<MpDonationHistory>().ToList();

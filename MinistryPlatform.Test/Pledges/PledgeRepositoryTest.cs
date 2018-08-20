@@ -38,7 +38,7 @@ namespace MinistryPlatform.Test.Pledges
             _mapper = new Mock<IMapper>(MockBehavior.Strict);
             _request = new Mock<IMinistryPlatformRestRequest>(MockBehavior.Strict);
 
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
@@ -67,7 +67,7 @@ namespace MinistryPlatform.Test.Pledges
             };
             var filter = $"Pledge_Status_ID_Table.[Pledge_Status_ID] IN (1,2)";
             filter += $" AND Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);

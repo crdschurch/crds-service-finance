@@ -39,7 +39,7 @@ namespace MinistryPlatform.Test.Donations
             _mapper = new Mock<IMapper>(MockBehavior.Strict);
             _request = new Mock<IMinistryPlatformRestRequest>(MockBehavior.Strict);
 
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
@@ -65,7 +65,7 @@ namespace MinistryPlatform.Test.Donations
             };
 
             var filter = $"Transaction_Code = '{transactionCode}'";
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
@@ -137,7 +137,7 @@ namespace MinistryPlatform.Test.Donations
                 $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
                 $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[Recurring_Gift_Status_ID] = {PausedRecurringGiftStatusId})"
             };
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
@@ -182,7 +182,7 @@ namespace MinistryPlatform.Test.Donations
                 $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
                 $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[Recurring_Gift_Status_ID] = {PausedRecurringGiftStatusId})"
             };
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
@@ -212,7 +212,7 @@ namespace MinistryPlatform.Test.Donations
                 "Donations.[Transaction_Code]"
             };
             var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
@@ -242,7 +242,7 @@ namespace MinistryPlatform.Test.Donations
                 "Donations.[Transaction_Code]"
             };
             var filter = "Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 7344";
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
@@ -285,6 +285,7 @@ namespace MinistryPlatform.Test.Donations
             };
 
             var filter = "Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 1234567";
+            filter += $" AND Donation_ID_Table.[Donation_Date] >= '2018-07-09'";
             var order = "Donation_ID_Table.[Donation_Date] DESC";
 
             _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
@@ -298,7 +299,7 @@ namespace MinistryPlatform.Test.Donations
             _request.Setup(m => m.Search<MpDonationHistory>()).Returns(mpDonationHistories);
 
             // Act
-            var result = _fixture.GetDonationHistoryByContactId(contactId);
+            var result = _fixture.GetDonationHistoryByContactId(contactId, new DateTime(2018, 7, 9));
 
             // Assert
             Assert.NotNull(result);

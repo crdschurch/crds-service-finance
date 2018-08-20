@@ -26,6 +26,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         private readonly Mock<IProgramRepository> _programRepository;
         private readonly Mock<IContactRepository> _contactRepository;
         private readonly Mock<IDonorRepository> _donorRepository;
+        private readonly Mock<IGatewayService> _gatewayService;
 
         private readonly IPushpayService _fixture;
 
@@ -39,10 +40,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _programRepository = new Mock<IProgramRepository>();
             _contactRepository = new Mock<IContactRepository>();
             _donorRepository = new Mock<IDonorRepository>();
+            _gatewayService = new Mock<IGatewayService>();
 
             _fixture = new PushpayService(_pushpayClient.Object, _donationService.Object, _mapper.Object,
                                           _configurationWrapper.Object, _recurringGiftRepository.Object,
-                                          _programRepository.Object, _contactRepository.Object, _donorRepository.Object);
+                                          _programRepository.Object, _contactRepository.Object, _donorRepository.Object,
+                                          _gatewayService.Object);
         }
 
         [Fact]

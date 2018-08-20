@@ -33,16 +33,14 @@ spec:
               value: $APP_LOG_ROOT
             - name: ASPNETCORE_ENVIRONMENT
               value: $ASPNETCORE_ENVIRONMENT
-            - name: CRDS_ENV
-              value: $CRDS_ENV
             - name: CRDS_MP_COMMON_CLIENT_ID
               value: $CRDS_MP_COMMON_CLIENT_ID
             - name: CRDS_MP_COMMON_CLIENT_SECRET
               value: $CRDS_MP_COMMON_CLIENT_SECRET
-            - name: MP_API_DB_USER
-              value: $MP_API_DB_USER
-            - name: MP_API_DB_PASSWORD
-              value: $MP_API_DB_PASSWORD
+            - name: CRDS_GATEWAY_CLIENT_ENDPOINT
+              value: $CRDS_GATEWAY_CLIENT_ENDPOINT
+            - name: HANGFIRE_URL
+              value: $HANGFIRE_URL
             - name: MP_OAUTH_BASE_URL
               value: $MP_OAUTH_BASE_URL
             - name: MP_REST_API_ENDPOINT
@@ -59,3 +57,7 @@ spec:
               value: $PUSHPAY_CLIENT_SECRET
             - name: PUSHPAY_MERCHANT_KEY            
               value: $PUSHPAY_MERCHANT_KEY
+            - name: NEW_RELIC_LICENSE_KEY            
+              value: $NR_INSTALL_KEY
+            - name: NEW_RELIC_APP_NAME  
+              value: $NR_APP_NAME

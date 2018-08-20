@@ -18,6 +18,9 @@ namespace MinistryPlatform.Models
         [JsonProperty("Contact_ID")]
         public int ContactId { get; set; }
 
+        [JsonProperty("Email_Address")]
+        public string EmailAddress { get; set; }
+
         [JsonProperty("Donor_Account_ID")]
         public int? DonorAccountId { get; set; }
 

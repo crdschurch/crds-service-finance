@@ -41,7 +41,7 @@ namespace MinistryPlatform.Test.Donors
 
             _request = new Mock<IMinistryPlatformRestRequest>();
 
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
@@ -83,7 +83,7 @@ namespace MinistryPlatform.Test.Donors
 
             var filter = $"Processor_ID = '{processorId}' AND Processor_Type_ID = {pushpayProcessorType}";
 
-            _apiUserRepository.Setup(m => m.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(m => m.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
 
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
@@ -127,7 +127,7 @@ namespace MinistryPlatform.Test.Donors
 
             var filter = $"Processor_ID = '{processorId}' AND Processor_Type_ID = {pushpayProcessorType}";
 
-            _apiUserRepository.Setup(m => m.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(m => m.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
 
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
@@ -153,6 +153,7 @@ namespace MinistryPlatform.Test.Donors
             var donorColumns = new string[] {
                 "Donors.[Donor_ID]",
                 "Contact_ID_Table.[Contact_ID]",
+                "Contact_ID_Table.[Email_Address]",
                 "Contact_ID_Table_Household_ID_Table.[Household_ID]"
             };
 
@@ -160,7 +161,7 @@ namespace MinistryPlatform.Test.Donors
 
             _apiUserRepository.Setup(m => m.GetApiClientToken(clientId)).Returns(token);
 
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(donorFilter)).Returns(_restRequest.Object);
@@ -185,6 +186,7 @@ namespace MinistryPlatform.Test.Donors
             var donorColumns = new string[] {
                 "Donors.[Donor_ID]",
                 "Contact_ID_Table.[Contact_ID]",
+                "Contact_ID_Table.[Email_Address]",
                 "Contact_ID_Table_Household_ID_Table.[Household_ID]"
             };
 
@@ -192,7 +194,7 @@ namespace MinistryPlatform.Test.Donors
 
             _apiUserRepository.Setup(m => m.GetApiClientToken(clientId)).Returns(token);
 
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(donorFilter)).Returns(_restRequest.Object);

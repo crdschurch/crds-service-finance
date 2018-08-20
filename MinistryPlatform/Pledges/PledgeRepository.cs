@@ -22,7 +22,7 @@ namespace MinistryPlatform.Repositories
 
         public List<MpPledge> GetActiveAndCompleted(int contactId)
         {
-            var token = ApiUserRepository.GetDefaultApiClientToken();
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var columns = new string[] {
                 "Pledge_Status_ID_Table.[Pledge_Status_ID]",

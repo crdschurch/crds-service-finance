@@ -17,6 +17,7 @@
     <Folder Include="Contacts\" />
     <Folder Include="Pledges\" />
     <Folder Include="DonationDistributions\" />
+    <Folder Include="Gateway\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Models\MpPostalAddress.cs" />

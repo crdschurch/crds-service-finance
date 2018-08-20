@@ -28,7 +28,6 @@ namespace MinistryPlatform.Test.Contacts
 
         private string token = "123abc";
         private string clientId = "CRDS.Service.Finance";
-        private int pushpayProcessorType = 1;
 
         public ContactRepositoryTest()
         {
@@ -41,7 +40,7 @@ namespace MinistryPlatform.Test.Contacts
  
             _request = new Mock<IMinistryPlatformRestRequest>();
 
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
@@ -102,7 +101,7 @@ namespace MinistryPlatform.Test.Contacts
 
             _apiUserRepository.Setup(m => m.GetApiClientToken(clientId)).Returns(token);
 
-            _apiUserRepository.Setup(r => r.GetDefaultApiClientToken()).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(columns)).Returns(_restRequest.Object);
@@ -130,6 +129,7 @@ namespace MinistryPlatform.Test.Contacts
 
             var columns = new string[] {
                 "Contact_ID",
+                "Household_ID",
                 "Email_Address",
                 "First_Name",
                 "Mobile_Phone",
@@ -198,7 +198,7 @@ namespace MinistryPlatform.Test.Contacts
             _request.Setup(m => m.Search<MpContactRelationship>()).Returns(mpContactRelationships);
 
             // Act
-            var result = _fixture.GetContactRelationships(contactId, cogiverRelationshipId);
+            var result = _fixture.GetActiveContactRelationships(contactId, cogiverRelationshipId);
 
             // Assert
             Assert.NotNull(result);
