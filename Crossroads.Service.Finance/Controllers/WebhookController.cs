@@ -39,7 +39,7 @@ namespace Crossroads.Service.Finance.Controllers
                 {
                     case "payment_created":
                     case "payment_status_changed":
-                        _pushpayService.AddUpdateStatusJob(pushpayWebhook);
+                        _pushpayService.AddUpdateDonationDetailsJob(pushpayWebhook);
                         return Ok();
                     case "recurring_payment_changed":
                         var updatedGift = _pushpayService.UpdateRecurringGift(pushpayWebhook);

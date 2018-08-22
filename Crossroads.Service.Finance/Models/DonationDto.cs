@@ -10,6 +10,12 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("donationId")]
         public int DonationId { get; set; }
 
+        [JsonProperty("donorId")]
+        public int DonorId { get; set; }
+
+        [JsonProperty("donorAccountId")]
+        public int DonorAccountId { get; set; }
+
         [JsonProperty("amount")]
         public decimal DonationAmt { get; set; }
 

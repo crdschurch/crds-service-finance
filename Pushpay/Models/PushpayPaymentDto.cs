@@ -2,25 +2,16 @@
 
 namespace Pushpay.Models
 {
-    public class PushpayPaymentDto
+    public class PushpayPaymentDto: PushpayTransactionBaseDto
     {
-        [JsonProperty("status")]
-        public string Status { get; set; }
-
         [JsonProperty("settlement")]
         public PushpaySettlementDto Settlement { get; set; }
 
         [JsonProperty("recurringPaymentToken")]
         public string RecurringPaymentToken { get; set; }
 
-        [JsonProperty("fund")]
-        public PushpayFundDto Fund{ get; set; }
-
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
-
-        [JsonProperty("paymentToken")]
-        public string PaymentToken { get; set; }
 
         // this is on a payment when there is a refunded credit card
         //  payment and these details have the original payment
@@ -30,9 +21,6 @@ namespace Pushpay.Models
         // this links to a payment that refunded this payment
         [JsonProperty("refundedBy")]
         public PushpayRefundPaymentDto RefundedBy { get; set; }
-
-        [JsonProperty("amount")]
-        public PushpayAmountDto Amount { get; set; }
 
         [JsonProperty("paymentTypeId")]
         public int PaymentTypeId { get; set; }
