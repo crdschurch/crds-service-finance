@@ -127,14 +127,14 @@ namespace Crossroads.Service.Finance.Services
                     donation.DonationStatusDate = DateTime.Now;
                 }
 
-                // Set payment type for refunds
-                var refund = _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
-                if (refund != null)
+                // check if refund
+                if (pushpayPayment.RefundFor != null)
                 {
-                    Console.WriteLine("Refunded Transaction Id: " + refund.TransactionCode);
+                    // Set payment type for refunds
+                    var refund = _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
+                    Console.WriteLine("Refunding Transaction Id: " + refund.TransactionCode);
                     donation.PaymentTypeId = refund.PaymentTypeId;
                 }
-
                 _donationService.Update(donation);
                 return donation;
             } catch (Exception e) {
@@ -146,7 +146,7 @@ namespace Crossroads.Service.Finance.Services
                 {
                     AddUpdateDonationDetailsFromPushpayJob(webhook);
                     // dont throw an exception as Hangfire tries to handle it
-                    _logger.Error($"Payment: {webhook.Events[0].Links.Payment} not found in MP. Trying again in a minute.", e);
+                    Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP. Trying again in a minute.", e);
                     return null;
                 }
                 // it's been more than 10 minutes, let's chalk it up as PushPay
@@ -154,7 +154,7 @@ namespace Crossroads.Service.Finance.Services
                 else
                 {
                     // dont throw an exception as Hangfire tries to handle it
-                    _logger.Error($"Payment: {webhook.Events[0].Links.Payment} not found in MP after 10 minutes of trying. Giving up.", e);
+                    Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP after 10 minutes of trying. Giving up.", e);
                     return null;
                 }
             }
