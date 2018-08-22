@@ -122,14 +122,14 @@ namespace Crossroads.Service.Finance.Services
                     donation.DonationStatusDate = DateTime.Now;
                 }
 
-                // Set payment type for refunds
-                var refund = _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
-                if (refund != null)
+                // check if refund
+                if (pushpayPayment.RefundFor != null)
                 {
-                    Console.WriteLine("Refunded Transaction Id: " + refund.TransactionCode);
+                    // Set payment type for refunds
+                    var refund = _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
+                    Console.WriteLine("Refunding Transaction Id: " + refund.TransactionCode);
                     donation.PaymentTypeId = refund.PaymentTypeId;
                 }
-
                 _donationService.Update(donation);
                 return donation;
             } catch (Exception e) {
