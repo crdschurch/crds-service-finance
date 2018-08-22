@@ -28,5 +28,14 @@ namespace Crossroads.Service.Finance.Models
 
         [JsonProperty("donationStatus")]
         public string DonationStatus { get; set; }
+
+        [JsonProperty("accountNumber")]
+        public string AccountNumber { get; set; }
+
+        [JsonProperty("institutionName")]
+        public string InstitutionName { get; set; }
+
+        [JsonProperty("accountType")]
+        public string AccountType { get; set; }
     }
 }
