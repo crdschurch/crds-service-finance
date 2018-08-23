@@ -56,7 +56,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateProcessing());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
 
-            var result = _fixture.UpdateDonationStatusFromPushpay(webhookMock);
+            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
 
             // is pending
             Assert.Equal(1, result.DonationStatusId);
@@ -70,7 +70,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateSuccess());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
 
-            var result = _fixture.UpdateDonationStatusFromPushpay(webhookMock);
+            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
 
             // is success
             Assert.Equal(4, result.DonationStatusId);
@@ -84,7 +84,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateFailed());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
 
-            var result = _fixture.UpdateDonationStatusFromPushpay(webhookMock);
+            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
 
             // is failed
             Assert.Equal(3, result.DonationStatusId);
@@ -143,7 +143,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 {
                     Reference = "0102010111000"
                 },
-                Fund = new PushpayFund()
+                Fund = new PushpayFundDto()
                 {
                     Code = "I'm In"
                 },
@@ -213,7 +213,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 {
                     Reference = "0102010111000"
                 },
-                Fund = new PushpayFund()
+                Fund = new PushpayFundDto()
                 {
                     Code = "I'm In"
                 },
@@ -282,7 +282,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 {
                     Reference = "0102010111000"
                 },
-                Fund = new PushpayFund()
+                Fund = new PushpayFundDto()
                 {
                     Code = "I'm In"
                 },
@@ -350,7 +350,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 {
                     Reference = "0102010111000"
                 },
-                Fund = new PushpayFund()
+                Fund = new PushpayFundDto()
                 {
                     Code = "I'm In"
                 },

@@ -92,19 +92,4 @@ namespace Pushpay.Models
         [JsonProperty("accountType")]
         public string AccountType { get; set; }
     }
-
-    public class PushpayFund
-    {
-        [JsonProperty("key")]
-        public string Key { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("code")]
-        public string Code { get; set; }
-
-        [JsonProperty("taxDeductible")]
-        public string TaxDeductible { get; set; }
-    }
 }
