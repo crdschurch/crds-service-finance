@@ -34,7 +34,7 @@ namespace Crossroads.Service.Finance.Services
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
         }
 
-        public DepositDto CreateDeposit(SettlementEventDto settlementEventDto)
+        public DepositDto BuildDeposit(SettlementEventDto settlementEventDto)
         {
             var depositName = settlementEventDto.Name;
             var depositKey = settlementEventDto.Key;

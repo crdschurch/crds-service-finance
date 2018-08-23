@@ -18,6 +18,7 @@ namespace Crossroads.Service.Finance.Security
         /// <summary>
         /// Construct a new MpAuth with the given authenticationRepository
         /// </summary>
+        /// <param name="authTokenExpiryService">an AuthTokenExpiryService instance</param>
         /// <param name="authenticationRepository">an Authentication Repository instance</param>
         protected MpAuthBaseController(IAuthenticationRepository authenticationRepository,
             IAuthTokenExpiryService authTokenExpiryService)

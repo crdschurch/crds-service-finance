@@ -150,29 +150,6 @@ namespace Pushpay.Test
         }
 
         [Fact]
-        public void CreateAnticipatedPaymentTest()
-        {
-            string mockPushpayUrl = "http://test.com";
-            _restClient.Setup(x => x.Execute<PushpayAnticipatedPaymentDto>(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<PushpayAnticipatedPaymentDto>()
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Data = new PushpayAnticipatedPaymentDto()
-                    {
-                        Links = new PushpayLinksDto() {
-                            Pay = new PushpayLinkDto() {
-                                Href = mockPushpayUrl
-                            }
-                        }
-                    }
-                });
-
-            var result = _fixture.CreateAnticipatedPayment(null);
-
-            Assert.Equal(mockPushpayUrl, result.Links.Pay.Href);
-        }
-
-        [Fact]
         public void GetRecurringGiftTest()
         {
             _restClient.Setup(x => x.Execute<PushpayRecurringGiftDto>(It.IsAny<IRestRequest>()))
