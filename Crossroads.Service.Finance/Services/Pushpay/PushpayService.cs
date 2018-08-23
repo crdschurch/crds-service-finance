@@ -76,7 +76,11 @@ namespace Crossroads.Service.Finance.Services
 
         private void AddUpdateDonationDetailsFromPushpayJob(PushpayWebhook webhook)
         {
-            BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true), TimeSpan.FromMinutes(_mpPushpayRecurringWebhookMinutes));
+            var donation = UpdateDonationDetailsFromPushpay(webhook, true);
+            if (donation == null)
+            {
+                BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true), TimeSpan.FromMinutes(_mpPushpayRecurringWebhookMinutes));
+            }
         }
 
         public DonationDto UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false)
@@ -108,7 +112,6 @@ namespace Crossroads.Service.Finance.Services
 
                 // attach a donor account so we have access to payment details
                 var mpDonorAccount = CreateDonorAccount(pushpayPayment, donation.DonorId);
-
                 donation.DonorAccountId = mpDonorAccount.DonorAccountId;
 
                 if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
