@@ -145,7 +145,7 @@ namespace Crossroads.Service.Finance.Services
                 var now = DateTime.UtcNow;
                 var webhookTime = webhook.IncomingTimeUtc;
                 // if it's been less than ten minutes, try again in a minute
-                if ((now - webhookTime).Value.TotalMinutes < maxRetryMinutes && retry)
+                if ((now - webhookTime.Value).TotalMinutes < maxRetryMinutes && retry)
                 {
                     AddUpdateDonationDetailsFromPushpayJob(webhook);
                     // dont throw an exception as Hangfire tries to handle it
@@ -167,11 +167,6 @@ namespace Crossroads.Service.Finance.Services
         {
             var result = _pushpayClient.GetDepositsByDateRange(startDate, endDate);
             return _mapper.Map<List<SettlementEventDto>>(result);
-        }
-
-        public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment)
-        {
-            return _pushpayClient.CreateAnticipatedPayment(anticipatedPayment);
         }
 
         public RecurringGiftDto CreateRecurringGift(PushpayWebhook webhook)

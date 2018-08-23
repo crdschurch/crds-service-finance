@@ -154,13 +154,6 @@ namespace Pushpay.Client
             return pushpayDepositDtos;
         }
 
-        public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment)
-        {
-            var request = CreateRequest("anticipatedpayments", Method.POST, createAnticipatedPaymentsScope, anticipatedPayment);
-            var response = _restClient.Execute<PushpayAnticipatedPaymentDto>(request);
-            return response.Data;
-        }
-
         public PushpayRecurringGiftDto GetRecurringGift(string resource)
         {
             var request = CreateRequest(resource, Method.GET, recurringGiftsScope);
