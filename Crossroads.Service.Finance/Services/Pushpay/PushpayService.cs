@@ -110,9 +110,12 @@ namespace Crossroads.Service.Finance.Services
                     }
                 }
 
-                // attach a donor account so we have access to payment details
-                var mpDonorAccount = CreateDonorAccount(pushpayPayment, donation.DonorId);
-                donation.DonorAccountId = mpDonorAccount.DonorAccountId;
+                // if it doesn't exist, attach a donor account so we have access to payment details
+                if (donation.DonorAccountId == null)
+                {
+                    var mpDonorAccount = CreateDonorAccount(pushpayPayment, donation.DonorId);
+                    donation.DonorAccountId = mpDonorAccount.DonorAccountId;   
+                }
 
                 if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
                 {
