@@ -120,17 +120,14 @@ namespace Crossroads.Service.Finance.Services
                 if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
                 {
                     donation.DonationStatusId = _mpDonationStatusPending;
-                    donation.DonationStatusDate = DateTime.Now;
                 }
                 else if (pushpayPayment.IsStatusSuccess)
                 {
                     donation.DonationStatusId = _mpDonationStatusSucceeded;
-                    donation.DonationStatusDate = DateTime.Now;
                 }
                 else if (pushpayPayment.IsStatusFailed)
                 {
                     donation.DonationStatusId = _mpDonationStatusDeclined;
-                    donation.DonationStatusDate = DateTime.Now;
                 }
 
                 // check if refund
@@ -141,6 +138,7 @@ namespace Crossroads.Service.Finance.Services
                     Console.WriteLine("Refunding Transaction Id: " + refund.TransactionCode);
                     donation.PaymentTypeId = refund.PaymentTypeId;
                 }
+                donation.DonationStatusDate = DateTime.Now;
                 _donationService.Update(donation);
                 return donation;
             } catch (Exception e) {
@@ -148,7 +146,7 @@ namespace Crossroads.Service.Finance.Services
                 var now = DateTime.UtcNow;
                 var webhookTime = webhook.IncomingTimeUtc;
                 // if it's been less than ten minutes, try again in a minute
-                if ((now - webhookTime.Value).TotalMinutes < maxRetryMinutes && retry)
+                if ((now - webhookTime).Value.TotalMinutes < maxRetryMinutes && retry)
                 {
                     AddUpdateDonationDetailsFromPushpayJob(webhook);
                     // dont throw an exception as Hangfire tries to handle it
@@ -338,7 +336,7 @@ namespace Crossroads.Service.Finance.Services
                 Closed = false,
                 ProcessorId = txn.Payer.Key,
                 ProcessorTypeId = pushpayProcessorTypeId
-        };
+            };
             if (donorId != null) {
                 mpDonorAccount.DonorId = donorId.Value;
             }

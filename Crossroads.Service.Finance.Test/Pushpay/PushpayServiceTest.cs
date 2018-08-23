@@ -13,6 +13,7 @@ using MinistryPlatform.Donors;
 using Pushpay.Models;
 using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
+using Mock;
 
 namespace Crossroads.Service.Finance.Test.Pushpay
 {
@@ -55,6 +56,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateProcessing());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
+            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Mock.MpDonorAccountMock.Create());
 
             var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
 
@@ -69,6 +71,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateSuccess());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
+            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Mock.MpDonorAccountMock.Create());
 
             var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
 
@@ -83,6 +86,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateFailed());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
+            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Mock.MpDonorAccountMock.Create());
 
             var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
 
@@ -147,13 +151,14 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 {
                     Code = "I'm In"
                 },
-                Links = new PushpayLinksDto()
+                Links = new PushpayLinksDto(),
+                PaymentMethodType = "ACH"
             };
             var mpRecurringGift = new MpRecurringGift()
             {
                 DonorId = 1
             };
-            var mockDonorAccount = new MpDonorAccount();
+            var mockDonorAccount = MpDonorAccountMock.Create();
             var mockHousehold = new MpHousehold()
             {
                 CongregationId = 1
@@ -217,7 +222,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 {
                     Code = "I'm In"
                 },
-                Links = new PushpayLinksDto()
+                Links = new PushpayLinksDto(),
+                PaymentMethodType = "ACH"
             };
             var mpRecurringGift = new MpRecurringGift()
             {
@@ -227,10 +233,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 DonorId = 234
             };
-            var mockDonorAccount = new MpDonorAccount()
-            {
-                DonorAccountId = 777
-            };
+            var mockDonorAccount = MpDonorAccountMock.Create();
             var mockHousehold = new MpHousehold()
             {
                 CongregationId = 1
@@ -286,13 +289,14 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 {
                     Code = "I'm In"
                 },
-                Links = new PushpayLinksDto()
+                Links = new PushpayLinksDto(),
+                PaymentMethodType = "ACH"
             };
             var mpRecurringGift = new MpRecurringGift()
             {
                 DonorId = 1
             };
-            var mockDonorAccount = new MpDonorAccount();
+            var mockDonorAccount = MpDonorAccountMock.Create();
             var mockDonor = new MpDonor()
             {
                 DonorId = 789
@@ -355,14 +359,15 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     Code = "I'm In"
                 },
                 Links = new PushpayLinksDto(),
-                Status = "Active"
+                Status = "Active",
+                PaymentMethodType = "ACH"
             };
             var mpRecurringGift = new MpRecurringGift()
             {
                 DonorId = 1,
                 RecurringGiftStatusId = 1
             };
-            var mockDonorAccount = new MpDonorAccount();
+            var mockDonorAccount = MpDonorAccountMock.Create();
             var mockHousehold = new MpHousehold()
             {
                 CongregationId = 1
