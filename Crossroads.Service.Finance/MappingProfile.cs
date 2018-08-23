@@ -72,7 +72,7 @@ public class MappingProfile : Profile
                 r.Links != null && r.Links.ViewRecurringPayment != null ? r.Links.ViewRecurringPayment.Href : null
             ));
         CreateMap<MpRecurringGift, RecurringGiftDto>();
-        CreateMap<MpDonationHistory, DonationHistoryDto>();
-        CreateMap<DonationHistoryDto, MpDonationHistory>();
+        CreateMap<MpDonationDetail, DonationDetailDto>();
+        CreateMap<DonationDetailDto, MpDonationDetail>();
     }
 }

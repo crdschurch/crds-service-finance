@@ -179,17 +179,17 @@ namespace Crossroads.Service.Finance.Test.Donations
                 }
             };
 
-            var donationHistory = new List<DonationHistoryDto>
+            var donationHistory = new List<DonationDetailDto>
             {
-                new DonationHistoryDto
+                new DonationDetailDto
                 {
                     DonationId = 5544555
                 }
             };
 
             _mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationDto);
-            _donationRepository.Setup(r => r.GetDonationHistoryByContactId(It.IsAny<int>(), null, null)).Returns(MpDonationHistoryMock.CreateList());
-            _mapper.Setup(m => m.Map<List<DonationHistoryDto>>(It.IsAny<List<MpDonationHistory>>())).Returns(donationHistory);
+            _donationRepository.Setup(r => r.GetDonationHistoryByContactId(It.IsAny<int>(), null, null)).Returns(MpDonationDetailMock.CreateList());
+            _mapper.Setup(m => m.Map<List<DonationDetailDto>>(It.IsAny<List<MpDonationDetail>>())).Returns(donationHistory);
 
             // Act
             var result = _fixture.GetDonations("token");
@@ -205,17 +205,17 @@ namespace Crossroads.Service.Finance.Test.Donations
             var contactId = 1234567;
             var token = "123abc";
 
-            var donationHistory = new List<DonationHistoryDto>
+            var donationHistory = new List<DonationDetailDto>
             {
-                new DonationHistoryDto
+                new DonationDetailDto
                 {
                     DonationId = 5544555
                 }
             };
 
-            var mpDonationHistories = new List<MpDonationHistory>
+            var mpDonationHistories = new List<MpDonationDetail>
             {
-                new MpDonationHistory
+                new MpDonationDetail
                 {
                     DonationId = 5544555
                 }
@@ -231,7 +231,7 @@ namespace Crossroads.Service.Finance.Test.Donations
 
             _contactService.Setup(m => m.GetContactIdBySessionId(token)).Returns(contactId);
             _contactService.Setup(m => m.GetCogiversByContactId(contactId)).Returns(contacts);
-            _mapper.Setup(m => m.Map<List<DonationHistoryDto>>(It.IsAny<List<MpDonationHistory>>())).Returns(donationHistory);
+            _mapper.Setup(m => m.Map<List<DonationDetailDto>>(It.IsAny<List<MpDonationDetail>>())).Returns(donationHistory);
             _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId, null, null)).Returns(mpDonationHistories);
 
             // Act

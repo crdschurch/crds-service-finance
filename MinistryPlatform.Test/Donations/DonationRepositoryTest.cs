@@ -264,9 +264,9 @@ namespace MinistryPlatform.Test.Donations
             // Arrange
             var contactId = 1234567;
 
-            var mpDonationHistories = new List<MpDonationHistory>
+            var mpDonationHistories = new List<MpDonationDetail>
             {
-                new MpDonationHistory
+                new MpDonationDetail
                 {
                     DonationId = 5544555
                 }
@@ -296,7 +296,7 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.OrderBy(order)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpDonationHistory>()).Returns(mpDonationHistories);
+            _request.Setup(m => m.Search<MpDonationDetail>()).Returns(mpDonationHistories);
 
             // Act
             var result = _fixture.GetDonationHistoryByContactId(contactId, new DateTime(2018, 7, 9));

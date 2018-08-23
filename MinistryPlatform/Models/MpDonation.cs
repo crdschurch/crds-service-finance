@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 
-
 namespace MinistryPlatform.Models
 {
     [MpRestApiTable(Name = "Donations")]

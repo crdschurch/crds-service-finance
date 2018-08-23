@@ -200,7 +200,7 @@ namespace MinistryPlatform.Repositories
                                 .Search<MpDonation>().ToList();
         }
 
-        public List<MpDonationHistory> GetDonationHistoryByContactId(int contactId, DateTime? startDate, DateTime? endDate)
+        public List<MpDonationDetail> GetDonationHistoryByContactId(int contactId, DateTime? startDate, DateTime? endDate)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -245,7 +245,7 @@ namespace MinistryPlatform.Repositories
                 .WithFilter(String.Join(" AND ", filters))
                 .OrderBy(order)
                 .Build()
-                .Search<MpDonationHistory>().ToList();
+                .Search<MpDonationDetail>().ToList();
         }
     }
 }

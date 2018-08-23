@@ -3,7 +3,7 @@ using System;
 
 namespace Crossroads.Service.Finance.Models
 {
-    public class DonationHistoryDto
+    public class DonationDetailDto
     {
         [JsonProperty("donationId")]
         public int DonationId { get; set; }

@@ -5,7 +5,7 @@ using System;
 namespace MinistryPlatform.Models
 {
     [MpRestApiTable(Name = "Donation_Distributions")]
-    public class MpDonationHistory
+    public class MpDonationDetail
     {
         [JsonProperty("Donation_ID")]
         public int DonationId { get; set; }
