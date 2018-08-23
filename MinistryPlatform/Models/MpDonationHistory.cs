@@ -46,5 +46,8 @@ namespace MinistryPlatform.Models
         [JsonProperty("Processor_Type")]
         public string ProcessorType { get; set; }
 
+        [JsonProperty("Payment_Type")]
+        public string PaymentType { get; set; }
+
     }
 }
