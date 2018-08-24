@@ -29,7 +29,7 @@ namespace Pushpay.Models
         [JsonProperty("paymentToken")]
         public string PaymentToken { get; set; }
 
-        [JsonProperty("_links")]
+        [JsonProperty("links")]
         public PushpayLinksDto Links { get; set; }
     }
 

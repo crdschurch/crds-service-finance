@@ -20,6 +20,7 @@ public class MappingProfile : Profile
         CreateMap<DonationDto, MpDonation>();
         CreateMap<PushpayAmountDto, AmountDto>();
         CreateMap<PushpayLinkDto, LinkDto>();
+        CreateMap<PushpayLinksDto, LinksDto>();
         CreateMap<PushpayPaymentDto, PaymentDto>();
         CreateMap<PushpayPaymentsDto, PaymentsDto>();
         CreateMap<PushpayRefundPaymentDto, RefundPaymentDto>();
@@ -72,7 +73,10 @@ public class MappingProfile : Profile
                 r.Links != null && r.Links.ViewRecurringPayment != null ? r.Links.ViewRecurringPayment.Href : null
             ));
         CreateMap<MpRecurringGift, RecurringGiftDto>();
-        CreateMap<MpDonationDetail, DonationDetailDto>();
+        CreateMap<MpDonationDetail, DonationDetailDto>()
+            .ForMember(dest => dest.AccountNumber, opt => opt.ResolveUsing(r => 
+                r.AccountNumber != null ? r.AccountNumber.Substring(r.AccountNumber.Length - 4, 4) : null));
+
         CreateMap<DonationDetailDto, MpDonationDetail>();
     }
 }
