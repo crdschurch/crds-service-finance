@@ -66,7 +66,7 @@ namespace Crossroads.Service.Finance.Services
             Console.WriteLine($"Updated donations for batch: {donationBatch.Id}");
 
             // 5. Create Deposit with the associated batch (should be one batch for one deposit)
-            var deposit = _depositService.CreateDeposit(settlementEventDto);
+            var deposit = _depositService.BuildDeposit(settlementEventDto);
             deposit = _depositService.SaveDeposit(deposit);
             Console.WriteLine($"Deposit created: {deposit.Id}");
 
@@ -74,38 +74,6 @@ namespace Crossroads.Service.Finance.Services
             donationBatch.DepositId = deposit.Id;
             donationBatch.BatchName = deposit.DepositName + "D";
             _batchService.UpdateDonationBatch(donationBatch);
-        }
-
-        public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPaymentDto)
-        {
-            // TODO replace when frontend is sending up data
-            var samplePushpayAnticipatedPayment = new PushpayAnticipatedPaymentDto()
-            {
-                Description = "2018 Jul NOLA Trip",
-                DescriptionTitle = "Trip Donation For",
-                ReturnUrl = "https://www.espn.com",
-                ReturnTitle = "Return to espn.com...",
-                MerchantKey = PushpayMerchantKey,
-                Fields = new List<PushpayAnticipatedPaymentField>
-                {
-                    new PushpayAnticipatedPaymentField()
-                    {
-                        Key = "amount",
-                        Value =  new JObject(
-                            new JProperty("amount", "140.50"),
-                            new JProperty("currency", "USD")
-                        ),
-                        ReadOnly = true
-                    },
-                    new PushpayAnticipatedPaymentField()
-                    {
-                        Key = "fund",
-                        Value =  "2018 Jul NOLA Trip",
-                        ReadOnly = true
-                    }
-                }
-            };
-            return _pushpayService.CreateAnticipatedPayment(samplePushpayAnticipatedPayment);
         }
     }
 }

@@ -29,8 +29,8 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("source")]
         public string Source { get; set; }
 
-        [JsonProperty("_links")]
-        public List<LinkDto> Links { get; set; }
+        [JsonProperty("links")]
+        public LinksDto Links { get; set; }
 
         [JsonProperty("refundedBy")]
         public RefundPaymentDto RefundedBy { get; set; }

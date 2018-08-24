@@ -40,7 +40,7 @@ namespace Crossroads.Service.Finance
             {
                 DotNetEnv.Env.Load("../.env");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // no .env file present but since not required, just write
                 Console.WriteLine("no .env file found, reading environment variables from machine");

@@ -6,6 +6,5 @@ namespace Crossroads.Service.Finance.Interfaces
     public interface IPaymentEventService
     {
         void CreateDeposit(SettlementEventDto settlementEventDto);
-        PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPaymentDto);
     }
 }

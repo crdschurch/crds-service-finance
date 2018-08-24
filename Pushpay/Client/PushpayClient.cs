@@ -17,7 +17,6 @@ namespace Pushpay.Client
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
-        private readonly string createAnticipatedPaymentsScope = "create_anticipated_payment";
         private readonly string recurringGiftsScope = "merchant:view_recurring_payments";
         private readonly IPushpayTokenService _pushpayTokenService;
         private readonly IRestClient _restClient;
@@ -152,13 +151,6 @@ namespace Pushpay.Client
             }
 
             return pushpayDepositDtos;
-        }
-
-        public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment)
-        {
-            var request = CreateRequest("anticipatedpayments", Method.POST, createAnticipatedPaymentsScope, anticipatedPayment);
-            var response = _restClient.Execute<PushpayAnticipatedPaymentDto>(request);
-            return response.Data;
         }
 
         public PushpayRecurringGiftDto GetRecurringGift(string resource)

@@ -9,6 +9,7 @@
     <Content Remove="appsettings.Integration.json" />
     <Content Remove="appsettings.Production.json" />
     <Content Remove="appsettings.json" />
+    <Compile Remove="Models\DonorAccountDto.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HangFire" Version="1.6.17" />
