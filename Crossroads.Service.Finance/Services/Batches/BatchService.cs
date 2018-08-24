@@ -59,7 +59,7 @@ namespace Crossroads.Service.Finance.Services
                 }
                 else
                 {
-                    Console.WriteLine($"Donation not found in MP for transaction code: ${charge.TransactionId}. Batch total will not match deposit total.");
+                    Console.WriteLine($"Donation not found in MP for transaction code: {charge.TransactionId}. Batch total will not match deposit total.");
                 }
             }   
 
