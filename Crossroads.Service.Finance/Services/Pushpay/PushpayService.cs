@@ -323,18 +323,18 @@ namespace Crossroads.Service.Finance.Services
             }
         }
 
-        private MpDonorAccount MapDonorAccountPaymentDetails(PushpayTransactionBaseDto txn, int? donorId = null)
+        private MpDonorAccount MapDonorAccountPaymentDetails(PushpayTransactionBaseDto basePushpayTransaction, int? donorId = null)
         {
-            var isBank = txn.PaymentMethodType.ToLower() == "ach";
+            var isBank = basePushpayTransaction.PaymentMethodType.ToLower() == "ach";
             var mpDonorAccount = new MpDonorAccount()
             {
-                AccountNumber = isBank ? txn.Account.Reference : txn.Card.Reference,
-                InstitutionName = isBank ? txn.Account.BankName : GetCardBrand(txn.Card.Brand),
-                RoutingNumber = isBank ? txn.Account.RoutingNumber : null,
+                AccountNumber = isBank ? basePushpayTransaction.Account.Reference : basePushpayTransaction.Card.Reference,
+                InstitutionName = isBank ? basePushpayTransaction.Account.BankName : GetCardBrand(basePushpayTransaction.Card.Brand),
+                RoutingNumber = isBank ? basePushpayTransaction.Account.RoutingNumber : null,
                 NonAssignable = false,
                 DomainId = 1,
                 Closed = false,
-                ProcessorId = txn.Payer.Key,
+                ProcessorId = basePushpayTransaction.Payer.Key,
                 ProcessorTypeId = pushpayProcessorTypeId
             };
             if (donorId != null) {
@@ -376,9 +376,9 @@ namespace Crossroads.Service.Finance.Services
             }
         }
 
-        private MpDonorAccount CreateDonorAccount(PushpayTransactionBaseDto txn, int donorId)
+        private MpDonorAccount CreateDonorAccount(PushpayTransactionBaseDto basePushpayTransaction, int donorId)
         {
-            var mpDonorAccount = MapDonorAccountPaymentDetails(txn, donorId);
+            var mpDonorAccount = MapDonorAccountPaymentDetails(basePushpayTransaction, donorId);
             return _donationService.CreateDonorAccount(mpDonorAccount);
         }
 
