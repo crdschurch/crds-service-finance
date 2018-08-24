@@ -28,7 +28,7 @@ namespace MinistryPlatform.Models
         [JsonProperty("Deposit_ID")]
         public int? DepositId { get; set; }
 
-        [JsonProperty("Finalized_Date")]
+        [JsonProperty("Finalize_Date")]
         public DateTime FinalizedDateTime { get; set; }
 
         [JsonProperty("Processor_Transfer_ID")]
