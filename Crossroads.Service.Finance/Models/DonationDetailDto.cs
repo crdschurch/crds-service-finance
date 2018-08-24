@@ -23,6 +23,12 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("amount")]
         public decimal Amount { get; set; }
 
+        [JsonProperty("itemNumber")]
+        public string ItemNumber { get; set; }
+
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
+
         [JsonProperty("donationDate")]
         public DateTime DonationDate { get; set; }
 
