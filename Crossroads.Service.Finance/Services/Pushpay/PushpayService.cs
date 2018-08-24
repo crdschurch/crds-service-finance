@@ -341,14 +341,14 @@ namespace Crossroads.Service.Finance.Services
                 mpDonorAccount.DonorId = donorId.Value;
             }
             // set account type
-            switch (txn.PaymentMethodType.ToLower())
+            switch (basePushpayTransaction.PaymentMethodType.ToLower())
             {
                 case "ach":
-                    if (txn.Account.AccountType == "Checking")
+                    if (basePushpayTransaction.Account.AccountType == "Checking")
                     {
                         mpDonorAccount.AccountTypeId = MpAccountTypes.Checkings;
                     }
-                    else if (txn.Account.AccountType == "Savings")
+                    else if (basePushpayTransaction.Account.AccountType == "Savings")
                     {
                         mpDonorAccount.AccountTypeId = MpAccountTypes.Savings;
                     }
