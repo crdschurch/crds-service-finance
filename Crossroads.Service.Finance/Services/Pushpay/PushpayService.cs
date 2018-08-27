@@ -265,6 +265,8 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
             // cancel the recurring gift in stripe, if exists
+            Console.WriteLine($"Checking to see if recurring gift has a matching stripe gift");
+            Console.WriteLine($"Pushpay recurring gift Notes field: {pushpayRecurringGift.Notes}");
             if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
             {
                 _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes);
