@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 
-
 namespace MinistryPlatform.Models
 {
     [MpRestApiTable(Name = "Donations")]
@@ -10,6 +9,12 @@ namespace MinistryPlatform.Models
     {
         [JsonProperty("Donation_ID")]
         public int DonationId { get; set; }
+
+        [JsonProperty("Donor_ID")]
+        public int DonorId { get; set; }
+
+        [JsonProperty("Donor_Account_ID")]
+        public int? DonorAccountId { get; set; }
 
         [JsonProperty("Contact_ID")]
         public int ContactId { get; set; }

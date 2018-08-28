@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Models;
@@ -20,6 +21,7 @@ public class MappingProfile : Profile
         CreateMap<DonationDto, MpDonation>();
         CreateMap<PushpayAmountDto, AmountDto>();
         CreateMap<PushpayLinkDto, LinkDto>();
+        CreateMap<PushpayLinksDto, LinksDto>();
         CreateMap<PushpayPaymentDto, PaymentDto>();
         CreateMap<PushpayPaymentsDto, PaymentsDto>();
         CreateMap<PushpayRefundPaymentDto, RefundPaymentDto>();
@@ -72,7 +74,20 @@ public class MappingProfile : Profile
                 r.Links != null && r.Links.ViewRecurringPayment != null ? r.Links.ViewRecurringPayment.Href : null
             ));
         CreateMap<MpRecurringGift, RecurringGiftDto>();
-        CreateMap<MpDonationHistory, DonationHistoryDto>();
-        CreateMap<DonationHistoryDto, MpDonationHistory>();
+        CreateMap<MpDonationDetail, DonationDetailDto>()
+            .ForMember(dest => dest.AccountNumber, opt => opt.ResolveUsing(r =>
+                {
+                    if (r.AccountNumber != null)
+                    {
+                        // get last four characters, which is max of what we want to show
+                        var formatted = r.AccountNumber.Substring(r.AccountNumber.Length - 4, 4);
+                        // pushpay bank accounts have bullets in two of the last four, so remove those
+                        return Regex.Replace(formatted, "[^0-9]", "");
+                    }
+                    return null;
+                }
+            ));
+
+        CreateMap<DonationDetailDto, MpDonationDetail>();
     }
 }

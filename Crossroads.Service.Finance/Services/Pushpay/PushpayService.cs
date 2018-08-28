@@ -5,7 +5,6 @@ using System.Reflection;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
-//using MinistryPlatform.Configuration;
 using Hangfire;
 using log4net;
 using MinistryPlatform.Interfaces;
@@ -67,20 +66,24 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<PaymentDto>(result);
         }
 
-        public void AddUpdateStatusJob(PushpayWebhook webhook)
+        public void AddUpdateDonationDetailsJob(PushpayWebhook webhook)
         {
             // add incoming timestamp so that we can reprocess job for a
             //   certain amount of time
             webhook.IncomingTimeUtc = DateTime.UtcNow;
-            AddUpdateDonationStatusFromPushpayJob(webhook);
+            AddUpdateDonationDetailsFromPushpayJob(webhook);
         }
 
-        private void AddUpdateDonationStatusFromPushpayJob(PushpayWebhook webhook)
+        private void AddUpdateDonationDetailsFromPushpayJob(PushpayWebhook webhook)
         {
-            BackgroundJob.Schedule(() => UpdateDonationStatusFromPushpay(webhook, true), TimeSpan.FromMinutes(_mpPushpayRecurringWebhookMinutes));
+            var donation = UpdateDonationDetailsFromPushpay(webhook, true);
+            if (donation == null)
+            {
+                BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true), TimeSpan.FromMinutes(_mpPushpayRecurringWebhookMinutes));
+            }
         }
 
-        public DonationDto UpdateDonationStatusFromPushpay(PushpayWebhook webhook, bool retry=false)
+        public DonationDto UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false)
         {
             try {
                 var pushpayPayment = _pushpayClient.GetPayment(webhook);
@@ -106,20 +109,25 @@ namespace Crossroads.Service.Finance.Services
                         Console.WriteLine($"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
                     }
                 }
+
+                // if it doesn't exist, attach a donor account so we have access to payment details
+                if (donation.DonorAccountId == null)
+                {
+                    var mpDonorAccount = CreateDonorAccount(pushpayPayment, donation.DonorId);
+                    donation.DonorAccountId = mpDonorAccount.DonorAccountId;   
+                }
+
                 if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
                 {
                     donation.DonationStatusId = _mpDonationStatusPending;
-                    donation.DonationStatusDate = DateTime.Now;
                 }
                 else if (pushpayPayment.IsStatusSuccess)
                 {
                     donation.DonationStatusId = _mpDonationStatusSucceeded;
-                    donation.DonationStatusDate = DateTime.Now;
                 }
                 else if (pushpayPayment.IsStatusFailed)
                 {
                     donation.DonationStatusId = _mpDonationStatusDeclined;
-                    donation.DonationStatusDate = DateTime.Now;
                 }
 
                 // check if refund
@@ -130,6 +138,7 @@ namespace Crossroads.Service.Finance.Services
                     Console.WriteLine("Refunding Transaction Id: " + refund.TransactionCode);
                     donation.PaymentTypeId = refund.PaymentTypeId;
                 }
+                donation.DonationStatusDate = DateTime.Now;
                 _donationService.Update(donation);
                 return donation;
             } catch (Exception e) {
@@ -137,9 +146,9 @@ namespace Crossroads.Service.Finance.Services
                 var now = DateTime.UtcNow;
                 var webhookTime = webhook.IncomingTimeUtc;
                 // if it's been less than ten minutes, try again in a minute
-                if ((now - webhookTime).TotalMinutes < maxRetryMinutes && retry)
+                if ((now - webhookTime).Value.TotalMinutes < maxRetryMinutes && retry)
                 {
-                    AddUpdateDonationStatusFromPushpayJob(webhook);
+                    AddUpdateDonationDetailsFromPushpayJob(webhook);
                     // dont throw an exception as Hangfire tries to handle it
                     Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP. Trying again in a minute.", e);
                     return null;
@@ -159,11 +168,6 @@ namespace Crossroads.Service.Finance.Services
         {
             var result = _pushpayClient.GetDepositsByDateRange(startDate, endDate);
             return _mapper.Map<List<SettlementEventDto>>(result);
-        }
-
-        public PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment)
-        {
-            return _pushpayClient.CreateAnticipatedPayment(anticipatedPayment);
         }
 
         public RecurringGiftDto CreateRecurringGift(PushpayWebhook webhook)
@@ -261,6 +265,8 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
             // cancel the recurring gift in stripe, if exists
+            Console.WriteLine($"Checking to see if recurring gift has a matching stripe gift");
+            Console.WriteLine($"Pushpay recurring gift Notes field: {pushpayRecurringGift.Notes}");
             if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
             {
                 _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes);
@@ -303,11 +309,6 @@ namespace Crossroads.Service.Finance.Services
                     matchedContact.DonorId = _donationService.CreateDonor(mpDonor).DonorId;
                 }
 
-                // TODO - this was removed to address the issue of creating a Pushpay recurring gift overwriting a Stripe processor id - remove
-                // this code permanently when this is tested fully
-                //// update processor id on donor account so we dont have to manually match next time
-                //_contactRepository.UpdateProcessor(matchedContact.DonorId.Value, gift.Payer.Key);
-
                 // create donor account and attach to contact
                 matchedContact.DonorAccountId = CreateDonorAccount(gift, matchedContact.DonorId.Value).DonorAccountId;
                 return matchedContact;
@@ -324,37 +325,37 @@ namespace Crossroads.Service.Finance.Services
             }
         }
 
-        private MpDonorAccount MapDonorAccountPaymentDetails(PushpayRecurringGiftDto gift, int? donorId = null)
+        private MpDonorAccount MapDonorAccountPaymentDetails(PushpayTransactionBaseDto basePushpayTransaction, int? donorId = null)
         {
-            var isBank = gift.Account != null;
+            var isBank = basePushpayTransaction.PaymentMethodType.ToLower() == "ach";
             var mpDonorAccount = new MpDonorAccount()
             {
-                AccountNumber = isBank ? gift.Account.Reference : gift.Card.Reference,
-                InstitutionName = isBank ? gift.Account.BankName : GetCardBrand(gift.Card.Brand),
-                RoutingNumber = isBank ? gift.Account.RoutingNumber : null,
+                AccountNumber = isBank ? basePushpayTransaction.Account.Reference : basePushpayTransaction.Card.Reference,
+                InstitutionName = isBank ? basePushpayTransaction.Account.BankName : GetCardBrand(basePushpayTransaction.Card.Brand),
+                RoutingNumber = isBank ? basePushpayTransaction.Account.RoutingNumber : null,
                 NonAssignable = false,
                 DomainId = 1,
                 Closed = false,
-                ProcessorId = gift.Payer.Key,
+                ProcessorId = basePushpayTransaction.Payer.Key,
                 ProcessorTypeId = pushpayProcessorTypeId
-        };
+            };
             if (donorId != null) {
                 mpDonorAccount.DonorId = donorId.Value;
             }
             // set account type
-            switch (gift.PaymentMethodType)
+            switch (basePushpayTransaction.PaymentMethodType.ToLower())
             {
-                case "ACH":
-                    if (gift.Account.AccountType == "Checking")
+                case "ach":
+                    if (basePushpayTransaction.Account.AccountType == "Checking")
                     {
                         mpDonorAccount.AccountTypeId = MpAccountTypes.Checkings;
                     }
-                    else if (gift.Account.AccountType == "Savings")
+                    else if (basePushpayTransaction.Account.AccountType == "Savings")
                     {
                         mpDonorAccount.AccountTypeId = MpAccountTypes.Savings;
                     }
                     break;
-                case "CreditCard":
+                case "creditcard":
                     mpDonorAccount.AccountTypeId = MpAccountTypes.CreditCard;
                     break;
             }
@@ -377,9 +378,9 @@ namespace Crossroads.Service.Finance.Services
             }
         }
 
-        private MpDonorAccount CreateDonorAccount(PushpayRecurringGiftDto gift, int donorId)
+        private MpDonorAccount CreateDonorAccount(PushpayTransactionBaseDto basePushpayTransaction, int donorId)
         {
-            var mpDonorAccount = MapDonorAccountPaymentDetails(gift, donorId);
+            var mpDonorAccount = MapDonorAccountPaymentDetails(basePushpayTransaction, donorId);
             return _donationService.CreateDonorAccount(mpDonorAccount);
         }
 

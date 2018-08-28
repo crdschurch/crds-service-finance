@@ -264,9 +264,9 @@ namespace MinistryPlatform.Test.Donations
             // Arrange
             var contactId = 1234567;
 
-            var mpDonationHistories = new List<MpDonationHistory>
+            var mpDonationHistories = new List<MpDonationDetail>
             {
-                new MpDonationHistory
+                new MpDonationDetail
                 {
                     DonationId = 5544555
                 }
@@ -281,7 +281,13 @@ namespace MinistryPlatform.Test.Donations
                 "Donation_ID_Table.[Donation_Status_ID]",
                 "Donation_Distributions.[Amount]",
                 "Donation_ID_Table.[Donation_Date]",
-                "Donation_ID_Table_Donation_Status_ID_Table.[Donation_Status]"
+                "Donation_ID_Table_Payment_Type_ID_Table.[Payment_Type]",
+                "Donation_ID_Table_Donation_Status_ID_Table.[Donation_Status]",
+                "Donation_ID_Table_Donor_Account_ID_Table.[Account_Number]",
+                "Donation_ID_Table_Donor_Account_ID_Table.[Institution_Name]",
+                "Donation_ID_Table_Donor_Account_ID_Table.[Routing_Number]",
+                "Donation_ID_Table_Donor_Account_ID_Table_Account_Type_ID_Table.[Account_Type]",
+                "Donation_ID_Table_Donor_Account_ID_Table_Processor_Type_ID_Table.[Processor_Type]"
             };
 
             var filter = "Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 1234567";
@@ -296,7 +302,7 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.OrderBy(order)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpDonationHistory>()).Returns(mpDonationHistories);
+            _request.Setup(m => m.Search<MpDonationDetail>()).Returns(mpDonationHistories);
 
             // Act
             var result = _fixture.GetDonationHistoryByContactId(contactId, new DateTime(2018, 7, 9));

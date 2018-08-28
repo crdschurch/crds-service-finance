@@ -3,31 +3,31 @@ using MinistryPlatform.Models;
 
 namespace Mock
 {
-    public class MpDonationHistoryMock
+    public class MpDonationDetailMock
     {
-        public static MpDonationHistory Create() =>
-            new MpDonationHistory
+        public static MpDonationDetail Create() =>
+            new MpDonationDetail
             {
                 DonationId = 22
             };
 
-        public static List<MpDonationHistory> CreateList() =>
-            new List<MpDonationHistory>
+        public static List<MpDonationDetail> CreateList() =>
+            new List<MpDonationDetail>
             {
-                new MpDonationHistory
+                new MpDonationDetail
                 {
                     DonationId = 23
                 },
-                new MpDonationHistory
+                new MpDonationDetail
                 {
                     DonationId = 24
                 },
-                new MpDonationHistory
+                new MpDonationDetail
                 {
                     DonationId = 25
                 },
             };
 
-        public static List<MpDonationHistory> CreateEmpty() => new List<MpDonationHistory> { };
+        public static List<MpDonationDetail> CreateEmpty() => new List<MpDonationDetail> { };
     }
 }

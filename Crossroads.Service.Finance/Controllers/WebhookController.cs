@@ -29,6 +29,9 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(400)]
         public IActionResult HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
         {
+            NewRelic.Api.Agent.NewRelic.AddCustomParameter("webhookPayload", 
+                JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
+
             try
             {
                 Console.WriteLine("⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡ Incoming webhook ⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️");
@@ -39,7 +42,7 @@ namespace Crossroads.Service.Finance.Controllers
                 {
                     case "payment_created":
                     case "payment_status_changed":
-                        _pushpayService.AddUpdateStatusJob(pushpayWebhook);
+                        _pushpayService.AddUpdateDonationDetailsJob(pushpayWebhook);
                         return Ok();
                     case "recurring_payment_changed":
                         var updatedGift = _pushpayService.UpdateRecurringGift(pushpayWebhook);

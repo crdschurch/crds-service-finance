@@ -17,9 +17,9 @@ namespace Crossroads.Service.Finance.Interfaces
         void UpdateDonorAccount(JObject donorAccount);
         List<RecurringGiftDto> GetRecurringGifts(string token);
         List<PledgeDto> GetPledges(string token);
-        List<DonationHistoryDto> GetDonations(int contactId);
-        List<DonationHistoryDto> GetDonations(string token);
+        List<DonationDetailDto> GetDonations(int contactId);
+        List<DonationDetailDto> GetDonations(string token);
         List<MpPledge> CalculatePledges(string token);
-        List<DonationHistoryDto> GetRelatedContactDonations(int userContactId, int relatedContactId);
+        List<DonationDetailDto> GetRelatedContactDonations(int userContactId, int relatedContactId);
     }
 }

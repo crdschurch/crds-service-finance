@@ -5,7 +5,7 @@ using System;
 namespace MinistryPlatform.Models
 {
     [MpRestApiTable(Name = "Donation_Distributions")]
-    public class MpDonationHistory
+    public class MpDonationDetail
     {
         [JsonProperty("Donation_ID")]
         public int DonationId { get; set; }
@@ -25,10 +25,35 @@ namespace MinistryPlatform.Models
         [JsonProperty("Amount")]
         public decimal Amount { get; set; }
 
+        [JsonProperty("Item_Number")]
+        public string ItemNumber { get; set; }
+
+        [JsonProperty("Notes")]
+        public string Notes { get; set; }
+
         [JsonProperty("Donation_Date")]
         public DateTime DonationDate { get; set; }
 
         [JsonProperty("Donation_Status")]
         public string DonationStatus { get; set; }
+
+        [JsonProperty("Account_Number")]
+        public string AccountNumber { get; set; }
+
+        [JsonProperty("Institution_Name")]
+        public string InstitutionName { get; set; }
+
+        [JsonProperty("Routing_Number")]
+        public string RoutingNumber { get; set; }
+
+        [JsonProperty("Account_Type")]
+        public string AccountType { get; set; }
+
+        [JsonProperty("Processor_Type")]
+        public string ProcessorType { get; set; }
+
+        [JsonProperty("Payment_Type")]
+        public string PaymentType { get; set; }
+
     }
 }

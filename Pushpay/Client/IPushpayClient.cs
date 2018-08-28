@@ -10,7 +10,6 @@ namespace Pushpay.Client
         PushpayPaymentsDto GetPushpayDonations(string settlementKey);
         PushpayPaymentDto GetPayment(PushpayWebhook webhook);
         List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
-        PushpayAnticipatedPaymentDto CreateAnticipatedPayment(PushpayAnticipatedPaymentDto anticipatedPayment);
         PushpayRecurringGiftDto GetRecurringGift(string resource);
     }
 }

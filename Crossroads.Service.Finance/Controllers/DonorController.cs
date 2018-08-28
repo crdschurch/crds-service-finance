@@ -101,7 +101,7 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
-                    List<DonationHistoryDto> donations;
+                    List<DonationDetailDto> donations;
                     var userContactId = _contactService.GetContactIdBySessionId(token);
                     if (contactId == userContactId)
                     {

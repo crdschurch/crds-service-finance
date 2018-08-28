@@ -63,7 +63,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(mpDeposits);
 
             // Act
-            var result = _fixture.CreateDeposit(settlementEventDto);
+            var result = _fixture.BuildDeposit(settlementEventDto);
 
             // Assert
             Assert.Equal(settlementKey, result.ProcessorTransferId);
@@ -109,7 +109,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(mpDeposits);
 
             // Act
-            var result = _fixture.CreateDeposit(settlementEventDto);
+            var result = _fixture.BuildDeposit(settlementEventDto);
 
             // Assert
             Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.VendorDetailUrl);
@@ -154,7 +154,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(mpDeposits);
 
             // Act
-            var result = _fixture.CreateDeposit(settlementEventDto);
+            var result = _fixture.BuildDeposit(settlementEventDto);
 
             // Assert
             Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.VendorDetailUrl);
