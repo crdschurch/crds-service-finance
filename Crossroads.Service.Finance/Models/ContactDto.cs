@@ -11,9 +11,6 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty(PropertyName = "dateOfBirth")]
         public DateTime? DateOfBirth { get; set; }
 
-        [JsonProperty(PropertyName = "participantId")]
-        public int ParticipantId { get; set; }
-
         [JsonProperty(PropertyName = "householdId")]
         public int? HouseholdId { get; set; }
 
