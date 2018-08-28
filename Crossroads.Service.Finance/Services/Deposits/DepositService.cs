@@ -137,12 +137,12 @@ namespace Crossroads.Service.Finance.Services
             {
                 if (!existingDepositIds.Contains(deposit.Key))
                 {
-                    Console.WriteLine($"{deposit.Key} deposit ProcessorTransferId not found in MP, adding to sync list");
+                    Console.WriteLine($"Deposit {deposit.Key} ProcessorTransferId not found in MP, adding to sync list");
                     depositsToProcess.Add(deposit);
                 }
                 else
                 {
-                    Console.WriteLine($"{deposit.Key} found in MP, skipping");   
+                    Console.WriteLine($"Deposit {deposit.Key} found in MP, skipping");   
                 }
             }
 
