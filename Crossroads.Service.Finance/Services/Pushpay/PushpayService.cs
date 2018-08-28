@@ -55,7 +55,7 @@ namespace Crossroads.Service.Finance.Services
             _mpPushpayRecurringWebhookMinutes = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "PushpayJobDelayMinutes") ?? 1;
         }
 
-        public PaymentsDto GetChargesForTransfer(string settlementKey)
+        public PaymentsDto GetPaymentsForSettlement(string settlementKey)
         {
             var result = _pushpayClient.GetPushpayDonations(settlementKey);
             return _mapper.Map<PaymentsDto>(result);

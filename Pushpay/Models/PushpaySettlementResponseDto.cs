@@ -14,6 +14,9 @@ namespace Pushpay.Models
         [JsonProperty("totalPages")]
         public int TotalPages { get; set; }
 
+        [JsonProperty("total")]
+        public int Total { get; set; }
+
         [JsonProperty("items")]
         public List<PushpaySettlementDto> items { get; set; }
     }

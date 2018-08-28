@@ -40,6 +40,7 @@ namespace Pushpay.Client
             };
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
+            Console.WriteLine($"Getting settlement payments from pushpay at: {request.Resource}");
             var response = _restClient.Execute<PushpayPaymentsDto>(request);
 
             var paymentsDto = response.Data;
@@ -55,24 +56,22 @@ namespace Pushpay.Client
 
             if (totalPages > 1)
             {
-                var delay = 0;
-                if (totalPages >= RequestsPerSecond && totalPages < RequestsPerMinute)
-                {
-                    delay = 150;
-                }
-                else if (totalPages >= RequestsPerMinute)
-                {
-                    delay = 1000;
-                }
-
-                for (int i = 0; i < totalPages; i++)
+                var delay = GetDelayMs(totalPages);
+                for (int currentPage = paymentsDto.Page + 1; currentPage < totalPages; currentPage++)
                 {
                     Thread.Sleep(delay);
-                    request.Resource = $"settlement/{settlementKey}/payments?page={i}";
+                    request.Resource = $"settlement/{settlementKey}/payments?page={currentPage}";
+                    Console.WriteLine($"Getting settlement payments from pushpay at: {request.Resource}");
                     response = _restClient.Execute<PushpayPaymentsDto>(request);
                     paymentsDto.Items.AddRange(response.Data.Items);
                 }
             }
+
+            if (paymentsDto.Items.Count != paymentsDto.Total)
+            {
+                Console.WriteLine($"Settlement {settlementKey} donations count do not match. Batch totals and item count will be off");
+            }
+
             return paymentsDto;
         }
 
@@ -110,6 +109,7 @@ namespace Pushpay.Client
             };
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
+            Console.WriteLine($"Getting settlements from pushpay at: {request.Resource}");
             var response = _restClient.Execute<PushpaySettlementResponseDto>(request);
 
             var pushpayDepositDtos = response.Data.items;
@@ -125,20 +125,13 @@ namespace Pushpay.Client
 
             if (totalPages > 1)
             {
-                var delay = 0;
-                if (totalPages >= RequestsPerSecond && totalPages < RequestsPerMinute)
-                {
-                    delay = 150;
-                }
-                else if (totalPages >= RequestsPerMinute)
-                {
-                    delay = 1000;
-                }
+                var delay = GetDelayMs(totalPages);
 
-                for (int i = 0; i < totalPages; i++)
+                for (int currentPage = response.Data.Page + 1; currentPage < totalPages; currentPage++)
                 {
                     Thread.Sleep(delay);
-                    request.Resource = $"settlement/settlements?depositFrom={modStartDate}&page={i}";
+                    request.Resource = $"settlement/settlements?depositFrom={modStartDate}&page={currentPage}";
+                    Console.WriteLine($"Getting settlements from pushpay at: {request.Resource}");
                     response = _restClient.Execute<PushpaySettlementResponseDto>(request);
                     if (response.Data.items != null)
                     {
@@ -146,7 +139,7 @@ namespace Pushpay.Client
                     }
                     else
                     {
-                        _logger.Warn($"No settlements found for start date {modStartDate} and page {i} in MP.");
+                        _logger.Warn($"No settlements found for start date {modStartDate} and page {currentPage} in MP.");
                     }
                 }
             }
@@ -183,6 +176,20 @@ namespace Pushpay.Client
             }
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
             return request;
+        }
+
+        private int GetDelayMs(int totalPages)
+        {
+            var delay = 0;
+            if (totalPages >= RequestsPerSecond && totalPages < RequestsPerMinute)
+            {
+                delay = 150;
+            }
+            else if (totalPages >= RequestsPerMinute)
+            {
+                delay = 1000;
+            }
+            return delay;
         }
 
     }
