@@ -256,7 +256,7 @@ namespace Crossroads.Service.Finance.Services
 
             mpRecurringGift.DonorId = donor.DonorId.Value;
             mpRecurringGift.DonorAccountId = donor.DonorAccountId.Value;
-            mpRecurringGift.CongregationId = _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
+            mpRecurringGift.CongregationId = donor.CongregationId != null ? donor.CongregationId.Value : _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
 
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
