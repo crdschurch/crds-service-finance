@@ -29,7 +29,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IGatewayService _gatewayService;
         private readonly IMapper _mapper;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
-                             _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpDefaultCongregationId;
+                             _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpNotSiteSpecificCongregationId;
         private const int maxRetryMinutes = 10;
         private const int pushpayProcessorTypeId = 1;
 
@@ -50,8 +50,8 @@ namespace Crossroads.Service.Finance.Services
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
             _mpDefaultContactDonorId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultDonorID") ?? 1;
-            _mpDefaultCongregationId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultCongregationID") ?? 1;
             _mpPushpayRecurringWebhookMinutes = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "PushpayJobDelayMinutes") ?? 1;
+            _mpNotSiteSpecificCongregationId = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "NotSiteSpecific") ?? 5;
         }
 
         public PaymentsDto GetPaymentsForSettlement(string settlementKey)
@@ -256,7 +256,7 @@ namespace Crossroads.Service.Finance.Services
 
             mpRecurringGift.DonorId = donor.DonorId.Value;
             mpRecurringGift.DonorAccountId = donor.DonorAccountId.Value;
-            mpRecurringGift.CongregationId = _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
+            mpRecurringGift.CongregationId = donor.CongregationId != null ? donor.CongregationId.Value : _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
 
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
@@ -319,7 +319,7 @@ namespace Crossroads.Service.Finance.Services
                 {
                     DonorId = _mpDefaultContactDonorId,
                     DonorAccountId = donorAccount.DonorAccountId,
-                    CongregationId = _mpDefaultCongregationId
+                    CongregationId = _mpNotSiteSpecificCongregationId
                 };
                 return mpDoner;
             }

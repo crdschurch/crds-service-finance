@@ -56,6 +56,7 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Webhook error: {ex.Message}");
                 return StatusCode(400, ex);
             }
         }
