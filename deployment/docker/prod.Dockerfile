@@ -18,8 +18,8 @@ WORKDIR /app/Crossroads.Service.Finance
 WORKDIR /app 
  
 # Run Unit Tests 
-# RUN dotnet test Crossroads.Service.Finance.Test/Crossroads.Service.Finance.Test.csproj 
-# RUN dotnet test MinistryPlatform.Test/MinistryPlatform.Test.csproj 
+RUN dotnet test Crossroads.Service.Finance.Test/Crossroads.Service.Finance.Test.csproj 
+RUN dotnet test MinistryPlatform.Test/MinistryPlatform.Test.csproj 
  
 # Publish build to out directory 
 RUN dotnet publish -c Release -o out 
