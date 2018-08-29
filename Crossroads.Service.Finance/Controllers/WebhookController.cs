@@ -29,8 +29,13 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(400)]
         public IActionResult HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
         {
-            NewRelic.Api.Agent.NewRelic.AddCustomParameter("webhookPayload", 
-                JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
+            //NewRelic.Api.Agent.NewRelic.AddCustomParameter("webhookPayload", 
+            //    JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
+
+            //NewRelic.Api.Agent.NewRelic.
+
+            //NewRelic.Api.Agent.NewRelic.AddCustomParameter("webhookPayload",
+            //    JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
 
             try
             {

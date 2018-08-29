@@ -14,6 +14,7 @@ using Pushpay.Models;
 using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Donors;
 using Newtonsoft.Json.Linq;
+using Utilities.Logging;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -267,6 +268,19 @@ namespace Crossroads.Service.Finance.Services
             // cancel the recurring gift in stripe, if exists
             if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
             {
+                var eventData = new Dictionary<string, object>();
+                eventData.Add("Donor First Name", pushpayRecurringGift.Payer.FirstName);
+                eventData.Add("Donor Last Name", pushpayRecurringGift.Payer.FirstName);
+                eventData.Add("Donor Email Address", pushpayRecurringGift.Payer.EmailAddress);
+                eventData.Add("Notes", pushpayRecurringGift.Notes);
+
+                var logEventEntry = new LogEventEntry
+                {
+                    EventType = LogEventType.StripeCancel,
+                    LogEntryData = eventData
+                };
+                NewRelicAgentWrapper.LogEvent(logEventEntry);
+
                 _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes);
             }
 
