@@ -135,7 +135,6 @@ namespace MinistryPlatform.Test.Contacts
                 "Mobile_Phone",
                 "Last_Name",
                 "Date_of_Birth",
-                "Participant_Record",
                 "Nickname"
             };
 
