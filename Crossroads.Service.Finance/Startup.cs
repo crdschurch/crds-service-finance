@@ -16,6 +16,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using System.Linq;
 using System.IO;
 using MinistryPlatform.Donors;
+using Utilities.Logging;
 
 namespace Crossroads.Service.Finance
 {
@@ -81,6 +82,9 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IPledgeRepository, PledgeRepository>();
             services.AddSingleton<IDonationDistributionRepository, DonationDistributionRepository>();
             services.AddSingleton<IGatewayService, GatewayService>();
+
+            // Utilities Layer
+            services.AddSingleton<IDataLoggingService, NewRelicAgentWrapper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

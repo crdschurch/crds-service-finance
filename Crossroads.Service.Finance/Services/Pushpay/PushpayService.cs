@@ -29,6 +29,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IDonorRepository _donorRepository;
         private readonly IGatewayService _gatewayService;
         private readonly IMapper _mapper;
+        private readonly IDataLoggingService _dataLoggingService;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
                              _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpDefaultCongregationId;
         private const int maxRetryMinutes = 10;
@@ -37,7 +38,7 @@ namespace Crossroads.Service.Finance.Services
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
                               IProgramRepository programRepository, IContactRepository contactRepository, IDonorRepository donorRepository,
-                              IGatewayService gatewayService)
+                              IGatewayService gatewayService, IDataLoggingService dataLoggingService)
         {
             _pushpayClient = pushpayClient;
             _donationService = donationService;
@@ -47,6 +48,7 @@ namespace Crossroads.Service.Finance.Services
             _contactRepository = contactRepository;
             _donorRepository = donorRepository;
             _gatewayService = gatewayService;
+            _dataLoggingService = dataLoggingService;
             _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
@@ -268,19 +270,13 @@ namespace Crossroads.Service.Finance.Services
             // cancel the recurring gift in stripe, if exists
             if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
             {
-                var eventData = new Dictionary<string, object>();
-                eventData.Add("Donor First Name", pushpayRecurringGift.Payer.FirstName);
-                eventData.Add("Donor Last Name", pushpayRecurringGift.Payer.FirstName);
-                eventData.Add("Donor Email Address", pushpayRecurringGift.Payer.EmailAddress);
-                eventData.Add("Notes", pushpayRecurringGift.Notes);
+                var logEventEntry = new LogEventEntry(LogEventType.StripeCancel);
+                logEventEntry.Push("Donor First Name", pushpayRecurringGift.Payer.FirstName);
+                logEventEntry.Push("Donor First Name", pushpayRecurringGift.Payer.LastName);
+                logEventEntry.Push("Donor Email Address", pushpayRecurringGift.Payer.EmailAddress);
+                logEventEntry.Push("Notes", pushpayRecurringGift.Notes);
 
-                var logEventEntry = new LogEventEntry
-                {
-                    EventType = LogEventType.StripeCancel,
-                    LogEntryData = eventData
-                };
-                NewRelicAgentWrapper.LogEvent(logEventEntry);
-
+                _dataLoggingService.LogDataEvent(logEventEntry);
                 _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes);
             }
 
