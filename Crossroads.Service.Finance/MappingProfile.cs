@@ -76,8 +76,10 @@ public class MappingProfile : Profile
         CreateMap<MpRecurringGift, RecurringGiftDto>();
         CreateMap<MpDonationDetail, DonationDetailDto>()
             .ForMember(dest => dest.AccountNumber, opt => opt.ResolveUsing(r =>
+            {
+                try
                 {
-                    if (r.AccountNumber != null)
+                    if (r.AccountNumber != null && r.AccountNumber.Length >= 4)
                     {
                         // get last four characters, which is max of what we want to show
                         var formatted = r.AccountNumber.Substring(r.AccountNumber.Length - 4, 4);
@@ -86,7 +88,13 @@ public class MappingProfile : Profile
                     }
                     return null;
                 }
-            ));
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return null;
+                }
+            }
+        ));
 
         CreateMap<DonationDetailDto, MpDonationDetail>();
     }
