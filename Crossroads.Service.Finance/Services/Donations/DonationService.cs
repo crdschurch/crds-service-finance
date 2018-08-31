@@ -110,13 +110,18 @@ namespace Crossroads.Service.Finance.Services
         {
             var contactId = _contactService.GetContactIdBySessionId(token);
             var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
-            // get totals donations so far for this pledge
-            var donationDistributions = _mpDonationDistributionRepository.GetByPledges(mpPledges.Select(r => r.PledgeId).ToList());
-            foreach (var mpPledge in mpPledges)
+
+            if (mpPledges.Any())
             {
-                var donationsForPledge = donationDistributions.Where(dd => dd.PledgeId == mpPledge.PledgeId).ToList();
-                mpPledge.PledgeDonationsTotal = donationsForPledge.Sum(dd => dd.Amount);
+                // get totals donations so far for this pledge
+                var donationDistributions = _mpDonationDistributionRepository.GetByPledges(mpPledges.Select(r => r.PledgeId).ToList());
+                foreach (var mpPledge in mpPledges)
+                {
+                    var donationsForPledge = donationDistributions.Where(dd => dd.PledgeId == mpPledge.PledgeId).ToList();
+                    mpPledge.PledgeDonationsTotal = donationsForPledge.Sum(dd => dd.Amount);
+                }
             }
+
             return mpPledges;
         }
 
