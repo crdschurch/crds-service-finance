@@ -36,7 +36,7 @@ namespace Crossroads.Service.Finance.Test.Batches
         }
 
         [Fact]
-        public void ShouldCreateDonationBatchObject()
+        public void ShouldBuildDonationBatchObject()
         {
             var timestamp = DateTime.Now;
             var donationsMock = MpDonationsMock.CreateList();
@@ -57,7 +57,7 @@ namespace Crossroads.Service.Finance.Test.Batches
             _donationRepository.Setup(r => r.GetDonationByTransactionCode("2b")).Returns(donationsMock[0]);
             _donationRepository.Setup(r => r.GetDonationByTransactionCode("3c")).Returns(donationsMock[0]);
 
-            var result = _fixture.CreateDonationBatch(chargesMock, "depositName", timestamp, "transferId");
+            var result = _fixture.BuildDonationBatch(chargesMock, "depositName", timestamp, "transferId");
 
             Assert.Equal(expectedBatch.SetupDateTime, timestamp);
             Assert.Equal(expectedBatch.FinalizedDateTime, timestamp);

@@ -31,7 +31,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IMapper _mapper;
         private readonly IDataLoggingService _dataLoggingService;
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
-                             _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpDefaultCongregationId;
+                             _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpNotSiteSpecificCongregationId;
         private const int maxRetryMinutes = 10;
         private const int pushpayProcessorTypeId = 1;
 
@@ -53,11 +53,11 @@ namespace Crossroads.Service.Finance.Services
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
             _mpDefaultContactDonorId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultDonorID") ?? 1;
-            _mpDefaultCongregationId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultCongregationID") ?? 1;
             _mpPushpayRecurringWebhookMinutes = configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "PushpayJobDelayMinutes") ?? 1;
+            _mpNotSiteSpecificCongregationId = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "NotSiteSpecific") ?? 5;
         }
 
-        public PaymentsDto GetChargesForTransfer(string settlementKey)
+        public PaymentsDto GetPaymentsForSettlement(string settlementKey)
         {
             var result = _pushpayClient.GetPushpayDonations(settlementKey);
             return _mapper.Map<PaymentsDto>(result);
@@ -278,7 +278,7 @@ namespace Crossroads.Service.Finance.Services
 
             mpRecurringGift.DonorId = donor.DonorId.Value;
             mpRecurringGift.DonorAccountId = donor.DonorAccountId.Value;
-            mpRecurringGift.CongregationId = _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
+            mpRecurringGift.CongregationId = donor.CongregationId != null ? donor.CongregationId.Value : _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
 
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
@@ -287,6 +287,8 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
             // cancel the recurring gift in stripe, if exists
+            Console.WriteLine($"Checking to see if recurring gift has a matching stripe gift");
+            Console.WriteLine($"Pushpay recurring gift Notes field: {pushpayRecurringGift.Notes}");
             if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
             {
                 
@@ -347,7 +349,7 @@ namespace Crossroads.Service.Finance.Services
                 {
                     DonorId = _mpDefaultContactDonorId,
                     DonorAccountId = donorAccount.DonorAccountId,
-                    CongregationId = _mpDefaultCongregationId
+                    CongregationId = _mpNotSiteSpecificCongregationId
                 };
                 return mpDoner;
             }

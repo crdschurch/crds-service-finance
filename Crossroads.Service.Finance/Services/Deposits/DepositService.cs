@@ -156,7 +156,7 @@ namespace Crossroads.Service.Finance.Services
             {
                 if (!existingDepositIds.Contains(deposit.Key))
                 {
-                    Console.WriteLine($"{deposit.Key} deposit ProcessorTransferId not found in MP, adding to sync list");
+                    Console.WriteLine($"Deposit {deposit.Key} ProcessorTransferId not found in MP, adding to sync list");
 
                     var newDepositEntry = new LogEventEntry(LogEventType.newDepositToSync);
                     newDepositEntry.Push("New Deposit", deposit.Key);
@@ -166,7 +166,7 @@ namespace Crossroads.Service.Finance.Services
                 }
                 else
                 {
-                    Console.WriteLine($"{deposit.Key} found in MP, skipping");
+                    Console.WriteLine($"Deposit {deposit.Key} found in MP, skipping");
 
                     var previouslySyncedDepositEntry = new LogEventEntry(LogEventType.previouslySyncedDeposit);
                     previouslySyncedDepositEntry.Push("Old Deposit", deposit.Key);

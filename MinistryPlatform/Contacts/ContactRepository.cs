@@ -87,7 +87,6 @@ namespace MinistryPlatform.Repositories
                 "Mobile_Phone",
                 "Last_Name",
                 "Date_of_Birth",
-                "Participant_Record",
                 "Nickname"
             };
             var filter = $"Contact_ID = {contactId}";

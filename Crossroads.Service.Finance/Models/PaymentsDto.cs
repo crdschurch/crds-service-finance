@@ -18,6 +18,9 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("totalPages")]
         public int TotalPages { get; set; }
 
+        [JsonProperty("total")]
+        public int Total { get; set; }
+
         // RestSharp currently has an issue deserializing List not named the same as property,
         // so have to name this "items" in order to deserialize properly
         //

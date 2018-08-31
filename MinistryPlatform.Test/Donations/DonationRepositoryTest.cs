@@ -281,6 +281,8 @@ namespace MinistryPlatform.Test.Donations
                 "Donation_ID_Table.[Donation_Status_ID]",
                 "Donation_Distributions.[Amount]",
                 "Donation_ID_Table.[Donation_Date]",
+                "Donation_ID_Table.[Item_Number]",
+                "Donation_ID_Table.[Notes]",
                 "Donation_ID_Table_Payment_Type_ID_Table.[Payment_Type]",
                 "Donation_ID_Table_Donation_Status_ID_Table.[Donation_Status]",
                 "Donation_ID_Table_Donor_Account_ID_Table.[Account_Number]",
