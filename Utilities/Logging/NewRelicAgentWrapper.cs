@@ -13,10 +13,5 @@ namespace Utilities.Logging
             NewRelic.Api.Agent.NewRelic.RecordCustomEvent(logEventEntry.LogEventType.ToString(),
                 logEventEntry.LogEventData);
         }
-
-        //async Task SendToLog(LogEventEntry logEventEntry)
-        //{
-        //    await new Task(NewRelic.Api.Agent.NewRelic.RecordCustomEvent(logEventEntry.LogEventType.ToString(), logEventEntry.LogEventData));
-        //}
     }
 }
