@@ -7,6 +7,7 @@ using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
+using Utilities.Logging;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -16,6 +17,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
         private readonly IConfigurationWrapper _configurationWrapper;
+        private readonly IDataLoggingService _dataLoggingService;
 
         private readonly int _depositProcessingOffset;
         private readonly string _pushpayWebEndpoint;
@@ -23,12 +25,14 @@ namespace Crossroads.Service.Finance.Services
         public DepositService(IDepositRepository depositRepository,
                               IMapper mapper,
                               IPushpayService pushpayService,
-                              IConfigurationWrapper configurationWrapper)
+                              IConfigurationWrapper configurationWrapper,
+                              IDataLoggingService dataLoggingService)
         {
             _depositRepository = depositRepository;
             _mapper = mapper;
             _pushpayService = pushpayService;
             _configurationWrapper = configurationWrapper;
+            _dataLoggingService = dataLoggingService;
 
             _depositProcessingOffset = _configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
@@ -104,6 +108,12 @@ namespace Crossroads.Service.Finance.Services
             var endDate = DateTime.Now;
 
             Console.WriteLine($"Checking pushpay for deposits between {startDate} and {endDate}");
+
+            var logEventEntry = new LogEventEntry(LogEventType.depositSearchDateRange);
+            logEventEntry.Push("Start Date", startDate);
+            logEventEntry.Push("End Date", endDate);
+            _dataLoggingService.LogDataEvent(logEventEntry);
+
             var depositDtos = GetDepositsForSync(startDate, endDate);
 
             if (depositDtos == null || !depositDtos.Any())
@@ -119,6 +129,10 @@ namespace Crossroads.Service.Finance.Services
             var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
             Console.WriteLine($"{deposits.Count} found in pushpay");
 
+            var depositsFoundEntry = new LogEventEntry(LogEventType.incomingPushpayWebhook);
+            depositsFoundEntry.Push("Deposits Found Count", deposits.Count);
+            _dataLoggingService.LogDataEvent(depositsFoundEntry);
+
             if (!deposits.Any())
             {
                 return null;
@@ -129,6 +143,11 @@ namespace Crossroads.Service.Finance.Services
             // check to see if any of the deposits we're pulling over have already been deposited
             var existingDeposits = _depositRepository.GetByTransferIds(transferIds);
             Console.WriteLine($"{existingDeposits.Count} of these deposits found in MP");
+
+            var alreadyDepositedEntry = new LogEventEntry(LogEventType.depositsAlreadyDeposited);
+            alreadyDepositedEntry.Push("Count Deposits Already Deposited", existingDeposits.Count);
+            _dataLoggingService.LogDataEvent(alreadyDepositedEntry);
+
             var existingDepositIds = existingDeposits.Select(r => r.ProcessorTransferId).ToList();
 
             var depositsToProcess = new List<SettlementEventDto>();
@@ -138,11 +157,20 @@ namespace Crossroads.Service.Finance.Services
                 if (!existingDepositIds.Contains(deposit.Key))
                 {
                     Console.WriteLine($"{deposit.Key} deposit ProcessorTransferId not found in MP, adding to sync list");
+
+                    var newDepositEntry = new LogEventEntry(LogEventType.newDepositToSync);
+                    newDepositEntry.Push("New Deposit", deposit.Key);
+                    _dataLoggingService.LogDataEvent(newDepositEntry);
+
                     depositsToProcess.Add(deposit);
                 }
                 else
                 {
-                    Console.WriteLine($"{deposit.Key} found in MP, skipping");   
+                    Console.WriteLine($"{deposit.Key} found in MP, skipping");
+
+                    var previouslySyncedDepositEntry = new LogEventEntry(LogEventType.previouslySyncedDeposit);
+                    previouslySyncedDepositEntry.Push("Old Deposit", deposit.Key);
+                    _dataLoggingService.LogDataEvent(previouslySyncedDepositEntry);
                 }
             }
 

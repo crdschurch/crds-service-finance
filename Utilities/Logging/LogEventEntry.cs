@@ -8,6 +8,9 @@ namespace Utilities.Logging
         private LogEventType _logEventType;
         private Dictionary<string, object> _logEntryData;
 
+        public LogEventType LogEventType => _logEventType;
+        public Dictionary<string, object> LogEventData => _logEntryData;
+
         public LogEventEntry(LogEventType logEventType)
         {
             _logEventType = logEventType;

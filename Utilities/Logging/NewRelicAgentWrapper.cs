@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Utilities.Logging
 {
@@ -9,7 +10,12 @@ namespace Utilities.Logging
         public void LogDataEvent(LogEventEntry logEventEntry)
         {
             Console.WriteLine(logEventEntry);
-            //NewRelic.Api.Agent.NewRelic.RecordCustomEvent(logEventEntry.EventType.ToString(), logEventEntry.LogEntryData);  
+            Task sendToLogTask = new Task(SendToLog(logEventEntry));
+        }
+
+        async Task SendToLog(LogEventEntry logEventEntry)
+        {
+            await new Task(NewRelic.Api.Agent.NewRelic.RecordCustomEvent(logEventEntry.LogEventType.ToString(), logEventEntry.LogEventData));
         }
     }
 }

@@ -6,6 +6,9 @@ namespace Utilities.Logging
 {
     public enum LogEventType
     {
-        StripeCancel
+        stripeCancel, noDepositsToSync, depositsCreatedCount, incomingPushpayWebhook, donationNotFoundForTransaction,
+        depositSearchDateRange, depositsForSyncCount, depositsAlreadyDeposited, newDepositToSync, previouslySyncedDeposit,
+        creatingDeposit, depositExistsForSettlement, noChargesForSettlement, batchCreated, batchUpdated, depositCreated,
+        noRecurringGiftSubFound, refundingTransaction, donationNotFoundRetry, donationNotFoundFail, stripeCancelException
     }
 }

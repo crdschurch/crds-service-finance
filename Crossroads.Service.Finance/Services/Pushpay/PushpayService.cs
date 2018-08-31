@@ -110,6 +110,10 @@ namespace Crossroads.Service.Finance.Services
                     else
                     {
                         Console.WriteLine($"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
+
+                        var noRecurringGiftSubEntry = new LogEventEntry(LogEventType.noRecurringGiftSubFound);
+                        noRecurringGiftSubEntry.Push("No Recurring Gift for Sub", pushpayPayment.RecurringPaymentToken);
+                        _dataLoggingService.LogDataEvent(noRecurringGiftSubEntry);
                     }
                 }
 
@@ -139,6 +143,11 @@ namespace Crossroads.Service.Finance.Services
                     // Set payment type for refunds
                     var refund = _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
                     Console.WriteLine("Refunding Transaction Id: " + refund.TransactionCode);
+
+                    var refundingTransactionEntry = new LogEventEntry(LogEventType.refundingTransaction);
+                    refundingTransactionEntry.Push("Refunding Transaction", refund.TransactionCode);
+                    _dataLoggingService.LogDataEvent(refundingTransactionEntry);
+
                     donation.PaymentTypeId = refund.PaymentTypeId;
                 }
                 donation.DonationStatusDate = DateTime.Now;
@@ -154,6 +163,11 @@ namespace Crossroads.Service.Finance.Services
                     AddUpdateDonationDetailsFromPushpayJob(webhook);
                     // dont throw an exception as Hangfire tries to handle it
                     Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP. Trying again in a minute.", e);
+
+                    var donationNotFoundEntry = new LogEventEntry(LogEventType.donationNotFoundRetry);
+                    donationNotFoundEntry.Push("Webhook Type", webhook.Events[0].Links.Payment);
+                    _dataLoggingService.LogDataEvent(donationNotFoundEntry);
+
                     return null;
                 }
                 // it's been more than 10 minutes, let's chalk it up as PushPay
@@ -162,6 +176,11 @@ namespace Crossroads.Service.Finance.Services
                 {
                     // dont throw an exception as Hangfire tries to handle it
                     Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP after 10 minutes of trying. Giving up.", e);
+
+                    var donationNotFoundFailEntry = new LogEventEntry(LogEventType.donationNotFoundFail);
+                    donationNotFoundFailEntry.Push("Webhook Type", webhook.Events[0].Links.Payment);
+                    _dataLoggingService.LogDataEvent(donationNotFoundFailEntry);
+
                     return null;
                 }
             }
@@ -270,13 +289,14 @@ namespace Crossroads.Service.Finance.Services
             // cancel the recurring gift in stripe, if exists
             if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
             {
-                var logEventEntry = new LogEventEntry(LogEventType.StripeCancel);
-                logEventEntry.Push("Donor First Name", pushpayRecurringGift.Payer.FirstName);
-                logEventEntry.Push("Donor First Name", pushpayRecurringGift.Payer.LastName);
-                logEventEntry.Push("Donor Email Address", pushpayRecurringGift.Payer.EmailAddress);
-                logEventEntry.Push("Notes", pushpayRecurringGift.Notes);
+                
+                //logEventEntry.Push(LogEventType.stripeCancel, "Donor First Name", pushpayRecurringGift.Payer.FirstName);
 
-                _dataLoggingService.LogDataEvent(logEventEntry);
+                //logEventEntry.Push("Donor Last Name", pushpayRecurringGift.Payer.LastName);
+                //logEventEntry.Push("Donor Email Address", pushpayRecurringGift.Payer.EmailAddress);
+                //logEventEntry.Push("Notes", pushpayRecurringGift.Notes);
+
+                
                 _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes);
             }
 

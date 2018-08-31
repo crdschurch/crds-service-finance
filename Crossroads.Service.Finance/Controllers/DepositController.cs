@@ -4,6 +4,7 @@ using System.Reflection;
 using Crossroads.Service.Finance.Interfaces;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using Utilities.Logging;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -14,11 +15,13 @@ namespace Crossroads.Service.Finance.Controllers
 
         private readonly IDepositService _depositService;
         private readonly IPaymentEventService _paymentEventService;
+        private readonly IDataLoggingService _dataLoggingService;
 
-        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService)
+        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService, IDataLoggingService dataLoggingService)
         {
             _depositService = depositService;
             _paymentEventService = paymentEventService;
+            _dataLoggingService = dataLoggingService;
         }
 
         /// <summary>
@@ -37,6 +40,11 @@ namespace Crossroads.Service.Finance.Controllers
                 var deposits = _depositService.SyncDeposits();
                 if (deposits == null || deposits.Count == 0){
                     Console.WriteLine($"No deposits to sync");
+
+                    var noDepositsToSyncEntry = new LogEventEntry(LogEventType.noDepositsToSync);
+                    noDepositsToSyncEntry.Push("Sync Date", DateTime.Now.ToShortDateString());
+                    _dataLoggingService.LogDataEvent(noDepositsToSyncEntry);
+
                     return NoContent();
                 }
                 foreach (var deposit in deposits)
@@ -44,6 +52,11 @@ namespace Crossroads.Service.Finance.Controllers
                     _paymentEventService.CreateDeposit(deposit);
                 }
                 Console.WriteLine($"SyncSettlements created {deposits.Count} deposits");
+
+                var logEventEntry = new LogEventEntry(LogEventType.depositsCreatedCount);
+                logEventEntry.Push("Deposits Created", deposits.Count);
+                _dataLoggingService.LogDataEvent(logEventEntry);
+
                 return Ok(new { created =  deposits.Count });
             }
             catch (Exception ex)
