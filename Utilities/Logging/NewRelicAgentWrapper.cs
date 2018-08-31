@@ -10,12 +10,13 @@ namespace Utilities.Logging
         public void LogDataEvent(LogEventEntry logEventEntry)
         {
             Console.WriteLine(logEventEntry);
-            Task sendToLogTask = new Task(SendToLog(logEventEntry));
+            NewRelic.Api.Agent.NewRelic.RecordCustomEvent(logEventEntry.LogEventType.ToString(),
+                logEventEntry.LogEventData);
         }
 
-        async Task SendToLog(LogEventEntry logEventEntry)
-        {
-            await new Task(NewRelic.Api.Agent.NewRelic.RecordCustomEvent(logEventEntry.LogEventType.ToString(), logEventEntry.LogEventData));
-        }
+        //async Task SendToLog(LogEventEntry logEventEntry)
+        //{
+        //    await new Task(NewRelic.Api.Agent.NewRelic.RecordCustomEvent(logEventEntry.LogEventType.ToString(), logEventEntry.LogEventData));
+        //}
     }
 }

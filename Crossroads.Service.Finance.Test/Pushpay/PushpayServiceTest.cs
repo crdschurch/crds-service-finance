@@ -14,6 +14,7 @@ using Pushpay.Models;
 using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
 using Mock;
+using Utilities.Logging;
 
 namespace Crossroads.Service.Finance.Test.Pushpay
 {
@@ -28,6 +29,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         private readonly Mock<IContactRepository> _contactRepository;
         private readonly Mock<IDonorRepository> _donorRepository;
         private readonly Mock<IGatewayService> _gatewayService;
+        private readonly Mock<IDataLoggingService> _dataLoggingService;
 
         private readonly IPushpayService _fixture;
 
@@ -42,11 +44,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _contactRepository = new Mock<IContactRepository>();
             _donorRepository = new Mock<IDonorRepository>();
             _gatewayService = new Mock<IGatewayService>();
+            _dataLoggingService = new Mock<IDataLoggingService>();
 
             _fixture = new PushpayService(_pushpayClient.Object, _donationService.Object, _mapper.Object,
                                           _configurationWrapper.Object, _recurringGiftRepository.Object,
                                           _programRepository.Object, _contactRepository.Object, _donorRepository.Object,
-                                          _gatewayService.Object);
+                                          _gatewayService.Object, _dataLoggingService.Object);
         }
 
         [Fact]
