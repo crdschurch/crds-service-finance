@@ -7,6 +7,7 @@ using MinistryPlatform;
 using MinistryPlatform.Donors;
 using MinistryPlatform.Interfaces;
 using RestSharp;
+using Utilities.Logging;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -16,6 +17,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IRestClient _restClient;
         private readonly IRecurringGiftRepository _recurringGiftRepository;
         private readonly IDonorRepository _donorRepository;
+        private readonly IDataLoggingService _dataLoggingService;
 
         public GatewayService(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
@@ -24,11 +26,13 @@ namespace Crossroads.Service.Finance.Services
             IAuthenticationRepository authenticationRepository,
             IRecurringGiftRepository recurringGiftRepository,
             IDonorRepository donorRepository,
+            IDataLoggingService dataLoggingService,
             IRestClient restClient = null) : base(builder, apiUserRepository, configurationWrapper, mapper)
         {
             _restClient = restClient ?? new RestClient(gatewayEndpoint);;
             _recurringGiftRepository = recurringGiftRepository;
             _donorRepository = donorRepository;
+            _dataLoggingService = dataLoggingService;
         }
 
         /*
@@ -52,11 +56,21 @@ namespace Crossroads.Service.Finance.Services
                 Console.WriteLine($"Cancelling stripe recurring gift ({stripeSubscriptionId})");
                 IRestResponse response = _restClient.Execute(restRequest);
                 Console.WriteLine($"Status code: {response.StatusCode}");
+
+                var stripeCancelEntry = new LogEventEntry(LogEventType.stripeCancel);
+                stripeCancelEntry.Push("Stripe Cancel Sub Id", stripeSubscriptionId);
+                stripeCancelEntry.Push("Stripe Cancel Status Code", response.StatusCode);
+                _dataLoggingService.LogDataEvent(stripeCancelEntry);
             }
             catch (Exception e)
             {
                 Console.WriteLine($"CancelStripeRecurringGift error for stripe subscription id: {stripeSubscriptionId}");
                 Console.WriteLine(e.Message);
+
+                var stripeCancelExceptionEntry = new LogEventEntry(LogEventType.stripeCancelException);
+                stripeCancelExceptionEntry.Push("Stripe Cancel Sub Id", stripeSubscriptionId);
+                stripeCancelExceptionEntry.Push("Stripe Cancel Exception", e.Message);
+                _dataLoggingService.LogDataEvent(stripeCancelExceptionEntry);
             }
         }
     }

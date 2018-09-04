@@ -11,6 +11,7 @@ using MinistryPlatform.Models;
 using Xunit;
 using Moq;
 using RestSharp;
+using Utilities.Logging;
 
 namespace Crossroads.Service.Finance.Test.Deposits
 {
@@ -21,6 +22,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
         private readonly Mock<IPushpayService> _pushpayService;
         private readonly Mock<IConfigurationWrapper> _configWrapper;
         private readonly string _pushpayWebEndpoint;
+        private readonly Mock<IDataLoggingService> _dataLoggingService;
 
         private readonly IDepositService _fixture;
 
@@ -31,8 +33,10 @@ namespace Crossroads.Service.Finance.Test.Deposits
             _pushpayService = new Mock<IPushpayService>();
             _configWrapper = new Mock<IConfigurationWrapper>();
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
+            _dataLoggingService = new Mock<IDataLoggingService>();
 
-            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object);
+            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object,
+                _dataLoggingService.Object);
         }
 
         [Fact]
