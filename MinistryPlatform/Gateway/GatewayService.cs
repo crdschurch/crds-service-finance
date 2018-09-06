@@ -49,7 +49,7 @@ namespace Crossroads.Service.Finance.Services
                 var donor = _donorRepository.GetDonorByDonorId(stripeRecurringGift.DonorId);
                 var tokenWithImpersonate = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
-                var restRequest = new RestRequest($"api/donor/recurrence/{stripeRecurringGift.RecurringGiftId}", Method.DELETE);
+                var restRequest = new RestRequest($"api/donor/recurrence/{stripeRecurringGift.RecurringGiftId}?sendEmail=false", Method.DELETE);
                 restRequest.AddHeader("ImpersonateUserId", donor.EmailAddress);
                 restRequest.AddHeader("Authorization", tokenWithImpersonate);
 
