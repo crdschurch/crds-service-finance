@@ -89,5 +89,6 @@ public class MappingProfile : Profile
             ));
 
         CreateMap<DonationDetailDto, MpDonationDetail>();
+        CreateMap<MpContactAddress, ContactAddressDto>();
     }
 }

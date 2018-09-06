@@ -106,5 +106,22 @@ namespace Crossroads.Service.Finance.Test.Contacts
             Assert.Equal("George", result[3].Nickname);
             Assert.Equal("George", result[4].Nickname);
         }
+
+        [Fact]
+        public void ShouldGetAddressByContactID()
+        {
+            // Arrange
+            var contactId = 5544555;
+            var contactAddressDto = new ContactAddressDto();
+
+            _contactRepository.Setup(m => m.GetContactAddressByContactId(contactId)).Returns(new MpContactAddress());
+            _mapper.Setup(m => m.Map<ContactAddressDto>(It.IsAny<MpContactAddress>())).Returns(contactAddressDto);
+
+            // Act
+            var result = _fixture.GetContactAddressByContactId(contactId);
+
+            // Assert
+            Assert.NotNull(result);
+        }
     }
 }
