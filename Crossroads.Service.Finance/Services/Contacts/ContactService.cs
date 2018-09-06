@@ -86,5 +86,11 @@ namespace Crossroads.Service.Finance.Services
             userDonationVisibleContacts.Insert(0, userContact);
             return userDonationVisibleContacts;
         }
+
+        public ContactAddressDto GetContactAddressByContactId(int contactId)
+        {
+            var mpContactAddress = _contactRepository.GetContactAddressByContactId(contactId);
+            return _mapper.Map<ContactAddressDto>(mpContactAddress);
+        }
     }
 }

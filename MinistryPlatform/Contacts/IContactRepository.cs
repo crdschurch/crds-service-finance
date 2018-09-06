@@ -12,5 +12,6 @@ namespace MinistryPlatform.Interfaces
         List<MpContactRelationship> GetActiveContactRelationships(int contactId, int contactRelationshipId);
         MpContactRelationship GetActiveContactRelationship(int contactId, int relatedContactId, int contactRelationshipId);
         List<MpContact> GetHouseholdMinorChildren(int householdId);
+        MpContactAddress GetContactAddressByContactId(int contactId);
     }
 }

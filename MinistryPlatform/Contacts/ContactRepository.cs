@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -183,6 +184,33 @@ namespace MinistryPlatform.Repositories
                 .WithFilter(String.Join(" AND ", filters))
                 .Build()
                 .Search<MpContact>();
+        }
+
+        public MpContactAddress GetContactAddressByContactId(int contactId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var columns = new string[] {
+                "[Contact_ID]",
+                "Household_ID_Table_Address_ID_Table.[Address_ID]",
+                "Household_ID_Table_Address_ID_Table.[Address_Line_1]",
+                "Household_ID_Table_Address_ID_Table.[Address_Line_2]",
+                "Household_ID_Table_Address_ID_Table.[City]",
+                "Household_ID_Table_Address_ID_Table.[State/Region]",
+                "Household_ID_Table_Address_ID_Table.[Postal_Code]"
+            };
+
+            var filters = new string[]
+            {
+                $"[Contact_ID] = {contactId}"
+            };
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithSelectColumns(columns)
+                .WithAuthenticationToken(token)
+                .WithFilter(String.Join(" AND ", filters))
+                .Build()
+                .Search<MpContactAddress>().First();
         }
     }
 }
