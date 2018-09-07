@@ -6,13 +6,13 @@ namespace MinistryPlatform.Models
     [MpRestApiTable(Name = "Pledge_Campaigns")]
     public class MpPledgeCampaign
     {
-        [JsonProperty(PropertyName = "Pledge_Campaign_ID")]
+        [JsonProperty("Pledge_Campaign_ID")]
         public int PledgeCampaignId { get; set; }
 
-        [JsonProperty(PropertyName = "Campaign_Name")]
+        [JsonProperty("Campaign_Name")]
         public string CampaignName { get; set; }
 
-        [JsonProperty(PropertyName = "Pledge_Campaign_Type_ID")]
+        [JsonProperty("Pledge_Campaign_Type_ID")]
         public int PledgeCampaignTypeId { get; set; }
     }
 }

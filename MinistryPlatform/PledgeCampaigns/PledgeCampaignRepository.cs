@@ -22,6 +22,8 @@ namespace MinistryPlatform.PledgeCampaigns
 
             var columns = new string[] {
                 "Pledge_Campaigns.[Pledge_Campaign_ID]",
+                "Pledge_Campaigns.[Campaign_Name]",
+                "Pledge_Campaigns.[Pledge_Campaign_Type_ID]",
             };
 
             var filter = $"Pledge_Campaigns.[Pledge_Campaign_Type_ID] = {pledgeCampaignTypesId}";
