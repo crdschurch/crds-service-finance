@@ -3,6 +3,7 @@ using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
+using MinistryPlatform.PledgeCampaigns;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -17,15 +18,17 @@ namespace Crossroads.Service.Finance.Services
         private readonly IPledgeRepository _mpPledgeRepository;
         private readonly IMapper _mapper;
         private readonly IContactService _contactService;
+        private readonly IPledgeCampaignRepository _mpPledgeCampaignRepository;
 
         public DonationService(IDonationRepository mpDonationRepository, IDonationDistributionRepository mpDonationDistributionRepository, IPledgeRepository mpPledgeRepository, IMapper mapper,
-            IContactService contactService)
+            IContactService contactService, IPledgeCampaignRepository mpPledgeCampaignRepository)
         {
             _mpDonationRepository = mpDonationRepository;
             _mpDonationDistributionRepository = mpDonationDistributionRepository;
             _mpPledgeRepository = mpPledgeRepository;
             _mapper = mapper;
             _contactService = contactService;
+            _mpPledgeCampaignRepository = mpPledgeCampaignRepository;
         }
 
         public DonationDto GetDonationByTransactionCode(string transactionCode)
@@ -81,7 +84,7 @@ namespace Crossroads.Service.Finance.Services
         {
             _mpDonationRepository.UpdateDonorAccount(donorAccount);
         }
-        
+
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
             var contactId = _contactService.GetContactIdBySessionId(token);
@@ -108,8 +111,10 @@ namespace Crossroads.Service.Finance.Services
 
         public List<MpPledge> CalculatePledges(string token)
         {
+            const int capitalCampaign = 1;
             var contactId = _contactService.GetContactIdBySessionId(token);
-            var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
+            var campaigns = _mpPledgeCampaignRepository.GetCampaigns(capitalCampaign);
+            var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId, campaigns);
 
             if (mpPledges.Any())
             {
@@ -154,7 +159,7 @@ namespace Crossroads.Service.Finance.Services
             if (cogiverContactRelationship != null)
             {
                 // relatedContactId is a cogiver contact relationship
-                var mpDonationHistory = _mpDonationRepository.GetDonationHistoryByContactId(relatedContactId, 
+                var mpDonationHistory = _mpDonationRepository.GetDonationHistoryByContactId(relatedContactId,
                                                                            cogiverContactRelationship.StartDate,
                                                                            cogiverContactRelationship.EndDate);
                 return _mapper.Map<List<DonationDetailDto>>(mpDonationHistory);

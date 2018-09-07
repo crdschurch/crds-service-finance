@@ -5,6 +5,6 @@ namespace MinistryPlatform.Interfaces
 {
     public interface IPledgeRepository
     {
-        List<MpPledge> GetActiveAndCompleted(int contactId);
+        List<MpPledge> GetActiveAndCompleted(int contactId, List<MpPledgeCampaign> campaigns);
     }
 }

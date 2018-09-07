@@ -16,6 +16,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using System.Linq;
 using System.IO;
 using MinistryPlatform.Donors;
+using MinistryPlatform.PledgeCampaigns;
 using Utilities.Logging;
 
 namespace Crossroads.Service.Finance
@@ -80,6 +81,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IProgramRepository, ProgramRepository>();
             services.AddSingleton<IContactRepository, ContactRepository>();
             services.AddSingleton<IPledgeRepository, PledgeRepository>();
+            services.AddSingleton<IPledgeCampaignRepository, PledgeCampaignRepository>();
             services.AddSingleton<IDonationDistributionRepository, DonationDistributionRepository>();
             services.AddSingleton<IGatewayService, GatewayService>();
 
