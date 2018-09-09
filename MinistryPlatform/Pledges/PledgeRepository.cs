@@ -21,7 +21,7 @@ namespace MinistryPlatform.Repositories
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public List<MpPledge> GetActiveAndCompleted(int contactId, List<MpPledgeCampaign> campaigns)
+        public List<MpPledge> GetActiveAndCompleted(int contactId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
