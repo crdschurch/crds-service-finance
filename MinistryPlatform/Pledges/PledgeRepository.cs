@@ -5,7 +5,6 @@ using log4net;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace MinistryPlatform.Repositories
@@ -15,6 +14,7 @@ namespace MinistryPlatform.Repositories
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         const int pledgeStatusActive = 1;
         const int pledgeStatusCompleted = 2;
+        const int capitalCampaign = 1;
 
         public PledgeRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
@@ -24,7 +24,6 @@ namespace MinistryPlatform.Repositories
         public List<MpPledge> GetActiveAndCompleted(int contactId, List<MpPledgeCampaign> campaigns)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
-            var campaignIndexes = string.Join(",", campaigns.Select(c => c.PledgeCampaignId).ToArray());
 
             var columns = new string[] {
                 "Pledge_Status_ID_Table.[Pledge_Status_ID]",
@@ -40,7 +39,7 @@ namespace MinistryPlatform.Repositories
 
             var filter = $"Pledge_Status_ID_Table.[Pledge_Status_ID] IN ({pledgeStatusActive},{pledgeStatusCompleted})";
             filter += $" AND Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
-            filter += $" AND Pledges.[Pledge_Campaign_ID] in ({campaignIndexes})";
+            filter += $" AND Pledge_Campaign_ID_Table_Pledge_Campaign_Type_ID_Table.[Pledge_Campaign_Type_ID] = {capitalCampaign}";
             return MpRestBuilder.NewRequestBuilder()
                                 .WithSelectColumns(columns)
                                 .WithAuthenticationToken(token)
