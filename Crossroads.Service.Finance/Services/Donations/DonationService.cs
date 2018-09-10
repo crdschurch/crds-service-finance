@@ -81,7 +81,7 @@ namespace Crossroads.Service.Finance.Services
         {
             _mpDonationRepository.UpdateDonorAccount(donorAccount);
         }
-        
+
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
             var contactId = _contactService.GetContactIdBySessionId(token);
@@ -154,7 +154,7 @@ namespace Crossroads.Service.Finance.Services
             if (cogiverContactRelationship != null)
             {
                 // relatedContactId is a cogiver contact relationship
-                var mpDonationHistory = _mpDonationRepository.GetDonationHistoryByContactId(relatedContactId, 
+                var mpDonationHistory = _mpDonationRepository.GetDonationHistoryByContactId(relatedContactId,
                                                                            cogiverContactRelationship.StartDate,
                                                                            cogiverContactRelationship.EndDate);
                 return _mapper.Map<List<DonationDetailDto>>(mpDonationHistory);

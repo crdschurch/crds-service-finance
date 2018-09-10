@@ -2,20 +2,17 @@
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
 using Crossroads.Web.Common.Configuration;
+using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MinistryPlatform.Donors;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Repositories;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
-using Hangfire;
-using Swashbuckle.AspNetCore.Swagger;
-using System.Linq;
-using System.IO;
-using MinistryPlatform.Donors;
 using Utilities.Logging;
 
 namespace Crossroads.Service.Finance
@@ -36,11 +33,11 @@ namespace Crossroads.Service.Finance
         public void ConfigureServices(IServiceCollection services)
         {
             var hangfireConnectionString = Environment.GetEnvironmentVariable("HANGFIRE_URL");
-            services.AddHangfire(config =>config.UseSqlServerStorage(hangfireConnectionString));
+            services.AddHangfire(config => config.UseSqlServerStorage(hangfireConnectionString));
             services.AddMvc();
             services.AddAutoMapper();
             services.AddDistributedMemoryCache();
-            services.AddRouting(options => options.LowercaseUrls = true );
+            services.AddRouting(options => options.LowercaseUrls = true);
             services.AddCors();
 
             // Dependency Injection
