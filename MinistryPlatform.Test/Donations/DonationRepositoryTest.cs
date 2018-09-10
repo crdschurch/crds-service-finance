@@ -142,6 +142,7 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(String.Join(" AND ", filters))).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.OrderBy("Recurring_Gifts.[Recurring_Gift_ID] DESC")).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);            
 
             _request.Setup(m => m.Search<MpRecurringGift>()).Returns(MpRecurringGiftMock.CreateList(contactId));
@@ -187,6 +188,7 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(String.Join(" AND ", filters))).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.OrderBy("Recurring_Gifts.[Recurring_Gift_ID] DESC")).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
             _request.Setup(m => m.Search<MpRecurringGift>()).Returns(MpRecurringGiftMock.CreateEmptyList());

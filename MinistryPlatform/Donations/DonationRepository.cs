@@ -172,6 +172,7 @@ namespace MinistryPlatform.Repositories
                                 .WithSelectColumns(columns)
                                 .WithAuthenticationToken(token)
                                 .WithFilter(String.Join(" AND ", filters))
+                                .OrderBy("Recurring_Gifts.[Recurring_Gift_ID] DESC")
                                 .Build()
                                 .Search<MpRecurringGift>().ToList();
         }
