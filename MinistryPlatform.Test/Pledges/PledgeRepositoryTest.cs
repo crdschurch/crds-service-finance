@@ -73,6 +73,7 @@ namespace MinistryPlatform.Test.Pledges
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.OrderBy("Pledge_Campaign_ID_Table.[Start_Date] DESC")).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
             _request.Setup(m => m.Search<MpPledge>()).Returns(MpPledgeMock.CreateList());
