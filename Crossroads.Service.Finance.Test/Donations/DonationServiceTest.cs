@@ -1,16 +1,13 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Text;
-using AutoMapper;
-using Crossroads.Service.Finance.Models;
+﻿using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
-using Moq;
-using Xunit;
 using Mock;
+using Moq;
+using System.Collections.Generic;
+using Xunit;
 
 namespace Crossroads.Service.Finance.Test.Donations
 {
@@ -43,12 +40,12 @@ namespace Crossroads.Service.Finance.Test.Donations
 
             var donationDto = new DonationDto
             {
-                
+
             };
 
             var mpDonation = new MpDonation()
             {
-                
+
             };
 
             _mapper.Setup(m => m.Map<MpDonation>(It.IsAny<DonationDto>())).Returns(mpDonation);
@@ -103,7 +100,7 @@ namespace Crossroads.Service.Finance.Test.Donations
 
             // Act
             var result = _fixture.Update(donationDtos);
-            
+
             // Assert
             Assert.NotNull(result);
         }
@@ -153,7 +150,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             _donationDistributionRepository.Setup(r => r.GetByPledges(It.IsAny<List<int>>())).Returns(MpDonationDistributionMock.CreateList(pledgeIds[0], pledgeIds[1]));
 
             // Act
-            var result = _fixture.CalculatePledges(token);
+            var result = _fixture.CalculatePledges();
 
             // Assert
             Assert.Equal(12, result[0].PledgeId);
