@@ -44,6 +44,7 @@ namespace MinistryPlatform.Repositories
                                 .WithSelectColumns(columns)
                                 .WithAuthenticationToken(token)
                                 .WithFilter(filter)
+                                .OrderBy("Pledge_Campaign_ID_Table.[Start_Date] DESC")
                                 .Build()
                                 .Search<MpPledge>();
         }
