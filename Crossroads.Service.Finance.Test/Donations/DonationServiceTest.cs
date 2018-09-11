@@ -150,7 +150,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             _donationDistributionRepository.Setup(r => r.GetByPledges(It.IsAny<List<int>>())).Returns(MpDonationDistributionMock.CreateList(pledgeIds[0], pledgeIds[1]));
 
             // Act
-            var result = _fixture.CalculatePledges();
+            var result = _fixture.CalculatePledges(contactId);
 
             // Assert
             Assert.Equal(12, result[0].PledgeId);
