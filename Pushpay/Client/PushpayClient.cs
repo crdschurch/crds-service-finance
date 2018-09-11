@@ -31,134 +31,39 @@ namespace Pushpay.Client
 
         public PushpayPaymentsDto GetPushpayDonations(string settlementKey)
         {
-            var tokenResponse = _pushpayTokenService.GetOAuthToken(donationsScope).Wait();
-            _restClient.BaseUrl = apiUri;
-            var request = new RestRequest(Method.GET)
-            {
-                Resource = $"settlement/{settlementKey}/payments"
-            };
-            request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
-
-            Console.WriteLine($"Getting settlement payments from pushpay at: {request.Resource}");
-            var response = _restClient.Execute<PushpayPaymentsDto>(request);
-
-            var paymentsDto = response.Data;
-
-            // determine if we need to call again (multiple pages), then
-            // determine the delay needed to avoid hitting the rate limits for Pushpay
-            if (paymentsDto == null)
-            {
-                throw new Exception($"Get Settlement from Pushpay not successful: {response.Content}");
-            }
-
-            var totalPages = paymentsDto.TotalPages;
-
-            if (totalPages > 1)
-            {
-                var delay = GetDelayMs(totalPages);
-                for (int currentPage = paymentsDto.Page + 1; currentPage < totalPages; currentPage++)
-                {
-                    Thread.Sleep(delay);
-                    request.Resource = $"settlement/{settlementKey}/payments?page={currentPage}";
-                    Console.WriteLine($"Getting settlement payments from pushpay at: {request.Resource}");
-                    response = _restClient.Execute<PushpayPaymentsDto>(request);
-                    paymentsDto.Items.AddRange(response.Data.Items);
-                }
-            }
-
-            if (paymentsDto.Items.Count != paymentsDto.Total)
-            {
-                Console.WriteLine($"Settlement {settlementKey} donations count do not match. Batch totals and item count will be off");
-            }
-
-            return paymentsDto;
+            var resource = $"settlement/{settlementKey}/payments";
+            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope);
+            return JsonConvert.DeserializeObject<PushpayPaymentsDto>(data);
         }
 
         public PushpayPaymentDto GetPayment(PushpayWebhook webhook)
         {
-            _restClient.BaseUrl = new Uri(webhook.Events[0].Links.Payment);
-            var token = _pushpayTokenService.GetOAuthToken(donationsScope).Wait().AccessToken;
-            var request = new RestRequest(Method.GET);
-            request.AddParameter("Authorization", string.Format("Bearer " + token), ParameterType.HttpHeader);
-
-            var response = _restClient.Execute<PushpayPaymentDto>(request);
-
-            var paymentDto = response.Data;
-
-            // determine if we need to call again (multiple pages), then
-            // determine the delay needed to avoid hitting the rate limits for Pushpay
-            if (paymentDto == null)
-            {
-                throw new Exception($"Get Payment from Pushpay not successful: {response.Content}");
-            }
-
-            return paymentDto;
+            var uri = new Uri(webhook.Events[0].Links.Payment);
+            var data = CreateAndExecuteRequest(uri, null, Method.GET, donationsScope);
+            return JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
         }
 
         public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
         {
             var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
-            endDate = endDate.ToUniversalTime();
-
-            var tokenResponse = _pushpayTokenService.GetOAuthToken(donationsScope).Wait();
-            _restClient.BaseUrl = apiUri;
-            var request = new RestRequest(Method.GET)
-            {
-                Resource = $"settlements?depositFrom={modStartDate}"
-            };
-            request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
-
-            Console.WriteLine($"Getting settlements from pushpay at: {request.Resource}");
-            var response = _restClient.Execute<PushpaySettlementResponseDto>(request);
-
-            var pushpayDepositDtos = response.Data.items;
-
-            // determine if we need to call again (multiple pages), then
-            // determine the delay needed to avoid hitting the rate limits for Pushpay
-            if (pushpayDepositDtos == null)
-            {
-                throw new Exception($"Get Settlement from Pushpay not successful: {response.Content}");
-            }
-
-            var totalPages = response.Data.TotalPages;
-
-            if (totalPages > 1)
-            {
-                var delay = GetDelayMs(totalPages);
-
-                for (int currentPage = response.Data.Page + 1; currentPage < totalPages; currentPage++)
-                {
-                    Thread.Sleep(delay);
-                    request.Resource = $"settlement/settlements?depositFrom={modStartDate}&page={currentPage}";
-                    Console.WriteLine($"Getting settlements from pushpay at: {request.Resource}");
-                    response = _restClient.Execute<PushpaySettlementResponseDto>(request);
-                    if (response.Data.items != null)
-                    {
-                        pushpayDepositDtos.AddRange(response.Data.items);
-                    }
-                    else
-                    {
-                        _logger.Warn($"No settlements found for start date {modStartDate} and page {currentPage} in MP.");
-                    }
-                }
-            }
-
-            return pushpayDepositDtos;
+            var resource = $"settlements?depositFrom={modStartDate}";
+            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope);
+            return JsonConvert.DeserializeObject<List<PushpaySettlementResponseDto>>(data);
         }
 
         public PushpayRecurringGiftDto GetRecurringGift(string resource)
         {
-            var request = CreateRequest(resource, Method.GET, recurringGiftsScope);
-            var response = _restClient.Execute<PushpayRecurringGiftDto>(request);
-            return response.Data;
+            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope);
+            return JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
         }
 
-        private RestRequest CreateRequest(string resource, Method method, string scope, object body = null)
+        private dynamic CreateAndExecuteRequest(Uri baseUri, string resourcePath, Method method, string scope, object body = null)
         {
-            _restClient.BaseUrl = apiUri;
-            var request = new RestRequest(method)
+            var request = new RestRequest(method);
+            _restClient.BaseUrl = baseUri;
+            if (resourcePath != null)
             {
-                Resource = resource
+                request.Resource = resourcePath;
             };
             var tokenResponse = _pushpayTokenService.GetOAuthToken(scope).Wait();
             if (body != null)
@@ -167,22 +72,43 @@ namespace Pushpay.Client
                 request.AddParameter("application/json", JsonConvert.SerializeObject(body), ParameterType.RequestBody);
             }
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
-            return request;
-        }
 
-        private int GetDelayMs(int totalPages)
-        {
-            var delay = 0;
-            if (totalPages >= RequestsPerSecond && totalPages < RequestsPerMinute)
-            {
-                delay = 150;
-            }
-            else if (totalPages >= RequestsPerMinute)
-            {
-                delay = 1000;
-            }
-            return delay;
-        }
+            var response = _restClient.Execute<dynamic>(request);
+            dynamic responseData;
 
+            // pushpay has a different data return format depending on if you are calling for
+            //  a specific payment (payment fields are at top level) vs. if you are calling
+            //  for all payments (has page size, etc. at top level then items for actual payments data)
+
+            if (response.Data.items != null)
+            {
+                // possible response where we have to call for additional pages to get all data
+                responseData = JsonConvert.DeserializeObject<List<PushpayResponseBaseDto>>(response.Data);
+            }
+            else
+            {
+                // single entity response
+                responseData = response.Data;
+            }
+
+            if (responseData.Items != null && responseData.Page < responseData.TotalPages)
+            {
+                // increment page first, as we already got the first page's data above
+                for (int currentPage = response.Data.Page; currentPage < response.Data.TotalPages; ++currentPage)
+                {
+                    request.AddQueryParameter("page", currentPage.ToString());
+                    var pageResponse = _restClient.Execute<PushpayResponseBaseDto>(request);
+                    if (pageResponse.Data.items != null)
+                    {
+                        responseData.AddRange(pageResponse.Data.items);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"No data in response: {resourcePath}");
+                    }
+                }
+            }
+            return responseData;
+        }
     }
 }

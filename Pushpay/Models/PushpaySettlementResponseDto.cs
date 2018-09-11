@@ -3,21 +3,9 @@ using Newtonsoft.Json;
 
 namespace Pushpay.Models
 {
-    public class PushpaySettlementResponseDto
+    public class PushpaySettlementResponseDto: PushpayResponseBaseDto
     {
-        [JsonProperty("page")]
-        public int Page { get; set; }
-
-        [JsonProperty("pageSize")]
-        public int PageSize { get; set; }
-
-        [JsonProperty("totalPages")]
-        public int TotalPages { get; set; }
-
-        [JsonProperty("total")]
-        public int Total { get; set; }
-
         [JsonProperty("items")]
-        public List<PushpaySettlementDto> items { get; set; }
+        public new List<PushpaySettlementDto> items { get; set; }
     }
 }
