@@ -32,7 +32,7 @@ namespace Pushpay.Client
         public PushpayPaymentsDto GetPushpayDonations(string settlementKey)
         {
             var resource = $"settlement/{settlementKey}/payments";
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope);
+            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope, null, true);
             return JsonConvert.DeserializeObject<PushpayPaymentsDto>(data);
         }
 
@@ -46,9 +46,14 @@ namespace Pushpay.Client
         public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
         {
             var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
-            var resource = $"settlements?depositFrom={modStartDate}";
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope);
-            return JsonConvert.DeserializeObject<List<PushpaySettlementResponseDto>>(data);
+            var resource = $"settlements";
+            Dictionary<string, string> queryParams = new Dictionary<string, string>()
+            {
+                { "depositFrom", modStartDate }
+            };
+            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope, queryParams, true);
+            return JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(data);
+
         }
 
         public PushpayRecurringGiftDto GetRecurringGift(string resource)
@@ -57,7 +62,7 @@ namespace Pushpay.Client
             return JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
         }
 
-        private dynamic CreateAndExecuteRequest(Uri baseUri, string resourcePath, Method method, string scope, object body = null)
+        private dynamic CreateAndExecuteRequest(Uri baseUri, string resourcePath, Method method, string scope, Dictionary<string, string> queryParams = null, bool isList = false, object body = null)
         {
             var request = new RestRequest(method);
             _restClient.BaseUrl = baseUri;
@@ -71,32 +76,47 @@ namespace Pushpay.Client
                 request.AddHeader("Accept", "application/json");
                 request.AddParameter("application/json", JsonConvert.SerializeObject(body), ParameterType.RequestBody);
             }
+            if (queryParams != null)
+            {
+                foreach (KeyValuePair<string, string> entry in queryParams)
+                {
+                    // do something with entry.Value or entry.Key
+                    request.AddQueryParameter(entry.Key, entry.Value);
+                }
+            }
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
-            var response = _restClient.Execute<dynamic>(request);
-            dynamic responseData;
+            dynamic response, responseData;
 
             // pushpay has a different data return format depending on if you are calling for
             //  a specific payment (payment fields are at top level) vs. if you are calling
             //  for all payments (has page size, etc. at top level then items for actual payments data)
-
-            if (response.Data.items != null)
+            // isList here refers to whether the resource will return a list (like all payments) or not (payment) for example
+            if (isList)
             {
-                // possible response where we have to call for additional pages to get all data
-                responseData = JsonConvert.DeserializeObject<List<PushpayResponseBaseDto>>(response.Data);
+                response = _restClient.Execute<PushpayResponseBaseDto>(request);
+                responseData = response.Data.items;
             }
             else
             {
-                // single entity response
+                response = _restClient.Execute<dynamic>(request);
                 responseData = response.Data;
             }
 
-            if (responseData.Items != null && responseData.Page < responseData.TotalPages)
+            // check if there are more pages that we have to get
+            //  subtract one from Total Pages since Page is 0-index
+            if (responseData != null && response.Data.Page < response.Data.TotalPages - 1)
             {
-                // increment page first, as we already got the first page's data above
-                for (int currentPage = response.Data.Page; currentPage < response.Data.TotalPages; ++currentPage)
+                // increment current page, as we already got the first page's data above
+                //  subtract one from Total Pages since currentPage is 0-index 
+                for (int currentPage = response.Data.Page + 1; currentPage < response.Data.TotalPages; currentPage++)
                 {
-                    request.AddQueryParameter("page", currentPage.ToString());
+                    var pageParam = request.Parameters.FindIndex(x => x.Name == "page");
+                    if (pageParam > -1)
+                    {
+                        request.Parameters.RemoveAt(pageParam);
+                    }
+                    request.AddParameter(new Parameter() { Name = "page", Value = currentPage.ToString(), Type = ParameterType.QueryString });
                     var pageResponse = _restClient.Execute<PushpayResponseBaseDto>(request);
                     if (pageResponse.Data.items != null)
                     {

@@ -27,6 +27,7 @@ public class MappingProfile : Profile
         CreateMap<PushpayRefundPaymentDto, RefundPaymentDto>();
         CreateMap<PushpaySettlementDto, SettlementEventDto>();
         CreateMap<PushpaySettlementDto, SettlementDto>();
+        CreateMap<List<dynamic>, List<PushpaySettlementDto>>();
         CreateMap<PushpayRecurringGiftDto, MpRecurringGift>()
             .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount.Amount))
             .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Schedule.StartDate))
