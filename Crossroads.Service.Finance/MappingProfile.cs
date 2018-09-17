@@ -77,7 +77,7 @@ public class MappingProfile : Profile
         CreateMap<MpDonationDetail, DonationDetailDto>()
             .ForMember(dest => dest.AccountNumber, opt => opt.ResolveUsing(r =>
                 {
-                    if (r.AccountNumber != null)
+                    if (!String.IsNullOrEmpty(r.AccountNumber))
                     {
                         // get last four characters, which is max of what we want to show
                         var formatted = r.AccountNumber.Substring(r.AccountNumber.Length - 4, 4);
