@@ -40,7 +40,8 @@ namespace Pushpay.Client
         {
             var uri = new Uri(webhook.Events[0].Links.Payment);
             var data = CreateAndExecuteRequest(uri, null, Method.GET, donationsScope);
-            return JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
+            var x = JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
+            return x;
         }
 
         public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
@@ -52,7 +53,10 @@ namespace Pushpay.Client
                 { "depositFrom", modStartDate }
             };
             var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope, queryParams, true);
-            return JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(data);
+            //var jsonSerialiser = new System.Web.Script.Serialization;JavaScriptSerializer();
+            //var json = jsonSerialiser.Serialize(aList);
+            var x = JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(JsonConvert.SerializeObject(data));
+            return x;
 
         }
 
@@ -86,49 +90,56 @@ namespace Pushpay.Client
             }
             request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
-            dynamic response, responseData;
-
             // pushpay has a different data return format depending on if you are calling for
             //  a specific payment (payment fields are at top level) vs. if you are calling
             //  for all payments (has page size, etc. at top level then items for actual payments data)
             // isList here refers to whether the resource will return a list (like all payments) or not (payment) for example
-            if (isList)
+            if (!isList)
             {
-                response = _restClient.Execute<PushpayResponseBaseDto>(request);
-                responseData = response.Data.items;
+                var response = _restClient.Execute(request);
+                return JsonConvert.DeserializeObject(response.Content);
             }
             else
             {
-                response = _restClient.Execute<dynamic>(request);
-                responseData = response.Data;
-            }
+                // data is possibly multiple pages
+                var response = _restClient.Execute<PushpayResponseBaseDto>(request);
+                var response2 = _restClient.Execute(request);
+                //var responseData = JsonConvert.DeserializeObject<dynamic>(response.Content);
+                //var responseDataItems = responseData.items;
+                var responseDataItems = response.Data.items;
 
-            // check if there are more pages that we have to get
-            //  subtract one from Total Pages since Page is 0-index
-            if (responseData != null && response.Data.Page < response.Data.TotalPages - 1)
-            {
-                // increment current page, as we already got the first page's data above
-                //  subtract one from Total Pages since currentPage is 0-index 
-                for (int currentPage = response.Data.Page + 1; currentPage < response.Data.TotalPages; currentPage++)
+                // check if there are more pages that we have to get
+                //  subtract one from Total Pages since Page is 0-index
+                if (responseDataItems != null && response.Data.Page < response.Data.TotalPages - 1)
                 {
-                    var pageParam = request.Parameters.FindIndex(x => x.Name == "page");
-                    if (pageParam > -1)
+                    // increment current page, as we already got the first page's data above
+                    //  subtract one from Total Pages since currentPage is 0-index 
+                    for (int currentPage = response.Data.Page + 1; currentPage < response.Data.TotalPages; currentPage++)
                     {
-                        request.Parameters.RemoveAt(pageParam);
+                        // remove page param, if exists
+                        var pageParam = request.Parameters.FindIndex(x => x.Name == "page");
+                        if (pageParam > -1)
+                        {
+                            request.Parameters.RemoveAt(pageParam);
+                        }
+                        request.AddParameter(new Parameter() { Name = "page", Value = currentPage.ToString(), Type = ParameterType.QueryString });
+                        var pageResponse = _restClient.Execute<PushpayResponseBaseDto>(request);
+                        //var pageItems = JsonConvert.DeserializeObject<dynamic>(pageResponse.Content).items;
+                        var pageItems = pageResponse.Data.items;
+                        //var pageItems = JsonConvert.DeserializeObject<dynamic>(response.Content).items;
+                        if (pageItems != null)
+                        {
+                            responseDataItems.AddRange(pageItems);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"No data in response: {resourcePath}");
+                        }
                     }
-                    request.AddParameter(new Parameter() { Name = "page", Value = currentPage.ToString(), Type = ParameterType.QueryString });
-                    var pageResponse = _restClient.Execute<PushpayResponseBaseDto>(request);
-                    if (pageResponse.Data.items != null)
-                    {
-                        responseData.AddRange(pageResponse.Data.items);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"No data in response: {resourcePath}");
-                    }
+                    return responseDataItems;
                 }
+                return responseDataItems;
             }
-            return responseData;
         }
     }
 }

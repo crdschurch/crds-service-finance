@@ -18,6 +18,6 @@ namespace Pushpay
         public int Total { get; set; }
 
         [JsonProperty("items")]
-        public List<dynamic> items { get; set; }
+        public List<object> items { get; set; }
     }
 }
