@@ -23,7 +23,6 @@ public class MappingProfile : Profile
         CreateMap<PushpayLinkDto, LinkDto>();
         CreateMap<PushpayLinksDto, LinksDto>();
         CreateMap<PushpayPaymentDto, PaymentDto>();
-        CreateMap<PushpayPaymentsDto, PaymentsDto>();
         CreateMap<PushpayRefundPaymentDto, RefundPaymentDto>();
         CreateMap<PushpaySettlementDto, SettlementEventDto>();
         CreateMap<PushpaySettlementDto, SettlementDto>();

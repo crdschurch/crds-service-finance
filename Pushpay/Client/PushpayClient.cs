@@ -29,19 +29,25 @@ namespace Pushpay.Client
             _restClient = restClient ?? new RestClient();
         }
 
-        public PushpayPaymentsDto GetPushpayDonations(string settlementKey)
+        public List<PushpayPaymentDto> GetDonations(string settlementKey)
         {
             var resource = $"settlement/{settlementKey}/payments";
             var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope, null, true);
-            return JsonConvert.DeserializeObject<PushpayPaymentsDto>(data);
+            return JsonConvert.DeserializeObject<List<PushpayPaymentDto>>(data);
         }
 
         public PushpayPaymentDto GetPayment(PushpayWebhook webhook)
         {
             var uri = new Uri(webhook.Events[0].Links.Payment);
             var data = CreateAndExecuteRequest(uri, null, Method.GET, donationsScope);
-            var x = JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
-            return x;
+            Console.WriteLine(data);
+            return JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
+        }
+
+        public PushpayRecurringGiftDto GetRecurringGift(string resource)
+        {
+            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope);
+            return JsonConvert.DeserializeObject<PushpayRecurringGiftDto>(data);
         }
 
         public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
@@ -53,20 +59,10 @@ namespace Pushpay.Client
                 { "depositFrom", modStartDate }
             };
             var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope, queryParams, true);
-            //var jsonSerialiser = new System.Web.Script.Serialization;JavaScriptSerializer();
-            //var json = jsonSerialiser.Serialize(aList);
-            var x = JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(JsonConvert.SerializeObject(data));
-            return x;
-
+            return JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(data);
         }
 
-        public PushpayRecurringGiftDto GetRecurringGift(string resource)
-        {
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope);
-            return JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
-        }
-
-        private dynamic CreateAndExecuteRequest(Uri baseUri, string resourcePath, Method method, string scope, Dictionary<string, string> queryParams = null, bool isList = false, object body = null)
+        private string CreateAndExecuteRequest(Uri baseUri, string resourcePath, Method method, string scope, Dictionary<string, string> queryParams = null, bool isList = false, object body = null)
         {
             var request = new RestRequest(method);
             _restClient.BaseUrl = baseUri;
@@ -97,15 +93,16 @@ namespace Pushpay.Client
             if (!isList)
             {
                 var response = _restClient.Execute(request);
-                return JsonConvert.DeserializeObject(response.Content);
+                return JsonConvert.SerializeObject(response.Content);
             }
             else
             {
                 // data is possibly multiple pages
                 var response = _restClient.Execute<PushpayResponseBaseDto>(request);
-                var response2 = _restClient.Execute(request);
-                //var responseData = JsonConvert.DeserializeObject<dynamic>(response.Content);
-                //var responseDataItems = responseData.items;
+                if (response.ErrorException != null)
+                {
+                    throw new Exception(response.ErrorMessage);
+                }
                 var responseDataItems = response.Data.items;
 
                 // check if there are more pages that we have to get
@@ -124,9 +121,7 @@ namespace Pushpay.Client
                         }
                         request.AddParameter(new Parameter() { Name = "page", Value = currentPage.ToString(), Type = ParameterType.QueryString });
                         var pageResponse = _restClient.Execute<PushpayResponseBaseDto>(request);
-                        //var pageItems = JsonConvert.DeserializeObject<dynamic>(pageResponse.Content).items;
                         var pageItems = pageResponse.Data.items;
-                        //var pageItems = JsonConvert.DeserializeObject<dynamic>(response.Content).items;
                         if (pageItems != null)
                         {
                             responseDataItems.AddRange(pageItems);
@@ -136,9 +131,9 @@ namespace Pushpay.Client
                             Console.WriteLine($"No data in response: {resourcePath}");
                         }
                     }
-                    return responseDataItems;
+                    return JsonConvert.SerializeObject(responseDataItems);
                 }
-                return responseDataItems;
+                return JsonConvert.SerializeObject(responseDataItems);
             }
         }
     }

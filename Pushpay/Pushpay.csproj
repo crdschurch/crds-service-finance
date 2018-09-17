@@ -16,5 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Models\PushpayAnticipatedFundDto.cs" />
+    <Compile Remove="Models\PushpayPaymentsDto.cs" />
   </ItemGroup>
 </Project>

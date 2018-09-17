@@ -59,7 +59,7 @@ namespace Crossroads.Service.Finance.Services
 
         public PaymentsDto GetPaymentsForSettlement(string settlementKey)
         {
-            var result = _pushpayClient.GetPushpayDonations(settlementKey);
+            var result = _pushpayClient.GetDonations(settlementKey);
             return _mapper.Map<PaymentsDto>(result);
         }
 
