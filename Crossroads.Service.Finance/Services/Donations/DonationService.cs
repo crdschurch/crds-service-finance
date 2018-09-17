@@ -81,7 +81,7 @@ namespace Crossroads.Service.Finance.Services
         {
             _mpDonationRepository.UpdateDonorAccount(donorAccount);
         }
-        
+
         public List<RecurringGiftDto> GetRecurringGifts(string token)
         {
             var contactId = _contactService.GetContactIdBySessionId(token);
@@ -100,15 +100,35 @@ namespace Crossroads.Service.Finance.Services
             return dtos;
         }
 
-        public List<PledgeDto> GetPledges(string token)
+        public List<PledgeDto> GetPledges(int contactId)
         {
-            var mpPledges = CalculatePledges(token);
+            var mpPledges = CalculatePledges(contactId);
             return _mapper.Map<List<PledgeDto>>(mpPledges);
         }
 
-        public List<MpPledge> CalculatePledges(string token)
+        public List<PledgeDto> GetRelatedContactPledge(int userContactId, int relatedContactId)
         {
-            var contactId = _contactService.GetContactIdBySessionId(token);
+            // check if household minor child
+            var userContact = _contactService.GetContact(userContactId);
+            var householdMinorChildren = _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
+            if (householdMinorChildren.Exists(householdChild => householdChild.ContactId == relatedContactId))
+            {
+                var mpPledges = GetPledges(relatedContactId);
+                return _mapper.Map<List<PledgeDto>>(mpPledges);
+            }
+
+            // check if relatedContactId has an active co-giver contact relationship with userContactId
+            var cogiverContactRelationship = _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
+            if (cogiverContactRelationship != null)
+            {
+                var mpPledges = GetPledges(relatedContactId);
+                return _mapper.Map<List<PledgeDto>>(mpPledges);
+            }
+            throw new Exception($"Contact {userContactId} does not have access to view campaigns for contact {relatedContactId}");
+        }
+
+        public List<MpPledge> CalculatePledges(int contactId)
+        {
             var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
 
             if (mpPledges.Any())
@@ -154,7 +174,7 @@ namespace Crossroads.Service.Finance.Services
             if (cogiverContactRelationship != null)
             {
                 // relatedContactId is a cogiver contact relationship
-                var mpDonationHistory = _mpDonationRepository.GetDonationHistoryByContactId(relatedContactId, 
+                var mpDonationHistory = _mpDonationRepository.GetDonationHistoryByContactId(relatedContactId,
                                                                            cogiverContactRelationship.StartDate,
                                                                            cogiverContactRelationship.EndDate);
                 return _mapper.Map<List<DonationDetailDto>>(mpDonationHistory);

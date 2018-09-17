@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using MinistryPlatform.Models;
+﻿using MinistryPlatform.Models;
+using System.Collections.Generic;
 
 namespace MinistryPlatform.Interfaces
 {

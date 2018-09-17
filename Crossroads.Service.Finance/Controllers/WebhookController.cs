@@ -3,6 +3,7 @@ using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Utilities.Logging;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -10,10 +11,12 @@ namespace Crossroads.Service.Finance.Controllers
     public class WebhookController : Controller
     {
         private readonly IPushpayService _pushpayService;
+        private readonly IDataLoggingService _dataLoggingService;
 
-        public WebhookController(IPushpayService pushpayService)
+        public WebhookController(IPushpayService pushpayService, IDataLoggingService dataLoggingService)
         {
             _pushpayService = pushpayService;
+            _dataLoggingService = dataLoggingService;
         }
 
         /// <summary>
@@ -29,14 +32,15 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(400)]
         public IActionResult HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
         {
-            NewRelic.Api.Agent.NewRelic.AddCustomParameter("webhookPayload", 
-                JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
-
             try
             {
                 Console.WriteLine("⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡ Incoming webhook ⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️");
                 Console.WriteLine(JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
                 var pushpayEvent = pushpayWebhook.Events[0];
+
+                var logEventEntry = new LogEventEntry(LogEventType.incomingPushpayWebhook);
+                logEventEntry.Push("Webhook Type", pushpayEvent.EventType);
+                _dataLoggingService.LogDataEvent(logEventEntry);
 
                 switch (pushpayEvent.EventType)
                 {

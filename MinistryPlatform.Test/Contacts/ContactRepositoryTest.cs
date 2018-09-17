@@ -202,5 +202,47 @@ namespace MinistryPlatform.Test.Contacts
             // Assert
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public void ShouldGetAddressByContactId()
+        {
+            // Arrange
+            var contactId = 5544555;
+            var mpContactAddresses = new List<MpContactAddress>
+            {
+                new MpContactAddress()
+            };
+
+            var columns = new string[] {
+                "[Contact_ID]",
+                "Household_ID_Table_Address_ID_Table.[Address_ID]",
+                "Household_ID_Table_Address_ID_Table.[Address_Line_1]",
+                "Household_ID_Table_Address_ID_Table.[Address_Line_2]",
+                "Household_ID_Table_Address_ID_Table.[City]",
+                "Household_ID_Table_Address_ID_Table.[State/Region]",
+                "Household_ID_Table_Address_ID_Table.[Postal_Code]"
+            };
+
+            var filters = new string[]
+            {
+                $"[Contact_ID] = {contactId}"
+            };
+
+            _apiUserRepository.Setup(m => m.GetApiClientToken(clientId)).Returns(token);
+
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(columns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(String.Join(" AND ", filters))).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpContactAddress>()).Returns(mpContactAddresses);
+
+            // Act
+            var result = _fixture.GetContactAddressByContactId(contactId);
+
+            // Assert
+            Assert.NotNull(result);
+        }
     }
 }

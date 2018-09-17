@@ -56,5 +56,23 @@ namespace Crossroads.Service.Finance.Controllers
                 return StatusCode(401, ex);
             }
         }
+
+        [HttpGet]
+        [Route("{contactId}/address")]
+        public IActionResult GetContactAddress(int contactId)
+        {
+            return Authorized(token =>
+            {
+                try
+                {
+                    return Ok(_contactService.GetContactAddressByContactId(contactId));
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Error in Contact: " + ex.Message, ex);
+                    return StatusCode(400, ex);
+                }
+            });
+        }
     }
 }

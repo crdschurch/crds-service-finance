@@ -1,20 +1,22 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crossroads.Service.Finance", "Crossroads.Service.Finance\Crossroads.Service.Finance.csproj", "{59403618-5FAF-4EEF-B9B2-D57EA3F8D90D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crossroads.Service.Finance", "Crossroads.Service.Finance\Crossroads.Service.Finance.csproj", "{59403618-5FAF-4EEF-B9B2-D57EA3F8D90D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crossroads.Service.Finance.Test", "Crossroads.Service.Finance.Test\Crossroads.Service.Finance.Test.csproj", "{4A7F151D-C5AB-4F72-8945-5A2347017A59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crossroads.Service.Finance.Test", "Crossroads.Service.Finance.Test\Crossroads.Service.Finance.Test.csproj", "{4A7F151D-C5AB-4F72-8945-5A2347017A59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinistryPlatform", "MinistryPlatform\MinistryPlatform.csproj", "{8A123163-923C-4082-ADED-1D4A700938F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinistryPlatform", "MinistryPlatform\MinistryPlatform.csproj", "{8A123163-923C-4082-ADED-1D4A700938F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinistryPlatform.Test", "MinistryPlatform.Test\MinistryPlatform.Test.csproj", "{203D2464-0F60-433D-8DAA-E0D72C7AD57C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinistryPlatform.Test", "MinistryPlatform.Test\MinistryPlatform.Test.csproj", "{203D2464-0F60-433D-8DAA-E0D72C7AD57C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mock", "Mock\Mock.csproj", "{E5ADEDD6-39CB-425B-BD1F-43A6744094EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mock", "Mock\Mock.csproj", "{E5ADEDD6-39CB-425B-BD1F-43A6744094EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pushpay", "Pushpay\Pushpay.csproj", "{14D56A4E-987F-4D98-AA2A-882246969476}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pushpay", "Pushpay\Pushpay.csproj", "{14D56A4E-987F-4D98-AA2A-882246969476}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pushpay.Test", "Pushpay.Test\Pushpay.Test.csproj", "{9E44F63C-7E97-48A3-B0C6-DEFEF02D3341}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pushpay.Test", "Pushpay.Test\Pushpay.Test.csproj", "{9E44F63C-7E97-48A3-B0C6-DEFEF02D3341}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{D390A202-59E9-4B88-AC36-A48BDFA42290}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +82,14 @@ Global
 		{9E44F63C-7E97-48A3-B0C6-DEFEF02D3341}.Integration|Any CPU.Build.0 = Release|Any CPU
 		{9E44F63C-7E97-48A3-B0C6-DEFEF02D3341}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E44F63C-7E97-48A3-B0C6-DEFEF02D3341}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D390A202-59E9-4B88-AC36-A48BDFA42290}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D390A202-59E9-4B88-AC36-A48BDFA42290}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D390A202-59E9-4B88-AC36-A48BDFA42290}.Demo|Any CPU.ActiveCfg = Debug|Any CPU
+		{D390A202-59E9-4B88-AC36-A48BDFA42290}.Demo|Any CPU.Build.0 = Debug|Any CPU
+		{D390A202-59E9-4B88-AC36-A48BDFA42290}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{D390A202-59E9-4B88-AC36-A48BDFA42290}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{D390A202-59E9-4B88-AC36-A48BDFA42290}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D390A202-59E9-4B88-AC36-A48BDFA42290}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

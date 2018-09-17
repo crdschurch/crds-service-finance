@@ -22,4 +22,7 @@
   <ItemGroup>
     <Compile Remove="Models\MpPostalAddress.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Utilities\Utilities.csproj" />
+  </ItemGroup>
 </Project>
