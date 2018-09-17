@@ -1,14 +1,13 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
+using Crossroads.Service.Finance.Security;
+using Crossroads.Web.Common.Security;
+using Crossroads.Web.Common.Services;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Crossroads.Service.Finance.Security;
-using Crossroads.Web.Common.Security;
-using Crossroads.Web.Common.Services;
-using System.Linq;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -21,7 +20,7 @@ namespace Crossroads.Service.Finance.Controllers
 
         public DonorController(IAuthTokenExpiryService authTokenExpiryService,
             IAuthenticationRepository authenticationRepository,
-            IDonationService donationService, 
+            IDonationService donationService,
             IContactService contactService)
             : base(authenticationRepository, authTokenExpiryService)
         {
@@ -62,16 +61,26 @@ namespace Crossroads.Service.Finance.Controllers
         /// Get pledges for a user
         /// </summary>
         /// <returns></returns>
-        [HttpGet("pledges")]
+        [HttpGet("contact/{contactId}/pledges")]
         [ProducesResponseType(typeof(List<PledgeDto>), 200)]
         [ProducesResponseType(204)]
-        public IActionResult GetMyPledges()
+        public IActionResult GetMyPledges(int contactId)
         {
             return Authorized(token =>
             {
                 try
                 {
-                    var pledges = _donationService.GetPledges(token);
+                    List<PledgeDto> pledges;
+                    var userContactId = _contactService.GetContactIdBySessionId(token);
+                    if (userContactId == contactId)
+                    {
+                        pledges = _donationService.GetPledges(contactId);
+                    }
+                    else
+                    {
+                        pledges = _donationService.GetRelatedContactPledge(userContactId, contactId);
+                    }
+
                     if (pledges == null || pledges.Count == 0)
                     {
                         return NoContent();
