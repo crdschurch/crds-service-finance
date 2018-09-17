@@ -97,7 +97,10 @@ namespace Pushpay.Test
         {
             var webhook = Mock.PushpayStatusChangeRequestMock.Create();
             _restClient.Setup(x => x.Execute(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<PushpayPaymentDto>(){});
+                .Returns(new RestResponse<PushpayPaymentDto>(){
+                    StatusCode = HttpStatusCode.NotFound,
+                    ErrorException = new Exception()
+                });
 
             Assert.Throws<Exception>(() => _fixture.GetPayment(webhook));
         }

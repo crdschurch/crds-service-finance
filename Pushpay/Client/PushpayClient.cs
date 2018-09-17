@@ -40,7 +40,6 @@ namespace Pushpay.Client
         {
             var uri = new Uri(webhook.Events[0].Links.Payment);
             var data = CreateAndExecuteRequest(uri, null, Method.GET, donationsScope);
-            Console.WriteLine(data);
             return JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
         }
 
@@ -93,6 +92,10 @@ namespace Pushpay.Client
             if (!isList)
             {
                 var response = _restClient.Execute(request);
+                if (response.ErrorException != null)
+                {
+                    throw new Exception(response.ErrorMessage);
+                }
                 return JsonConvert.SerializeObject(response.Content);
             }
             else
