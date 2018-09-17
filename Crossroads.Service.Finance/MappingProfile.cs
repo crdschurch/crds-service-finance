@@ -26,7 +26,6 @@ public class MappingProfile : Profile
         CreateMap<PushpayRefundPaymentDto, RefundPaymentDto>();
         CreateMap<PushpaySettlementDto, SettlementEventDto>();
         CreateMap<PushpaySettlementDto, SettlementDto>();
-        CreateMap<List<dynamic>, List<PushpaySettlementDto>>();
         CreateMap<PushpayRecurringGiftDto, MpRecurringGift>()
             .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount.Amount))
             .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Schedule.StartDate))
@@ -76,8 +75,10 @@ public class MappingProfile : Profile
         CreateMap<MpRecurringGift, RecurringGiftDto>();
         CreateMap<MpDonationDetail, DonationDetailDto>()
             .ForMember(dest => dest.AccountNumber, opt => opt.ResolveUsing(r =>
+            {
+                try
                 {
-                    if (r.AccountNumber != null)
+                    if (!String.IsNullOrEmpty(r.AccountNumber) && r.AccountNumber.Length >= 4)
                     {
                         // get last four characters, which is max of what we want to show
                         var formatted = r.AccountNumber.Substring(r.AccountNumber.Length - 4, 4);
@@ -86,7 +87,13 @@ public class MappingProfile : Profile
                     }
                     return null;
                 }
-            ));
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return null;
+                }
+            }
+        ));
 
         CreateMap<DonationDetailDto, MpDonationDetail>();
         CreateMap<MpContactAddress, ContactAddressDto>();
