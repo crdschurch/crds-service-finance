@@ -147,19 +147,13 @@ namespace Pushpay.Test
         [Fact]
         public void GetRecurringGiftTest()
         {
-            _restClient.Setup(x => x.Execute<PushpayRecurringGiftDto>(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<PushpayRecurringGiftDto>()
+            _restClient.Setup(x => x.Execute(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse()
                 {
-                    StatusCode = HttpStatusCode.OK,
-                    Data = new PushpayRecurringGiftDto()
-                    {
-                        PaymentToken = "234234"
-                    }
+                    StatusCode = HttpStatusCode.OK
                 });
 
             var result = _fixture.GetRecurringGift("https://resource.com");
-
-            Assert.NotNull(result);
         }
     }
 }
