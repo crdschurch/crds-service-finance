@@ -7,9 +7,9 @@ namespace Pushpay.Client
 {
     public interface IPushpayClient
     {
-        PushpayPaymentsDto GetPushpayDonations(string settlementKey);
         PushpayPaymentDto GetPayment(PushpayWebhook webhook);
-        List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
         PushpayRecurringGiftDto GetRecurringGift(string resource);
+        List<PushpayPaymentDto> GetDonations(string settlementKey);
+        List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
     }
 }

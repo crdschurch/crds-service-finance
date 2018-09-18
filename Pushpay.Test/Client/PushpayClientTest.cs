@@ -40,74 +40,67 @@ namespace Pushpay.Test
         [Fact]
         public void GetPushpayDonationsTest()
         {
-            var items = new List<PushpayPaymentDto>();
-            var item = new PushpayPaymentDto()
+            var items = new List<object>();
+            var item = new
             {
                 Status = "pending"
             };
             items.Add(item);
             items.Add(item);
 
-            _restClient.Setup(x => x.Execute<PushpayPaymentsDto>(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<PushpayPaymentsDto>()
+            _restClient.Setup(x => x.Execute<PushpayResponseBaseDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayResponseBaseDto>()
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Data = new PushpayPaymentsDto()
+                    Data = new PushpayResponseBaseDto()
                     {
                         Page = 1,
                         PageSize = 25,
                         TotalPages = 1,
-                        Items = items
+                        items = items
                     }
                  });
 
-            var result = _fixture.GetPushpayDonations("settlement-key-123");
+            var result = _fixture.GetDonations("settlement-key-123");
 
-            Assert.Equal(2, result.Items.Count);
+            Assert.Equal(2, result.Count);
         }
 
         [Fact]
         public void GetPushpayDonationsSettlementDoesntExistTest()
         {
-            _restClient.Setup(x => x.Execute<PushpayPaymentsDto>(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<PushpayPaymentsDto>()
+            _restClient.Setup(x => x.Execute<PushpayResponseBaseDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayResponseBaseDto>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
+                    ErrorException = new Exception()
                 });
 
-            Assert.Throws<Exception>(() => _fixture.GetPushpayDonations("settlement-key-123"));
+            Assert.Throws<Exception>(() => _fixture.GetDonations("settlement-key-123"));
         }
-
-        // TODO
-        //[Fact]
-        //public void GetPushpayDonationsPagingTest() { }
 
         [Fact]
         public void GetPaymentTest()
         {
-            var status = "pending";
             var webhook = Mock.PushpayStatusChangeRequestMock.Create();
-            _restClient.Setup(x => x.Execute<PushpayPaymentDto>(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<PushpayPaymentDto>()
+            _restClient.Setup(x => x.Execute(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse()
                 {
-                    StatusCode = HttpStatusCode.OK,
-                    Data = new PushpayPaymentDto()
-                    {
-                        Status = status
-                    }
+                    StatusCode = HttpStatusCode.OK
                 });
 
             var result =  _fixture.GetPayment(webhook);
-
-            Assert.Equal("pending", result.Status);
         }
 
         [Fact]
         public void GetPaymentNullTest()
         {
             var webhook = Mock.PushpayStatusChangeRequestMock.Create();
-            _restClient.Setup(x => x.Execute<PushpayPaymentDto>(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<PushpayPaymentDto>(){});
+            _restClient.Setup(x => x.Execute(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayPaymentDto>(){
+                    StatusCode = HttpStatusCode.NotFound,
+                    ErrorException = new Exception()
+                });
 
             Assert.Throws<Exception>(() => _fixture.GetPayment(webhook));
         }
@@ -119,24 +112,26 @@ namespace Pushpay.Test
             var startDate = new DateTime(2017, 12, 6);
             var endDate = new DateTime(2017, 12, 13);
 
-            var mockPushPayDepositDtos = new List<PushpaySettlementDto>
+            var mockPushpayDepositDtos = new List<object>
             {
-                new PushpaySettlementDto
-                {
-                    
-                }
+                new PushpaySettlementDto {},
+                new PushpaySettlementDto {},
+                new PushpaySettlementDto {},
+                new PushpaySettlementDto {},
+                new PushpaySettlementDto {},
+                new PushpaySettlementDto {}
             };
 
-            var pushpaySettlementResponseDto = new PushpaySettlementResponseDto
+            var pushpaySettlementResponseDto = new PushpayResponseBaseDto
             {
                 Page = 0,
                 PageSize = 5,
                 TotalPages = 1,
-                items = mockPushPayDepositDtos
+                items = mockPushpayDepositDtos
             };
 
-            _restClient.Setup(x => x.Execute<PushpaySettlementResponseDto>(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<PushpaySettlementResponseDto>
+            _restClient.Setup(x => x.Execute<PushpayResponseBaseDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayResponseBaseDto>
                 {
                     StatusCode = HttpStatusCode.OK,
                     Data = pushpaySettlementResponseDto
@@ -152,19 +147,13 @@ namespace Pushpay.Test
         [Fact]
         public void GetRecurringGiftTest()
         {
-            _restClient.Setup(x => x.Execute<PushpayRecurringGiftDto>(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<PushpayRecurringGiftDto>()
+            _restClient.Setup(x => x.Execute(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse()
                 {
-                    StatusCode = HttpStatusCode.OK,
-                    Data = new PushpayRecurringGiftDto()
-                    {
-                        PaymentToken = "234234"
-                    }
+                    StatusCode = HttpStatusCode.OK
                 });
 
             var result = _fixture.GetRecurringGift("https://resource.com");
-
-            Assert.NotNull(result);
         }
     }
 }

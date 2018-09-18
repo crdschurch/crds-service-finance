@@ -57,10 +57,10 @@ namespace Crossroads.Service.Finance.Services
             _mpNotSiteSpecificCongregationId = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "NotSiteSpecific") ?? 5;
         }
 
-        public PaymentsDto GetPaymentsForSettlement(string settlementKey)
+        public List<PaymentDto> GetDonationsForSettlement(string settlementKey)
         {
-            var result = _pushpayClient.GetPushpayDonations(settlementKey);
-            return _mapper.Map<PaymentsDto>(result);
+            var result = _pushpayClient.GetDonations(settlementKey);
+            return _mapper.Map<List<PaymentDto>>(result);
         }
 
         private PaymentDto GetPayment(PushpayWebhook webhook)
@@ -201,7 +201,10 @@ namespace Crossroads.Service.Finance.Services
                 Href = webhook.Events.First().Links.ViewRecurringPayment
             };
 
-            pushpayRecurringGift.Links.ViewRecurringPayment = viewRecurringGiftDto;
+            pushpayRecurringGift.Links = new PushpayLinksDto
+            {
+                ViewRecurringPayment = viewRecurringGiftDto
+            };
             var mpRecurringGift = BuildAndCreateNewRecurringGift(pushpayRecurringGift);
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }

@@ -58,10 +58,10 @@ namespace Crossroads.Service.Finance.Services
 
             // 2. Get all payments associated with a settlement from Pushpay's API. Throw an exception
             // if none are found.
-            var settlementPayments = _pushpayService.GetPaymentsForSettlement(settlementEventDto.Key);
-            Console.WriteLine($"Settlement {settlementEventDto.Key} contains {settlementPayments.items.Count} ({settlementPayments.Total}) donations from pushpay");
+            var settlementPayments = _pushpayService.GetDonationsForSettlement(settlementEventDto.Key);
+            Console.WriteLine($"Settlement {settlementEventDto.Key} contains {settlementPayments.Count} ({settlementPayments}) donations from pushpay");
 
-            if (settlementPayments.items == null || settlementPayments.items.Count <= 0)
+            if (settlementPayments == null || settlementPayments.Count <= 0)
             {
                 //_logger.LogError($"No charges found for settlement: {settlementEventDto.Key}");
                 Console.WriteLine($"No charges found for settlement: {settlementEventDto.Key}");
@@ -74,7 +74,7 @@ namespace Crossroads.Service.Finance.Services
             }
 
             // 3. Create and Save the Batch to MP.
-            var donationBatch = _batchService.BuildDonationBatch(settlementPayments.items, settlementEventDto.Name,
+            var donationBatch = _batchService.BuildDonationBatch(settlementPayments, settlementEventDto.Name,
                 DateTime.Now, settlementEventDto.Key);
             var savedDonationBatch = _batchService.SaveDonationBatch(donationBatch);
             donationBatch.Id = savedDonationBatch.Id;
