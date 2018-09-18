@@ -54,7 +54,7 @@ namespace Pushpay.Client
         public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
         {
             var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
-            var resource = $"settlements";
+            var resource = "settlements";
             Dictionary<string, string> queryParams = new Dictionary<string, string>()
             {
                 { "depositFrom", modStartDate }
@@ -83,7 +83,6 @@ namespace Pushpay.Client
         {
             AddAuth(request, scope);
             var response = _restClient.Execute<PushpayResponseBaseDto>(request);
-            Console.WriteLine((int)response.StatusCode);
             if ((int)response.StatusCode == 429)
             {
                 var retrySeconds = Convert.ToInt32(response.Headers.ToList().Find(x => x.Name == "Retry-After").Value);
@@ -141,7 +140,6 @@ namespace Pushpay.Client
                 {
                     throw new Exception(response.ErrorMessage);
                 }
-                //return JsonConvert.SerializeObject(response.Content);
                 return response.Content;
             }
             else
