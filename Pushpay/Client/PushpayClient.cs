@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading;
@@ -61,6 +63,50 @@ namespace Pushpay.Client
             return JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(data);
         }
 
+        // execute request, retry if rate limited
+        private IRestResponse Execute(RestRequest request, string scope)
+        {
+            AddAuth(request, scope);
+            var response = _restClient.Execute(request);
+            if ((int)response.StatusCode == 429)
+            {
+                var retrySeconds = Convert.ToInt32(response.Headers.ToList().Find(x => x.Name == "Retry-After").Value);
+                Console.WriteLine($"Hit rate limit. Sleeping for {retrySeconds} seconds");
+                Thread.Sleep(retrySeconds * 1000);
+                Execute(request, scope);
+            }
+            return response;
+        }
+
+        // execute request, retry if rate limited
+        private IRestResponse<PushpayResponseBaseDto> ExecuteList(RestRequest request, string scope)
+        {
+            AddAuth(request, scope);
+            var response = _restClient.Execute<PushpayResponseBaseDto>(request);
+            Console.WriteLine((int)response.StatusCode);
+            if ((int)response.StatusCode == 429)
+            {
+                var retrySeconds = Convert.ToInt32(response.Headers.ToList().Find(x => x.Name == "Retry-After").Value);
+                Console.WriteLine($"Hit rate limit. Sleeping for {retrySeconds} seconds");
+                Thread.Sleep(retrySeconds * 1000);
+                ExecuteList(request, scope);
+            }
+            return response;
+        }
+
+        private RestRequest AddAuth(RestRequest request, string scope)
+        {
+            var tokenResponse = _pushpayTokenService.GetOAuthToken(scope).Wait();
+            // remove auth param, if exists
+            var authParam = request.Parameters.FindIndex(x => x.Name == "Authorization");
+            if (authParam > -1)
+            {
+                request.Parameters.RemoveAt(authParam);
+            }
+            request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
+            return request;
+        }
+
         private string CreateAndExecuteRequest(Uri baseUri, string resourcePath, Method method, string scope, Dictionary<string, string> queryParams = null, bool isList = false, object body = null)
         {
             var request = new RestRequest(method);
@@ -69,7 +115,7 @@ namespace Pushpay.Client
             {
                 request.Resource = resourcePath;
             };
-            var tokenResponse = _pushpayTokenService.GetOAuthToken(scope).Wait();
+
             if (body != null)
             {
                 request.AddHeader("Accept", "application/json");
@@ -83,7 +129,6 @@ namespace Pushpay.Client
                     request.AddQueryParameter(entry.Key, entry.Value);
                 }
             }
-            request.AddParameter("Authorization", string.Format("Bearer " + tokenResponse.AccessToken), ParameterType.HttpHeader);
 
             // pushpay has a different data return format depending on if you are calling for
             //  a specific payment (payment fields are at top level) vs. if you are calling
@@ -91,17 +136,18 @@ namespace Pushpay.Client
             // isList here refers to whether the resource will return a list (like all payments) or not (payment) for example
             if (!isList)
             {
-                var response = _restClient.Execute(request);
+                var response = Execute(request, scope);
                 if (response.ErrorException != null)
                 {
                     throw new Exception(response.ErrorMessage);
                 }
-                return JsonConvert.SerializeObject(response.Content);
+                //return JsonConvert.SerializeObject(response.Content);
+                return response.Content;
             }
             else
             {
                 // data is possibly multiple pages
-                var response = _restClient.Execute<PushpayResponseBaseDto>(request);
+                var response = ExecuteList(request, scope);
                 if (response.ErrorException != null)
                 {
                     throw new Exception(response.ErrorMessage);
@@ -123,7 +169,7 @@ namespace Pushpay.Client
                             request.Parameters.RemoveAt(pageParam);
                         }
                         request.AddParameter(new Parameter() { Name = "page", Value = currentPage.ToString(), Type = ParameterType.QueryString });
-                        var pageResponse = _restClient.Execute<PushpayResponseBaseDto>(request);
+                        var pageResponse = ExecuteList(request, scope);
                         var pageItems = pageResponse.Data.items;
                         if (pageItems != null)
                         {
