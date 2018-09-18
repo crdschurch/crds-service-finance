@@ -201,7 +201,10 @@ namespace Crossroads.Service.Finance.Services
                 Href = webhook.Events.First().Links.ViewRecurringPayment
             };
 
-            pushpayRecurringGift.Links.ViewRecurringPayment = viewRecurringGiftDto;
+            pushpayRecurringGift.Links = new PushpayLinksDto
+            {
+                ViewRecurringPayment = viewRecurringGiftDto
+            };
             var mpRecurringGift = BuildAndCreateNewRecurringGift(pushpayRecurringGift);
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }
