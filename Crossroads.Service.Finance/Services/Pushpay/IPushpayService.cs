@@ -8,7 +8,7 @@ namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IPushpayService
     {
-        PaymentsDto GetPaymentsForSettlement(string settlementKey);
+        List<PaymentDto> GetDonationsForSettlement(string settlementKey);
         DonationDto UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry = false);
         void AddUpdateDonationDetailsJob(PushpayWebhook webhook);
         List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
