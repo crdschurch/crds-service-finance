@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AutoMapper;
@@ -74,6 +75,21 @@ namespace MinistryPlatform.Repositories
             {
                 _logger.Error($"UpdateRecurringGift: Error updating recurring gift: {JsonConvert.SerializeObject(mpRecurringGift)}", e);
             }
+        }
+
+        public List<MpRecurringGift> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds)
+        {
+            var x = string.Join(",", subscriptionIds.Select(item => "'" + item + "'"));
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var filter = $"Subscription_ID IN ({string.Join(",", subscriptionIds.Select(item => "'" + item + "'"))})";
+            var gifts = MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .Build()
+                .Search<MpRecurringGift>();
+
+            return gifts;
         }
     }
 }

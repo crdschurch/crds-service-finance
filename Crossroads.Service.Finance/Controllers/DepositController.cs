@@ -17,7 +17,8 @@ namespace Crossroads.Service.Finance.Controllers
         private readonly IPaymentEventService _paymentEventService;
         private readonly IDataLoggingService _dataLoggingService;
 
-        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService, IDataLoggingService dataLoggingService)
+        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService,
+            IDataLoggingService dataLoggingService)
         {
             _depositService = depositService;
             _paymentEventService = paymentEventService;
@@ -38,7 +39,8 @@ namespace Crossroads.Service.Finance.Controllers
             try
             {
                 var deposits = _depositService.SyncDeposits();
-                if (deposits == null || deposits.Count == 0){
+                if (deposits == null || deposits.Count == 0)
+                {
                     Console.WriteLine($"No deposits to sync");
 
                     var noDepositsToSyncEntry = new LogEventEntry(LogEventType.noDepositsToSync);
@@ -57,11 +59,57 @@ namespace Crossroads.Service.Finance.Controllers
                 logEventEntry.Push("Deposits Created", deposits.Count);
                 _dataLoggingService.LogDataEvent(logEventEntry);
 
-                return Ok(new { created =  deposits.Count });
+                return Ok(new {created = deposits.Count});
             }
             catch (Exception ex)
             {
                 _logger.Error("Error in SyncSettlements: " + ex.Message, ex);
+                return StatusCode(400, ex);
+            }
+        }
+
+        /// <summary>
+        ///    Sync settlements from pushpay into MP
+        /// </summary>
+        /// <remarks>
+        ///    Called via a SyncPushpaySettlements windows scheduled task at 1pm every day
+        /// </remarks>
+        [HttpPost("sync/recurringgifts")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult SyncRecurringGifts()
+        {
+            try
+            {
+                //var deposits = _depositService.SyncDeposits();
+                //if (deposits == null || deposits.Count == 0)
+                //{
+                //    Console.WriteLine($"No deposits to sync");
+
+                //    var noDepositsToSyncEntry = new LogEventEntry(LogEventType.noDepositsToSync);
+                //    noDepositsToSyncEntry.Push("Sync Date", DateTime.Now.ToShortDateString());
+                //    _dataLoggingService.LogDataEvent(noDepositsToSyncEntry);
+
+                //    return NoContent();
+                //}
+                //foreach (var deposit in deposits)
+                //{
+                //    _paymentEventService.CreateDeposit(deposit);
+                //}
+                //Console.WriteLine($"SyncSettlements created {deposits.Count} deposits");
+
+                //var logEventEntry = new LogEventEntry(LogEventType.depositsCreatedCount);
+                //logEventEntry.Push("Deposits Created", deposits.Count);
+                //_dataLoggingService.LogDataEvent(logEventEntry);
+
+                //return Ok(new { created = deposits.Count });
+
+                //_depositService.SyncRecurringGifts();
+                return Ok(_depositService.SyncRecurringGifts());
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Error in SyncRecurringGifts: " + ex.Message, ex);
                 return StatusCode(400, ex);
             }
         }

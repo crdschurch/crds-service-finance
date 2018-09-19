@@ -274,7 +274,7 @@ namespace Crossroads.Service.Finance.Services
             );
         }
 
-        private MpRecurringGift BuildAndCreateNewRecurringGift (PushpayRecurringGiftDto pushpayRecurringGift)
+        public MpRecurringGift BuildAndCreateNewRecurringGift (PushpayRecurringGiftDto pushpayRecurringGift)
         {
             var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
             var donor = FindOrCreateDonorAndDonorAccount(pushpayRecurringGift);
@@ -286,6 +286,8 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
             mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
+
+            //if (pushpayRecurringGift.)
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
@@ -430,6 +432,12 @@ namespace Crossroads.Service.Finance.Services
                 default:
                     return 0;
             }
+        }
+
+        public List<PushpayRecurringGiftDto> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
+        {
+            var pushpayRecurringGiftDtos = _pushpayClient.GetRecurringGiftsByDateRange(startDate, endDate);
+            return pushpayRecurringGiftDtos;
         }
     }
 }
