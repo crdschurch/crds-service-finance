@@ -277,11 +277,11 @@ namespace Crossroads.Service.Finance.Services
         private MpRecurringGift BuildAndCreateNewRecurringGift (PushpayRecurringGiftDto pushpayRecurringGift)
         {
             var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
-            var donor = FindOrCreateDonorAndDonorAccount(pushpayRecurringGift);
+            var mpDonor = FindOrCreateDonorAndDonorAccount(pushpayRecurringGift);
 
-            mpRecurringGift.DonorId = donor.DonorId.Value;
-            mpRecurringGift.DonorAccountId = donor.DonorAccountId.Value;
-            mpRecurringGift.CongregationId = donor.CongregationId != null ? donor.CongregationId.Value : _contactRepository.GetHousehold(donor.HouseholdId).CongregationId;
+            mpRecurringGift.DonorId = mpDonor.DonorId.Value;
+            mpRecurringGift.DonorAccountId = mpDonor.DonorAccountId.Value;
+            mpRecurringGift.CongregationId = mpDonor.CongregationId != null ? mpDonor.CongregationId.Value : _contactRepository.GetHousehold(mpDonor.HouseholdId).CongregationId;
 
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
@@ -289,20 +289,23 @@ namespace Crossroads.Service.Finance.Services
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
-            // cancel the recurring gift in stripe, if exists
-            Console.WriteLine($"Checking to see if recurring gift has a matching stripe gift");
-            Console.WriteLine($"Pushpay recurring gift Notes field: {pushpayRecurringGift.Notes}");
-            if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
+            // Cancel all recurring gifts in Stripe for Pushpay credit card givers, if exists
+            if (pushpayRecurringGift.PaymentMethodType == "CreditCard")
             {
-                
-                //logEventEntry.Push(LogEventType.stripeCancel, "Donor First Name", pushpayRecurringGift.Payer.FirstName);
+                // This cancels a Stripe gift if a subscription id was uploaded to Pushpay
+                if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
+                {
+                    _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes.Trim());
+                }
 
-                //logEventEntry.Push("Donor Last Name", pushpayRecurringGift.Payer.LastName);
-                //logEventEntry.Push("Donor Email Address", pushpayRecurringGift.Payer.EmailAddress);
-                //logEventEntry.Push("Notes", pushpayRecurringGift.Notes);
-
-                
-                _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes);
+                var mpRecurringGifts = _recurringGiftRepository.FindRecurringGiftsByDonorId((int)mpDonor.DonorId);
+                foreach (MpRecurringGift gift in mpRecurringGifts)
+                {
+                    if (gift.EndDate == null && gift.SubscriptionId.StartsWith("sub_"))
+                    {
+                        _gatewayService.CancelStripeRecurringGift(gift.SubscriptionId);
+                    }
+                }
             }
 
             return mpRecurringGift;
