@@ -55,5 +55,7 @@ namespace MinistryPlatform.Models
         [JsonProperty("Payment_Type")]
         public string PaymentType { get; set; }
 
+        [JsonProperty("Payment_Type_ID")]
+        public int PaymentTypeId { get; set; }
     }
 }

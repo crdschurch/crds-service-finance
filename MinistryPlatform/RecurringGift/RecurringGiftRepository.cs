@@ -77,7 +77,21 @@ namespace MinistryPlatform.Repositories
             }
         }
 
-        public List<MpRecurringGift> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds)
+        public List<MpRecurringGift> FindRecurringGiftsByDonorId(int donorId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var filter = $"Donor_ID_Table.[Donor_ID] = '{donorId}'";
+            var gifts = MpRestBuilder.NewRequestBuilder()
+                                .WithAuthenticationToken(token)
+                                .WithFilter(filter)
+                                .Build()
+                                .Search<MpRecurringGift>();
+
+            return gifts;
+        }
+
+	public List<MpRecurringGift> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds)
         {
             var x = string.Join(",", subscriptionIds.Select(item => "'" + item + "'"));
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");

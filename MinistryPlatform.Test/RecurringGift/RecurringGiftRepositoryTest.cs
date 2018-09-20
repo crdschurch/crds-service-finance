@@ -102,5 +102,36 @@ namespace MinistryPlatform.Test.Donations
             _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts"));
             _fixture.UpdateRecurringGift(new JObject());
         }
+
+        [Fact]
+        public void FindRecurringGiftsByDonorId()
+        {
+            // Arrange
+            var donorId = 234234;
+            var subscriptionId = "sub_123456";
+
+            var mpRecurringGifts = new List<MpRecurringGift>
+            {
+                new MpRecurringGift()
+                {
+                    SubscriptionId = subscriptionId
+                }
+            };
+
+            var filter = $"Donor_ID_Table.[Donor_ID] = '{donorId}'";
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpRecurringGift>()).Returns(mpRecurringGifts);
+
+            // Act
+            var result = _fixture.FindRecurringGiftsByDonorId(donorId);
+
+            // Assert
+            Assert.Equal(subscriptionId, result[0].SubscriptionId);
+        }
     }
 }
