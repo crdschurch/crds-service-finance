@@ -24,6 +24,7 @@ namespace Pushpay.Client
         private readonly IRestClient _restClient;
         private const int RequestsPerSecond = 10;
         private const int RequestsPerMinute = 60;
+        private int RateLimitCount = 0;
 
         public PushpayClient(IPushpayTokenService pushpayTokenService, IRestClient restClient = null)
         {
@@ -42,13 +43,13 @@ namespace Pushpay.Client
         {
             var uri = new Uri(webhook.Events[0].Links.Payment);
             var data = CreateAndExecuteRequest(uri, null, Method.GET, donationsScope);
-            return JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
+            return data == null ? null : JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
         }
 
         public PushpayRecurringGiftDto GetRecurringGift(string resource)
         {
             var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope);
-            return JsonConvert.DeserializeObject<PushpayRecurringGiftDto>(data);
+            return data == null ? null : JsonConvert.DeserializeObject<PushpayRecurringGiftDto>(data);
         }
 
         public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
@@ -63,6 +64,15 @@ namespace Pushpay.Client
             return JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(data);
         }
 
+        private int GetRetrySeconds(int pushpayRetrySeconds)
+        {
+            // in case a bunch of requests come in at the same time, lets exponentially stagger the requests,
+            //  and add a random number, so that they dont all run again at the same time
+            var backoffSeconds = RateLimitCount * RateLimitCount;
+            var randomSeconds = new Random().Next(1, 20);
+            return pushpayRetrySeconds + backoffSeconds + randomSeconds;
+        }
+
         // execute request, retry if rate limited
         private IRestResponse Execute(RestRequest request, string scope)
         {
@@ -70,11 +80,14 @@ namespace Pushpay.Client
             var response = _restClient.Execute(request);
             if ((int)response.StatusCode == 429)
             {
-                var retrySeconds = Convert.ToInt32(response.Headers.ToList().Find(x => x.Name == "Retry-After").Value);
+                RateLimitCount++;
+                var pushpayRetrySeconds = Convert.ToInt32(response.Headers.ToList().Find(x => x.Name == "Retry-After").Value);
+                var retrySeconds = GetRetrySeconds(pushpayRetrySeconds);
                 Console.WriteLine($"Hit rate limit. Sleeping for {retrySeconds} seconds");
                 Thread.Sleep(retrySeconds * 1000);
-                Execute(request, scope);
+                return Execute(request, scope);
             }
+            RateLimitCount = 0;
             return response;
         }
 
@@ -85,11 +98,14 @@ namespace Pushpay.Client
             var response = _restClient.Execute<PushpayResponseBaseDto>(request);
             if ((int)response.StatusCode == 429)
             {
-                var retrySeconds = Convert.ToInt32(response.Headers.ToList().Find(x => x.Name == "Retry-After").Value);
+                RateLimitCount++;
+                var pushpayRetrySeconds = Convert.ToInt32(response.Headers.ToList().Find(x => x.Name == "Retry-After").Value);
+                var retrySeconds = GetRetrySeconds(pushpayRetrySeconds);
                 Console.WriteLine($"Hit rate limit. Sleeping for {retrySeconds} seconds");
                 Thread.Sleep(retrySeconds * 1000);
                 ExecuteList(request, scope);
             }
+            RateLimitCount = 0;
             return response;
         }
 
@@ -136,9 +152,10 @@ namespace Pushpay.Client
             if (!isList)
             {
                 var response = Execute(request, scope);
-                if (response.ErrorException != null)
+                if ((int)response.StatusCode == 404 || response.ErrorException != null)
                 {
-                    throw new Exception(response.ErrorMessage);
+                    Console.WriteLine(response.ErrorMessage);
+                    return null;
                 }
                 return response.Content;
             }
