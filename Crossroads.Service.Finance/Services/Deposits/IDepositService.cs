@@ -13,6 +13,6 @@ namespace Crossroads.Service.Finance.Interfaces
         DepositDto GetDepositByProcessorTransferId(string key);
         List<SettlementEventDto> SyncDeposits();
         List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate);
-        List<MpRecurringGift> SyncRecurringGifts();
+        void SyncRecurringGifts();
     }
 }

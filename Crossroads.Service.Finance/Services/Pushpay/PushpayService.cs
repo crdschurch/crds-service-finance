@@ -287,7 +287,13 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
             mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
 
-            //if (pushpayRecurringGift.)
+            // note: this is normally set when the recurring gift is created via the webhook, but can be set here when the recurring gifts sync. Pushpay
+            // does not currently send over the view recurring gift link except during the webhook, so this code will not populate the user view link until 
+            // they add it to their api call
+            if (pushpayRecurringGift.Links.ViewRecurringPayment != null && String.IsNullOrEmpty(mpRecurringGift.VendorDetailUrl))
+            {
+                mpRecurringGift.VendorDetailUrl = pushpayRecurringGift.Links.ViewRecurringPayment.Href;
+            }
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
@@ -438,6 +444,42 @@ namespace Crossroads.Service.Finance.Services
         {
             var pushpayRecurringGiftDtos = _pushpayClient.GetRecurringGiftsByDateRange(startDate, endDate);
             return pushpayRecurringGiftDtos;
+        }
+
+        public void SyncRecurringGifts()
+        {
+            // first, get the recurring gifts from Pushpay that were created in the last 24 hours
+            var today = DateTime.Now;
+            var tomorrow = today.AddDays(1);
+
+            var startDate = new DateTime(today.Year, today.Month, today.Day);
+            var endDate = new DateTime(tomorrow.Year, tomorrow.Month, tomorrow.Day);
+
+            var pushpayRecurringGifts = GetRecurringGiftsByDateRange(startDate, endDate);
+
+            // next, check to see if these gifts exist in MP
+            var recurringGiftIds = pushpayRecurringGifts
+                .Select(r => r.PaymentToken).ToList();
+
+            var mpRecurringGifts =
+                _recurringGiftRepository.FindRecurringGiftsBySubscriptionIds(recurringGiftIds);
+
+            // if the recurring gift does not exist in MP, pull the data from Pushpay and create it
+            var excludedIds = new List<string>();
+
+            foreach (var item in recurringGiftIds)
+            {
+                if (mpRecurringGifts.All(r => r.SubscriptionId != item))
+                {
+                    var giftSubscriptionId = BuildAndCreateNewRecurringGift(pushpayRecurringGifts.First(r => r.PaymentToken == item)).SubscriptionId;
+                    excludedIds.Add(giftSubscriptionId);
+                }
+            }
+
+            // last, log the subscription ids of the gifts that were not in MP
+            var syncedRecurringGiftsEntry = new LogEventEntry(LogEventType.syncedRecurringGifts);
+            syncedRecurringGiftsEntry.Push("Recurring Gifts Synced from Pushpay", string.Join(",", excludedIds));
+            _dataLoggingService.LogDataEvent(syncedRecurringGiftsEntry);
         }
     }
 }

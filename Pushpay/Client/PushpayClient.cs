@@ -78,7 +78,8 @@ namespace Pushpay.Client
                 { "status", "Active" }
             };
             var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope, queryParams, true);
-            return JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
+            var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
+            return recurringGifts;
         }
 
         // execute request, retry if rate limited

@@ -104,8 +104,8 @@ namespace Crossroads.Service.Finance.Controllers
 
                 //return Ok(new { created = deposits.Count });
 
-                //_depositService.SyncRecurringGifts();
-                return Ok(_depositService.SyncRecurringGifts());
+                _depositService.SyncRecurringGifts();
+                return Ok();
             }
             catch (Exception ex)
             {

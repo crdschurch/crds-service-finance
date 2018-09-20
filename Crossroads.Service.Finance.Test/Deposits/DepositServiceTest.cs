@@ -23,6 +23,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
         private readonly Mock<IConfigurationWrapper> _configWrapper;
         private readonly string _pushpayWebEndpoint;
         private readonly Mock<IDataLoggingService> _dataLoggingService;
+        private readonly Mock<IRecurringGiftRepository> _recurringGiftRepository;
 
         private readonly IDepositService _fixture;
 
@@ -34,9 +35,10 @@ namespace Crossroads.Service.Finance.Test.Deposits
             _configWrapper = new Mock<IConfigurationWrapper>();
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
             _dataLoggingService = new Mock<IDataLoggingService>();
+            _recurringGiftRepository = new Mock<IRecurringGiftRepository>();
 
             _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object,
-                _dataLoggingService.Object);
+                _dataLoggingService.Object, _recurringGiftRepository.Object);
         }
 
         [Fact]
