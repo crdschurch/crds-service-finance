@@ -81,29 +81,6 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                //var deposits = _depositService.SyncDeposits();
-                //if (deposits == null || deposits.Count == 0)
-                //{
-                //    Console.WriteLine($"No deposits to sync");
-
-                //    var noDepositsToSyncEntry = new LogEventEntry(LogEventType.noDepositsToSync);
-                //    noDepositsToSyncEntry.Push("Sync Date", DateTime.Now.ToShortDateString());
-                //    _dataLoggingService.LogDataEvent(noDepositsToSyncEntry);
-
-                //    return NoContent();
-                //}
-                //foreach (var deposit in deposits)
-                //{
-                //    _paymentEventService.CreateDeposit(deposit);
-                //}
-                //Console.WriteLine($"SyncSettlements created {deposits.Count} deposits");
-
-                //var logEventEntry = new LogEventEntry(LogEventType.depositsCreatedCount);
-                //logEventEntry.Push("Deposits Created", deposits.Count);
-                //_dataLoggingService.LogDataEvent(logEventEntry);
-
-                //return Ok(new { created = deposits.Count });
-
                 _depositService.SyncRecurringGifts();
                 return Ok();
             }

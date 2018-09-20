@@ -7,7 +7,6 @@ using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
-using Pushpay.Models;
 using Utilities.Logging;
 
 namespace Crossroads.Service.Finance.Services
@@ -183,56 +182,6 @@ namespace Crossroads.Service.Finance.Services
 
         public void SyncRecurringGifts()
         {
-            //// first, get the recurring gifts from Pushpay that were created in the last 24 hours
-            //var today = DateTime.Now;
-            //var tomorrow = today.AddDays(1);
-
-            //var startDate = new DateTime(today.Year, today.Month, today.Day);
-            //var endDate = new DateTime(tomorrow.Year, tomorrow.Month, tomorrow.Day);
-
-            //var pushpayRecurringGifts = _pushpayService.GetRecurringGiftsByDateRange(startDate, endDate);
-
-            //foreach (var pushpayRecurringGift in pushpayRecurringGifts)
-            //{
-            //    //var viewRecurringGiftDto = new PushpayLinkDto
-            //    //{
-            //    //    Href = pushpayRecurringGift.Links.ViewRecurringPayment
-            //    //};
-
-            //    //pushpayRecurringGift.Links = new PushpayLinksDto
-            //    //{
-            //    //    ViewRecurringPayment = viewRecurringGiftDto
-            //    //};
-            //}
-
-            ////// next, check to see if these gifts exist in MP
-            //var recurringGiftIds = pushpayRecurringGifts
-            //    .Select(r => r.PaymentToken).ToList();
-
-            ////List<string> recurringGiftIds = new List<string>
-            ////{
-                
-            ////};
-
-            //var mpRecurringGifts =
-            //    _recurringGiftRepository.FindRecurringGiftsBySubscriptionIds(recurringGiftIds);
-
-            //// if the recurring gift does not exist in MP, pull the data from Pushpay and create it
-            //var excludedIds = new List<string>();
-
-            //foreach (var item in recurringGiftIds)
-            //{
-            //    if (mpRecurringGifts.All(r => r.SubscriptionId != item))
-            //    {
-            //        //excludedIds.Add(item);
-            //        var mpRecurringGift =
-            //            _pushpayService.BuildAndCreateNewRecurringGift(
-            //                pushpayRecurringGifts.First(r => r.PaymentToken == item));
-            //    }
-            //}
-
-            //// switch to return created gifts
-            //return null;
             _pushpayService.SyncRecurringGifts();
         }
     }
