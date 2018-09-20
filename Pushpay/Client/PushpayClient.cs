@@ -103,7 +103,7 @@ namespace Pushpay.Client
                 var retrySeconds = GetRetrySeconds(pushpayRetrySeconds);
                 Console.WriteLine($"Hit rate limit. Sleeping for {retrySeconds} seconds");
                 Thread.Sleep(retrySeconds * 1000);
-                ExecuteList(request, scope);
+                return ExecuteList(request, scope);
             }
             RateLimitCount = 0;
             return response;
