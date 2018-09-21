@@ -27,15 +27,13 @@ namespace Crossroads.Service.Finance.Services
                               IMapper mapper,
                               IPushpayService pushpayService,
                               IConfigurationWrapper configurationWrapper,
-                              IDataLoggingService dataLoggingService,
-                              IRecurringGiftRepository recurringGiftRepository)
+                              IDataLoggingService dataLoggingService)
         {
             _depositRepository = depositRepository;
             _mapper = mapper;
             _pushpayService = pushpayService;
             _configurationWrapper = configurationWrapper;
             _dataLoggingService = dataLoggingService;
-            _recurringGiftRepository = recurringGiftRepository;
 
             _depositProcessingOffset = _configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");

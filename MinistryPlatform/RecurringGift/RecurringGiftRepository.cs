@@ -91,9 +91,8 @@ namespace MinistryPlatform.Repositories
             return gifts;
         }
 
-	public List<MpRecurringGift> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds)
+	    public List<MpRecurringGift> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds)
         {
-            var x = string.Join(",", subscriptionIds.Select(item => "'" + item + "'"));
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var filter = $"Subscription_ID IN ({string.Join(",", subscriptionIds.Select(item => "'" + item + "'"))})";
