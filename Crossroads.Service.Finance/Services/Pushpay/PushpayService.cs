@@ -70,21 +70,18 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<PaymentDto>(result);
         }
 
-        public void AddUpdateDonationDetailsJob(PushpayWebhook webhook)
+        // called from webhook controller
+        public void UpdateDonationDetails(PushpayWebhook webhook)
         {
-            // add incoming timestamp so that we can reprocess job for a
-            //   certain amount of time
-            webhook.IncomingTimeUtc = DateTime.UtcNow;
-            AddUpdateDonationDetailsFromPushpayJob(webhook);
+            // try to update details, if it fails, it will schedule to rerun
+            //  via hangfire in 1 minute
+            UpdateDonationDetailsFromPushpay(webhook, true);
         }
 
-        private void AddUpdateDonationDetailsFromPushpayJob(PushpayWebhook webhook)
+        public void AddUpdateDonationDetailsJob(PushpayWebhook webhook)
         {
-            var donation = UpdateDonationDetailsFromPushpay(webhook, true);
-            if (donation == null)
-            {
-                BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true), TimeSpan.FromMinutes(_mpPushpayRecurringWebhookMinutes));
-            }
+            Console.WriteLine($"schedule job: {webhook.Events[0].Links.Payment} for {_mpPushpayRecurringWebhookMinutes} mins");
+            BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true), TimeSpan.FromMinutes(_mpPushpayRecurringWebhookMinutes));
         }
 
         public DonationDto UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false)
@@ -93,8 +90,8 @@ namespace Crossroads.Service.Finance.Services
                 var pushpayPayment = _pushpayClient.GetPayment(webhook);
                 // PushPay creates the donation a variable amount of time after the webhook comes in
                 //   so it still may not be available
+                // if pushpayPayment is null, let it go into catch statement to re-run
                 var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
-                if (donation == null) return null;
                 // add payment token so that we can identify easier via api
                 if (pushpayPayment.PaymentToken != null)
                 {
@@ -162,7 +159,7 @@ namespace Crossroads.Service.Finance.Services
                 // if it's been less than ten minutes, try again in a minute
                 if ((now - webhookTime).Value.TotalMinutes < maxRetryMinutes && retry)
                 {
-                    AddUpdateDonationDetailsFromPushpayJob(webhook);
+                    AddUpdateDonationDetailsJob(webhook);
                     // dont throw an exception as Hangfire tries to handle it
                     Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP. Trying again in a minute.", e);
 
