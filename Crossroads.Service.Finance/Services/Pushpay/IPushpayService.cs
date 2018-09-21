@@ -16,6 +16,5 @@ namespace Crossroads.Service.Finance.Interfaces
         RecurringGiftDto UpdateRecurringGift(PushpayWebhook webhook);
         List<PushpayRecurringGiftDto> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate);
         MpRecurringGift BuildAndCreateNewRecurringGift(PushpayRecurringGiftDto pushpayRecurringGift);
-        void SyncRecurringGifts();
     }
 }

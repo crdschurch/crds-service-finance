@@ -67,28 +67,5 @@ namespace Crossroads.Service.Finance.Controllers
                 return StatusCode(400, ex);
             }
         }
-
-        /// <summary>
-        ///    Sync settlements from pushpay into MP
-        /// </summary>
-        /// <remarks>
-        ///    Called via a SyncPushpaySettlements windows scheduled task at 1pm every day
-        /// </remarks>
-        [HttpPost("sync/recurringgifts")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        public IActionResult SyncRecurringGifts()
-        {
-            try
-            {
-                _depositService.SyncRecurringGifts();
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Error in SyncRecurringGifts: " + ex.Message, ex);
-                return StatusCode(400, ex);
-            }
-        }
     }
 }

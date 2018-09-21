@@ -179,10 +179,5 @@ namespace Crossroads.Service.Finance.Services
 
             return depositsToProcess;
         }
-
-        public void SyncRecurringGifts()
-        {
-            _pushpayService.SyncRecurringGifts();
-        }
     }
 }
