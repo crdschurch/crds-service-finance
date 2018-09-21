@@ -73,6 +73,25 @@ namespace Pushpay.Client
             return pushpayRetrySeconds + backoffSeconds + randomSeconds;
         }
 
+	        // this only gets active gifts for now
+        public List<PushpayRecurringGiftDto> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
+        {
+            var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            var modEndDate = endDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            var merchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
+
+            var resource = $"merchant/{merchantKey}/recurringpayments";
+            Dictionary<string, string> queryParams = new Dictionary<string, string>()
+            {
+                { "createdFrom", modStartDate },
+                { "createdTo", modEndDate },
+                { "status", "Active" }
+            };
+            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope, queryParams, true);
+            var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
+            return recurringGifts;
+        }
+
         // execute request, retry if rate limited
         private IRestResponse Execute(RestRequest request, string scope)
         {
