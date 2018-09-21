@@ -30,7 +30,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IGatewayService _gatewayService;
         private readonly IMapper _mapper;
         private readonly IDataLoggingService _dataLoggingService;
-        private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
+        private readonly int _mpDonationStatusPending, _mpDonationStatusDeposited, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
                              _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpNotSiteSpecificCongregationId;
         private const int maxRetryMinutes = 10;
         private const int pushpayProcessorTypeId = 1;
@@ -50,6 +50,7 @@ namespace Crossroads.Service.Finance.Services
             _gatewayService = gatewayService;
             _dataLoggingService = dataLoggingService;
             _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
+            _mpDonationStatusDeposited = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeposited") ?? 2;
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
             _mpDefaultContactDonorId = configurationWrapper.GetMpConfigIntValue("COMMON", "defaultDonorID") ?? 1;
@@ -128,7 +129,8 @@ namespace Crossroads.Service.Finance.Services
                 {
                     donation.DonationStatusId = _mpDonationStatusPending;
                 }
-                else if (pushpayPayment.IsStatusSuccess)
+                // only flip if not deposited
+                else if (pushpayPayment.IsStatusSuccess && donation.BatchId == null)
                 {
                     donation.DonationStatusId = _mpDonationStatusSucceeded;
                 }
