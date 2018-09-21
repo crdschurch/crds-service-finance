@@ -10,7 +10,7 @@ namespace Crossroads.Service.Finance.Interfaces
     {
         List<PaymentDto> GetDonationsForSettlement(string settlementKey);
         DonationDto UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry = false);
-        void AddUpdateDonationDetailsJob(PushpayWebhook webhook);
+        void UpdateDonationDetails(PushpayWebhook webhook);
         List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
         RecurringGiftDto CreateRecurringGift(PushpayWebhook webhook);
         RecurringGiftDto UpdateRecurringGift(PushpayWebhook webhook);
