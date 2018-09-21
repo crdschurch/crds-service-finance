@@ -13,7 +13,7 @@ namespace MinistryPlatform.Models
         public int ContactId { get; set; }
 
         [JsonProperty("Address_ID")]
-        public int AddressId { get; set; }
+        public int? AddressId { get; set; }
 
         [JsonProperty("Address_Line_1")]
         public string AddressLine1 { get; set; }
