@@ -45,23 +45,23 @@ namespace Crossroads.Service.Finance.Services.Recurring
                 _recurringGiftRepository.FindRecurringGiftsBySubscriptionIds(recurringGiftIds);
 
             // if the recurring gift does not exist in MP, pull the data from Pushpay and create it
-            var excludedIds = new List<string>();
+            var giftIdsSynced = new List<string>();
 
             foreach (var item in recurringGiftIds)
             {
                 if (mpRecurringGifts.All(r => r.SubscriptionId != item))
                 {
                     _pushpayService.BuildAndCreateNewRecurringGift(pushpayRecurringGifts.First(r => r.PaymentToken == item));
-                    excludedIds.Add(item);
+                    giftIdsSynced.Add(item);
                 }
             }
 
             // last, log the subscription ids of the gifts that were not in MP
             var syncedRecurringGiftsEntry = new LogEventEntry(LogEventType.syncedRecurringGifts);
-            syncedRecurringGiftsEntry.Push("Recurring Gifts Synced from Pushpay", string.Join(",", excludedIds));
+            syncedRecurringGiftsEntry.Push("Recurring Gifts Synced from Pushpay", string.Join(",", giftIdsSynced));
             _dataLoggingService.LogDataEvent(syncedRecurringGiftsEntry);
 
-            return excludedIds;
+            return giftIdsSynced;
         }
     }
 }
