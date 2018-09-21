@@ -84,6 +84,8 @@ namespace Crossroads.Service.Finance.Services
             BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true), TimeSpan.FromMinutes(_mpPushpayRecurringWebhookMinutes));
         }
 
+        // if this fails, it will schedule it to be re-run in 60 seconds,
+        //  after 10 minutes of trying it'll give up
         public DonationDto UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false)
         {
             try {
