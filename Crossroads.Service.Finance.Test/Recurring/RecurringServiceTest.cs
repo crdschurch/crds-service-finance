@@ -60,7 +60,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 .Returns(new MpRecurringGift{ SubscriptionId = "123abc"});
 
             // Act
-            var result = _fixture.SyncRecurringGifts();
+            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
 
             // Assert
             Assert.Contains("123abc", result);
