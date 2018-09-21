@@ -130,7 +130,7 @@ namespace Crossroads.Service.Finance.Services
                     donation.DonationStatusId = _mpDonationStatusPending;
                 }
                 // only flip if not deposited
-                else if (pushpayPayment.IsStatusSuccess && donation.DonationStatusId != _mpDonationStatusDeposited)
+                else if (pushpayPayment.IsStatusSuccess && donation.BatchId == null)
                 {
                     donation.DonationStatusId = _mpDonationStatusSucceeded;
                 }
