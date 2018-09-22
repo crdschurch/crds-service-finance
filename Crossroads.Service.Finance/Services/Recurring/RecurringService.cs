@@ -37,6 +37,11 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
             var pushpayRecurringGifts = _pushpayService.GetRecurringGiftsByDateRange(start, end);
 
+            if (!pushpayRecurringGifts.Any())
+            {
+                return null;
+            }
+
             // next, check to see if these gifts exist in MP
             var recurringGiftIds = pushpayRecurringGifts
                 .Select(r => r.PaymentToken).ToList();
