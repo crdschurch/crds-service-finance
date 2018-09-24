@@ -85,7 +85,8 @@ namespace Pushpay.Client
             {
                 { "createdFrom", modStartDate },
                 { "createdTo", modEndDate },
-                { "status", "Active" }
+                { "status", "Active" },
+                { "pageSize", "100" }
             };
             var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope, queryParams, true);
             var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
