@@ -293,8 +293,7 @@ namespace Crossroads.Service.Finance.Services
             if (pushpayRecurringGift.PaymentMethodType == "CreditCard")
             {
                 // This cancels a Stripe gift if a subscription id was uploaded to Pushpay
-                if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal)
-                    && pushpayRecurringGift.Fund.Name == mpRecurringGift.ProgramName)
+                if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
                 {
                     _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes.Trim());
                 }
@@ -303,7 +302,7 @@ namespace Crossroads.Service.Finance.Services
                 foreach (MpRecurringGift gift in mpRecurringGifts)
                 {
                     if (gift.EndDate == null && gift.SubscriptionId.StartsWith("sub_")
-                        && gift.ProgramName == pushpayRecurringGift.Fund.Name)
+                        && gift.ProgramName.ToLower().Trim() == pushpayRecurringGift.Fund.Name.ToLower().Trim())
                     {
                         _gatewayService.CancelStripeRecurringGift(gift.SubscriptionId);
                     }
