@@ -34,6 +34,7 @@ namespace Crossroads.Service.Finance.Services
                              _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpNotSiteSpecificCongregationId;
         private const int maxRetryMinutes = 10;
         private const int pushpayProcessorTypeId = 1;
+        private const int NotSiteSpecificCongregationId = 5;
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
@@ -283,7 +284,24 @@ namespace Crossroads.Service.Finance.Services
 
             mpRecurringGift.DonorId = mpDonor.DonorId.Value;
             mpRecurringGift.DonorAccountId = mpDonor.DonorAccountId.Value;
-            mpRecurringGift.CongregationId = mpDonor.CongregationId != null ? mpDonor.CongregationId.Value : _contactRepository.GetHousehold(mpDonor.HouseholdId).CongregationId;
+
+            var congregationId = NotSiteSpecificCongregationId;
+
+            if (mpDonor.CongregationId != null)
+            {
+                congregationId = mpDonor.CongregationId.GetValueOrDefault();
+            }
+            else
+            {
+                var mpHousehold = _contactRepository.GetHousehold(mpDonor.HouseholdId);
+
+                if (mpHousehold.CongregationId != null)
+                {
+                    congregationId = mpHousehold.CongregationId;
+                }
+            }
+
+            mpRecurringGift.CongregationId = congregationId;
 
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
