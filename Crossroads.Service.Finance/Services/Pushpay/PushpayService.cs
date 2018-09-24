@@ -103,14 +103,14 @@ namespace Crossroads.Service.Finance.Services
                 if (pushpayPayment.RecurringPaymentToken != null)
                 {
                     donation.IsRecurringGift = true;
-                    var mpRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPayment.RecurringPaymentToken);
-                    if (mpRecurringGift != null) {
+                    try
+                    {
+                        var mpRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPayment.RecurringPaymentToken);
                         donation.RecurringGiftId = mpRecurringGift.RecurringGiftId;
                     }
-                    else
+                    catch (Exception)
                     {
                         Console.WriteLine($"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
-
                         var noRecurringGiftSubEntry = new LogEventEntry(LogEventType.noRecurringGiftSubFound);
                         noRecurringGiftSubEntry.Push("No Recurring Gift for Sub", pushpayPayment.RecurringPaymentToken);
                         _dataLoggingService.LogDataEvent(noRecurringGiftSubEntry);
