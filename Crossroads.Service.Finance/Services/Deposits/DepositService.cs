@@ -14,6 +14,7 @@ namespace Crossroads.Service.Finance.Services
     public class DepositService : IDepositService
     {
         private readonly IDepositRepository _depositRepository;
+        private readonly IRecurringGiftRepository _recurringGiftRepository;
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
         private readonly IConfigurationWrapper _configurationWrapper;

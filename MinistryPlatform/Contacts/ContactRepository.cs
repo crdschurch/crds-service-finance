@@ -204,12 +204,14 @@ namespace MinistryPlatform.Repositories
                 $"[Contact_ID] = {contactId}"
             };
 
-            return MpRestBuilder.NewRequestBuilder()
+            var result = MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(columns)
                 .WithAuthenticationToken(token)
                 .WithFilter(String.Join(" AND ", filters))
                 .Build()
-                .Search<MpContactAddress>().First();
+                .Search<MpContactAddress>();
+
+            return result.FirstOrDefault();
         }
     }
 }

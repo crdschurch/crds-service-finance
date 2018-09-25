@@ -17,7 +17,8 @@ namespace Crossroads.Service.Finance.Controllers
         private readonly IPaymentEventService _paymentEventService;
         private readonly IDataLoggingService _dataLoggingService;
 
-        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService, IDataLoggingService dataLoggingService)
+        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService,
+            IDataLoggingService dataLoggingService)
         {
             _depositService = depositService;
             _paymentEventService = paymentEventService;
@@ -38,7 +39,8 @@ namespace Crossroads.Service.Finance.Controllers
             try
             {
                 var deposits = _depositService.SyncDeposits();
-                if (deposits == null || deposits.Count == 0){
+                if (deposits == null || deposits.Count == 0)
+                {
                     Console.WriteLine($"No deposits to sync");
 
                     var noDepositsToSyncEntry = new LogEventEntry(LogEventType.noDepositsToSync);
@@ -57,7 +59,7 @@ namespace Crossroads.Service.Finance.Controllers
                 logEventEntry.Push("Deposits Created", deposits.Count);
                 _dataLoggingService.LogDataEvent(logEventEntry);
 
-                return Ok(new { created =  deposits.Count });
+                return Ok(new {created = deposits.Count});
             }
             catch (Exception ex)
             {
