@@ -23,6 +23,7 @@ namespace MinistryPlatform.Test.Donations
 
         const string token = "123abc";
         const string programName = "I'm in";
+        const int programId = 3;
         private readonly IProgramRepository _fixture;
 
         public ProgramRepositoryTest()
@@ -68,6 +69,32 @@ namespace MinistryPlatform.Test.Donations
             _request.Setup(m => m.Search<MpProgram>()).Returns(new List<MpProgram>() {});
 
             var result = _fixture.GetProgramByName(programName);
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void GetProgramById()
+        {
+            var mockProgram = new MpProgram()
+            {
+                ProgramName = programName
+            };
+            _request.Setup(m => m.Search<MpProgram>()).Returns(new List<MpProgram>() { mockProgram });
+
+            var result = _fixture.GetProgramById(programId);
+
+            Assert.NotNull(result);
+            Assert.Equal(result.ProgramName, programName);
+        }
+
+        [Fact]
+        public void GetProgramByIdEmpty()
+        {
+            // return empty list
+            _request.Setup(m => m.Search<MpProgram>()).Returns(new List<MpProgram>() { });
+
+            var result = _fixture.GetProgramById(programId);
 
             Assert.Null(result);
         }

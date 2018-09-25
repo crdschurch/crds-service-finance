@@ -329,6 +329,7 @@ namespace Crossroads.Service.Finance.Services
                 var mpRecurringGifts = _recurringGiftRepository.FindRecurringGiftsByDonorId((int)mpDonor.DonorId);
                 foreach (MpRecurringGift gift in mpRecurringGifts)
                 {
+                    gift.ProgramName = _programRepository.GetProgramById(gift.ProgramId).ProgramName;
                     if (gift.EndDate == null && gift.SubscriptionId.StartsWith("sub_")
                         && gift.ProgramName.ToLower().Trim() == pushpayRecurringGift.Fund.Name.ToLower().Trim())
                     {

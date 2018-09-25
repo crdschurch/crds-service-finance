@@ -40,5 +40,27 @@ namespace MinistryPlatform.Repositories
 
             return programs.First();
         }
+
+        public MpProgram GetProgramById(int programId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            // replace ' with '' so that we can search for
+            //  a program like I'm in
+            var filter = $"Program_ID = {programId}";
+            var program = MpRestBuilder.NewRequestBuilder()
+                                .WithAuthenticationToken(token)
+                                .WithFilter(filter)
+                                .Build()
+                                .Search<MpProgram>();
+
+            if (program.Count == 0)
+            {
+                _logger.Error($"GetProgramByName: No program found with id {filter}");
+                return null;
+            }
+
+            return program.First();
+        }
     }
 }
