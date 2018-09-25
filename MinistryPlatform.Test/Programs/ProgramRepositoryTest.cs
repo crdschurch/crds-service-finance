@@ -23,6 +23,7 @@ namespace MinistryPlatform.Test.Donations
 
         const string token = "123abc";
         const string programName = "I'm in";
+        const int programId = 3;
         private readonly IProgramRepository _fixture;
 
         public ProgramRepositoryTest()

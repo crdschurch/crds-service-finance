@@ -118,10 +118,33 @@ namespace MinistryPlatform.Test.Donations
                 }
             };
 
+            var columns = new string[] {
+                "Recurring_Gifts.[Recurring_Gift_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donor_ID_Table.[Donor_ID]",
+                "Donor_Account_ID_Table.[Donor_Account_ID]",
+                "Frequency_ID_Table.[Frequency_ID]",
+                "Recurring_Gifts.[Day_Of_Month]",
+                "Day_Of_Week_ID_Table.[Day_Of_Week_ID]",
+                "Recurring_Gifts.[Amount]",
+                "Recurring_Gifts.[Start_Date]",
+                "Recurring_Gifts.[End_Date]",
+                "Program_ID_Table.[Program_ID]",
+                "Program_ID_Table.[Program_Name]",
+                "Congregation_ID_Table.[Congregation_ID]",
+                "Recurring_Gifts.[Subscription_ID]",
+                "Recurring_Gifts.[Consecutive_Failure_Count]",
+                "Recurring_Gifts.[Source_Url]",
+                "Recurring_Gifts.[Predefined_Amount]",
+                "Recurring_Gifts.[Vendor_Detail_Url]",
+                "Recurring_Gift_Status_ID_Table.[Recurring_Gift_Status]",
+                "Recurring_Gift_Status_ID_Table.[Recurring_Gift_Status_ID]"
+            };
             var filter = $"Donor_ID_Table.[Donor_ID] = '{donorId}'";
             _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(columns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.Build()).Returns(_request.Object);
 
