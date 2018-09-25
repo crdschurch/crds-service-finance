@@ -11,6 +11,6 @@ namespace Pushpay.Client
         PushpayRecurringGiftDto GetRecurringGift(string resource);
         List<PushpayPaymentDto> GetDonations(string settlementKey);
         List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
-        List<PushpayRecurringGiftDto> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate);
+        List<PushpayRecurringGiftDto> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate);
     }
 }

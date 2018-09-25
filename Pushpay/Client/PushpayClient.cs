@@ -74,7 +74,7 @@ namespace Pushpay.Client
         }
 
 	        // this only gets active gifts for now
-        public List<PushpayRecurringGiftDto> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
+        public List<PushpayRecurringGiftDto> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
         {
             var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
             var modEndDate = endDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
@@ -83,9 +83,8 @@ namespace Pushpay.Client
             var resource = $"merchant/{merchantKey}/recurringpayments";
             Dictionary<string, string> queryParams = new Dictionary<string, string>()
             {
-                { "createdFrom", modStartDate },
-                { "createdTo", modEndDate },
-                { "status", "Active" },
+                { "updatedFrom", modStartDate },
+                { "updatedTo", modEndDate },
                 { "pageSize", "100" }
             };
             var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope, queryParams, true);

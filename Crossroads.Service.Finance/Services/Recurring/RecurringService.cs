@@ -35,6 +35,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
             var start = new DateTime(startDate.Year, startDate.Month, startDate.Day);
             var end = new DateTime(endDate.Year, endDate.Month, endDate.Day, 23, 59, 59);
 
+            // get new and updated recurring gifts
             var pushpayRecurringGifts = _pushpayService.GetRecurringGiftsByDateRange(start, end);
 
             if (!pushpayRecurringGifts.Any())
@@ -61,9 +62,13 @@ namespace Crossroads.Service.Finance.Services.Recurring
                 }
             }
 
-            // last, log the subscription ids of the gifts that were not in MP
+            // if the recurring gift DOES exist in MP, check to see when it was last updated and update it if the Pushpay version is newer
+
+
+            // last, log the subscription ids of the gifts that were updated
+            // TODO: Refactor this
             var syncedRecurringGiftsEntry = new LogEventEntry(LogEventType.syncedRecurringGifts);
-            syncedRecurringGiftsEntry.Push("Recurring Gifts Synced from Pushpay", string.Join(",", giftIdsSynced));
+            syncedRecurringGiftsEntry.Push("New Recurring Gifts Synced from Pushpay", string.Join(",", giftIdsSynced));
             _dataLoggingService.LogDataEvent(syncedRecurringGiftsEntry);
 
             return giftIdsSynced;

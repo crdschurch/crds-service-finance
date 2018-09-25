@@ -466,7 +466,7 @@ namespace Crossroads.Service.Finance.Services
 
         public List<PushpayRecurringGiftDto> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
         {
-            var pushpayRecurringGiftDtos = _pushpayClient.GetRecurringGiftsByDateRange(startDate, endDate);
+            var pushpayRecurringGiftDtos = _pushpayClient.GetNewAndUpdatedRecurringGiftsByDateRange(startDate, endDate);
             return pushpayRecurringGiftDtos;
         }
     }
