@@ -91,20 +91,7 @@ namespace Pushpay.Test
 
             var result =  _fixture.GetPayment(webhook);
         }
-
-        [Fact]
-        public void GetPaymentNullTest()
-        {
-            var webhook = Mock.PushpayStatusChangeRequestMock.Create();
-            _restClient.Setup(x => x.Execute(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<PushpayPaymentDto>(){
-                    StatusCode = HttpStatusCode.NotFound,
-                    ErrorException = new Exception()
-                });
-
-            Assert.Throws<Exception>(() => _fixture.GetPayment(webhook));
-        }
-
+         
         [Fact]
         public void ShouldGetDepositsByDateRange()
         {
