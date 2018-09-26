@@ -69,17 +69,14 @@ namespace Crossroads.Service.Finance.Services.Recurring
                     if (mpGift.UpdatedOn == null || mpGift.UpdatedOn < pushPayGift.UpdatedOn)
                     {
                         _pushpayService.UpdateRecurringGiftForSync(pushPayGift, mpGift);
+                        giftIdsSynced.Add(item);
                     }
                 }
             }
 
-
-
-
             // last, log the subscription ids of the gifts that were updated
-            // TODO: Refactor this
             var syncedRecurringGiftsEntry = new LogEventEntry(LogEventType.syncedRecurringGifts);
-            syncedRecurringGiftsEntry.Push("New Recurring Gifts Synced from Pushpay", string.Join(",", giftIdsSynced));
+            syncedRecurringGiftsEntry.Push("Recurring Gifts Synced from Pushpay", string.Join(",", giftIdsSynced));
             _dataLoggingService.LogDataEvent(syncedRecurringGiftsEntry);
 
             return giftIdsSynced;
