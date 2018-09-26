@@ -328,7 +328,7 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
             mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
-            mpRecurringGift.UpdatedOn = System.DateTime.Now;
+            mpRecurringGift.UpdatedOn = pushpayRecurringGift.UpdatedOn;
 
             // note: this is normally set when the recurring gift is created via the webhook, but can be set here when the recurring gifts sync. Pushpay
             // does not currently send over the view recurring gift link except during the webhook, so this code will not populate the user view link until 
