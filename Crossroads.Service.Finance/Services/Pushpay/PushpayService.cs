@@ -379,16 +379,15 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // this formats +15134567788 to (513) 456-7788 
-        private string FormatPhoneNumber(string phone)
+        public string FormatPhoneNumber(string phone)
         {
-
             string area = phone.Substring(2, 3);
             string major = phone.Substring(5, 3);
             string minor = phone.Substring(8);
             return string.Format("({0}) {1}-{2}", area, major, minor);
         }
 
-        private string GetRecurringGiftNotes(PushpayRecurringGiftDto pushpayRecurringGift)
+        public string GetRecurringGiftNotes(PushpayRecurringGiftDto pushpayRecurringGift)
         {
             var payer = pushpayRecurringGift.Payer;
             var address = payer.Address;
@@ -396,12 +395,12 @@ namespace Crossroads.Service.Finance.Services
             {
                 $"First Name: {payer.FirstName}",
                 $"Last Name: {payer.LastName}",
-                $"Phone: {FormatPhoneNumber(payer.MobileNumber)}",
+                $"Phone: " + (!String.IsNullOrEmpty(payer.MobileNumber) ? FormatPhoneNumber(payer.MobileNumber) : ""),
                 $"Email: {payer.EmailAddress}",
                 "Address1: " + (!String.IsNullOrEmpty(address.AddressLine1) ? address.AddressLine1 : "Street Address Not Provided"),
                 $"Address2: " + (!String.IsNullOrEmpty(address.AddressLine2) ? address.AddressLine2 : ""),
                 $"City, State Zip: {address.City}, {address.State} {address.Zip}",
-                // pushpay sets the country as USA on donations but only gives us US
+                // pushpay sets the country as USA on donations but only gives us US here
                 $"Country: " + (address.Country == "US" ? "USA" : address.Country)
             };
             return string.Join(" ", notes);
