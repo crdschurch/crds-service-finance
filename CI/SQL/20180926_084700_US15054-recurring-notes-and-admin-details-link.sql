@@ -16,3 +16,13 @@ BEGIN
     ALTER TABLE [dbo].[Recurring_Gifts] ADD Notes NVARCHAR(500) NULL
 END
 GO
+
+-- Update MyHouseholdDonationRecurringGifts page
+DECLARE @MyHouseholdDonationRecurringGifts_Page_ID AS INT = 523
+
+UPDATE dbo.dp_Pages
+	SET 
+		[Default_Field_List] = CONCAT([Default_Field_List], ', Recurring_Gifts.[Vendor_Admin_Detail_Url], Recurring_Gifts.[Notes]')
+	WHERE
+		Page_ID = @MyHouseholdDonationRecurringGifts_Page_ID
+GO

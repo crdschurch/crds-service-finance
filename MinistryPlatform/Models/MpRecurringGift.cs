@@ -61,6 +61,12 @@ namespace MinistryPlatform.Models
         [JsonProperty("Vendor_Detail_Url")]
         public string VendorDetailUrl { get; set; }
 
+        [JsonProperty("Vendor_Admin_Detail_Url")]
+        public string VendorAdminDetailUrl { get; set; }
+
+        [JsonProperty("Notes")]
+        public string Notes { get; set; }
+
         [JsonProperty("Recurring_Gift_Status")]
         [JsonIgnore]
         public string Status { get; set; }
