@@ -60,9 +60,20 @@ namespace Crossroads.Service.Finance.Services.Recurring
                     _pushpayService.BuildAndCreateNewRecurringGift(pushpayRecurringGifts.First(r => r.PaymentToken == item));
                     giftIdsSynced.Add(item);
                 }
+                // if the recurring gift DOES exist in MP, check to see when it was last updated and update it if the Pushpay version is newer
+                else if (mpRecurringGifts.Any(r => r.SubscriptionId == item))
+                {
+                    var mpGift = mpRecurringGifts.First(r => r.SubscriptionId == item);
+                    var pushPayGift = pushpayRecurringGifts.First(r => r.PaymentToken == item);
+
+                    if (mpGift.UpdatedOn == null || mpGift.UpdatedOn < pushPayGift.UpdatedOn)
+                    {
+                        _pushpayService.UpdateRecurringGiftForSync(pushPayGift, mpGift);
+                    }
+                }
             }
 
-            // if the recurring gift DOES exist in MP, check to see when it was last updated and update it if the Pushpay version is newer
+
 
 
             // last, log the subscription ids of the gifts that were updated

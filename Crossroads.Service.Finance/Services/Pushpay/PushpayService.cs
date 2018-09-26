@@ -238,13 +238,34 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<RecurringGiftDto>(existingMpRecurringGift);
         }
 
+        public RecurringGiftDto UpdateRecurringGiftForSync(PushpayRecurringGiftDto pushpayRecurringGift,
+            MpRecurringGift mpRecurringGift)
+        {
+            var status = pushpayRecurringGift.Status;
+            if (status == "Active")
+            {
+                var updatedMpRecurringGift = BuildUpdateRecurringGift(mpRecurringGift, pushpayRecurringGift);
+
+                _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
+                var updatedDonorAccount = BuildUpdateDonorAccount(mpRecurringGift, pushpayRecurringGift);
+                _donationService.UpdateDonorAccount(updatedDonorAccount);
+            }
+            else if (status == "Cancelled" || status == "Paused")
+            {
+                var updatedMpRecurringGift = BuildEndDatedRecurringGift(mpRecurringGift, pushpayRecurringGift);
+                _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
+            }
+            return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
+        }
+
         private JObject BuildEndDatedRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
             return new JObject(
                 new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
                 new JProperty("End_Date", DateTime.Now),
-                new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status))
+                new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status)),
+                new JProperty("Updated_On", updatedPushpayRecurringGift.UpdatedOn)
             );
         }
 
@@ -260,7 +281,8 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Start_Date", mappedMpRecurringGift.StartDate),
                 new JProperty("Program_ID", _programRepository.GetProgramByName(updatedPushpayRecurringGift.Fund.Code).ProgramId),
                 new JProperty("End_Date", null),
-                new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status))
+                new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status)),
+                new JProperty("Updated_On", updatedPushpayRecurringGift.UpdatedOn)
             );
         }
 
@@ -306,6 +328,7 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
             mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
+            mpRecurringGift.UpdatedOn = System.DateTime.Now;
 
             // note: this is normally set when the recurring gift is created via the webhook, but can be set here when the recurring gifts sync. Pushpay
             // does not currently send over the view recurring gift link except during the webhook, so this code will not populate the user view link until 

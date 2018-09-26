@@ -67,5 +67,8 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Recurring_Gift_Status_ID")]
         public int RecurringGiftStatusId { get; set; }
+
+        [JsonProperty("Updated_On")]
+        public DateTime? UpdatedOn { get; set; }
     }
 }

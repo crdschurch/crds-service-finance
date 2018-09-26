@@ -31,6 +31,9 @@ namespace Pushpay.Models
 
         [JsonProperty("_links")]
         public PushpayLinksDto Links { get; set; }
+
+        [JsonProperty("updatedOn")]
+        public DateTime UpdatedOn { get; set; }
     }
 
     public class RecurringGiftAmount
