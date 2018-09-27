@@ -430,7 +430,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             var result = _fixture.GetRecurringGiftNotes(pushpayRecurringGift);
             var expected = "First Name: Dez Last Name: Bryant Phone: (653) 665-9090 Email: dez@cowboys.com ";
             expected += "Address1: 342 Main Street Address2: Apt. 6 City, State Zip: Dallas, TX 83566 Country: USA";
-            Assert.Equal(expected, result);;
+            Assert.Equal(expected, result);
         }
 
         [Fact]
@@ -454,7 +454,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             var result = _fixture.GetRecurringGiftNotes(pushpayRecurringGift);
             var expected = "First Name: Dez Last Name: Bryant Phone: (653) 665-9090 Email: dez@cowboys.com ";
             expected += "Address1: Street Address Not Provided Address2:  City, State Zip: ,  83566 Country: USA";
-            Assert.Equal(expected, result); ;
+            Assert.Equal(expected, result);
         }
     }
 }
