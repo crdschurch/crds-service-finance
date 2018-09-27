@@ -15,6 +15,7 @@ using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Donors;
 using Newtonsoft.Json.Linq;
 using Utilities.Logging;
+using System.Collections;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -204,9 +205,15 @@ namespace Crossroads.Service.Finance.Services
                 Href = webhook.Events.First().Links.ViewRecurringPayment
             };
 
+            var merchantViewRecurringGiftDto = new PushpayLinkDto
+            {
+                Href = webhook.Events.First().Links.ViewMerchantRecurringPayment
+            };
+
             pushpayRecurringGift.Links = new PushpayLinksDto
             {
-                ViewRecurringPayment = viewRecurringGiftDto
+                ViewRecurringPayment = viewRecurringGiftDto,
+                MerchantViewRecurringPayment = merchantViewRecurringGiftDto
             };
             var mpRecurringGift = BuildAndCreateNewRecurringGift(pushpayRecurringGift);
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
@@ -328,6 +335,7 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
             mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
+            mpRecurringGift.Notes = GetRecurringGiftNotes(pushpayRecurringGift);
             mpRecurringGift.UpdatedOn = pushpayRecurringGift.UpdatedOn;
 
             // note: this is normally set when the recurring gift is created via the webhook, but can be set here when the recurring gifts sync. Pushpay
@@ -336,6 +344,11 @@ namespace Crossroads.Service.Finance.Services
             if (pushpayRecurringGift.Links.ViewRecurringPayment != null && String.IsNullOrEmpty(mpRecurringGift.VendorDetailUrl))
             {
                 mpRecurringGift.VendorDetailUrl = pushpayRecurringGift.Links.ViewRecurringPayment.Href;
+            }
+
+            if (pushpayRecurringGift.Links.MerchantViewRecurringPayment != null && String.IsNullOrEmpty(mpRecurringGift.VendorAdminDetailUrl))
+            {
+                mpRecurringGift.VendorAdminDetailUrl = pushpayRecurringGift.Links.MerchantViewRecurringPayment.Href;
             }
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
@@ -361,6 +374,34 @@ namespace Crossroads.Service.Finance.Services
             }
 
             return mpRecurringGift;
+        }
+
+        // this formats +15134567788 to (513) 456-7788 
+        public string FormatPhoneNumber(string phone)
+        {
+            string area = phone.Substring(2, 3);
+            string major = phone.Substring(5, 3);
+            string minor = phone.Substring(8);
+            return string.Format("({0}) {1}-{2}", area, major, minor);
+        }
+
+        public string GetRecurringGiftNotes(PushpayRecurringGiftDto pushpayRecurringGift)
+        {
+            var payer = pushpayRecurringGift.Payer;
+            var address = payer.Address;
+            var notes = new List<string>
+            {
+                $"First Name: {payer.FirstName}",
+                $"Last Name: {payer.LastName}",
+                $"Phone: " + (!String.IsNullOrEmpty(payer.MobileNumber) ? FormatPhoneNumber(payer.MobileNumber) : ""),
+                $"Email: {payer.EmailAddress}",
+                "Address1: " + (!String.IsNullOrEmpty(address.AddressLine1) ? address.AddressLine1 : "Street Address Not Provided"),
+                $"Address2: " + (!String.IsNullOrEmpty(address.AddressLine2) ? address.AddressLine2 : ""),
+                $"City, State Zip: {address.City}, {address.State} {address.Zip}",
+                // pushpay sets the country as USA on donations but only gives us US here
+                $"Country: " + (address.Country == "US" ? "USA" : address.Country)
+            };
+            return string.Join(" ", notes);
         }
 
 

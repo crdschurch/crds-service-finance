@@ -17,5 +17,7 @@ namespace Crossroads.Service.Finance.Interfaces
         List<PushpayRecurringGiftDto> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate);
         MpRecurringGift BuildAndCreateNewRecurringGift(PushpayRecurringGiftDto pushpayRecurringGift);
         RecurringGiftDto UpdateRecurringGiftForSync(PushpayRecurringGiftDto pushpayRecurringGift, MpRecurringGift mpRecurringGift);
+        string GetRecurringGiftNotes(PushpayRecurringGiftDto pushpayRecurringGift);
+        string FormatPhoneNumber(string phone);
     }
 }

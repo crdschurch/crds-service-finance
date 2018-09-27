@@ -64,6 +64,31 @@ namespace Pushpay.Models
 
         [JsonProperty("lastName")]
         public string LastName { get; set; }
+
+        [JsonProperty("address")]
+        public PushpayAddress Address { get; set; }
+    }
+
+    public class PushpayAddress
+    {
+        [JsonProperty("country")]
+        public string Country{ get; set; }
+
+        [JsonProperty("line1")]
+        public string AddressLine1 { get; set; }
+
+        // not sure if this is the right field or not
+        [JsonProperty("line2")]
+        public string AddressLine2 { get; set; }
+
+        [JsonProperty("city")]
+        public string City { get; set; }
+
+        [JsonProperty("state")]
+        public string State { get; set; }
+
+        [JsonProperty("zipOrPostCode")]
+        public string Zip { get; set; }
     }
 
     public class PushpayCard
