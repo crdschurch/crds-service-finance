@@ -183,7 +183,8 @@ namespace MinistryPlatform.Test.Contacts
                 $"Contact_ID_Table.[Contact_ID] = {contactId}",
                 $"Relationship_ID_Table.[Relationship_ID] = {cogiverRelationshipId}",
                 $"[Start_Date] <= '{DateTime.Now:yyyy-MM-dd}'",
-                $"([End_Date] IS NULL OR [End_Date] > '{DateTime.Now:yyyy-MM-dd}')"
+                $"([End_Date] IS NULL OR [End_Date] > '{DateTime.Now:yyyy-MM-dd}')",
+                "Related_Contact_ID_Table_Contact_Status_ID_Table.[Contact_Status] = 'Active'"
             };
 
             _apiUserRepository.Setup(m => m.GetApiClientToken(clientId)).Returns(token);
