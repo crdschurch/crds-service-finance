@@ -326,7 +326,7 @@ namespace Crossroads.Service.Finance.Services
 
                 if (mpHousehold.CongregationId != null)
                 {
-                    congregationId = mpHousehold.CongregationId;
+                    congregationId = mpHousehold.CongregationId.GetValueOrDefault();
                 }
             }
 
