@@ -22,6 +22,7 @@ SELECT da.Processor_ID as 'Stripe Customer ID'
 	, a.Postal_Code as 'Zip (optional)'
 	, c.Mobile_Phone as 'Phone (optional)'
 	, rg.Recurring_Gift_ID as 'Recurring Gift ID' -- not used by Pushpay, for CR use
+	, da.Donor_ID as 'Donor ID'
 FROM Recurring_Gifts rg
 	JOIN Contacts c on rg.Donor_ID = c.Donor_Record
 	JOIN Programs p on rg.Program_ID = p.Program_ID

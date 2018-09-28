@@ -10,6 +10,6 @@ namespace MinistryPlatform.Models
         public int HouseholdId { get; set; }
 
         [JsonProperty("Congregation_ID")]
-        public int CongregationId { get; set; }
+        public int? CongregationId { get; set; }
     }
 }

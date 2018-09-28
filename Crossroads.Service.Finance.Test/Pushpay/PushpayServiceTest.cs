@@ -144,7 +144,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             var pushpayRecurringGift = new PushpayRecurringGiftDto() {
                 Payer = new PushpayPayer()
                 {
-                    Key = "payerkey"
+                    Key = "payerkey",
+                    Address = new PushpayAddress()
                 },
                 Account = new PushpayAccount()
                 {
@@ -215,7 +216,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 Payer = new PushpayPayer()
                 {
-                    Key = "payerkey"
+                    Key = "payerkey",
+                    Address = new PushpayAddress()
                 },
                 Account = new PushpayAccount()
                 {
@@ -282,7 +284,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 Payer = new PushpayPayer()
                 {
-                    Key = "payerkey"
+                    Key = "payerkey",
+                    Address = new PushpayAddress()
                 },
                 Account = new PushpayAccount()
                 {
@@ -351,7 +354,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 Payer = new PushpayPayer()
                 {
-                    Key = "payerkey"
+                    Key = "payerkey",
+                    Address = new PushpayAddress()
                 },
                 Account = new PushpayAccount()
                 {
@@ -401,5 +405,56 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             var result = _fixture.UpdateRecurringGift(webhook);
         }
 
+
+        [Fact]
+        public void ShouldGetRecurringGiftNotes()
+        {
+            var pushpayRecurringGift = new PushpayRecurringGiftDto()
+            {
+                Payer = new PushpayPayer()
+                {
+                    FirstName = "Dez",
+                    LastName = "Bryant",
+                    MobileNumber = "+16536659090",
+                    EmailAddress = "dez@cowboys.com",
+                    Address = new PushpayAddress() {
+                        AddressLine1 = "342 Main Street",
+                        AddressLine2 = "Apt. 6",
+                        City = "Dallas",
+                        State = "TX",
+                        Zip = "83566",
+                        Country = "US"
+                   }
+                }
+            };
+            var result = _fixture.GetRecurringGiftNotes(pushpayRecurringGift);
+            var expected = "First Name: Dez Last Name: Bryant Phone: (653) 665-9090 Email: dez@cowboys.com ";
+            expected += "Address1: 342 Main Street Address2: Apt. 6 City, State Zip: Dallas, TX 83566 Country: USA";
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void ShouldGetRecurringGiftNotesNoAddress()
+        {
+            var pushpayRecurringGift = new PushpayRecurringGiftDto()
+            {
+                Payer = new PushpayPayer()
+                {
+                    FirstName = "Dez",
+                    LastName = "Bryant",
+                    MobileNumber = "+16536659090",
+                    EmailAddress = "dez@cowboys.com",
+                    Address = new PushpayAddress()
+                    {
+                        Zip = "83566",
+                        Country = "US"
+                    }
+                }
+            };
+            var result = _fixture.GetRecurringGiftNotes(pushpayRecurringGift);
+            var expected = "First Name: Dez Last Name: Bryant Phone: (653) 665-9090 Email: dez@cowboys.com ";
+            expected += "Address1: Street Address Not Provided Address2:  City, State Zip: ,  83566 Country: USA";
+            Assert.Equal(expected, result);
+        }
     }
 }
