@@ -46,7 +46,6 @@ namespace Crossroads.Service.Finance.Services.Recurring
             // next, check to see if these gifts exist in MP
             var pushpayRecurringGiftIds = pushpayRecurringGifts
                 .Select(r => r.PaymentToken).ToList();
-
             while (pushpayRecurringGiftIds.Any())
             {
                 // if the recurring gift does not exist in MP, pull the data from Pushpay and create it
@@ -59,12 +58,13 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
                 var mpRecurringGifts =
                     _recurringGiftRepository.FindRecurringGiftsBySubscriptionIds(pushpayGiftIdsToSync);
-
+                 
                 foreach (var pushpayRecurringGiftId in pushpayGiftIdsToSync)
                 {
                     if (mpRecurringGifts.All(r => r.SubscriptionId != pushpayRecurringGiftId))
                     {
                         _pushpayService.BuildAndCreateNewRecurringGift(pushpayRecurringGifts.First(r => r.PaymentToken == pushpayRecurringGiftId));
+                        Console.WriteLine($"adding {pushpayRecurringGiftId} to sync list");
                         giftIdsSynced.Add(pushpayRecurringGiftId);
                     }
                     // if the recurring gift DOES exist in MP, check to see when it was last updated and update it if the Pushpay version is newer
@@ -76,6 +76,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
                         if (mpGift.UpdatedOn == null || mpGift.UpdatedOn < pushPayGift.UpdatedOn)
                         {
                             _pushpayService.UpdateRecurringGiftForSync(pushPayGift, mpGift);
+                            Console.WriteLine($"adding {pushpayRecurringGiftId} to sync list");
                             giftIdsSynced.Add(pushpayRecurringGiftId);
                         }
                     }
