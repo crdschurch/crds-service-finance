@@ -28,7 +28,7 @@ namespace MinistryPlatform.Models
         public int? CongregationId { get; set; }
 
         [JsonProperty("Household_ID")]
-        public int HouseholdId { get; set; }
+        public int? HouseholdId { get; set; }
 
         [JsonProperty("Statement_Frequency_ID")]
         public int StatementFrequencyId { get; set; }
