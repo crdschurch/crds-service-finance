@@ -322,11 +322,14 @@ namespace Crossroads.Service.Finance.Services
             }
             else
             {
-                var mpHousehold = _contactRepository.GetHousehold(mpDonor.HouseholdId);
-
-                if (mpHousehold.CongregationId != null)
+                if (mpDonor.HouseholdId != null)
                 {
-                    congregationId = mpHousehold.CongregationId.GetValueOrDefault();
+                    var mpHousehold = _contactRepository.GetHousehold(mpDonor.HouseholdId.GetValueOrDefault());
+
+                    if (mpHousehold.CongregationId != null)
+                    {
+                        congregationId = mpHousehold.CongregationId.GetValueOrDefault();
+                    }
                 }
             }
 
