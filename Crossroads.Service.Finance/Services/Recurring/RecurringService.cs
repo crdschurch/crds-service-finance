@@ -30,7 +30,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
             _recurringGiftRepository = recurringGiftRepository;
         }
 
-        public List<string> SyncRecurringGifts(DateTime startDate, DateTime endDate)
+        public void SyncRecurringGifts(DateTime startDate, DateTime endDate)
         {
             var start = new DateTime(startDate.Year, startDate.Month, startDate.Day);
             var end = new DateTime(endDate.Year, endDate.Month, endDate.Day, 23, 59, 59);
@@ -40,7 +40,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
             if (!pushpayRecurringGifts.Any())
             {
-                return null;
+                return;
             }
 
             // next, check to see if these gifts exist in MP
@@ -87,8 +87,6 @@ namespace Crossroads.Service.Finance.Services.Recurring
                 syncedRecurringGiftsEntry.Push("Recurring Gifts Synced from Pushpay", string.Join(",", giftIdsSynced));
                 _dataLoggingService.LogDataEvent(syncedRecurringGiftsEntry);
             }
-
-            return null;
         }
     }
 }
