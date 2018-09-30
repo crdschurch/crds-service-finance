@@ -51,7 +51,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
                 // if the recurring gift does not exist in MP, pull the data from Pushpay and create it
                 var giftIdsSynced = new List<string>();
 
-                var range = Math.Min(pushpayRecurringGiftIds.Count, 10);
+                var range = Math.Min(pushpayRecurringGiftIds.Count, 25);
 
                 var pushpayGiftIdsToSync = pushpayRecurringGiftIds.Take(range).ToList();
                 pushpayRecurringGiftIds.RemoveRange(0, range);
