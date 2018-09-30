@@ -41,7 +41,8 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                return Ok(_recurringService.SyncRecurringGifts(startDate, endDate));
+                _recurringService.SyncRecurringGifts(startDate, endDate);
+                return Ok();
             }
             catch (Exception ex)
             {
