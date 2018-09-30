@@ -56,6 +56,9 @@ namespace Crossroads.Service.Finance.Services.Recurring
                 var pushpayGiftIdsToSync = pushpayRecurringGiftIds.Take(range).ToList();
                 pushpayRecurringGiftIds.RemoveRange(0, range);
 
+                // use this for logging
+                Console.WriteLine("Syncing these gifts from pushpay: " + string.Join(",", giftIdsSynced));
+
                 var mpRecurringGifts =
                     _recurringGiftRepository.FindRecurringGiftsBySubscriptionIds(pushpayGiftIdsToSync);
                  
