@@ -61,9 +61,6 @@ namespace Crossroads.Service.Finance.Test.Recurring
 
             // Act
             var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
-
-            // Assert
-            Assert.Contains("123abc", result);
         }
     }
 }
