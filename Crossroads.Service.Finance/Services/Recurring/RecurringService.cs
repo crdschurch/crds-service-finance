@@ -77,6 +77,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
                         var mpGift = mpRecurringGifts.First(r => r.SubscriptionId == pushpayRecurringGiftId);
                         var pushPayGift = pushpayRecurringGifts.First(r => r.PaymentToken == pushpayRecurringGiftId);
 
+                        Console.WriteLine($"update gift? mp: {mpGift.UpdatedOn.ToString()}, pushpay: {pushPayGift.UpdatedOn.ToString()}");
                         if (mpGift.UpdatedOn == null || mpGift.UpdatedOn < pushPayGift.UpdatedOn)
                         {
                             _pushpayService.UpdateRecurringGiftForSync(pushPayGift, mpGift);
