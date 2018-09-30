@@ -46,7 +46,10 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Error("Error in SyncRecurringGifts: " + ex.Message, ex);
+                var syncedRecurringGiftsError = new LogEventEntry(LogEventType.syncRecurringGiftsError);
+                syncedRecurringGiftsError.Push("Error in sync recurring gifts", ex.Message);
+                _dataLoggingService.LogDataEvent(syncedRecurringGiftsError);
+                Console.WriteLine("Error in sync recurring gifts: " + ex.Message);
                 return StatusCode(400, ex);
             }
         }

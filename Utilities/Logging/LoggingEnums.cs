@@ -27,6 +27,7 @@ namespace Utilities.Logging
         refundingTransaction,
         stripeCancel,
         stripeCancelException,
-        syncedRecurringGifts
+        syncedRecurringGifts,
+        syncRecurringGiftsError
     }
 }
