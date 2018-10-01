@@ -200,6 +200,10 @@ namespace Crossroads.Service.Finance.Services
         {
             var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
 
+            var creatingRecurringGiftEvent = new LogEventEntry(LogEventType.creatingRecurringGift);
+            creatingRecurringGiftEvent.Push("pushpayRecurringPaymentToken", pushpayRecurringGift.PaymentToken);
+            _dataLoggingService.LogDataEvent(creatingRecurringGiftEvent);
+
             var viewRecurringGiftDto = new PushpayLinkDto
             {
                 Href = webhook.Events.First().Links.ViewRecurringPayment

@@ -9,6 +9,7 @@ namespace Utilities.Logging
         batchCreated,
         batchUpdated,
         creatingDeposit,
+        creatingRecurringGift,
         depositCreated,
         depositExistsForSettlement,
         depositsAlreadyDeposited,
