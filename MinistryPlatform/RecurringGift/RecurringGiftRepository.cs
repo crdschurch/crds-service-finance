@@ -27,7 +27,7 @@ namespace MinistryPlatform.Repositories
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
-            var filter = $"Subscription_ID = '{subscriptionId}'";
+            var filter = $"Subscription_ID = '{subscriptionId}' AND Recurring_Gifts.[End_Date] IS NULL";
             var gifts = MpRestBuilder.NewRequestBuilder()
                                 .WithAuthenticationToken(token)
                                 .WithFilter(filter)

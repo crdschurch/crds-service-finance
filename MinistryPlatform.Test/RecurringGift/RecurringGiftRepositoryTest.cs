@@ -80,7 +80,7 @@ namespace MinistryPlatform.Test.Donations
                 }
             };
 
-            var filter = $"Subscription_ID = '{subscriptionId}'";
+            var filter = $"Subscription_ID = '{subscriptionId}' AND Recurring_Gifts.[End_Date] IS NULL";
             _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
