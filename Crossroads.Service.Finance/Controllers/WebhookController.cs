@@ -39,7 +39,7 @@ namespace Crossroads.Service.Finance.Controllers
                 var pushpayEvent = pushpayWebhook.Events[0];
 
                 var logEventEntry = new LogEventEntry(LogEventType.incomingPushpayWebhook);
-                logEventEntry.Push("Webhook Type", pushpayEvent.EventType);
+                logEventEntry.Push("webhookType", pushpayEvent.EventType);
                 _dataLoggingService.LogDataEvent(logEventEntry);
 
                 switch (pushpayEvent.EventType)

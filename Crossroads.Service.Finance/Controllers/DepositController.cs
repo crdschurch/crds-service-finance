@@ -44,7 +44,7 @@ namespace Crossroads.Service.Finance.Controllers
                     Console.WriteLine($"No deposits to sync");
 
                     var noDepositsToSyncEntry = new LogEventEntry(LogEventType.noDepositsToSync);
-                    noDepositsToSyncEntry.Push("Sync Date", DateTime.Now.ToShortDateString());
+                    noDepositsToSyncEntry.Push("syncDate", DateTime.Now.ToShortDateString());
                     _dataLoggingService.LogDataEvent(noDepositsToSyncEntry);
 
                     return NoContent();
@@ -56,7 +56,7 @@ namespace Crossroads.Service.Finance.Controllers
                 Console.WriteLine($"SyncSettlements created {deposits.Count} deposits");
 
                 var logEventEntry = new LogEventEntry(LogEventType.depositsCreatedCount);
-                logEventEntry.Push("Deposits Created", deposits.Count);
+                logEventEntry.Push("depositsCreatedCount", deposits.Count);
                 _dataLoggingService.LogDataEvent(logEventEntry);
 
                 return Ok(new {created = deposits.Count});

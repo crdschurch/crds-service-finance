@@ -114,7 +114,7 @@ namespace Crossroads.Service.Finance.Services
                     {
                         Console.WriteLine($"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
                         var noRecurringGiftSubEntry = new LogEventEntry(LogEventType.noRecurringGiftSubFound);
-                        noRecurringGiftSubEntry.Push("No Recurring Gift for Sub", pushpayPayment.RecurringPaymentToken);
+                        noRecurringGiftSubEntry.Push("noRecurringGiftForSub", pushpayPayment.RecurringPaymentToken);
                         _dataLoggingService.LogDataEvent(noRecurringGiftSubEntry);
                     }
                 }
@@ -148,7 +148,7 @@ namespace Crossroads.Service.Finance.Services
                     Console.WriteLine("Refunding Transaction Id: " + refund.TransactionCode);
 
                     var refundingTransactionEntry = new LogEventEntry(LogEventType.refundingTransaction);
-                    refundingTransactionEntry.Push("Refunding Transaction", refund.TransactionCode);
+                    refundingTransactionEntry.Push("refundingTransaction", refund.TransactionCode);
                     _dataLoggingService.LogDataEvent(refundingTransactionEntry);
 
                     donation.PaymentTypeId = refund.PaymentTypeId;
@@ -169,7 +169,7 @@ namespace Crossroads.Service.Finance.Services
                     Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP. Trying again in a minute.", e);
 
                     var donationNotFoundEntry = new LogEventEntry(LogEventType.donationNotFoundRetry);
-                    donationNotFoundEntry.Push("Webhook Type", webhook.Events[0].Links.Payment);
+                    donationNotFoundEntry.Push("webhookPayment", webhook.Events[0].Links.Payment);
                     _dataLoggingService.LogDataEvent(donationNotFoundEntry);
 
                     return null;
@@ -182,7 +182,7 @@ namespace Crossroads.Service.Finance.Services
                     Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP after 10 minutes of trying. Giving up.", e);
 
                     var donationNotFoundFailEntry = new LogEventEntry(LogEventType.donationNotFoundFail);
-                    donationNotFoundFailEntry.Push("Webhook Type", webhook.Events[0].Links.Payment);
+                    donationNotFoundFailEntry.Push("webhookPayment", webhook.Events[0].Links.Payment);
                     _dataLoggingService.LogDataEvent(donationNotFoundFailEntry);
 
                     return null;

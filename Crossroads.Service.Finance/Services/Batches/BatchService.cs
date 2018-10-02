@@ -66,7 +66,7 @@ namespace Crossroads.Service.Finance.Services
                     Console.WriteLine($"Donation not found in MP for transaction code: {charge.TransactionId}. Batch total will not match deposit total.");
 
                     var logEventEntry = new LogEventEntry(LogEventType.donationNotFoundForTransaction);
-                    logEventEntry.Push("Transaction Code", charge.TransactionId);
+                    logEventEntry.Push("transactionCode", charge.TransactionId);
                     _dataLoggingService.LogDataEvent(logEventEntry);
                 }
             }   
