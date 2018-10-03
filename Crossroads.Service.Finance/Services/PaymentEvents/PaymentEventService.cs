@@ -39,7 +39,7 @@ namespace Crossroads.Service.Finance.Services
             Console.WriteLine($"Creating deposit: {settlementEventDto.Key}");
 
             var depositCreationEntry = new LogEventEntry(LogEventType.creatingDeposit);
-            depositCreationEntry.Push("Creating Deposit For Settlement", settlementEventDto.Key);
+            depositCreationEntry.Push("creatingDepositForSettlement", settlementEventDto.Key);
             _dataLoggingService.LogDataEvent(depositCreationEntry);
 
             // 1. Check to see if the deposit has already been created.  If we do throw an exception.
@@ -50,7 +50,7 @@ namespace Crossroads.Service.Finance.Services
                 Console.WriteLine($"Deposit already exists for settlement: {settlementEventDto.Key}");
 
                 var depositExistsEntry = new LogEventEntry(LogEventType.depositExistsForSettlement);
-                depositExistsEntry.Push("Deposit Exists For Settlement", settlementEventDto.Key);
+                depositExistsEntry.Push("depositExistsForSettlement", settlementEventDto.Key);
                 _dataLoggingService.LogDataEvent(depositExistsEntry);
 
                 return;
@@ -67,7 +67,7 @@ namespace Crossroads.Service.Finance.Services
                 Console.WriteLine($"No charges found for settlement: {settlementEventDto.Key}");
 
                 var noChargesEntry = new LogEventEntry(LogEventType.noChargesForSettlement);
-                noChargesEntry.Push("Webhook Type", settlementEventDto.Key);
+                noChargesEntry.Push("webhookType", settlementEventDto.Key);
                 _dataLoggingService.LogDataEvent(noChargesEntry);
 
                 return;
@@ -81,7 +81,7 @@ namespace Crossroads.Service.Finance.Services
             Console.WriteLine($"Batch created: {savedDonationBatch.Id}");
 
             var batchCreatedEntry = new LogEventEntry(LogEventType.batchCreated);
-            batchCreatedEntry.Push("Batch Created", savedDonationBatch.Id);
+            batchCreatedEntry.Push("batchCreated", savedDonationBatch.Id);
             _dataLoggingService.LogDataEvent(batchCreatedEntry);
 
             // 4. Update all the donations to have a status of deposited and to be part of the new batch.
@@ -90,7 +90,7 @@ namespace Crossroads.Service.Finance.Services
             Console.WriteLine($"Updated donations for batch: {donationBatch.Id}");
 
             var batchUpdatedEntry = new LogEventEntry(LogEventType.batchUpdated);
-            batchUpdatedEntry.Push("Batch Updated", donationBatch.Id);
+            batchUpdatedEntry.Push("batchUpdated", donationBatch.Id);
             _dataLoggingService.LogDataEvent(batchUpdatedEntry);
 
             // 5. Create Deposit with the associated batch (should be one batch for one deposit)
@@ -99,7 +99,7 @@ namespace Crossroads.Service.Finance.Services
             Console.WriteLine($"Deposit created: {deposit.Id}");
 
             var depositCreatedEntry = new LogEventEntry(LogEventType.depositCreated);
-            depositCreatedEntry.Push("Deposit Created", deposit.Id);
+            depositCreatedEntry.Push("depositCreated", deposit.Id);
             _dataLoggingService.LogDataEvent(depositCreatedEntry);
 
             // 6. Update batch with deposit id and name and resave

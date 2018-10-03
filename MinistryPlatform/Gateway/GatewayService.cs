@@ -58,8 +58,8 @@ namespace Crossroads.Service.Finance.Services
                 Console.WriteLine($"Status code: {response.StatusCode}");
 
                 var stripeCancelEntry = new LogEventEntry(LogEventType.stripeCancel);
-                stripeCancelEntry.Push("Stripe Cancel Sub Id", stripeSubscriptionId);
-                stripeCancelEntry.Push("Stripe Cancel Status Code", response.StatusCode);
+                stripeCancelEntry.Push("stripeCancelSubId", stripeSubscriptionId);
+                stripeCancelEntry.Push("stripeCancelStatusCode", response.StatusCode);
                 _dataLoggingService.LogDataEvent(stripeCancelEntry);
             }
             catch (Exception e)
@@ -68,8 +68,8 @@ namespace Crossroads.Service.Finance.Services
                 Console.WriteLine(e.Message);
 
                 var stripeCancelExceptionEntry = new LogEventEntry(LogEventType.stripeCancelException);
-                stripeCancelExceptionEntry.Push("Stripe Cancel Sub Id", stripeSubscriptionId);
-                stripeCancelExceptionEntry.Push("Stripe Cancel Exception", e.Message);
+                stripeCancelExceptionEntry.Push("stripeCancelSubId", stripeSubscriptionId);
+                stripeCancelExceptionEntry.Push("stripeCancelException", e.Message);
                 _dataLoggingService.LogDataEvent(stripeCancelExceptionEntry);
             }
         }
