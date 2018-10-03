@@ -83,7 +83,9 @@ namespace Crossroads.Service.Finance.Services
         public void AddUpdateDonationDetailsJob(PushpayWebhook webhook)
         {
             Console.WriteLine($"schedule job: {webhook.Events[0].Links.Payment} for {_mpPushpayRecurringWebhookMinutes} minute");
-            BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true), TimeSpan.FromMinutes(_mpPushpayRecurringWebhookMinutes));
+            // put some randomness into scheduling time for next job so we dont hit MP all at the same time
+            var randomMinutes = new Random().NextDouble(); // decimal between and 1
+            BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true), TimeSpan.FromMinutes(_mpPushpayRecurringWebhookMinutes + randomMinutes));
         }
 
         // if this fails, it will schedule it to be re-run in 60 seconds,
@@ -154,9 +156,9 @@ namespace Crossroads.Service.Finance.Services
                     donation.PaymentTypeId = refund.PaymentTypeId;
                 }
                 donation.DonationStatusDate = DateTime.Now;
-                _donationService.Update(donation);
-                Console.WriteLine("Transaction updated: " + webhook.Events[0].Links.Payment);
-                return donation;
+                var updatedDonation = _donationService.Update(donation);
+                Console.WriteLine($"Donation updated: ${updatedDonation.DonationId} -> ${webhook.Events[0].Links.Payment}");
+                return updatedDonation;
             } catch (Exception e) {
                 // donation not created by pushpay yet
                 var now = DateTime.UtcNow;
