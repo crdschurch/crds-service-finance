@@ -158,8 +158,8 @@ namespace Crossroads.Service.Finance.Services
                 }
                 donation.DonationStatusDate = DateTime.Now;
                 var updatedDonation = _donationService.Update(donation);
-                Console.WriteLine($"Donation updated: ${updatedDonation.DonationId} -> ${webhook.Events[0].Links.Payment}");
-                return updatedDonation;
+                Console.WriteLine($"Donation updated: {updatedDonation.DonationId} -> {webhook.Events[0].Links.Payment}");
+                return donation;
             } catch (Exception e) {
                 // donation not created by pushpay yet
                 var now = DateTime.UtcNow;
