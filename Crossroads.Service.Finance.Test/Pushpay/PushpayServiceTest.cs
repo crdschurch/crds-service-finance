@@ -60,6 +60,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateProcessing());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
             _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Mock.MpDonorAccountMock.Create());
+            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Mock.DonationDtoMock.CreateSucceeded("a"));
 
             var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
 
@@ -75,6 +76,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateSuccess());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
             _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Mock.MpDonorAccountMock.Create());
+            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Mock.DonationDtoMock.CreateSucceeded("a"));
 
             var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
 
@@ -90,6 +92,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateFailed());
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
             _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Mock.MpDonorAccountMock.Create());
+            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Mock.DonationDtoMock.CreateSucceeded("a"));
 
             var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
 
