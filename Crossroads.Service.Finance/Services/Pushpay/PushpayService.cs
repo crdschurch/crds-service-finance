@@ -363,6 +363,7 @@ namespace Crossroads.Service.Finance.Services
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
+            // STRIPE CANCELLATION - this can be removed after there are no more Stripe recurring gifts
             // This cancels a Stripe gift if a subscription id was uploaded to Pushpay (i.e. through pushpay migration tool)
             if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
             {
@@ -379,6 +380,7 @@ namespace Crossroads.Service.Finance.Services
                     _gatewayService.CancelStripeRecurringGift(gift.SubscriptionId);
                 }
             }
+            // END STRIPE CANCELLATION section
 
             return mpRecurringGift;
         }
