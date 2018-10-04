@@ -363,14 +363,15 @@ namespace Crossroads.Service.Finance.Services
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
+            // This cancels a Stripe gift if a subscription id was uploaded to Pushpay
+            if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
+            {
+                _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes.Trim());
+            }
+
             // Cancel all recurring gifts in Stripe for Pushpay credit card givers, if exists
             if (pushpayRecurringGift.PaymentMethodType == "CreditCard")
             {
-                // This cancels a Stripe gift if a subscription id was uploaded to Pushpay
-                if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
-                {
-                    _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes.Trim());
-                }
 
                 var mpRecurringGifts = _recurringGiftRepository.FindRecurringGiftsByDonorId((int)mpDonor.DonorId);
                 foreach (MpRecurringGift gift in mpRecurringGifts)
