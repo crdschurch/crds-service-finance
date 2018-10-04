@@ -363,24 +363,20 @@ namespace Crossroads.Service.Finance.Services
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
-            // This cancels a Stripe gift if a subscription id was uploaded to Pushpay
+            // This cancels a Stripe gift if a subscription id was uploaded to Pushpay (i.e. through pushpay migration tool)
             if (pushpayRecurringGift.Notes != null && pushpayRecurringGift.Notes.Trim().StartsWith("sub_", StringComparison.Ordinal))
             {
                 _gatewayService.CancelStripeRecurringGift(pushpayRecurringGift.Notes.Trim());
             }
 
-            // Cancel all recurring gifts in Stripe for Pushpay credit card givers, if exists
-            if (pushpayRecurringGift.PaymentMethodType == "CreditCard")
+            // This cancels all Stripe gifts on the donor that are the same program
+            var mpRecurringGifts = _recurringGiftRepository.FindRecurringGiftsByDonorId((int)mpDonor.DonorId);
+            foreach (MpRecurringGift gift in mpRecurringGifts)
             {
-
-                var mpRecurringGifts = _recurringGiftRepository.FindRecurringGiftsByDonorId((int)mpDonor.DonorId);
-                foreach (MpRecurringGift gift in mpRecurringGifts)
+                if (gift.EndDate == null && gift.SubscriptionId.StartsWith("sub_")
+                    && gift.ProgramName.ToLower().Trim() == pushpayRecurringGift.Fund.Name.ToLower().Trim())
                 {
-                    if (gift.EndDate == null && gift.SubscriptionId.StartsWith("sub_")
-                        && gift.ProgramName.ToLower().Trim() == pushpayRecurringGift.Fund.Name.ToLower().Trim())
-                    {
-                        _gatewayService.CancelStripeRecurringGift(gift.SubscriptionId);
-                    }
+                    _gatewayService.CancelStripeRecurringGift(gift.SubscriptionId);
                 }
             }
 
