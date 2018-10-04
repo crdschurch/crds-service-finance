@@ -372,12 +372,15 @@ namespace Crossroads.Service.Finance.Services
 
             // This cancels all Stripe gifts on the donor that are the same program
             var mpRecurringGifts = _recurringGiftRepository.FindRecurringGiftsByDonorId((int)mpDonor.DonorId);
-            foreach (MpRecurringGift gift in mpRecurringGifts)
+            if (mpRecurringGifts != null && mpRecurringGifts.Count > 0)
             {
-                if (gift.EndDate == null && gift.SubscriptionId.StartsWith("sub_")
-                    && gift.ProgramName.ToLower().Trim() == pushpayRecurringGift.Fund.Name.ToLower().Trim())
+                foreach (MpRecurringGift gift in mpRecurringGifts)
                 {
-                    _gatewayService.CancelStripeRecurringGift(gift.SubscriptionId);
+                    if (gift.EndDate == null && gift.SubscriptionId.StartsWith("sub_")
+                        && gift.ProgramName.ToLower().Trim() == pushpayRecurringGift.Fund.Name.ToLower().Trim())
+                    {
+                        _gatewayService.CancelStripeRecurringGift(gift.SubscriptionId);
+                    }
                 }
             }
             // END STRIPE CANCELLATION section
