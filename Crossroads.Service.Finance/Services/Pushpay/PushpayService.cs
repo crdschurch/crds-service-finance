@@ -161,6 +161,8 @@ namespace Crossroads.Service.Finance.Services
                 Console.WriteLine($"Donation updated: {updatedDonation.DonationId} -> {webhook.Events[0].Links.Payment}");
                 return donation;
             } catch (Exception e) {
+                Console.WriteLine($"Exception: {webhook?.Events[0]?.Links?.Payment}");
+                Console.WriteLine($"{e.GetType().ToString()} {e.Message}");
                 // donation not created by pushpay yet
                 var now = DateTime.UtcNow;
                 var webhookTime = webhook.IncomingTimeUtc;
@@ -169,12 +171,11 @@ namespace Crossroads.Service.Finance.Services
                 {
                     AddUpdateDonationDetailsJob(webhook);
                     // dont throw an exception as Hangfire tries to handle it
-                    Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP. Trying again in a minute.", e);
 
                     var donationNotFoundEntry = new LogEventEntry(LogEventType.donationNotFoundRetry);
                     donationNotFoundEntry.Push("webhookPayment", webhook.Events[0].Links.Payment);
                     _dataLoggingService.LogDataEvent(donationNotFoundEntry);
-
+                   
                     return null;
                 }
                 // it's been more than 10 minutes, let's chalk it up as PushPay
