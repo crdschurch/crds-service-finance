@@ -17,38 +17,41 @@ namespace Pushpay.Client
     public class PushpayClient : IPushpayClient
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
+        private readonly Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
         private readonly string recurringGiftsScope = "merchant:view_recurring_payments";
         private readonly IPushpayTokenService _pushpayTokenService;
         private readonly IRestClient _restClient;
         private const int RequestsPerSecond = 10;
         private const int RequestsPerMinute = 60;
+        // rate limit count may not be accurate as this is global
+        //  and potential for multiple threads to interact with this
         private int RateLimitCount = 0;
 
         public PushpayClient(IPushpayTokenService pushpayTokenService, IRestClient restClient = null)
         {
             _pushpayTokenService = pushpayTokenService;
             _restClient = restClient ?? new RestClient();
+            _restClient.BaseUrl = apiUri;
         }
 
         public List<PushpayPaymentDto> GetDonations(string settlementKey)
         {
             var resource = $"settlement/{settlementKey}/payments";
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope, null, true);
+            var data = CreateAndExecuteRequest(resource, Method.GET, donationsScope, null, true);
             return JsonConvert.DeserializeObject<List<PushpayPaymentDto>>(data);
         }
 
         public PushpayPaymentDto GetPayment(PushpayWebhook webhook)
         {
-            var uri = new Uri(webhook.Events[0].Links.Payment);
-            var data = CreateAndExecuteRequest(uri, null, Method.GET, donationsScope);
+            var uri = webhook.Events[0].Links.Payment;
+            var data = CreateAndExecuteRequest(uri, Method.GET, donationsScope);
             return data == null ? null : JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
         }
 
         public PushpayRecurringGiftDto GetRecurringGift(string resource)
         {
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope);
+            var data = CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope);
             return data == null ? null : JsonConvert.DeserializeObject<PushpayRecurringGiftDto>(data);
         }
 
@@ -60,7 +63,7 @@ namespace Pushpay.Client
             {
                 { "depositFrom", modStartDate }
             };
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope, queryParams, true);
+            var data = CreateAndExecuteRequest(resource, Method.GET, donationsScope, queryParams, true);
             return JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(data);
         }
 
@@ -87,7 +90,7 @@ namespace Pushpay.Client
                 { "updatedTo", modEndDate },
                 { "pageSize", "100" }
             };
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope, queryParams, true);
+            var data = CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true);
             var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
             return recurringGifts;
         }
@@ -141,13 +144,11 @@ namespace Pushpay.Client
             return request;
         }
 
-        private string CreateAndExecuteRequest(Uri baseUri, string resourcePath, Method method, string scope, Dictionary<string, string> queryParams = null, bool isList = false, object body = null)
+        private string CreateAndExecuteRequest(string uriOrResource, Method method, string scope, Dictionary<string, string> queryParams = null, bool isList = false, object body = null)
         {
-            var request = new RestRequest(method);
-            _restClient.BaseUrl = baseUri;
-            if (resourcePath != null)
+            var request = new RestRequest(method)
             {
-                request.Resource = resourcePath;
+                Resource = uriOrResource.StartsWith(apiUri.AbsoluteUri, StringComparison.Ordinal) ? uriOrResource.Replace(apiUri.AbsoluteUri, "") : uriOrResource
             };
 
             if (body != null)
@@ -211,7 +212,7 @@ namespace Pushpay.Client
                         }
                         else
                         {
-                            Console.WriteLine($"No data in response: {resourcePath}");
+                            Console.WriteLine($"No data in response: {request.Resource}");
                         }
                     }
                     return JsonConvert.SerializeObject(responseDataItems);

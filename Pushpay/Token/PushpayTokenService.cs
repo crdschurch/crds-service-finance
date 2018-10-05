@@ -20,13 +20,13 @@ namespace Pushpay.Token
         public PushpayTokenService(IRestClient restClient = null)
         {
             _restClient = restClient ?? new RestClient();
+            _restClient.BaseUrl = authUri;
         }
 
         public IObservable<OAuth2TokenResponse> GetOAuthToken(string scope = "read")
         {
             return Observable.Create<OAuth2TokenResponse>(obs =>
             {
-                _restClient.BaseUrl = authUri;
                 _restClient.Authenticator = new HttpBasicAuthenticator(clientId, clientSecret);
                 var request = new RestRequest(Method.POST)
                 {
