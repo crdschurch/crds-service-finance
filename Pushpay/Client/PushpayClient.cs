@@ -24,6 +24,8 @@ namespace Pushpay.Client
         private readonly IRestClient _restClient;
         private const int RequestsPerSecond = 10;
         private const int RequestsPerMinute = 60;
+        // rate limit count may not be accurate as this is global
+        //  and potential for multiple threads to interact with this
         private int RateLimitCount = 0;
 
         public PushpayClient(IPushpayTokenService pushpayTokenService, IRestClient restClient = null)
