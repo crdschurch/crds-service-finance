@@ -17,7 +17,7 @@ namespace Pushpay.Client
     public class PushpayClient : IPushpayClient
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
+        private readonly Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
         private readonly string recurringGiftsScope = "merchant:view_recurring_payments";
         private readonly IPushpayTokenService _pushpayTokenService;
@@ -42,7 +42,7 @@ namespace Pushpay.Client
 
         public PushpayPaymentDto GetPayment(PushpayWebhook webhook)
         {
-            var uri = new Uri(webhook.Events[0].Links.Payment);
+            var uri = webhook.Events[0].Links.Payment;
             var data = CreateAndExecuteRequest(uri, Method.GET, donationsScope);
             return data == null ? null : JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
         }
@@ -88,7 +88,7 @@ namespace Pushpay.Client
                 { "updatedTo", modEndDate },
                 { "pageSize", "100" }
             };
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope, queryParams, true);
+            var data = CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true);
             var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
             return recurringGifts;
         }
