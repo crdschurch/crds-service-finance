@@ -18,6 +18,10 @@ namespace Crossroads.Service.Finance.Services
         private readonly IMapper _mapper;
         private readonly IContactService _contactService;
 
+        const int imInPledgeId = 1103;
+        readonly DateTime imInObsessedStartDate = DateTime.Parse("3/18/2018");
+        readonly DateTime imInObsessedEndDate = DateTime.Parse("12/31/2019");
+
         public DonationService(IDonationRepository mpDonationRepository, IDonationDistributionRepository mpDonationDistributionRepository, IPledgeRepository mpPledgeRepository, IMapper mapper,
             IContactService contactService)
         {
@@ -139,10 +143,25 @@ namespace Crossroads.Service.Finance.Services
                 {
                     var donationsForPledge = donationDistributions.Where(dd => dd.PledgeId == mpPledge.PledgeId).ToList();
                     mpPledge.PledgeDonationsTotal = donationsForPledge.Sum(dd => dd.Amount);
+                    if (mpPledge.PledgeCampaignId == imInPledgeId)
+                    {
+                        SetImInPledgeInfo(mpPledge);
+                    }
                 }
             }
 
             return mpPledges;
+        }
+
+        public MpPledge SetImInPledgeInfo(MpPledge mpPledge) {
+            if (mpPledge.FirstInstallmentDate >= imInObsessedStartDate)
+            {
+                mpPledge.CampaignName = "I'm In: Obsessed";
+                mpPledge.CampaignStartDate = imInObsessedStartDate;
+                mpPledge.CampaignEndDate = imInObsessedEndDate;
+            }
+
+            return mpPledge;
         }
 
         public List<DonationDetailDto> GetDonations(string token)

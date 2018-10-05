@@ -31,5 +31,8 @@ namespace MinistryPlatform.Models
 
         [JsonProperty(PropertyName = "Campaign_End_Date")]
         public DateTime? CampaignEndDate { get; set; }
+
+        [JsonProperty(PropertyName = "First_Installment_Date")]
+        public DateTime? FirstInstallmentDate { get; set; }
     }
 }
