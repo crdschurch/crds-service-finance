@@ -161,7 +161,7 @@ namespace Crossroads.Service.Finance.Services
                 Console.WriteLine($"Donation updated: {updatedDonation.DonationId} -> {webhook.Events[0].Links.Payment}");
                 return donation;
             } catch (Exception e) {
-                Console.WriteLine($"Exception: {webhook.Events[0].Links.Payment}");
+                Console.WriteLine($"Exception: {webhook?.Events[0]?.Links?.Payment}");
                 Console.WriteLine($"{e.GetType().ToString()} {e.Message}");
                 // donation not created by pushpay yet
                 var now = DateTime.UtcNow;
