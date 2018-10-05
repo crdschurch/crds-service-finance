@@ -31,7 +31,6 @@ namespace Pushpay.Client
             _pushpayTokenService = pushpayTokenService;
             _restClient = restClient ?? new RestClient();
             _restClient.BaseUrl = apiUri;
-
         }
 
         public List<PushpayPaymentDto> GetDonations(string settlementKey)
