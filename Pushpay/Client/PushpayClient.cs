@@ -30,25 +30,27 @@ namespace Pushpay.Client
         {
             _pushpayTokenService = pushpayTokenService;
             _restClient = restClient ?? new RestClient();
+            _restClient.BaseUrl = apiUri;
+
         }
 
         public List<PushpayPaymentDto> GetDonations(string settlementKey)
         {
             var resource = $"settlement/{settlementKey}/payments";
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope, null, true);
+            var data = CreateAndExecuteRequest(resource, Method.GET, donationsScope, null, true);
             return JsonConvert.DeserializeObject<List<PushpayPaymentDto>>(data);
         }
 
         public PushpayPaymentDto GetPayment(PushpayWebhook webhook)
         {
             var uri = new Uri(webhook.Events[0].Links.Payment);
-            var data = CreateAndExecuteRequest(uri, null, Method.GET, donationsScope);
+            var data = CreateAndExecuteRequest(uri, Method.GET, donationsScope);
             return data == null ? null : JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
         }
 
         public PushpayRecurringGiftDto GetRecurringGift(string resource)
         {
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, recurringGiftsScope);
+            var data = CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope);
             return data == null ? null : JsonConvert.DeserializeObject<PushpayRecurringGiftDto>(data);
         }
 
@@ -60,7 +62,7 @@ namespace Pushpay.Client
             {
                 { "depositFrom", modStartDate }
             };
-            var data = CreateAndExecuteRequest(apiUri, resource, Method.GET, donationsScope, queryParams, true);
+            var data = CreateAndExecuteRequest(resource, Method.GET, donationsScope, queryParams, true);
             return JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(data);
         }
 
@@ -141,14 +143,11 @@ namespace Pushpay.Client
             return request;
         }
 
-        private string CreateAndExecuteRequest(Uri baseUri, string resourcePath, Method method, string scope, Dictionary<string, string> queryParams = null, bool isList = false, object body = null)
+        private string CreateAndExecuteRequest(string uriOrResource, Method method, string scope, Dictionary<string, string> queryParams = null, bool isList = false, object body = null)
         {
             var request = new RestRequest(method);
-            _restClient.BaseUrl = baseUri;
-            if (resourcePath != null)
-            {
-                request.Resource = resourcePath;
-            };
+            var resourcePath = uriOrResource.Contains(apiUri.AbsoluteUri) ? uriOrResource.Replace(apiUri.AbsoluteUri, "") : uriOrResource;
+            request.Resource = resourcePath;
 
             if (body != null)
             {
