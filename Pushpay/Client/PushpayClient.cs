@@ -212,7 +212,7 @@ namespace Pushpay.Client
                         }
                         else
                         {
-                            Console.WriteLine($"No data in response: {resourcePath}");
+                            Console.WriteLine($"No data in response: {request.Resource}");
                         }
                     }
                     return JsonConvert.SerializeObject(responseDataItems);
