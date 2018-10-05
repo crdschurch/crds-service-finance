@@ -146,9 +146,10 @@ namespace Pushpay.Client
 
         private string CreateAndExecuteRequest(string uriOrResource, Method method, string scope, Dictionary<string, string> queryParams = null, bool isList = false, object body = null)
         {
-            var request = new RestRequest(method);
-            var resourcePath = uriOrResource.Contains(apiUri.AbsoluteUri) ? uriOrResource.Replace(apiUri.AbsoluteUri, "") : uriOrResource;
-            request.Resource = resourcePath;
+            var request = new RestRequest(method)
+            {
+                Resource = uriOrResource.StartsWith(apiUri.AbsoluteUri, StringComparison.Ordinal) ? uriOrResource.Replace(apiUri.AbsoluteUri, "") : uriOrResource
+            };
 
             if (body != null)
             {
