@@ -1,4 +1,4 @@
-﻿apiVersion: extensions/v1beta1 
+apiVersion: extensions/v1beta1 
 kind: Deployment 
 metadata: 
   name: crds-finance
@@ -28,6 +28,14 @@ spec:
             requests: 
               memory: "16Mi" 
               cpu: "100m" 
+          readinessProbe:
+            httpPost:
+              path: /api/health/status
+              port: 5050
+            initialDelaySeconds: 1
+            timeoutSeconds: 3
+            successThreshold: 1
+            periodSeconds: 3
           env: 
             - name: APP_LOG_ROOT
               value: $APP_LOG_ROOT
