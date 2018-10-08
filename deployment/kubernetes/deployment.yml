@@ -31,7 +31,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /api/health/status
-              port: 5050
+              port: 80
             initialDelaySeconds: 1
             timeoutSeconds: 3
             successThreshold: 1
