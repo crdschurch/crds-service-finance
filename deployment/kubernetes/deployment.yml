@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1 
+﻿apiVersion: extensions/v1beta1 
 kind: Deployment 
 metadata: 
   name: crds-finance
@@ -20,7 +20,7 @@ spec:
           image: crdschurch/crds-service-finance:$DOCKER_TAG 
           imagePullPolicy: Always 
           ports: 
-            - containerPort: 5050 
+            - containerPort: 80 
           resources: 
             limits: 
               memory: "2Gi"
