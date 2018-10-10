@@ -177,6 +177,12 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<List<DonationDetailDto>>(records);
         }
 
+        public List<DonationDetailDto> GetOtherGifts(int contactId)
+        {
+            var records = _mpDonationRepository.GetOtherGiftsByContactId(contactId);
+            return _mapper.Map<List<DonationDetailDto>>(records);
+        }
+
         public List<DonationDetailDto> GetRelatedContactDonations(int userContactId, int relatedContactId)
         {
             // check if household minor child

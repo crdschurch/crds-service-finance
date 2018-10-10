@@ -249,5 +249,33 @@ namespace MinistryPlatform.Repositories
                 .Build()
                 .Search<MpDonationDetail>().ToList();
         }
+
+        public List<MpDonationDetail> GetOtherGiftsByContactId(int contactId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var selectColumns = new string[] {
+                "Donation_Distributions.[Donation_ID]",
+                "Donation_ID_Table.[Donation_Date]",
+                //"Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Company_Name]",
+                "Program_ID_Table.[Program_Name]",
+                "Donation_Distributions.[Amount]",
+                //"Soft_Credit_Donor_Table_Contact_ID_Table.[Last_Name]",
+                //"Soft_Credit_Donor_Table_Contact_ID_Table.[First_Name]",
+                //"Soft_Credit_Donor_Table_Contact_ID_Table.[Contact_ID]"
+            };
+
+            var filter = $"Soft_Credit_Donor_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
+
+            var order = "Donation_ID_Table.[Donation_Date] DESC";
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithSelectColumns(selectColumns)
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .OrderBy(order)
+                .Build()
+                .Search<MpDonationDetail>().ToList();
+        }
     }
 }
