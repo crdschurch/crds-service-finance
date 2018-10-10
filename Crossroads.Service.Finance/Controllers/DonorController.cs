@@ -185,7 +185,7 @@ namespace Crossroads.Service.Finance.Controllers
                 }
                 catch (Exception ex)
                 {
-                    var msg = "DonationController: GetOtherGifts";
+                    var msg = "DonorController: GetOtherGifts";
                     _logger.Error(msg, ex);
                     return BadRequest(ex.Message);
                 }
