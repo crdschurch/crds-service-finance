@@ -19,5 +19,6 @@ namespace MinistryPlatform.Interfaces
         //List<MpPledge> GetPledges(string token);
         List<MpDonation> GetDonations(int contactId);
         List<MpDonationDetail> GetDonationHistoryByContactId(int contactId, DateTime? startDate = null, DateTime? endDate = null);
+        List<MpDonationDetail> GetOtherGiftsByContactId(int contactId);
     }
 }
