@@ -257,12 +257,8 @@ namespace MinistryPlatform.Repositories
             var selectColumns = new string[] {
                 "Donation_Distributions.[Donation_ID]",
                 "Donation_ID_Table.[Donation_Date]",
-                //"Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Company_Name]",
                 "Program_ID_Table.[Program_Name]",
-                "Donation_Distributions.[Amount]",
-                //"Soft_Credit_Donor_Table_Contact_ID_Table.[Last_Name]",
-                //"Soft_Credit_Donor_Table_Contact_ID_Table.[First_Name]",
-                //"Soft_Credit_Donor_Table_Contact_ID_Table.[Contact_ID]"
+                "Donation_Distributions.[Amount]"
             };
 
             var filter = $"Soft_Credit_Donor_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
