@@ -158,6 +158,39 @@ namespace Crossroads.Service.Finance.Controllers
                 }
             });
         }
+
+        /// <summary>
+        /// Get donations (donation history) for a user
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("contact/othergifts")]
+        [ProducesResponseType(typeof(List<DonationDto>), 200)]
+        [ProducesResponseType(204)]
+        public IActionResult GetOtherGifts()
+        {
+            return Authorized(token =>
+            {
+                try
+                {
+                    List<DonationDetailDto> donations;
+                    var userContactId = _contactService.GetContactIdBySessionId(token);
+                    donations = _donationService.GetOtherGifts(userContactId);
+
+                    if (donations == null || donations.Count == 0)
+                    {
+                        return NoContent();
+                    }
+
+                    return Ok(donations);
+                }
+                catch (Exception ex)
+                {
+                    var msg = "DonorController: GetOtherGifts";
+                    _logger.Error(msg, ex);
+                    return BadRequest(ex.Message);
+                }
+            });
+        }
     }
 }
 

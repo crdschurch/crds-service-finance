@@ -63,7 +63,8 @@ namespace MinistryPlatform.Test.Pledges
                 "Pledge_Campaign_ID_Table_Pledge_Campaign_Type_ID_Table.[Pledge_Campaign_Type_ID]",
                 "Pledge_Campaign_ID_Table.[Start_Date] as [Campaign_Start_Date]",
                 "Pledge_Campaign_ID_Table.[End_Date] as [Campaign_End_Date]",
-                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]"
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Pledges.[First_Installment_Date]"
             };
             var filter = $"Pledge_Status_ID_Table.[Pledge_Status_ID] IN (1,2)";
             filter += $" AND Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";

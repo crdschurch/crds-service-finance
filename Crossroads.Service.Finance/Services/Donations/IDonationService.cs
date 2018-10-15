@@ -18,6 +18,7 @@ namespace Crossroads.Service.Finance.Interfaces
         List<PledgeDto> GetPledges(int contactId);
         List<DonationDetailDto> GetDonations(int contactId);
         List<DonationDetailDto> GetDonations(string token);
+        List<DonationDetailDto> GetOtherGifts(int contactId);
         List<MpPledge> CalculatePledges(int contactId);
         List<DonationDetailDto> GetRelatedContactDonations(int userContactId, int relatedContactId);
         List<PledgeDto> GetRelatedContactPledge(int userContactId, int relatedContactId);
