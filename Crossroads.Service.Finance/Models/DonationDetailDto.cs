@@ -46,5 +46,8 @@ namespace Crossroads.Service.Finance.Models
 
         [JsonProperty("paymentTypeId")]
         public int PaymentTypeId { get; set; }
+
+        [JsonProperty("thirdPartyName")]
+        public string ThirdPartyName { get; set; }
     }
 }
