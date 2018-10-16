@@ -258,7 +258,8 @@ namespace MinistryPlatform.Repositories
                 "Donation_Distributions.[Donation_ID]",
                 "Donation_ID_Table.[Donation_Date]",
                 "Program_ID_Table.[Program_Name]",
-                "Donation_Distributions.[Amount]"
+                "Donation_Distributions.[Amount]",
+                "Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Display_Name]"
             };
 
             var filter = $"Soft_Credit_Donor_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
