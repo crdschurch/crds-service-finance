@@ -18,9 +18,13 @@ BEGIN
     DECLARE @DefaultDonorID INT = 1;
     DECLARE @DomainID INT = 1;
 
-    -- ====== 1: Get all donations assigned to the Default Donor, and parse notes
-    DECLARE @UnassignedDonations TABLE (
-        Donation_ID INT NOT NULL,
+    -- ====== 1: Get all donations and recurring gifts assigned to the Default Donor, and parse notes
+
+    -- This table variable stores data for both Donations and Recurring_Gifts.  Donations will have a
+    -- non-null Donation_ID, and recurring gifts will have a non-null Recurring_Gift_ID.
+    DECLARE @UnassignedData TABLE (
+        Donation_ID INT,
+        Recurring_Gift_ID INT,
         Contact_ID INT,
         Donor_ID INT,
         First_Name NVARCHAR(50),
@@ -29,10 +33,11 @@ BEGIN
         Email_Address VARCHAR(255)
     );
 
-    INSERT INTO @UnassignedDonations
-        (Donation_ID, Contact_ID, Donor_ID, First_Name, Last_Name, Phone_Number, Email_Address)
+    INSERT INTO @UnassignedData
+        (Donation_ID, Recurring_Gift_ID, Contact_ID, Donor_ID, First_Name, Last_Name, Phone_Number, Email_Address)
     SELECT
         Donation_ID,
+        Recurring_Gift_ID,
         NULL,
         NULL,
         First_Name = CASE WHEN LNS-FNS > 0 THEN LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(SUBSTRING(Notes,FNS,LNS-FNS),'First Name:',''),Char(10),''),Char(13),''))) END
@@ -43,6 +48,7 @@ BEGIN
         (
             SELECT
                 Donation_ID,
+                Recurring_Gift_ID = NULL,
                 CharIndex('First Name:', Donations.Notes) AS FNS
                 ,CharIndex('Last Name:', Donations.Notes) AS LNS
                 ,CharIndex('Phone:', Donations.Notes) AS PHS
@@ -55,19 +61,35 @@ BEGIN
                 Donations
             WHERE
                 Donor_ID = @DefaultDonorID
+            UNION
+            SELECT
+                Donation_ID = NULL,
+                Recurring_Gift_ID,
+                CharIndex('First Name:', Recurring_Gifts.Notes) AS FNS
+                ,CharIndex('Last Name:', Recurring_Gifts.Notes) AS LNS
+                ,CharIndex('Phone:', Recurring_Gifts.Notes) AS PHS
+                ,CharIndex('Email:', Recurring_Gifts.Notes) AS EMS
+                ,CharIndex('Address1:', Recurring_Gifts.Notes) AS A1S
+                ,CharIndex('Address2:', Recurring_Gifts.Notes) AS A2S	
+                ,CharIndex('City, State Zip:', Recurring_Gifts.Notes) AS CSZS
+                ,Notes
+            FROM
+                Recurring_Gifts
+            WHERE
+                Donor_ID = @DefaultDonorID
         ) parsed
     ;
 
     -- convert phone numbers from "(xxx) xxx-xxxx" to "xxx-xxx-xxxx" 
-    UPDATE @UnassignedDonations SET Phone_Number = REPLACE(REPLACE(Phone_Number, '(', ''), ') ', '-');
+    UPDATE @UnassignedData SET Phone_Number = REPLACE(REPLACE(Phone_Number, '(', ''), ') ', '-');
 
-    -- ====== 2: Try to find matching Contacts for each donation
+    -- ====== 2: Try to find matching Contacts for each donation and recurring gift
     UPDATE ud
     SET
         ud.Contact_ID = c.Contact_ID,
         ud.Donor_ID = c.Donor_Record
     FROM
-        @UnassignedDonations ud
+        @UnassignedData ud
         INNER JOIN Contacts c ON (
             c.Last_Name = ud.Last_Name
             AND c.Mobile_Phone = ud.Phone_Number
@@ -118,7 +140,7 @@ BEGIN
                     Email_Address,
                     Phone_Number
                 FROM
-                    @UnassignedDonations
+                    @UnassignedData
                 WHERE
                     Contact_ID IS NULL
                     AND First_Name NOT LIKE '%[ /&]%'  -- exclude " and ", "&", " ", "/"
@@ -130,7 +152,7 @@ BEGIN
         SET
             ud.Contact_ID = c.Contact_ID
         FROM
-            @UnassignedDonations ud
+            @UnassignedData ud
             INNER JOIN @ContactsAdded c ON (
                 c.Last_Name = ud.Last_Name
                 AND c.Phone_Number = ud.Phone_Number
@@ -210,7 +232,7 @@ BEGIN
             @SetupDate,
             @DomainID
         FROM
-            @UnassignedDonations
+            @UnassignedData
         WHERE
             Contact_ID IS NOT NULL
             AND Donor_ID IS NULL
@@ -220,7 +242,7 @@ BEGIN
         UPDATE ud
         SET ud.Donor_ID = newDonors.Donor_ID
         FROM
-            @UnassignedDonations ud
+            @UnassignedData ud
             INNER JOIN @DonorsAdded newDonors ON newDonors.Contact_ID = ud.Contact_ID
         ;
 
@@ -263,9 +285,10 @@ BEGIN
             cda.Contact_ID
         ;
 
-        -- ====== 6: Move donations from default donor to new donor
+        -- ====== 6: Move donations and recurring gifts from default donor to new donor
 
-        -- Donations link to Donor_Accounts, which link to Donors.  Adjust the Donor_ID on related Donor_Accounts first.
+        -- Donations and Recurring_Gifts both link to Donor_Accounts, which link to Donors.  Adjust
+        -- the Donor_ID on related Donor_Accounts first.
         DECLARE @DonorAccountAudit TABLE (
             Donor_Account_ID INT NOT NULL,
             Old_Donor_ID INT,
@@ -276,9 +299,21 @@ BEGIN
         SET da.Donor_ID = ud.Donor_ID
         OUTPUT INSERTED.Donor_Account_ID, DELETED.Donor_ID, INSERTED.Donor_ID INTO @DonorAccountAudit
         FROM
-            @UnassignedDonations ud
+            @UnassignedData ud
             INNER JOIN Donations d ON d.Donation_ID = ud.Donation_ID
             INNER JOIN Donor_Accounts da ON da.Donor_Account_ID = d.Donor_Account_ID
+        WHERE
+            ud.Donor_ID IS NOT NULL
+            AND da.Donor_ID = @DefaultDonorID
+        ;
+
+        UPDATE da
+        SET da.Donor_ID = ud.Donor_ID
+        OUTPUT INSERTED.Donor_Account_ID, DELETED.Donor_ID, INSERTED.Donor_ID INTO @DonorAccountAudit
+        FROM
+            @UnassignedData ud
+            INNER JOIN Recurring_Gifts rg ON rg.Recurring_Gift_ID = ud.Recurring_Gift_ID
+            INNER JOIN Donor_Accounts da ON da.Donor_Account_ID = rg.Donor_Account_ID
         WHERE
             ud.Donor_ID IS NOT NULL
             AND da.Donor_ID = @DefaultDonorID
@@ -316,7 +351,7 @@ BEGIN
         SET d.Donor_ID = ud.Donor_ID
         OUTPUT INSERTED.Donation_ID, DELETED.Donor_ID, INSERTED.Donor_ID INTO @DonationAudit
         FROM
-            @UnassignedDonations ud
+            @UnassignedData ud
             INNER JOIN Donations d ON d.Donation_ID = ud.Donation_ID
         WHERE
             ud.Donor_ID IS NOT NULL
@@ -344,6 +379,45 @@ BEGIN
             da.Donation_ID
         ;
 
+        -- reassign recurring gifts from default donor to new donor
+        DECLARE @RecurringGiftAudit TABLE (
+            Recurring_Gift_ID INT NOT NULL,
+            Old_Donor_ID INT,
+            New_Donor_ID INT
+        );
+
+        UPDATE rg
+        SET rg.Donor_ID = ud.Donor_ID
+        OUTPUT INSERTED.Recurring_Gift_ID, DELETED.Donor_ID, INSERTED.Donor_ID INTO @RecurringGiftAudit
+        FROM
+            @UnassignedData ud
+            INNER JOIN Recurring_Gifts rg ON rg.Recurring_Gift_ID = ud.Recurring_Gift_ID
+        WHERE
+            ud.Donor_ID IS NOT NULL
+            AND rg.Donor_ID = @DefaultDonorID
+        ;
+
+        -- Audit entries for Donor_ID change on Recurring_Gifts
+        INSERT INTO @Audit_Records
+            (Table_Name, Record_ID, Audit_Description, Field_Name, Field_Label, New_Value, New_ID, Previous_Value, Previous_ID)
+        SELECT
+            'Recurring_Gifts',
+            ra.Recurring_Gift_ID,
+            'Updated',
+            'Donor_ID',
+            'Donor',
+            CONCAT(c2.Display_Name, '; ', c2.Email_Address),
+            ra.New_Donor_ID,
+            CONCAT(c1.Display_Name, '; ', c1.Email_Address),
+            ra.Old_Donor_ID
+        FROM
+            @RecurringGiftAudit ra
+            LEFT JOIN Contacts c1 ON c1.Donor_Record = ra.Old_Donor_ID
+            LEFT JOIN Contacts c2 ON c2.Donor_Record = ra.New_Donor_ID
+        ORDER BY
+            ra.Recurring_Gift_ID
+        ;
+
         -- Write all audit records
         DECLARE @AuditDate DATETIME = GETDATE();
         EXEC crds_Add_Audit_Items @Audit_Records, @AuditDate, 'Svc Mngr', 0;
@@ -352,7 +426,12 @@ BEGIN
 
         DECLARE @NumDonations INT;
         SELECT @NumDonations = COUNT(*) FROM @DonationAudit;
-        PRINT 'crds_service_process_unassigned_donations: updated ' + CONVERT(VARCHAR(20), @NumDonations) + ' donations';        
+
+        DECLARE @NumRecurringGifts INT;
+        SELECT @NumRecurringGifts = COUNT(*) FROM @RecurringGiftAudit;
+        PRINT 'crds_service_process_unassigned_donations: updated '
+            + CONVERT(VARCHAR(20), @NumDonations) + ' donations and '
+            + CONVERT(VARCHAR(20), @NumRecurringGifts) + ' recurring gifts';
     END TRY
 
     BEGIN CATCH
