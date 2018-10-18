@@ -13,6 +13,7 @@ using MinistryPlatform.Repositories;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
+using Crossroads.Service.Finance.Services.Health;
 using Crossroads.Service.Finance.Services.Recurring;
 using Utilities.Logging;
 
@@ -69,6 +70,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IPushpayClient, PushpayClient>();
             services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
             services.AddSingleton<IRecurringService, RecurringService>();
+            services.AddSingleton<IHealthService, HealthService>();
 
             // Repo Layer
             services.AddSingleton<IBatchRepository, BatchRepository>();
