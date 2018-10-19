@@ -36,6 +36,14 @@ spec:
             timeoutSeconds: 3
             successThreshold: 1
             periodSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /api/health/status
+              port: 80
+            initialDelaySeconds: 1
+            timeoutSeconds: 3
+            successThreshold: 1
+            periodSeconds: 3
           env: 
             - name: APP_LOG_ROOT
               value: $APP_LOG_ROOT
