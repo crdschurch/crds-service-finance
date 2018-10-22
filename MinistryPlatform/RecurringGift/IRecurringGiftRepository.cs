@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 
 namespace MinistryPlatform.Interfaces
 {
