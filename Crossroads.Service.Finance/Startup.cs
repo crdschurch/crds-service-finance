@@ -82,6 +82,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IContactRepository, ContactRepository>();
             services.AddSingleton<IPledgeRepository, PledgeRepository>();
             services.AddSingleton<IDonationDistributionRepository, DonationDistributionRepository>();
+            services.AddSingleton<IWebhooksRepository, WebhooksRepository>();
             services.AddSingleton<IGatewayService, GatewayService>();
 
             // Utilities Layer

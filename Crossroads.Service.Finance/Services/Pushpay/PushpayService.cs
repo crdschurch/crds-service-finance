@@ -15,7 +15,7 @@ using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Donors;
 using Newtonsoft.Json.Linq;
 using Utilities.Logging;
-using System.Collections;
+using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -28,6 +28,7 @@ namespace Crossroads.Service.Finance.Services
         private readonly IProgramRepository _programRepository;
         private readonly IContactRepository _contactRepository;
         private readonly IDonorRepository _donorRepository;
+        private readonly IWebhooksRepository _webhooksRepository;
         private readonly IGatewayService _gatewayService;
         private readonly IMapper _mapper;
         private readonly IDataLoggingService _dataLoggingService;
@@ -40,7 +41,7 @@ namespace Crossroads.Service.Finance.Services
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
                               IProgramRepository programRepository, IContactRepository contactRepository, IDonorRepository donorRepository,
-                              IGatewayService gatewayService, IDataLoggingService dataLoggingService)
+                              IWebhooksRepository webhooksRepository, IGatewayService gatewayService, IDataLoggingService dataLoggingService)
         {
             _pushpayClient = pushpayClient;
             _donationService = donationService;
@@ -49,6 +50,7 @@ namespace Crossroads.Service.Finance.Services
             _programRepository = programRepository;
             _contactRepository = contactRepository;
             _donorRepository = donorRepository;
+            _webhooksRepository = webhooksRepository;
             _gatewayService = gatewayService;
             _dataLoggingService = dataLoggingService;
             _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
@@ -545,6 +547,33 @@ namespace Crossroads.Service.Finance.Services
         {
             var pushpayRecurringGiftDtos = _pushpayClient.GetNewAndUpdatedRecurringGiftsByDateRange(startDate, endDate);
             return pushpayRecurringGiftDtos;
+        }
+
+        public void SaveWebhookData(PushpayWebhook pushpayWebhook)
+        {
+            try
+            {
+                string eventType = null;
+                if (pushpayWebhook?.Events?.Count == 1)
+                    eventType = pushpayWebhook.Events[0].EventType;
+
+                MpPushpayWebhook webhookData = new MpPushpayWebhook()
+                {
+                    EventType = eventType,
+                    Payload = JsonConvert.SerializeObject(pushpayWebhook, Formatting.None)
+                };
+
+                _webhooksRepository.Create(webhookData);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"SaveWebhookData: {e.Message}");
+
+                var saveWebhookEntry = new LogEventEntry(LogEventType.saveWebhookData);
+                saveWebhookEntry.Push("json", JsonConvert.SerializeObject(pushpayWebhook, Formatting.None));
+                saveWebhookEntry.Push("exception", e);
+                _dataLoggingService.LogDataEvent(saveWebhookEntry);
+            }
         }
     }
 }
