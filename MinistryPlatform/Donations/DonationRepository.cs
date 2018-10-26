@@ -227,6 +227,7 @@ namespace MinistryPlatform.Repositories
 
             var filters = new List<string> {
                 $"Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
+                "Donation_ID_Table_Donation_Status_ID_Table.[Donation_Status] <> 'Offset'"
             };
 
             if (startDate != null)
