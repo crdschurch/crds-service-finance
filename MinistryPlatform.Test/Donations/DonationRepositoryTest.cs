@@ -296,6 +296,7 @@ namespace MinistryPlatform.Test.Donations
             };
 
             var filter = "Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Contact_ID] = 1234567";
+            filter += " AND Donation_ID_Table_Donation_Status_ID_Table.[Donation_Status] <> 'Offset'";
             filter += $" AND Donation_ID_Table.[Donation_Date] >= '2018-07-09'";
             var order = "Donation_ID_Table.[Donation_Date] DESC";
 
