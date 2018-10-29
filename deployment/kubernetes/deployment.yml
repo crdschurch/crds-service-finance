@@ -4,11 +4,11 @@ metadata:
   name: crds-finance
   namespace: api
 spec: 
-  replicas: 1 
+  replicas: 2
   strategy: 
     type: RollingUpdate 
     rollingUpdate: 
-      maxSurge: 1 
+      maxSurge: 2
       maxUnavailable: 0 
   template: 
     metadata: 
@@ -32,10 +32,17 @@ spec:
             httpGet:
               path: /api/health/status
               port: 80
-            initialDelaySeconds: 1
+            initialDelaySeconds: 5
             timeoutSeconds: 3
             successThreshold: 1
-            periodSeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/health/status
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 5
           env: 
             - name: APP_LOG_ROOT
               value: $APP_LOG_ROOT

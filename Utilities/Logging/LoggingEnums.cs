@@ -26,6 +26,7 @@ namespace Utilities.Logging
         noRecurringGiftSubFound,
         previouslySyncedDeposit,
         refundingTransaction,
+        saveWebhookData,
         stripeCancel,
         stripeCancelException,
         syncedRecurringGifts,

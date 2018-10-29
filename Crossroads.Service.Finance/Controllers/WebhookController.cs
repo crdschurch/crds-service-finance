@@ -36,6 +36,8 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 Console.WriteLine("⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡ Incoming webhook ⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️");
                 Console.WriteLine(JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
+                _pushpayService.SaveWebhookData(pushpayWebhook);
+
                 var pushpayEvent = pushpayWebhook.Events[0];
 
                 var logEventEntry = new LogEventEntry(LogEventType.incomingPushpayWebhook);

@@ -19,5 +19,6 @@ namespace Crossroads.Service.Finance.Interfaces
         RecurringGiftDto UpdateRecurringGiftForSync(PushpayRecurringGiftDto pushpayRecurringGift, MpRecurringGift mpRecurringGift);
         string GetRecurringGiftNotes(PushpayRecurringGiftDto pushpayRecurringGift);
         string FormatPhoneNumber(string phone);
+        void SaveWebhookData(PushpayWebhook pushpayWebhook);
     }
 }
