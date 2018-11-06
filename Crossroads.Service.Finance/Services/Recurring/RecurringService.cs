@@ -35,13 +35,13 @@ namespace Crossroads.Service.Finance.Services.Recurring
             var start = new DateTime(startDate.Year, startDate.Month, startDate.Day);
             var end = new DateTime(endDate.Year, endDate.Month, endDate.Day, 23, 59, 59);
 
+            Console.WriteLine($"Starting SyncRecurringGifts at {DateTime.Now:G}");
+
             // get new and updated recurring gifts
             var pushpayRecurringGifts = _pushpayService.GetRecurringGiftsByDateRange(start, end);
+            int numUpdates = 0;
 
-            if (!pushpayRecurringGifts.Any())
-            {
-                return;
-            }
+            Console.WriteLine($"Syncing {pushpayRecurringGifts.Count} gifts from pushpay");
 
             // next, check to see if these gifts exist in MP
             var pushpayRecurringGiftIds = pushpayRecurringGifts
@@ -56,32 +56,29 @@ namespace Crossroads.Service.Finance.Services.Recurring
                 var pushpayGiftIdsToSync = pushpayRecurringGiftIds.Take(range).ToList();
                 pushpayRecurringGiftIds.RemoveRange(0, range);
 
-                // use this for logging
-                Console.WriteLine($"Syncing {pushpayRecurringGiftIds.Count} gifts from pushpay: " + string.Join(",", giftIdsSynced));
- 
                 var mpRecurringGifts =
                     _recurringGiftRepository.FindRecurringGiftsBySubscriptionIds(pushpayGiftIdsToSync);
                  
                 foreach (var pushpayRecurringGiftId in pushpayGiftIdsToSync)
                 {
+                    var mpGift = mpRecurringGifts.FirstOrDefault(r => r.SubscriptionId == pushpayRecurringGiftId);
+                    var pushPayGift = pushpayRecurringGifts.First(r => r.PaymentToken == pushpayRecurringGiftId);
+
                     // if the recurring gift does not exist in MP, then create it
-                    if (mpRecurringGifts.All(r => r.SubscriptionId != pushpayRecurringGiftId))
+                    if (mpGift == null)
                     {
-                        _pushpayService.BuildAndCreateNewRecurringGift(pushpayRecurringGifts.First(r => r.PaymentToken == pushpayRecurringGiftId));
-                        Console.WriteLine($"adding {pushpayRecurringGiftId} to sync list");
+                        Console.WriteLine($"create new {pushpayRecurringGiftId}");
+                        _pushpayService.BuildAndCreateNewRecurringGift(pushPayGift);
                         giftIdsSynced.Add(pushpayRecurringGiftId);
                     }
                     // if the recurring gift DOES exist in MP, check to see when it was last updated and update it if the Pushpay version is newer
-                    else if (mpRecurringGifts.Any(r => r.SubscriptionId == pushpayRecurringGiftId))
+                    else
                     {
-                        var mpGift = mpRecurringGifts.First(r => r.SubscriptionId == pushpayRecurringGiftId);
-                        var pushPayGift = pushpayRecurringGifts.First(r => r.PaymentToken == pushpayRecurringGiftId);
-
-                        Console.WriteLine($"update gift? mp: {mpGift.UpdatedOn.ToString()}, pushpay: {pushPayGift.UpdatedOn.ToString()}");
-                        if (mpGift.UpdatedOn == null || mpGift.UpdatedOn < pushPayGift.UpdatedOn)
+                        Console.WriteLine($"comparing dates for {pushpayRecurringGiftId} ? mp: {mpGift.UpdatedOn.ToString()}, pushpay: {pushPayGift.UpdatedOn.ToString()}");
+                        if (IsPushpayDateNewer(mpGift.UpdatedOn ?? DateTime.MinValue, pushPayGift.UpdatedOn))
                         {
+                            Console.WriteLine($"update existing {pushpayRecurringGiftId}");
                             _pushpayService.UpdateRecurringGiftForSync(pushPayGift, mpGift);
-                            Console.WriteLine($"adding {pushpayRecurringGiftId} to update sync list");
                             giftIdsSynced.Add(pushpayRecurringGiftId);
                         }
                     }
@@ -91,7 +88,22 @@ namespace Crossroads.Service.Finance.Services.Recurring
                 var syncedRecurringGiftsEntry = new LogEventEntry(LogEventType.syncedRecurringGifts);
                 syncedRecurringGiftsEntry.Push("recurringGiftsSyncedFromPushpay", string.Join(",", giftIdsSynced));
                 _dataLoggingService.LogDataEvent(syncedRecurringGiftsEntry);
+
+                numUpdates += giftIdsSynced.Count;
             }
+
+            Console.WriteLine($"Finished SyncRecurringGifts at {DateTime.Now:G}.  {numUpdates} records updated.");
+        }
+
+        private bool IsPushpayDateNewer(DateTime mp, DateTime pushpay)
+        {
+            // MP truncates seconds from DateTime fields that are inserted/updated via
+            // the MP REST API, so exclude seconds from our comparison to prevent false
+            // positives.
+            DateTime normalizedMp = new DateTime(mp.Year, mp.Month, mp.Day, mp.Hour, mp.Minute, 0);
+            DateTime normalizedPushpay = new DateTime(pushpay.Year, pushpay.Month, pushpay.Day, pushpay.Hour, pushpay.Minute, 0);
+
+            return normalizedPushpay > normalizedMp;
         }
     }
 }

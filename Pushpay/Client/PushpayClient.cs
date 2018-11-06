@@ -59,10 +59,11 @@ namespace Pushpay.Client
         {
             var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
             var resource = "settlements";
-            Dictionary<string, string> queryParams = new Dictionary<string, string>()
+            List<QueryParameter> queryParams = new List<QueryParameter>()
             {
-                { "depositFrom", modStartDate }
+                new QueryParameter("depositFrom", modStartDate)
             };
+
             var data = CreateAndExecuteRequest(resource, Method.GET, donationsScope, queryParams, true);
             return JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(data);
         }
@@ -76,7 +77,6 @@ namespace Pushpay.Client
             return pushpayRetrySeconds + backoffSeconds + randomSeconds;
         }
 
-	        // this only gets active gifts for now
         public List<PushpayRecurringGiftDto> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
         {
             var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
@@ -84,11 +84,14 @@ namespace Pushpay.Client
             var merchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
 
             var resource = $"merchant/{merchantKey}/recurringpayments";
-            Dictionary<string, string> queryParams = new Dictionary<string, string>()
+            List<QueryParameter> queryParams = new List<QueryParameter>()
             {
-                { "updatedFrom", modStartDate },
-                { "updatedTo", modEndDate },
-                { "pageSize", "100" }
+                new QueryParameter("updatedFrom", modStartDate),
+                new QueryParameter("updatedTo", modEndDate),
+                new QueryParameter("status", "active"),
+                new QueryParameter("status", "paused"),
+                new QueryParameter("status", "cancelled"),
+                new QueryParameter("pageSize", "100")
             };
             var data = CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true);
             var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
@@ -144,7 +147,7 @@ namespace Pushpay.Client
             return request;
         }
 
-        private string CreateAndExecuteRequest(string uriOrResource, Method method, string scope, Dictionary<string, string> queryParams = null, bool isList = false, object body = null)
+        private string CreateAndExecuteRequest(string uriOrResource, Method method, string scope, List<QueryParameter> queryParams = null, bool isList = false, object body = null)
         {
             var request = new RestRequest(method)
             {
@@ -158,7 +161,7 @@ namespace Pushpay.Client
             }
             if (queryParams != null)
             {
-                foreach (KeyValuePair<string, string> entry in queryParams)
+                foreach (QueryParameter entry in queryParams)
                 {
                     // do something with entry.Value or entry.Key
                     request.AddQueryParameter(entry.Key, entry.Value);
