@@ -50,6 +50,7 @@ namespace Crossroads.Service.Finance.Controllers
                 syncedRecurringGiftsError.Push("errorInSyncRecurringGifts", ex.Message);
                 _dataLoggingService.LogDataEvent(syncedRecurringGiftsError);
                 Console.WriteLine("Error in sync recurring gifts: " + ex.Message);
+                Console.WriteLine(ex.StackTrace);
                 return StatusCode(400, ex);
             }
         }
