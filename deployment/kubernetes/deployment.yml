@@ -48,6 +48,8 @@ spec:
               value: $APP_LOG_ROOT
             - name: ASPNETCORE_ENVIRONMENT
               value: $ASPNETCORE_ENVIRONMENT
+            - name: AUTH_SERVICE_BASE_URL
+              value: $AUTH_SERVICE_BASE_URL
             - name: CRDS_MP_COMMON_CLIENT_ID
               value: $CRDS_MP_COMMON_CLIENT_ID
             - name: CRDS_MP_COMMON_CLIENT_SECRET
