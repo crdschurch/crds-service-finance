@@ -73,9 +73,8 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<List<ContactDto>>(householdMinorChildren);
         }
 
-        public List<ContactDto> GetDonorRelatedContacts(string token)
+        public List<ContactDto> GetDonorRelatedContacts(int userContactId)
         {
-            var userContactId = GetContactIdBySessionId(token);
             var userContact = GetContact(userContactId);
             var cogivers = GetCogiversByContactId(userContactId);
             var userDonationVisibleContacts = new List<ContactDto>();

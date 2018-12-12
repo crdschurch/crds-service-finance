@@ -6,11 +6,12 @@ using System.Reflection;
 using Crossroads.Service.Finance.Security;
 using Crossroads.Web.Common.Services;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Web.Auth.Controllers;
 
 namespace Crossroads.Service.Finance.Controllers
 {
     [Route("api/[controller]")]
-    public class ContactController : MpAuthBaseController
+    public class ContactController : AuthBaseController
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -28,7 +29,7 @@ namespace Crossroads.Service.Finance.Controllers
         [Route("{contactId}")]
         public IActionResult GetContact(int contactId)
         {
-            return Authorized(token =>
+            return Authorized(authDto =>
             {
                 try
                 {
@@ -46,22 +47,25 @@ namespace Crossroads.Service.Finance.Controllers
         [Route("session")]
         public IActionResult GetContactBySessionId(string sessionId)
         {
-            try
+            return Authorized(authDto =>
             {
-                return Ok(_contactService.GetBySessionId(sessionId));
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Error in GetContactBySessionId: " + ex.Message, ex);
-                return StatusCode(401, ex);
-            }
+                try
+                {
+                    return Ok(_contactService.GetContact(authDto.UserInfo.Mp.ContactId));
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Error in Contact: " + ex.Message, ex);
+                    return StatusCode(400, ex);
+                }
+            });
         }
 
         [HttpGet]
         [Route("{contactId}/address")]
         public IActionResult GetContactAddress(int contactId)
         {
-            return Authorized(token =>
+            return Authorized(authDto =>
             {
                 try
                 {

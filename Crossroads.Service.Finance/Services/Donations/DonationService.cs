@@ -86,9 +86,8 @@ namespace Crossroads.Service.Finance.Services
             _mpDonationRepository.UpdateDonorAccount(donorAccount);
         }
 
-        public List<RecurringGiftDto> GetRecurringGifts(string token)
+        public List<RecurringGiftDto> GetRecurringGifts(int contactId)
         {
-            var contactId = _contactService.GetContactIdBySessionId(token);
             var records = _mpDonationRepository.GetRecurringGifts(contactId);
             var dtos = _mapper.Map<List<RecurringGiftDto>>(records);
 
