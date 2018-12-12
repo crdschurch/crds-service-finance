@@ -109,6 +109,8 @@ namespace Crossroads.Service.Finance.Test.Donations
         public void ShouldCreateAndReturnRecurringGiftObject()
         {
             // Arrange
+            var contactId = 5544555;
+
             var recurringGiftDto = new List<RecurringGiftDto>
             {
                 new RecurringGiftDto {
@@ -131,7 +133,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             _donationRepository.Setup(r => r.GetRecurringGifts(It.IsAny<int>())).Returns(MpRecurringGiftMock.CreateList(123));
 
             // Act
-            var result = _fixture.GetRecurringGifts("token");
+            var result = _fixture.GetRecurringGifts(contactId);
 
             // Assert
             Assert.Single(result);
