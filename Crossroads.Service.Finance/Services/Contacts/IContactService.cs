@@ -16,5 +16,6 @@ namespace Crossroads.Service.Finance.Interfaces
         List<ContactDto> GetHouseholdMinorChildren(int householdId);
         List<ContactDto> GetDonorRelatedContacts(int contactId);
         ContactAddressDto GetContactAddressByContactId(int contactId);
+        int GetContactIdByEmailAddress(string emailAddress);
     }
 }

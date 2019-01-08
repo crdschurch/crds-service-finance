@@ -5,6 +5,7 @@ using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Services;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
+using MinistryPlatform.Users;
 using Moq;
 using Xunit;
 using Mock;
@@ -14,6 +15,7 @@ namespace Crossroads.Service.Finance.Test.Contacts
     public class ContactServiceTest
     {
         private readonly Mock<IContactRepository> _contactRepository;
+        private readonly Mock<IUserRepository> _userRepository;
         private readonly Mock<IMapper> _mapper;
 
         private readonly IContactService _fixture;
@@ -23,8 +25,9 @@ namespace Crossroads.Service.Finance.Test.Contacts
         public ContactServiceTest()
         {
             _contactRepository = new Mock<IContactRepository>();
+            _userRepository = new Mock<IUserRepository>();
             _mapper = new Mock<IMapper>();
-            _fixture = new ContactService(_contactRepository.Object, _mapper.Object);
+            _fixture = new ContactService(_contactRepository.Object, _userRepository.Object, _mapper.Object);
         }
 
         [Fact]
