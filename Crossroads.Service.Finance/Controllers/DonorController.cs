@@ -42,7 +42,15 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
-                    var recurringGifts = _donationService.GetRecurringGifts(authDto.UserInfo.Mp.ContactId);
+                    var contactId = authDto.UserInfo.Mp.ContactId;
+
+                    // override contact id if impersonating
+                    if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
+                    {
+                        contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                    }
+
+                    var recurringGifts = _donationService.GetRecurringGifts(contactId);
                     if (recurringGifts == null || recurringGifts.Count == 0)
                     {
                         return NoContent();
@@ -111,8 +119,16 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
-                    List<DonationDetailDto> donations;
                     var userContactId = authDto.UserInfo.Mp.ContactId;
+
+                    // override contact id if impersonating
+                    if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
+                    {
+                        contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                    }
+
+                    List<DonationDetailDto> donations;
+                    //var userContactId = authDto.UserInfo.Mp.ContactId;
                     if (contactId == userContactId)
                     {
                         // get logged in user's donations
@@ -148,7 +164,15 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
-                    var userDonationVisibleContacts = _contactService.GetDonorRelatedContacts(authDto.UserInfo.Mp.ContactId);
+                    var contactId = authDto.UserInfo.Mp.ContactId;
+
+                    // override contact id if impersonating
+                    if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
+                    {
+                        contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                    }
+
+                    var userDonationVisibleContacts = _contactService.GetDonorRelatedContacts(contactId);
                     return Ok(userDonationVisibleContacts);
                 }
                 catch (Exception ex)
@@ -173,8 +197,16 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
-                    List<DonationDetailDto> donations;
                     var userContactId = authDto.UserInfo.Mp.ContactId;
+
+                    // override contact id if impersonating
+                    if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
+                    {
+                        userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                    }
+
+                    List<DonationDetailDto> donations;
+                    //var userContactId = authDto.UserInfo.Mp.ContactId;
                     donations = _donationService.GetOtherGifts(userContactId);
 
                     if (donations == null || donations.Count == 0)
