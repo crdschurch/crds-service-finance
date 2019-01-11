@@ -6,19 +6,22 @@ using System.Collections.Generic;
 using MinistryPlatform.Models;
 using System.Linq;
 using System;
+using MinistryPlatform.Users;
 
 namespace Crossroads.Service.Finance.Services
 {
     public class ContactService : IContactService
     {
         private readonly IContactRepository _contactRepository;
+        private readonly IUserRepository _userRepository;
         IMapper _mapper;
 
         private const int cogiverRelationshipId = 42;
 
-        public ContactService(IContactRepository contactRepository, IMapper mapper)
+        public ContactService(IContactRepository contactRepository, IUserRepository userRepository, IMapper mapper)
         {
             _contactRepository = contactRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
@@ -90,6 +93,12 @@ namespace Crossroads.Service.Finance.Services
         {
             var mpContactAddress = _contactRepository.GetContactAddressByContactId(contactId);
             return _mapper.Map<ContactAddressDto>(mpContactAddress);
+        }
+
+        public int GetContactIdByEmailAddress(string emailAddress)
+        {
+            var contactId = _userRepository.GetUserByEmailAddress(emailAddress);
+            return contactId;
         }
     }
 }
