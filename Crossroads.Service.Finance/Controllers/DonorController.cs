@@ -47,6 +47,11 @@ namespace Crossroads.Service.Finance.Controllers
                     // override contact id if impersonating
                     if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
                     {
+                        if (authDto.UserInfo.Mp.CanImpersonate == false)
+                        {
+                            throw new Exception("Impersonation Error");
+                        }
+
                         contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                     }
 
@@ -81,6 +86,18 @@ namespace Crossroads.Service.Finance.Controllers
                 {
                     List<PledgeDto> pledges;
                     var userContactId = authDto.UserInfo.Mp.ContactId;
+
+                    // override contact id if impersonating
+                    if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
+                    {
+                        if (authDto.UserInfo.Mp.CanImpersonate == false)
+                        {
+                            throw new Exception("Impersonation Error");
+                        }
+
+                        userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                    }
+
                     if (userContactId == contactId)
                     {
                         pledges = _donationService.GetPledges(contactId);
@@ -124,7 +141,12 @@ namespace Crossroads.Service.Finance.Controllers
                     // override contact id if impersonating
                     if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
                     {
-                        contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                        if (authDto.UserInfo.Mp.CanImpersonate == false)
+                        {
+                            throw new Exception("Impersonation Error");
+                        }
+
+                        userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                     }
 
                     List<DonationDetailDto> donations;
@@ -169,6 +191,11 @@ namespace Crossroads.Service.Finance.Controllers
                     // override contact id if impersonating
                     if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
                     {
+                        if (authDto.UserInfo.Mp.CanImpersonate == false)
+                        {
+                            throw new Exception("Impersonation Error");
+                        }
+
                         contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                     }
 
@@ -202,6 +229,11 @@ namespace Crossroads.Service.Finance.Controllers
                     // override contact id if impersonating
                     if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
                     {
+                        if (authDto.UserInfo.Mp.CanImpersonate == false)
+                        {
+                            throw new Exception("Impersonation Error");
+                        }
+
                         userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                     }
 

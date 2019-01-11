@@ -72,7 +72,7 @@ namespace MinistryPlatform.Test.Users
                 "User_Email"
             };
 
-            _apiUserRepository.Setup(m => m.GetApiClientToken(clientId)).Returns(token);
+            _apiUserRepository.Setup(m => m.GetApiClientToken("CRDS.Common")).Returns(token);
 
             var filter = $"User_Email = '{emailAddress}'";
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);

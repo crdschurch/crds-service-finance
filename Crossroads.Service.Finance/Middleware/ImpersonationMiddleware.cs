@@ -32,8 +32,7 @@ namespace Crossroads.Service.Finance.Middleware
                     var impersonatedContactId = new KeyValuePair<String, StringValues>("ImpersonatedContactId", userContactId.ToString());
                     context.Request.Headers.Add(impersonatedContactId);
 
-                    Console.WriteLine($"Impersonated user: {impersonatedUserEmail}");
-                    await _next.Invoke(context);
+                    Console.WriteLine($"Impersonated user: {impersonatedUserEmail}");             
                 }
                 catch (Exception e)
                 {
@@ -41,6 +40,8 @@ namespace Crossroads.Service.Finance.Middleware
                     throw;
                 }
             }
+
+            await _next.Invoke(context);
         }
     }
 
