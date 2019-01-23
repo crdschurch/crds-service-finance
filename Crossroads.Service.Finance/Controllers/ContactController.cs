@@ -29,20 +29,18 @@ namespace Crossroads.Service.Finance.Controllers
         [Route("{contactId}")]
         public IActionResult GetContact(int contactId)
         {
-            //return Authorized(authDto =>
-            //{
+            return Authorized(authDto =>
+            {
                 try
                 {
-                    var x = Request.Headers["ImpersonatedContactId"];
-                    //return Ok(_contactService.GetContact(contactId));
-                    return Ok(x);
+                    return Ok(_contactService.GetContact(contactId));
                 }
                 catch (Exception ex)
                 {
                     _logger.Error("Error in Contact: " + ex.Message, ex);
                     return StatusCode(400, ex);
                 }
-            //});
+            });
         }
 
         [HttpGet]
