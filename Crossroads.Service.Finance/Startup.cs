@@ -13,8 +13,10 @@ using MinistryPlatform.Repositories;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
+using Crossroads.Service.Finance.Middleware;
 using Crossroads.Service.Finance.Services.Health;
 using Crossroads.Service.Finance.Services.Recurring;
+using MinistryPlatform.Users;
 using Utilities.Logging;
 
 namespace Crossroads.Service.Finance
@@ -84,6 +86,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IDonationDistributionRepository, DonationDistributionRepository>();
             services.AddSingleton<IWebhooksRepository, WebhooksRepository>();
             services.AddSingleton<IGatewayService, GatewayService>();
+            services.AddSingleton<IUserRepository, UserRepository>();
 
             // Utilities Layer
             services.AddSingleton<IDataLoggingService, NewRelicAgentWrapper>();
@@ -102,6 +105,10 @@ namespace Crossroads.Service.Finance
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
+
+            // used for impersonation
+            app.UseImpersonationMiddleware();
+
             app.UseMvc();
 
             // commenting this out as "Crossroads.Service.Finance.xml" file is not being

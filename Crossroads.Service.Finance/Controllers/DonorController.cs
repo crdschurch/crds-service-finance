@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Crossroads.Web.Auth.Controllers;
 
 namespace Crossroads.Service.Finance.Controllers
 {
     [Route("api/[controller]")]
-    public class DonorController : MpAuthBaseController
+    public class DonorController : AuthBaseController
     {
         private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IDonationService _donationService;
@@ -37,11 +38,24 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetRecurringGifts()
         {
-            return Authorized(token =>
+            return Authorized(authDto =>
             {
                 try
                 {
-                    var recurringGifts = _donationService.GetRecurringGifts(token);
+                    var contactId = authDto.UserInfo.Mp.ContactId;
+
+                    // override contact id if impersonating
+                    if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
+                    {
+                        if (authDto.UserInfo.Mp.CanImpersonate == false)
+                        {
+                            throw new Exception("Impersonation Error");
+                        }
+
+                        contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                    }
+
+                    var recurringGifts = _donationService.GetRecurringGifts(contactId);
                     if (recurringGifts == null || recurringGifts.Count == 0)
                     {
                         return NoContent();
@@ -66,12 +80,24 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetMyPledges(int contactId)
         {
-            return Authorized(token =>
+            return Authorized(authDto =>
             {
                 try
                 {
                     List<PledgeDto> pledges;
-                    var userContactId = _contactService.GetContactIdBySessionId(token);
+                    var userContactId = authDto.UserInfo.Mp.ContactId;
+
+                    // override contact id if impersonating
+                    if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
+                    {
+                        if (authDto.UserInfo.Mp.CanImpersonate == false)
+                        {
+                            throw new Exception("Impersonation Error");
+                        }
+
+                        userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                    }
+
                     if (userContactId == contactId)
                     {
                         pledges = _donationService.GetPledges(contactId);
@@ -106,12 +132,25 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetDonationHistory(int contactId)
         {
-            return Authorized(token =>
+            return Authorized(authDto =>
             {
                 try
                 {
+                    var userContactId = authDto.UserInfo.Mp.ContactId;
+
+                    // override contact id if impersonating
+                    if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
+                    {
+                        if (authDto.UserInfo.Mp.CanImpersonate == false)
+                        {
+                            throw new Exception("Impersonation Error");
+                        }
+
+                        userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                    }
+
                     List<DonationDetailDto> donations;
-                    var userContactId = _contactService.GetContactIdBySessionId(token);
+                    //var userContactId = authDto.UserInfo.Mp.ContactId;
                     if (contactId == userContactId)
                     {
                         // get logged in user's donations
@@ -143,11 +182,24 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetDonorRelatedContacts()
         {
-            return Authorized(token =>
+            return Authorized(authDto =>
             {
                 try
                 {
-                    var userDonationVisibleContacts = _contactService.GetDonorRelatedContacts(token);
+                    var contactId = authDto.UserInfo.Mp.ContactId;
+
+                    // override contact id if impersonating
+                    if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
+                    {
+                        if (authDto.UserInfo.Mp.CanImpersonate == false)
+                        {
+                            throw new Exception("Impersonation Error");
+                        }
+
+                        contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                    }
+
+                    var userDonationVisibleContacts = _contactService.GetDonorRelatedContacts(contactId);
                     return Ok(userDonationVisibleContacts);
                 }
                 catch (Exception ex)
@@ -168,12 +220,25 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(204)]
         public IActionResult GetOtherGifts()
         {
-            return Authorized(token =>
+            return Authorized(authDto =>
             {
                 try
                 {
+                    var userContactId = authDto.UserInfo.Mp.ContactId;
+
+                    // override contact id if impersonating
+                    if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
+                    {
+                        if (authDto.UserInfo.Mp.CanImpersonate == false)
+                        {
+                            throw new Exception("Impersonation Error");
+                        }
+
+                        userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                    }
+
                     List<DonationDetailDto> donations;
-                    var userContactId = _contactService.GetContactIdBySessionId(token);
+                    //var userContactId = authDto.UserInfo.Mp.ContactId;
                     donations = _donationService.GetOtherGifts(userContactId);
 
                     if (donations == null || donations.Count == 0)
