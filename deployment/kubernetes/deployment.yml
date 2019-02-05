@@ -56,6 +56,8 @@ spec:
               value: $CRDS_MP_COMMON_CLIENT_SECRET
             - name: CRDS_GATEWAY_CLIENT_ENDPOINT
               value: $CRDS_GATEWAY_CLIENT_ENDPOINT
+            - name: CRDS_GATEWAY_SERVICE_KEY
+              value: $CRDS_GATEWAY_SERVICE_KEY
             - name: HANGFIRE_URL
               value: $HANGFIRE_URL
             - name: MP_OAUTH_BASE_URL

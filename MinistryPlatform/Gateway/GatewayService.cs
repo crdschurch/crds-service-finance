@@ -14,6 +14,7 @@ namespace Crossroads.Service.Finance.Services
     public class GatewayService: MinistryPlatformBase, IGatewayService
     {
         private readonly string gatewayEndpoint = Environment.GetEnvironmentVariable("CRDS_GATEWAY_CLIENT_ENDPOINT");
+        private readonly string gatewayServiceKey = Environment.GetEnvironmentVariable("CRDS_GATEWAY_SERVICE_KEY");
         private readonly IRestClient _restClient;
         private readonly IRecurringGiftRepository _recurringGiftRepository;
         private readonly IDonorRepository _donorRepository;
@@ -46,12 +47,13 @@ namespace Crossroads.Service.Finance.Services
             try
             {
                 var stripeRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(stripeSubscriptionId);
-                var donor = _donorRepository.GetDonorByDonorId(stripeRecurringGift.DonorId);
+                //var donor = _donorRepository.GetDonorByDonorId(stripeRecurringGift.DonorId);
                 var tokenWithImpersonate = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
                 var restRequest = new RestRequest($"api/donor/recurrence/{stripeRecurringGift.RecurringGiftId}?sendEmail=false", Method.DELETE);
-                restRequest.AddHeader("ImpersonateUserId", donor.EmailAddress);
-                restRequest.AddHeader("Authorization", tokenWithImpersonate);
+                //restRequest.AddHeader("ImpersonateUserId", donor.EmailAddress);
+                //restRequest.AddHeader("Authorization", tokenWithImpersonate);
+                restRequest.AddHeader("GatewayServiceKey", gatewayServiceKey);
 
                 Console.WriteLine($"Cancelling stripe recurring gift ({stripeSubscriptionId})");
                 IRestResponse response = _restClient.Execute(restRequest);
