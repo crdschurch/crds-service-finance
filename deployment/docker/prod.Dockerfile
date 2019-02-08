@@ -39,17 +39,23 @@ WORKDIR /app/finance
 # Copy over the build from the previous step 
 COPY --from=build-env /app/Crossroads.Service.Finance/out . 
 
-# copy new relic files
-WORKDIR /app/newrelic
-COPY ./newrelic .
+# Install wget
+RUN echo 'installing wget' \
+&& apt-get update \
+&& apt-get install -y wget
 
-RUN dpkg -i ./newrelic-netcore20-agent_8.4.880.0_amd64.deb
+RUN echo 'installing gnupg' \
+&& apt-get install -y gnupg
 
-# then "whatever the hell this is" -dillon
-ENV ASPNETCORE_URLS http://+:80
-EXPOSE 80
+# Install new relic
+RUN echo 'deb http://apt.newrelic.com/debian/ newrelic non-free' | tee /etc/apt/sources.list.d/newrelic.list \
+&& wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add - \
+&& apt-get update \
+&& apt-get install newrelic-netcore20-agent
 
-WORKDIR /app/finance
+ENV CORECLR_NEWRELIC_HOME=/usr/local/newrelic-netcore20-agent
 
-# Run the dotnet entrypoint for the crdsfred dll 
-ENTRYPOINT ["dotnet", "Crossroads.Service.Finance.dll"]
+CMD $CORECLR_NEWRELIC_HOME/run.sh dotnet Crossroads.Service.Finance.dll
+
+# Run the dotnet entrypoint for the dll
+# ENTRYPOINT ["dotnet", "Crossroads.Service.Finance.dll"]
