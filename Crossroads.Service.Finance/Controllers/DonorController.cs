@@ -33,16 +33,16 @@ namespace Crossroads.Service.Finance.Controllers
         /// Get recurring gifts for a user
         /// </summary>
         /// <returns></returns>
-        [HttpGet("recurring-gifts")]
+        [HttpGet("{contactId}/recurring-gifts")]
         [ProducesResponseType(typeof(List<RecurringGiftDto>), 200)]
         [ProducesResponseType(204)]
-        public IActionResult GetRecurringGifts()
+        public IActionResult GetRecurringGifts(int contactId)
         {
             return Authorized(authDto =>
             {
                 try
                 {
-                    var contactId = authDto.UserInfo.Mp.ContactId;
+                    //var contactId = authDto.UserInfo.Mp.ContactId;
 
                     // override contact id if impersonating
                     if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
@@ -215,17 +215,15 @@ namespace Crossroads.Service.Finance.Controllers
         /// Get donations (donation history) for a user
         /// </summary>
         /// <returns></returns>
-        [HttpGet("contact/othergifts")]
+        [HttpGet("{contactId}/othergifts")]
         [ProducesResponseType(typeof(List<DonationDto>), 200)]
         [ProducesResponseType(204)]
-        public IActionResult GetOtherGifts()
+        public IActionResult GetOtherGifts(int contactId)
         {
             return Authorized(authDto =>
             {
                 try
                 {
-                    var userContactId = authDto.UserInfo.Mp.ContactId;
-
                     // override contact id if impersonating
                     if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
                     {
@@ -234,12 +232,11 @@ namespace Crossroads.Service.Finance.Controllers
                             throw new Exception("Impersonation Error");
                         }
 
-                        userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                        contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                     }
 
                     List<DonationDetailDto> donations;
-                    //var userContactId = authDto.UserInfo.Mp.ContactId;
-                    donations = _donationService.GetOtherGifts(userContactId);
+                    donations = _donationService.GetOtherGifts(contactId);
 
                     if (donations == null || donations.Count == 0)
                     {
