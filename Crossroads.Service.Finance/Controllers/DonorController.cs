@@ -42,8 +42,6 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
-                    //var contactId = authDto.UserInfo.Mp.ContactId;
-
                     // override contact id if impersonating
                     if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
                     {
@@ -150,7 +148,7 @@ namespace Crossroads.Service.Finance.Controllers
                     }
 
                     List<DonationDetailDto> donations;
-                    //var userContactId = authDto.UserInfo.Mp.ContactId;
+
                     if (contactId == userContactId)
                     {
                         // get logged in user's donations
@@ -235,8 +233,7 @@ namespace Crossroads.Service.Finance.Controllers
                         contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                     }
 
-                    List<DonationDetailDto> donations;
-                    donations = _donationService.GetOtherGifts(contactId);
+                    List<DonationDetailDto> donations = _donationService.GetOtherGifts(contactId);
 
                     if (donations == null || donations.Count == 0)
                     {
