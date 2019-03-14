@@ -42,6 +42,9 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
+                    List<RecurringGiftDto> recurringGifts;
+                    var userContactId = authDto.UserInfo.Mp.ContactId;
+
                     // override contact id if impersonating
                     if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
                     {
@@ -50,10 +53,18 @@ namespace Crossroads.Service.Finance.Controllers
                             throw new Exception("Impersonation Error");
                         }
 
-                        contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                        userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                     }
 
-                    var recurringGifts = _donationService.GetRecurringGifts(contactId);
+                    if (userContactId == contactId)
+                    {
+                        recurringGifts = _donationService.GetRecurringGifts(userContactId);
+                    }
+                    else
+                    {
+                        recurringGifts = _donationService.GetRelatedContactRecurringGifts(userContactId, contactId);
+                    }
+
                     if (recurringGifts == null || recurringGifts.Count == 0)
                     {
                         return NoContent();

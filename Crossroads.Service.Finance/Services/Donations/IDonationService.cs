@@ -15,6 +15,7 @@ namespace Crossroads.Service.Finance.Interfaces
         MpDonorAccount CreateDonorAccount(MpDonorAccount donor);
         void UpdateDonorAccount(JObject donorAccount);
         List<RecurringGiftDto> GetRecurringGifts(int contactId);
+        List<RecurringGiftDto> GetRelatedContactRecurringGifts(int userContactId, int relatedContactId);
         List<PledgeDto> GetPledges(int contactId);
         List<DonationDetailDto> GetDonations(int contactId);
         List<DonationDetailDto> GetDonations(string token);
