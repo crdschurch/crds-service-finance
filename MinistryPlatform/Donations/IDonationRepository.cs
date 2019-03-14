@@ -16,6 +16,7 @@ namespace MinistryPlatform.Interfaces
         void UpdateDonorAccount(JObject donorAccount);
         MpContactDonor GetContactDonor(int contactId);
         List<MpRecurringGift> GetRecurringGifts(int contactId);
+        List<MpRecurringGift> GetRecurringGiftsByContactIdAndDates(int contactId, DateTime? startDate = null, DateTime? endDate = null);
         //List<MpPledge> GetPledges(string token);
         List<MpDonation> GetDonations(int contactId);
         List<MpDonationDetail> GetDonationHistoryByContactId(int contactId, DateTime? startDate = null, DateTime? endDate = null);
