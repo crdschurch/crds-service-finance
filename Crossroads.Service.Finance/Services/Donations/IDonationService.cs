@@ -20,6 +20,7 @@ namespace Crossroads.Service.Finance.Interfaces
         List<DonationDetailDto> GetDonations(int contactId);
         List<DonationDetailDto> GetDonations(string token);
         List<DonationDetailDto> GetOtherGifts(int contactId);
+        List<DonationDetailDto> GetRelatedContactOtherGifts(int userContactId, int relatedContactId);
         List<MpPledge> CalculatePledges(int contactId);
         List<DonationDetailDto> GetRelatedContactDonations(int userContactId, int relatedContactId);
         List<PledgeDto> GetRelatedContactPledge(int userContactId, int relatedContactId);
