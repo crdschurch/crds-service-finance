@@ -21,5 +21,6 @@ namespace MinistryPlatform.Interfaces
         List<MpDonation> GetDonations(int contactId);
         List<MpDonationDetail> GetDonationHistoryByContactId(int contactId, DateTime? startDate = null, DateTime? endDate = null);
         List<MpDonationDetail> GetOtherGiftsByContactId(int contactId);
+        List<MpDonationDetail> GetOtherGiftsForRelatedContact(int contactId, DateTime? startDate = null, DateTime? endDate = null);
     }
 }

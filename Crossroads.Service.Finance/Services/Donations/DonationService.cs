@@ -206,6 +206,30 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<List<DonationDetailDto>>(records);
         }
 
+        public List<DonationDetailDto> GetRelatedContactOtherGifts(int userContactId, int relatedContactId)
+        {
+            // check if household minor child
+            var userContact = _contactService.GetContact(userContactId);
+            var householdMinorChildren = _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
+            if (householdMinorChildren.Exists(householdChild => householdChild.ContactId == relatedContactId))
+            {
+                var mpDonationHistory = GetOtherGifts(relatedContactId);
+                return _mapper.Map<List<DonationDetailDto>>(mpDonationHistory);
+            }
+
+            // check if relatedContactId has an active co-giver contact relationship with userContactId
+            var cogiverContactRelationship = _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
+            if (cogiverContactRelationship != null)
+            {
+                // relatedContactId is a cogiver contact relationship
+                var mpDonationHistory = _mpDonationRepository.GetOtherGiftsForRelatedContact(relatedContactId,
+                    cogiverContactRelationship.StartDate,
+                    cogiverContactRelationship.EndDate);
+                return _mapper.Map<List<DonationDetailDto>>(mpDonationHistory);
+            }
+            throw new Exception($"Contact {userContactId} does not have access to view giving history for contact {relatedContactId}");
+        }
+
         public List<DonationDetailDto> GetRelatedContactDonations(int userContactId, int relatedContactId)
         {
             // check if household minor child

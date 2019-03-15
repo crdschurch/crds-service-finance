@@ -233,6 +233,8 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 try
                 {
+                    var userContactId = authDto.UserInfo.Mp.ContactId;
+
                     // override contact id if impersonating
                     if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
                     {
@@ -241,17 +243,27 @@ namespace Crossroads.Service.Finance.Controllers
                             throw new Exception("Impersonation Error");
                         }
 
-                        contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                        userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                     }
 
-                    List<DonationDetailDto> donations = _donationService.GetOtherGifts(contactId);
+                    List<DonationDetailDto> otherGifts;
 
-                    if (donations == null || donations.Count == 0)
+                    if (contactId == userContactId)
+                    {
+                        // get logged in user's other gifts
+                        otherGifts = _donationService.GetOtherGifts(contactId);
+                    }
+                    else
+                    {
+                        // get related contact other gifts
+                        otherGifts = _donationService.GetRelatedContactOtherGifts(userContactId, contactId);
+                    }
+                    if (otherGifts == null || otherGifts.Count == 0)
                     {
                         return NoContent();
                     }
 
-                    return Ok(donations);
+                    return Ok(otherGifts);
                 }
                 catch (Exception ex)
                 {
