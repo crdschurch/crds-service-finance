@@ -177,6 +177,57 @@ namespace MinistryPlatform.Repositories
                                 .Search<MpRecurringGift>().ToList();
         }
 
+        public List<MpRecurringGift> GetRecurringGiftsByContactIdAndDates(int contactId, DateTime? startDate = null,
+            DateTime? endDate = null)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var columns = new string[] {
+                "Recurring_Gifts.[Recurring_Gift_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donor_ID_Table.[Donor_ID]",
+                "Donor_Account_ID_Table.[Donor_Account_ID]",
+                "Frequency_ID_Table.[Frequency_ID]",
+                "Recurring_Gifts.[Day_Of_Month]",
+                "Day_Of_Week_ID_Table.[Day_Of_Week_ID]",
+                "Recurring_Gifts.[Amount]",
+                "Recurring_Gifts.[Start_Date]",
+                "Recurring_Gifts.[End_Date]",
+                "Program_ID_Table.[Program_ID]",
+                "Program_ID_Table.[Program_Name]",
+                "Congregation_ID_Table.[Congregation_ID]",
+                "Recurring_Gifts.[Subscription_ID]",
+                "Recurring_Gifts.[Consecutive_Failure_Count]",
+                "Recurring_Gifts.[Source_Url]",
+                "Recurring_Gifts.[Predefined_Amount]",
+                "Recurring_Gifts.[Vendor_Detail_Url]",
+                "Recurring_Gifts.[Recurring_Gift_Status_ID]"
+            };
+
+            var filters = new List<string> {
+                $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}",
+                $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[Recurring_Gift_Status_ID] = {PausedRecurringGiftStatusId})"
+            };
+
+            if (startDate != null)
+            {
+                filters.Add($"Recurring_Gifts.[Start_Date] >= '{startDate:yyyy-MM-dd}'");
+            }
+
+            if (endDate != null)
+            {
+                filters.Add($"Recurring_Gifts.[End_Date] <= '{endDate:yyyy-MM-dd}'");
+            }
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithSelectColumns(columns)
+                .WithAuthenticationToken(token)
+                .WithFilter(String.Join(" AND ", filters))
+                .OrderBy("Recurring_Gifts.[Recurring_Gift_ID] DESC")
+                .Build()
+                .Search<MpRecurringGift>().ToList();
+        }
+
         public List<MpDonation> GetDonations(int contactId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
@@ -271,6 +322,45 @@ namespace MinistryPlatform.Repositories
                 .WithSelectColumns(selectColumns)
                 .WithAuthenticationToken(token)
                 .WithFilter(filter)
+                .OrderBy(order)
+                .Build()
+                .Search<MpDonationDetail>().ToList();
+        }
+
+        public List<MpDonationDetail> GetOtherGiftsForRelatedContact(int contactId, DateTime? startDate = null,
+            DateTime? endDate = null)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var selectColumns = new string[] {
+                "Donation_Distributions.[Donation_ID]",
+                "Donation_ID_Table.[Donation_Date]",
+                "Program_ID_Table.[Program_Name]",
+                "Donation_Distributions.[Amount]",
+                "Donation_ID_Table_Donor_ID_Table_Contact_ID_Table.[Display_Name]"
+            };
+
+            var filters = new List<string>
+            {
+                $"Soft_Credit_Donor_Table_Contact_ID_Table.[Contact_ID] = {contactId}"
+            };
+
+            if (startDate != null)
+            {
+                filters.Add($"Donation_ID_Table.[Donation_Date] >= '{startDate:yyyy-MM-dd}'");
+            }
+
+            if (endDate != null)
+            {
+                filters.Add($"Donation_ID_Table.[Donation_Date] <= '{endDate:yyyy-MM-dd}'");
+            }
+
+            var order = "Donation_ID_Table.[Donation_Date] DESC";
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithSelectColumns(selectColumns)
+                .WithAuthenticationToken(token)
+                .WithFilter(String.Join(" AND ", filters))
                 .OrderBy(order)
                 .Build()
                 .Search<MpDonationDetail>().ToList();

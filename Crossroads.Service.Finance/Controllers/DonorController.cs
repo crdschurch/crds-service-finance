@@ -33,16 +33,17 @@ namespace Crossroads.Service.Finance.Controllers
         /// Get recurring gifts for a user
         /// </summary>
         /// <returns></returns>
-        [HttpGet("recurring-gifts")]
+        [HttpGet("{contactId}/recurring-gifts")]
         [ProducesResponseType(typeof(List<RecurringGiftDto>), 200)]
         [ProducesResponseType(204)]
-        public IActionResult GetRecurringGifts()
+        public IActionResult GetRecurringGifts(int contactId)
         {
             return Authorized(authDto =>
             {
                 try
                 {
-                    var contactId = authDto.UserInfo.Mp.ContactId;
+                    List<RecurringGiftDto> recurringGifts;
+                    var userContactId = authDto.UserInfo.Mp.ContactId;
 
                     // override contact id if impersonating
                     if (!String.IsNullOrEmpty(Request.Headers["ImpersonatedContactId"]))
@@ -52,10 +53,18 @@ namespace Crossroads.Service.Finance.Controllers
                             throw new Exception("Impersonation Error");
                         }
 
-                        contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
+                        userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                     }
 
-                    var recurringGifts = _donationService.GetRecurringGifts(contactId);
+                    if (userContactId == contactId)
+                    {
+                        recurringGifts = _donationService.GetRecurringGifts(userContactId);
+                    }
+                    else
+                    {
+                        recurringGifts = _donationService.GetRelatedContactRecurringGifts(userContactId, contactId);
+                    }
+
                     if (recurringGifts == null || recurringGifts.Count == 0)
                     {
                         return NoContent();
@@ -150,7 +159,7 @@ namespace Crossroads.Service.Finance.Controllers
                     }
 
                     List<DonationDetailDto> donations;
-                    //var userContactId = authDto.UserInfo.Mp.ContactId;
+
                     if (contactId == userContactId)
                     {
                         // get logged in user's donations
@@ -215,10 +224,10 @@ namespace Crossroads.Service.Finance.Controllers
         /// Get donations (donation history) for a user
         /// </summary>
         /// <returns></returns>
-        [HttpGet("contact/othergifts")]
+        [HttpGet("{contactId}/othergifts")]
         [ProducesResponseType(typeof(List<DonationDto>), 200)]
         [ProducesResponseType(204)]
-        public IActionResult GetOtherGifts()
+        public IActionResult GetOtherGifts(int contactId)
         {
             return Authorized(authDto =>
             {
@@ -237,16 +246,24 @@ namespace Crossroads.Service.Finance.Controllers
                         userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                     }
 
-                    List<DonationDetailDto> donations;
-                    //var userContactId = authDto.UserInfo.Mp.ContactId;
-                    donations = _donationService.GetOtherGifts(userContactId);
+                    List<DonationDetailDto> otherGifts;
 
-                    if (donations == null || donations.Count == 0)
+                    if (contactId == userContactId)
+                    {
+                        // get logged in user's other gifts
+                        otherGifts = _donationService.GetOtherGifts(contactId);
+                    }
+                    else
+                    {
+                        // get related contact other gifts
+                        otherGifts = _donationService.GetRelatedContactOtherGifts(userContactId, contactId);
+                    }
+                    if (otherGifts == null || otherGifts.Count == 0)
                     {
                         return NoContent();
                     }
 
-                    return Ok(donations);
+                    return Ok(otherGifts);
                 }
                 catch (Exception ex)
                 {
