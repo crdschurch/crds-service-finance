@@ -12,6 +12,7 @@ using MinistryPlatform.Models;
 using Pushpay.Client;
 using Pushpay.Models;
 using Crossroads.Web.Common.Configuration;
+using MinistryPlatform.Congregations;
 using MinistryPlatform.Donors;
 using Newtonsoft.Json.Linq;
 using Utilities.Logging;
@@ -32,6 +33,9 @@ namespace Crossroads.Service.Finance.Services
         private readonly IGatewayService _gatewayService;
         private readonly IMapper _mapper;
         private readonly IDataLoggingService _dataLoggingService;
+        private readonly IDonationDistributionRepository _donationDistributionRepository;
+        private readonly ICongregationRepository _congregationRepository;
+
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeposited, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
                              _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpNotSiteSpecificCongregationId;
         private const int maxRetryMinutes = 10;
@@ -41,7 +45,8 @@ namespace Crossroads.Service.Finance.Services
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
                               IProgramRepository programRepository, IContactRepository contactRepository, IDonorRepository donorRepository,
-                              IWebhooksRepository webhooksRepository, IGatewayService gatewayService, IDataLoggingService dataLoggingService)
+                              IWebhooksRepository webhooksRepository, IGatewayService gatewayService, IDataLoggingService dataLoggingService,
+                              IDonationDistributionRepository donationDistributionRepository, ICongregationRepository congregationRepository)
         {
             _pushpayClient = pushpayClient;
             _donationService = donationService;
@@ -53,6 +58,8 @@ namespace Crossroads.Service.Finance.Services
             _webhooksRepository = webhooksRepository;
             _gatewayService = gatewayService;
             _dataLoggingService = dataLoggingService;
+            _donationDistributionRepository = donationDistributionRepository;
+            _congregationRepository = congregationRepository;
             _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
             _mpDonationStatusDeposited = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeposited") ?? 2;
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
@@ -161,6 +168,19 @@ namespace Crossroads.Service.Finance.Services
                 donation.DonationStatusDate = DateTime.Now;
                 var updatedDonation = _donationService.Update(donation);
                 Console.WriteLine($"Donation updated: {updatedDonation.DonationId} -> {webhook.Events[0].Links.Payment}");
+
+                // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
+                var congregationName = pushpayPayment.PushpayFields.First(r => r.Key == "100200437826").Value;
+                var congregation = _congregationRepository.GetCongregationByCongregationName(congregationName).First();
+                var donationDistributions = _donationDistributionRepository.GetByDonationId(donation.DonationId);
+
+                foreach (var donationDistribution in donationDistributions)
+                {
+                    donationDistribution.CongregationId = congregation.CongregationId;
+                }
+
+                _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
+
                 return donation;
             } catch (Exception e) {
                 Console.WriteLine($"Exception: {webhook?.Events[0]?.Links?.Payment}");

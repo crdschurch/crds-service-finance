@@ -75,5 +75,53 @@ namespace MinistryPlatform.Test.Pledges
             // Assert
             Assert.Equal(3, response.Count);
         }
+
+        [Fact]
+        public void ShouldGetDonationDistributionByDonationId()
+        {
+            // Arrange
+            var donationId = 6677889;
+
+            var selectColumns = new string[] {
+                "Donation_Distributions.[Donation_Distribution_ID]",
+                "Donation_Distributions.[Donation_ID]",
+                "Donation_Distributions.[Amount]",
+                "Donation_Distributions.[Pledge_ID]",
+                "Donation_Distributions.[Congregation_ID]"
+            };
+
+            var filter = $"Donation_Distributions.[Donation_ID] = {donationId}";
+
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpDonationDistribution>()).Returns(MpDonationDistributionMock.CreateList());
+
+            // Act
+            var result = _fixture.GetByDonationId(donationId);
+
+            // Assert
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void ShouldUpdateDonationDistributions()
+        {
+            // Arrange
+            var mpDonationDistributions = new List<MpDonationDistribution>();
+
+            _request.Setup(m => m.Update(It.IsAny<List<MpDonationDistribution>>(), null)).Returns(new List<MpDonationDistribution>());
+
+            // Act
+            var result = _fixture.UpdateDonationDistributions(mpDonationDistributions);
+
+            // Assert
+            Assert.NotNull(result);
+            _request.VerifyAll();
+        }
     }
 }
