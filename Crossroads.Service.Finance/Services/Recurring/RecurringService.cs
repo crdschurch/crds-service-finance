@@ -94,7 +94,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
             Console.WriteLine($"Finished SyncRecurringGifts at {DateTime.Now:G}.  {numUpdates} records updated.");
         }
-
+        
         private bool IsPushpayDateNewer(DateTime mp, DateTime pushpay)
         {
             // MP truncates seconds from DateTime fields that are inserted/updated via

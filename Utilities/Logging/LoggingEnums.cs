@@ -24,6 +24,7 @@ namespace Utilities.Logging
         noChargesForSettlement,
         noDepositsToSync,
         noRecurringGiftSubFound,
+        noSelectedSite,
         previouslySyncedDeposit,
         refundingTransaction,
         saveWebhookData,

@@ -15,19 +15,19 @@ namespace Mock
                 {
                     Amount = 231m,
                     PledgeId = pledgeId1,
-                    DonationId = 12
+                    DonationDistributionId = 12
                 },
                 new MpDonationDistribution
                 {
                     Amount = 62.10m,
                     PledgeId = pledgeId2,
-                    DonationId = 14
+                    DonationDistributionId = 14
                 },
                 new MpDonationDistribution
                 {
                     Amount = 870.12m,
                     PledgeId = pledgeId1,
-                    DonationId = 188
+                    DonationDistributionId = 188
                 },
             };
     }
