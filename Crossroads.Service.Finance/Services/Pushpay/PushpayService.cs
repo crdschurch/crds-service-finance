@@ -41,6 +41,7 @@ namespace Crossroads.Service.Finance.Services
         private const int maxRetryMinutes = 15;
         private const int pushpayProcessorTypeId = 1;
         private const int NotSiteSpecificCongregationId = 5;
+        private const string CongregationFieldKey = "100200437826";
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
@@ -171,9 +172,9 @@ namespace Crossroads.Service.Finance.Services
 
                 // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
                 // (this is a different business rule from soft credit donations
-                if (pushpayPayment.PushpayFields != null && pushpayPayment.PushpayFields.Any(r => r.Key == "100200437826"))
+                if (pushpayPayment.PushpayFields != null && pushpayPayment.PushpayFields.Any(r => r.Key == CongregationFieldKey))
                 {
-                    var congregationName = pushpayPayment.PushpayFields.First(r => r.Key == "100200437826").Value;
+                    var congregationName = pushpayPayment.PushpayFields.First(r => r.Key == CongregationFieldKey).Value;
                     var congregation = _congregationRepository.GetCongregationByCongregationName(congregationName).First();
                     var donationDistributions = _donationDistributionRepository.GetByDonationId(donation.DonationId);
 
