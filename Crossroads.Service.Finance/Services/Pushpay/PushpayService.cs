@@ -38,7 +38,7 @@ namespace Crossroads.Service.Finance.Services
 
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeposited, _mpDonationStatusDeclined, _mpDonationStatusSucceeded,
                              _mpPushpayRecurringWebhookMinutes, _mpDefaultContactDonorId, _mpNotSiteSpecificCongregationId;
-        private const int maxRetryMinutes = 10;
+        private const int maxRetryMinutes = 15;
         private const int pushpayProcessorTypeId = 1;
         private const int NotSiteSpecificCongregationId = 5;
 
@@ -170,16 +170,27 @@ namespace Crossroads.Service.Finance.Services
                 Console.WriteLine($"Donation updated: {updatedDonation.DonationId} -> {webhook.Events[0].Links.Payment}");
 
                 // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
-                var congregationName = pushpayPayment.PushpayFields.First(r => r.Key == "100200437826").Value;
-                var congregation = _congregationRepository.GetCongregationByCongregationName(congregationName).First();
-                var donationDistributions = _donationDistributionRepository.GetByDonationId(donation.DonationId);
-
-                foreach (var donationDistribution in donationDistributions)
+                // (this is a different business rule from soft credit donations
+                if (pushpayPayment.PushpayFields != null && pushpayPayment.PushpayFields.Any(r => r.Key == "100200437826"))
                 {
-                    donationDistribution.CongregationId = congregation.CongregationId;
-                }
+                    var congregationName = pushpayPayment.PushpayFields.First(r => r.Key == "100200437826").Value;
+                    var congregation = _congregationRepository.GetCongregationByCongregationName(congregationName).First();
+                    var donationDistributions = _donationDistributionRepository.GetByDonationId(donation.DonationId);
 
-                _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
+                    foreach (var donationDistribution in donationDistributions)
+                    {
+                        donationDistribution.CongregationId = congregation.CongregationId;
+                        donationDistribution.HCDonorCongregationId = congregation.CongregationId;
+                    }
+
+                    _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
+                }
+                else
+                {
+                    var noSelectedSiteEntry = new LogEventEntry(LogEventType.noSelectedSite);
+                    noSelectedSiteEntry.Push("noSelectedSite", donation);
+                    _dataLoggingService.LogDataEvent(noSelectedSiteEntry);
+                }
 
                 return donation;
             } catch (Exception e) {

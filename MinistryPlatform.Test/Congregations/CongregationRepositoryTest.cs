@@ -60,7 +60,7 @@ namespace MinistryPlatform.Test.Congregations
                 "Congregations.[Congregation_ID]",
                 "Congregations.[Congregation_Name]"
             };
-            var filter = $"Congregation_Name = {congregationName}";
+            var filter = $"Congregations.Congregation_Name = '{congregationName}'";
             _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);

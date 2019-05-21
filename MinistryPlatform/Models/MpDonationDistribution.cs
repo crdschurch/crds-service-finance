@@ -22,5 +22,8 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Congregation_ID")]
         public int? CongregationId { get; set; }
+
+        [JsonProperty("HC_Donor_Congregation_ID")]
+        public int? HCDonorCongregationId { get; set; }
     }
 }

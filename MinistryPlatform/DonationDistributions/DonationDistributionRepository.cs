@@ -50,7 +50,8 @@ namespace MinistryPlatform.Repositories
                 "Donation_Distributions.[Donation_ID]",
                 "Donation_Distributions.[Amount]",
                 "Donation_Distributions.[Pledge_ID]",
-                "Donation_Distributions.[Congregation_ID]"
+                "Donation_Distributions.[Congregation_ID]",
+                "Donation_Distributions.[HC_Donor_Congregation_ID]"
             };
 
             var filter = $"Donation_Distributions.[Donation_ID] = {donationId}";
