@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Services.Recurring;
 using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
@@ -60,11 +61,167 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 .Returns(new MpRecurringGift{ SubscriptionId = "123abc"});
 
             // Act
-            _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
+            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
 
             // Assert
             _pushpayService.VerifyAll();
             _recurringGiftRepository.VerifyAll();
+
+            Assert.NotEmpty(result);
+        }
+
+        [Fact]
+        public void ShouldNotSyncRecurringGiftsIfBothGiftsArePaused()
+        {
+            // Arrange
+            var pushpayRecurringGifts = new List<PushpayRecurringGiftDto>
+            {
+                new PushpayRecurringGiftDto
+                {
+                    PaymentToken = "123abc",
+                    Status = "Paused"
+                }
+            };
+
+            _pushpayService.Setup(m => m.GetRecurringGiftsByDateRange(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(pushpayRecurringGifts);
+
+            _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
+                .Returns(new List<MpRecurringGift>{ new MpRecurringGift {SubscriptionId = "123abc" }});
+
+            // Act
+            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
+
+            // Assert
+            _pushpayService.VerifyAll();
+            _recurringGiftRepository.VerifyAll();
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void ShouldUpdateRecurringGiftsWithOlderMpGift()
+        {
+            // Arrange
+            var pushpayRecurringGifts = new List<PushpayRecurringGiftDto>
+            {
+                new PushpayRecurringGiftDto
+                {
+                    PaymentToken = "123abc",
+                    UpdatedOn = new DateTime(2019, 05, 23)
+                }
+            };
+
+            var mpRecurringGifts = new List<MpRecurringGift>
+            {
+                new MpRecurringGift
+                {
+                    SubscriptionId = "123abc",
+                    UpdatedOn = new DateTime(2019, 05, 22)
+                }
+            };
+
+            _pushpayService.Setup(m => m.GetRecurringGiftsByDateRange(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(pushpayRecurringGifts);
+
+            _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
+                .Returns(mpRecurringGifts);
+
+            _pushpayService.Setup(m => m.UpdateRecurringGiftForSync(pushpayRecurringGifts[0], mpRecurringGifts[0]))
+                .Returns(new RecurringGiftDto());
+
+            // Act
+            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
+
+            // Assert
+            _pushpayService.VerifyAll();
+            _recurringGiftRepository.VerifyAll();
+
+            Assert.Single(result);
+        }
+
+        [Fact]
+        public void ShouldSyncRecurringGiftsIfPushpayGiftIsPausedAndMpWasUpdatedEarlierInTheDay()
+        {
+            // Arrange
+            var pushpayRecurringGifts = new List<PushpayRecurringGiftDto>
+            {
+                new PushpayRecurringGiftDto
+                {
+                    PaymentToken = "123abc",
+                    UpdatedOn = new DateTime(2019, 05, 23),
+                    Status = "Paused"
+                }
+            };
+
+            var mpRecurringGifts = new List<MpRecurringGift>
+            {
+                new MpRecurringGift
+                {
+                    SubscriptionId = "123abc",
+                    UpdatedOn = new DateTime(2019, 05, 23)
+                }
+            };
+
+            _pushpayService.Setup(m => m.GetRecurringGiftsByDateRange(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(pushpayRecurringGifts);
+
+            _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
+                .Returns(mpRecurringGifts);
+
+            _pushpayService.Setup(m => m.UpdateRecurringGiftForSync(pushpayRecurringGifts[0], mpRecurringGifts[0]))
+                .Returns(new RecurringGiftDto());
+
+            // Act
+            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
+
+            // Assert
+            _pushpayService.VerifyAll();
+            _recurringGiftRepository.VerifyAll();
+
+            Assert.Single(result);
+        }
+
+        [Fact]
+        public void ShouldSyncRecurringGiftsIfMpGiftIsPausedAndPushpayWasNot()
+        {
+            // Arrange
+            var pushpayRecurringGifts = new List<PushpayRecurringGiftDto>
+            {
+                new PushpayRecurringGiftDto
+                {
+                    PaymentToken = "123abc",
+                    UpdatedOn = new DateTime(2019, 05, 23)
+                }
+            };
+
+            var mpRecurringGifts = new List<MpRecurringGift>
+            {
+                new MpRecurringGift
+                {
+                    SubscriptionId = "123abc",
+                    UpdatedOn = new DateTime(2019, 05, 23),
+                    Status = "Paused"
+                }
+            };
+
+            _pushpayService.Setup(m => m.GetRecurringGiftsByDateRange(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(pushpayRecurringGifts);
+
+            _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
+                .Returns(mpRecurringGifts);
+
+            _pushpayService.Setup(m => m.UpdateRecurringGiftForSync(pushpayRecurringGifts[0], mpRecurringGifts[0]))
+                .Returns(new RecurringGiftDto());
+
+            // Act
+            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
+
+            // Assert
+            _pushpayService.VerifyAll();
+            _recurringGiftRepository.VerifyAll();
+
+            Assert.Single(result);
         }
     }
 }

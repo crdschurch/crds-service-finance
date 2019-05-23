@@ -7,6 +7,6 @@ namespace Crossroads.Service.Finance.Services.Recurring
 {
     public interface IRecurringService
     {
-        void SyncRecurringGifts(DateTime startDateTime, DateTime endDateTime);
+        List<string> SyncRecurringGifts(DateTime startDateTime, DateTime endDateTime);
     }
 }
