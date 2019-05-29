@@ -26,6 +26,7 @@ namespace Utilities.Logging
         noRecurringGiftSubFound,
         noSelectedSite,
         previouslySyncedDeposit,
+        pullingDonationDetails,
         refundingTransaction,
         saveWebhookData,
         stripeCancel,

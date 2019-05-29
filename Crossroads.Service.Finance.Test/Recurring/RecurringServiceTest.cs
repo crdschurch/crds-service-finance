@@ -149,7 +149,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 new PushpayRecurringGiftDto
                 {
                     PaymentToken = "123abc",
-                    UpdatedOn = new DateTime(2019, 05, 23),
+                    UpdatedOn = DateTime.Now,
                     Status = "Paused"
                 }
             };
@@ -159,7 +159,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 new MpRecurringGift
                 {
                     SubscriptionId = "123abc",
-                    UpdatedOn = new DateTime(2019, 05, 23)
+                    UpdatedOn = DateTime.Now.AddMinutes(-5)
                 }
             };
 
@@ -186,12 +186,14 @@ namespace Crossroads.Service.Finance.Test.Recurring
         public void ShouldSyncRecurringGiftsIfMpGiftIsPausedAndPushpayWasNot()
         {
             // Arrange
+            var testDate = DateTime.Parse(DateTime.Now.ToShortDateString());
+
             var pushpayRecurringGifts = new List<PushpayRecurringGiftDto>
             {
                 new PushpayRecurringGiftDto
                 {
                     PaymentToken = "123abc",
-                    UpdatedOn = new DateTime(2019, 05, 23)
+                    UpdatedOn = DateTime.Now
                 }
             };
 
@@ -200,7 +202,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 new MpRecurringGift
                 {
                     SubscriptionId = "123abc",
-                    UpdatedOn = new DateTime(2019, 05, 23),
+                    UpdatedOn = DateTime.Now.AddMinutes(-5),
                     Status = "Paused"
                 }
             };
@@ -215,7 +217,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 .Returns(new RecurringGiftDto());
 
             // Act
-            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
+            var result = _fixture.SyncRecurringGifts(testDate.AddDays(-1), testDate);
 
             // Assert
             _pushpayService.VerifyAll();

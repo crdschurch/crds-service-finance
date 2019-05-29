@@ -100,7 +100,7 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // if this fails, it will schedule it to be re-run in 60 seconds,
-        //  after 10 minutes of trying it'll give up
+        //  after 15 minutes of trying it'll give up
         public DonationDto UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false)
         {
             try {
@@ -109,6 +109,16 @@ namespace Crossroads.Service.Finance.Services
                 //   so it still may not be available
                 // if pushpayPayment is null, let it go into catch statement to re-run
                 var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
+
+                // TODO: Consider removing this logging at some point if logs get too bloated
+                // validate if we actually received the webhook for a donation
+                var mpDonationExistence = (donation != null) ? "Donation exists in MP" : "Donation does not exist in MP";
+
+                Console.WriteLine($"Getting donation details for {pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
+                var pullingDonationDetailsEntry = new LogEventEntry(LogEventType.pullingDonationDetails);
+                pullingDonationDetailsEntry.Push("gettingDonationDetails", $"Getting donation details for {pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
+                _dataLoggingService.LogDataEvent(pullingDonationDetailsEntry);
+
                 // add payment token so that we can identify easier via api
                 if (pushpayPayment.PaymentToken != null)
                 {

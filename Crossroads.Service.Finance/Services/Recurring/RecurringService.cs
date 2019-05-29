@@ -42,7 +42,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
             Console.WriteLine($"Starting SyncRecurringGifts at {DateTime.Now:G}");
 
-            // get new and updated recurring gifts
+            // get new and updated recurring gifts.
             var pushpayRecurringGifts = _pushpayService.GetRecurringGiftsByDateRange(start, end);
 
             Console.WriteLine($"Syncing {pushpayRecurringGifts.Count} gifts from pushpay");
