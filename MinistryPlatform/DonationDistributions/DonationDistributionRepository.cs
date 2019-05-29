@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AutoMapper;
@@ -38,6 +39,39 @@ namespace MinistryPlatform.Repositories
                                 .WithFilter(filter)
                                 .Build()
                                 .Search<MpDonationDistribution>().ToList();
+        }
+
+        public List<MpDonationDistribution> GetByDonationId(int donationId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var columns = new string[] {
+                "Donation_Distributions.[Donation_Distribution_ID]",
+                "Donation_Distributions.[Donation_ID]",
+                "Donation_Distributions.[Amount]",
+                "Donation_Distributions.[Pledge_ID]",
+                "Donation_Distributions.[Congregation_ID]",
+                "Donation_Distributions.[HC_Donor_Congregation_ID]"
+            };
+
+            var filter = $"Donation_Distributions.[Donation_ID] = {donationId}";
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithSelectColumns(columns)
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .Build()
+                .Search<MpDonationDistribution>().ToList();
+        }
+        
+        public List<MpDonationDistribution> UpdateDonationDistributions(List<MpDonationDistribution> mpDonationDistributions)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .Build()
+                .Update(mpDonationDistributions);
         }
     }
 }

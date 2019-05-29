@@ -16,6 +16,7 @@ using System;
 using Crossroads.Service.Finance.Middleware;
 using Crossroads.Service.Finance.Services.Health;
 using Crossroads.Service.Finance.Services.Recurring;
+using MinistryPlatform.Congregations;
 using MinistryPlatform.Users;
 using Utilities.Logging;
 
@@ -87,6 +88,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IWebhooksRepository, WebhooksRepository>();
             services.AddSingleton<IGatewayService, GatewayService>();
             services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<ICongregationRepository, CongregationRepository>();
 
             // Utilities Layer
             services.AddSingleton<IDataLoggingService, NewRelicAgentWrapper>();

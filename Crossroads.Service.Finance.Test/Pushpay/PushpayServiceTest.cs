@@ -9,6 +9,7 @@ using Crossroads.Web.Common.Configuration;
 using System;
 using System.Collections.Generic;
 using Crossroads.Service.Finance.Models;
+using MinistryPlatform.Congregations;
 using MinistryPlatform.Donors;
 using Pushpay.Models;
 using MinistryPlatform.Models;
@@ -31,6 +32,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         private readonly Mock<IWebhooksRepository> _webhooksRespository;
         private readonly Mock<IGatewayService> _gatewayService;
         private readonly Mock<IDataLoggingService> _dataLoggingService;
+        private readonly Mock<IDonationDistributionRepository> _donationDistributionRepository;
+        private readonly Mock<ICongregationRepository> _congregationRepository;
 
         private readonly IPushpayService _fixture;
 
@@ -47,11 +50,14 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _webhooksRespository = new Mock<IWebhooksRepository>();
             _gatewayService = new Mock<IGatewayService>();
             _dataLoggingService = new Mock<IDataLoggingService>();
+            _donationDistributionRepository = new Mock<IDonationDistributionRepository>();
+            _congregationRepository = new Mock<ICongregationRepository>();
 
             _fixture = new PushpayService(_pushpayClient.Object, _donationService.Object, _mapper.Object,
                                           _configurationWrapper.Object, _recurringGiftRepository.Object,
                                           _programRepository.Object, _contactRepository.Object, _donorRepository.Object,
-                                          _webhooksRespository.Object, _gatewayService.Object, _dataLoggingService.Object);
+                                          _webhooksRespository.Object, _gatewayService.Object, _dataLoggingService.Object,
+                                          _donationDistributionRepository.Object, _congregationRepository.Object);
         }
 
         [Fact]
