@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Crossroads.Service.Finance.Controllers
 {
-  [Produces("application/json")]
   [Route("api/GreatPlains")]
   public class GreatPlainsController : Controller
   {
