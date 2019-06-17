@@ -82,3 +82,7 @@ spec:
               value: $NR_APP_NAME
             - name: NEW_RELIC_DISTRIBUTED_TRACING_ENABLED
               value: $NEW_RELIC_DISTRIBUTED_TRACING_ENABLED
+            - name: CRDS_ENV
+              value: $CRDS_ENV
+            - name: LOGZ_IO_KEY
+              value: $LOGZ_IO_KEY

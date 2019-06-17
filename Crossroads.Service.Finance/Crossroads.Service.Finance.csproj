@@ -13,6 +13,8 @@
     <Compile Remove="Models\PaymentsDto.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Crossroads.Microservice.Logging" Version="0.0.4" />
+    <PackageReference Include="Crossroads.Microservice.Settings" Version="0.0.11" />
     <PackageReference Include="HangFire" Version="1.6.17" />
     <PackageReference Include="HangFire.SqlServer" Version="1.6.17" />
     <PackageReference Include="log4net" Version="2.0.8" />
@@ -46,7 +48,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.4" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
