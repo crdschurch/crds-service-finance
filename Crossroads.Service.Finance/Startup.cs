@@ -19,6 +19,8 @@ using Crossroads.Service.Finance.Services.Recurring;
 using MinistryPlatform.Congregations;
 using MinistryPlatform.Users;
 using Utilities.Logging;
+using Crossroads.Microservice.Settings;
+using Crossroads.Microservice.Logging;
 
 namespace Crossroads.Service.Finance
 {
@@ -44,6 +46,12 @@ namespace Crossroads.Service.Finance
             services.AddDistributedMemoryCache();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddCors();
+
+            SettingsService settingsService = new SettingsService();
+            services.AddSingleton<ISettingsService>(settingsService);
+
+            Logger.SetUpLogging(settingsService.GetSetting("LOGZ_IO_KEY"),
+                                settingsService.GetSetting("CRDS_ENV"));
 
             // Dependency Injection
             CrossroadsWebCommonConfig.Register(services);
