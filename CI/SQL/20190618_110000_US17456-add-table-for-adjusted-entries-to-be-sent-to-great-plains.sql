@@ -16,7 +16,7 @@ GO
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_name='cr_Journal_Entries')
 BEGIN
   CREATE TABLE [dbo].cr_Journal_Entries(
-    [Journal_Entry_ID] INT NOT NULL PRIMARY KEY,
+    [Journal_Entry_ID] INT NOT NULL PRIMARY KEY IDENTITY,
     [GL_Account_Mapping_ID] INT FOREIGN KEY REFERENCES [GL_Account_Mapping]([GL_Account_Mapping_ID]),
     [Created_Date] DATETIME NOT NULL,
     [For_Date] DATETIME NOT NULL,
