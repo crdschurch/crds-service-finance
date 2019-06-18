@@ -1,0 +1,15 @@
+USE MinistryPlatform
+GO
+
+-- =============================================
+-- Author:      John Cleaver
+-- Create date: 2018-06-11
+-- Description:	Add status date column to recurring gifts
+-- =============================================
+
+IF NOT EXISTS(SELECT * FROM sys.columns 
+            WHERE Name = N'Status_Changed_Date' AND Object_ID = Object_ID(N'dbo.[Recurring_Gifts]'))
+BEGIN
+	ALTER TABLE [dbo].[Recurring_Gifts] ADD Status_Changed_Date DATETIME NULL
+END
+GO
