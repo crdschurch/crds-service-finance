@@ -348,25 +348,30 @@ namespace Crossroads.Service.Finance.Services
                 var updatedMpRecurringGift = BuildEndDatedRecurringGift(mpRecurringGift, pushpayRecurringGift);
                 _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
             }
+
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }
 
         private JObject BuildEndDatedRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
-            return new JObject(
+            var updateGift = new JObject(
                 new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
                 new JProperty("End_Date", DateTime.Now),
                 new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status)),
                 new JProperty("Updated_On", updatedPushpayRecurringGift.UpdatedOn),
+                new JProperty("Status_Changed_Date", System.DateTime.Now),
                 new JProperty("Congregation_ID", mpRecurringGift.CongregationId)
             );
+
+            return updateGift;
         }
 
         private JObject BuildUpdateRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
-            return new JObject( 
+
+            var updateGift = new JObject( 
                 new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
                 new JProperty("Amount", mappedMpRecurringGift.Amount),
                 new JProperty("Frequency_ID", mappedMpRecurringGift.FrequencyId),
@@ -379,6 +384,13 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Updated_On", updatedPushpayRecurringGift.UpdatedOn),
                 new JProperty("Congregation_ID", mpRecurringGift.CongregationId)
             );
+
+            if (mpRecurringGift.Status != updatedPushpayRecurringGift.Status)
+            {
+                updateGift.Add(new JProperty("Status_Changed_Date", System.DateTime.Now));
+            }
+
+            return updateGift;
         }
 
         private JObject BuildUpdateDonorAccount(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)

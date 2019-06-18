@@ -2,8 +2,8 @@
 
 namespace Crossroads.Service.Finance.Controllers
 {
-  [Route("api/GreatPlains")]
-  public class GreatPlainsController : Controller
+  [Route("api/Export")]
+  public class ExportController : Controller
   {
 
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();

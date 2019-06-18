@@ -76,5 +76,8 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Updated_On")]
         public DateTime? UpdatedOn { get; set; }
+
+        [JsonProperty("Status_Changed_Date")]
+        public DateTime? StatusChangedDate { get; set; }
     }
 }
