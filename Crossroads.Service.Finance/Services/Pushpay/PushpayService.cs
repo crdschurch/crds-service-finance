@@ -41,7 +41,7 @@ namespace Crossroads.Service.Finance.Services
         private const int maxRetryMinutes = 15;
         private const int pushpayProcessorTypeId = 1;
         private const int NotSiteSpecificCongregationId = 5;
-        private const string CongregationFieldKey = "100200437826";
+        private readonly string CongregationFieldKey = Environment.GetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY");
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
