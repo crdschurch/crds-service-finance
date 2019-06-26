@@ -33,8 +33,8 @@ AS
 		NULL,
 		@GLAccountNumber,
 		@Amount,
-		'Adjustment Placeholder',
-		'Description Placeholder',
+		(SELECT convert(varchar(7), getdate(), 126)) + ' revenue reclassifications', -- show YYYY-MM format
+		'Amount Adjustment for ' + @GLAccountNumber,
 		@DonationDistributionId,
 		1)
 GO
