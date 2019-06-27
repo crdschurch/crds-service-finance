@@ -60,7 +60,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
                 var mpRecurringGifts =
                     _recurringGiftRepository.FindRecurringGiftsBySubscriptionIds(pushpayGiftIdsToSync);
-                 
+
                 foreach (var pushpayRecurringGiftId in pushpayGiftIdsToSync)
                 {
                     var mpGift = mpRecurringGifts.FirstOrDefault(r => r.SubscriptionId == pushpayRecurringGiftId);
@@ -73,38 +73,13 @@ namespace Crossroads.Service.Finance.Services.Recurring
                         _pushpayService.BuildAndCreateNewRecurringGift(pushPayGift);
                         giftIdsSynced.Add(pushpayRecurringGiftId);
                     }
-                    // if the recurring gift DOES exist in MP, check to see when it was last updated and update it if the Pushpay version is newer.
-                    // if the gift is paused, check to see if the gift was updated during the current day. If it was, we want to pull it anyway, as there
-                    // may have been changes made. If not, we assume it's just a pushpay scheduled date update and don't write the udpated date.
-
-                    // note - this essentially just filters whether or not to sync changes, so the biggest risk here is not capturing a gift that was also not captured for
-                    // an update by the webhook fired from Pushpay
+                    // if the recurring gift DOES exist in MP, check to see when it was last updated and update it if the Pushpay version is newer
                     else
                     {
                         Console.WriteLine($"comparing dates for {pushpayRecurringGiftId} ? mp: {mpGift.UpdatedOn.ToString()}, pushpay: {pushPayGift.UpdatedOn.ToString()}");
-
-                        // update if one gift or the other is not paused and the pushpay date is newer and neither gift is paused
-                        if (IsPushpayDateNewer(mpGift.UpdatedOn ?? DateTime.MinValue, pushPayGift.UpdatedOn)
-                            && (mpGift.RecurringGiftStatusId != PausedRecurringGiftStatus && pushPayGift.Status != "Paused"))
+                        if (IsPushpayDateNewer(mpGift.UpdatedOn ?? DateTime.MinValue, pushPayGift.UpdatedOn))
                         {
-                            Console.WriteLine($"update existing non-paused {pushpayRecurringGiftId}");
-                            _pushpayService.UpdateRecurringGiftForSync(pushPayGift, mpGift);
-                            giftIdsSynced.Add(pushpayRecurringGiftId);
-                        }
-                        // update if one gift or the other is not paused and the pushpay date is newer
-                        else if (IsPushpayDateNewer(mpGift.UpdatedOn ?? DateTime.MinValue, pushPayGift.UpdatedOn) 
-                            && (mpGift.RecurringGiftStatusId != PausedRecurringGiftStatus ^ pushPayGift.Status != "Paused"))
-                        {
-                            Console.WriteLine($"update existing non-paused {pushpayRecurringGiftId}");
-                            _pushpayService.UpdateRecurringGiftForSync(pushPayGift, mpGift);
-                            giftIdsSynced.Add(pushpayRecurringGiftId);
-                        }
-                        // update if mp gift was updated during the current day - this is to capture if gift was edited and moved to paused status again
-                        else if (mpGift.UpdatedOn != null &&
-                                 DateTime.Parse(mpGift.UpdatedOn.ToString()).ToShortDateString() ==
-                                 DateTime.Now.ToShortDateString())
-                        {
-                            Console.WriteLine($"update existing {pushpayRecurringGiftId} updated on curent day");
+                            Console.WriteLine($"update existing {pushpayRecurringGiftId}");
                             _pushpayService.UpdateRecurringGiftForSync(pushPayGift, mpGift);
                             giftIdsSynced.Add(pushpayRecurringGiftId);
                         }

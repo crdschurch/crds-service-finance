@@ -35,6 +35,9 @@ namespace Crossroads.Service.Finance.Models
         [JsonProperty("refundedBy")]
         public RefundPaymentDto RefundedBy { get; set; }
 
+        [JsonProperty("refundFor")]
+        public RefundPaymentDto RefundFor { get; set; }
+
         public bool IsRefund
         {
             get

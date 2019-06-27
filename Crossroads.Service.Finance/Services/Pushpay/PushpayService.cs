@@ -41,7 +41,7 @@ namespace Crossroads.Service.Finance.Services
         private const int maxRetryMinutes = 15;
         private const int pushpayProcessorTypeId = 1;
         private const int NotSiteSpecificCongregationId = 5;
-        private const string CongregationFieldKey = "100200437826";
+        private readonly string CongregationFieldKey = Environment.GetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY");
 
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
@@ -181,26 +181,34 @@ namespace Crossroads.Service.Finance.Services
                 Console.WriteLine($"Donation updated: {updatedDonation.DonationId} -> {webhook.Events[0].Links.Payment}");
 
                 // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
-                // (this is a different business rule from soft credit donations
+                // (this is a different business rule from soft credit donations)
                 if (pushpayPayment.PushpayFields != null && pushpayPayment.PushpayFields.Any(r => r.Key == CongregationFieldKey))
                 {
                     var congregationName = pushpayPayment.PushpayFields.First(r => r.Key == CongregationFieldKey).Value;
-                    var congregation = _congregationRepository.GetCongregationByCongregationName(congregationName).First();
-                    var donationDistributions = _donationDistributionRepository.GetByDonationId(donation.DonationId);
+                    var congregations = _congregationRepository.GetCongregationByCongregationName(congregationName);
 
-                    foreach (var donationDistribution in donationDistributions)
+                    if (congregations.Any())
                     {
-                        donationDistribution.CongregationId = congregation.CongregationId;
-                        donationDistribution.HCDonorCongregationId = congregation.CongregationId;
-                    }
+                        var congregation = congregations.First(r => r.CongregationName == congregationName);
 
-                    _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
+                        var donationDistributions = _donationDistributionRepository.GetByDonationId(donation.DonationId);
+
+                        foreach (var donationDistribution in donationDistributions)
+                        {
+                            donationDistribution.CongregationId = congregation.CongregationId;
+                            donationDistribution.HCDonorCongregationId = congregation.CongregationId;
+                        }
+
+                        _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
+                    }
                 }
                 else
                 {
                     var noSelectedSiteEntry = new LogEventEntry(LogEventType.noSelectedSite);
                     noSelectedSiteEntry.Push("noSelectedSite", donation);
                     _dataLoggingService.LogDataEvent(noSelectedSiteEntry);
+
+                    Console.WriteLine($"No selected site for donation {pushpayPayment.TransactionId}");
                 }
 
                 return donation;
@@ -247,6 +255,7 @@ namespace Crossroads.Service.Finance.Services
         public RecurringGiftDto CreateRecurringGift(PushpayWebhook webhook)
         {
             var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
+            int? congregationId = null;
 
             var creatingRecurringGiftEvent = new LogEventEntry(LogEventType.creatingRecurringGift);
             creatingRecurringGiftEvent.Push("pushpayRecurringPaymentToken", pushpayRecurringGift.PaymentToken);
@@ -275,6 +284,31 @@ namespace Crossroads.Service.Finance.Services
         {
             var updatedPushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
             var existingMpRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(updatedPushpayRecurringGift.PaymentToken);
+
+            if (updatedPushpayRecurringGift.PushpayFields != null && updatedPushpayRecurringGift.PushpayFields.Any(r => r.Key == CongregationFieldKey))
+            {
+                var congregationName = updatedPushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value;
+                var congregations = _congregationRepository.GetCongregationByCongregationName(congregationName);
+
+                if (congregations.Any())
+                {
+                    existingMpRecurringGift.CongregationId = congregations.First(r => r.CongregationName == congregationName)
+                        .CongregationId;
+                }
+                else
+                {
+                    Console.WriteLine($"Site mismatch - {congregationName} not found in MP.");
+                }
+            }
+            else
+            {
+                var noSelectedSiteEntry = new LogEventEntry(LogEventType.noSelectedSite);
+                noSelectedSiteEntry.Push("noSelectedSite", updatedPushpayRecurringGift);
+                _dataLoggingService.LogDataEvent(noSelectedSiteEntry);
+
+                Console.WriteLine($"No selected site for donation {updatedPushpayRecurringGift.PaymentToken}");
+            }
+
             var status = updatedPushpayRecurringGift.Status;
             if (status == "Active")
             {
@@ -314,24 +348,30 @@ namespace Crossroads.Service.Finance.Services
                 var updatedMpRecurringGift = BuildEndDatedRecurringGift(mpRecurringGift, pushpayRecurringGift);
                 _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
             }
+
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }
 
         private JObject BuildEndDatedRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
-            return new JObject(
+            var updateGift = new JObject(
                 new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
                 new JProperty("End_Date", DateTime.Now),
                 new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status)),
-                new JProperty("Updated_On", updatedPushpayRecurringGift.UpdatedOn)
+                new JProperty("Updated_On", updatedPushpayRecurringGift.UpdatedOn),
+                new JProperty("Status_Changed_Date", System.DateTime.Now),
+                new JProperty("Congregation_ID", mpRecurringGift.CongregationId)
             );
+
+            return updateGift;
         }
 
         private JObject BuildUpdateRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
-            return new JObject( 
+
+            var updateGift = new JObject( 
                 new JProperty("Recurring_Gift_ID", mpRecurringGift.RecurringGiftId),
                 new JProperty("Amount", mappedMpRecurringGift.Amount),
                 new JProperty("Frequency_ID", mappedMpRecurringGift.FrequencyId),
@@ -341,8 +381,16 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Program_ID", _programRepository.GetProgramByName(updatedPushpayRecurringGift.Fund.Code).ProgramId),
                 new JProperty("End_Date", null),
                 new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status)),
-                new JProperty("Updated_On", updatedPushpayRecurringGift.UpdatedOn)
+                new JProperty("Updated_On", updatedPushpayRecurringGift.UpdatedOn),
+                new JProperty("Congregation_ID", mpRecurringGift.CongregationId)
             );
+
+            if (mpRecurringGift.Status != updatedPushpayRecurringGift.Status)
+            {
+                updateGift.Add(new JProperty("Status_Changed_Date", System.DateTime.Now));
+            }
+
+            return updateGift;
         }
 
         private JObject BuildUpdateDonorAccount(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
@@ -368,6 +416,7 @@ namespace Crossroads.Service.Finance.Services
 
             var congregationId = NotSiteSpecificCongregationId;
 
+            // Initially try to set the congregation to be the donor's household
             if (mpDonor.CongregationId != null)
             {
                 congregationId = mpDonor.CongregationId.GetValueOrDefault();
@@ -404,6 +453,30 @@ namespace Crossroads.Service.Finance.Services
             if (pushpayRecurringGift.Links.MerchantViewRecurringPayment != null && String.IsNullOrEmpty(mpRecurringGift.VendorAdminDetailUrl))
             {
                 mpRecurringGift.VendorAdminDetailUrl = pushpayRecurringGift.Links.MerchantViewRecurringPayment.Href;
+            }
+
+            if (pushpayRecurringGift.PushpayFields!= null && pushpayRecurringGift.PushpayFields.Any(r => r.Key == CongregationFieldKey))
+            {
+                var congregationName = pushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value;
+                var congregations = _congregationRepository.GetCongregationByCongregationName(congregationName);
+
+                if (congregations.Any())
+                {
+                    mpRecurringGift.CongregationId = congregations.First(r => r.CongregationName == congregationName)
+                        .CongregationId;
+                }
+                else
+                {
+                    Console.WriteLine($"Site mismatch - {congregationName} not found in MP.");
+                }
+            }
+            else
+            {
+                var noSelectedSiteEntry = new LogEventEntry(LogEventType.noSelectedSite);
+                noSelectedSiteEntry.Push("noSelectedSite", pushpayRecurringGift);
+                _dataLoggingService.LogDataEvent(noSelectedSiteEntry);
+
+                Console.WriteLine($"No selected site for donation {pushpayRecurringGift.PaymentToken}");
             }
 
             mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
