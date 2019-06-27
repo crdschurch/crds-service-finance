@@ -29,15 +29,7 @@ namespace Pushpay.Models
         {
             get
             {
-                if ((RefundFor != null && RefundFor.TransactionId != null) ||
-                    (RefundedBy != null && RefundedBy.TransactionId != null))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return RefundedBy != null && RefundedBy.TransactionId != null;
             }
         }
 

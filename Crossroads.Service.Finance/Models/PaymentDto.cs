@@ -42,15 +42,7 @@ namespace Crossroads.Service.Finance.Models
         {
             get
             {
-                if ((RefundedBy != null && RefundedBy.TransactionId != null) ||
-                    (RefundFor != null && RefundFor.TransactionId != null))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return RefundedBy != null && RefundedBy.TransactionId != null;
             }
         }
 
