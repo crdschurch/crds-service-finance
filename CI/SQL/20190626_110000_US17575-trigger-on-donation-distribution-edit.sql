@@ -14,8 +14,9 @@ AS
 -- the Deposit has already been exported
 DECLARE @ExportedStatus BIT = 0
 
-INSERT INTO @ExportedStatus SELECT TOP(1) dep.Exported FROM Donations d INNER JOIN Batches b
+SELECT TOP(1) @ExportedStatus = dep.Exported FROM Donations d INNER JOIN Batches b
 ON d.Batch_ID = b.Batch_ID INNER JOIN Deposits dep ON b.Deposit_ID = dep.Deposit_ID
+WHERE d.Donation_ID = Donation_ID
  
 IF (UPDATE(Amount) OR UPDATE(Program_ID) OR UPDATE(Congregation_ID)) AND @ExportedStatus = 1
 BEGIN
