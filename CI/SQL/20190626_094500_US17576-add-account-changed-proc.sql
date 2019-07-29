@@ -18,11 +18,13 @@ CREATE OR ALTER PROCEDURE [dbo].api_crds_CreateAdjustingEntryForAccountChanged
 	@OldAccountNumber NVARCHAR(20),
 	@NewAccountNumber NVARCHAR(20),
 	@DonationDistributionId INT,
-	@Amount MONEY
+	@Amount MONEY,
+	@DonationDate DATETIME
 AS
 -- old account adjustment
 	INSERT INTO cr_Adjusting_Journal_Entries
 		([Created_Date],
+		[Donation_Date],
 		[Sent_To_GL_date],
 		[GL_Account_Number],
 		[Amount],
@@ -32,6 +34,7 @@ AS
 		[Domain_ID])
 	VALUES
 		(GETDATE(),
+		@DonationDate,
 		NULL,
 		@OldAccountNumber,
 		-@Amount,
@@ -43,6 +46,7 @@ AS
 -- new account adjustment
 	INSERT INTO cr_Adjusting_Journal_Entries
 		([Created_Date],
+		[Donation_Date],
 		[Sent_To_GL_date],
 		[GL_Account_Number],
 		[Amount],
@@ -52,6 +56,7 @@ AS
 		[Domain_ID])
 	VALUES
 		(GETDATE(),
+		@DonationDate,
 		NULL,
 		@NewAccountNumber,
 		+@Amount,
