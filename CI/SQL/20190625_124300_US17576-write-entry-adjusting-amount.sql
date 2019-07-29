@@ -17,10 +17,12 @@ GO
 CREATE OR ALTER PROCEDURE [dbo].api_crds_CreateAdjustingEntryForAmountChanged
 	@Amount MONEY,
 	@GLAccountNumber NVARCHAR(20),
-	@DonationDistributionId INT
+	@DonationDistributionId INT,
+	@DonationDate DATETIME
 AS
 	INSERT INTO cr_Adjusting_Journal_Entries
 		([Created_Date],
+		[Donation_Date],
 		[Sent_To_GL_date],
 		[GL_Account_Number],
 		[Amount],
@@ -30,6 +32,7 @@ AS
 		[Domain_ID])
 	VALUES
 		(GETDATE(),
+		@DonationDate,
 		NULL,
 		@GLAccountNumber,
 		@Amount,

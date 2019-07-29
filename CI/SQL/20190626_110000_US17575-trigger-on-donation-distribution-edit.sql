@@ -19,8 +19,7 @@ ON d.Batch_ID = b.Batch_ID INNER JOIN Deposits dep ON b.Deposit_ID = dep.Deposit
 WHERE d.Donation_ID = Donation_ID
  
 IF (UPDATE(Amount) OR UPDATE(Program_ID) OR UPDATE(Congregation_ID)) AND @ExportedStatus = 1
-BEGIN
-
+  BEGIN
 	DECLARE @DonationDistributionId INT = (SELECT Donation_Distribution_ID FROM INSERTED);
 
 	DECLARE @OldAmount MONEY = (SELECT Amount FROM DELETED);
@@ -39,12 +38,16 @@ BEGIN
 	DECLARE @DidAmountChange BIT = (CASE WHEN @NewAmount = @OldAmount THEN 0 ELSE 1 END);
 	DECLARE @DidAccountNumberChange BIT = (CASE WHEN @NewGlAccountNumber = @OldGlAccountNumber THEN 0 ELSE 1 END);
 
+	DECLARE @DonationId INT = (SELECT [Donation_ID] FROM [Donation_Distributions] WHERE [Donation_Distribution_ID] = @DonationDistributionId);
+	DECLARE @DonationDate DATETIME = (SELECT [Donation_Date] FROM [Donations] WHERE [Donation_ID] = @DonationId);
+
 	IF(@DidAmountChange = 1)
-		BEGIN
-			EXEC api_crds_CreateAdjustingEntryForAmountChanged
-				@Amount = @AmountChange,
-				@GLAccountNumber = @OldGlAccountNumber,
-				@DonationDistributionId = @DonationDistributionId
+	  BEGIN
+		EXEC api_crds_CreateAdjustingEntryForAmountChanged
+		  @Amount = @AmountChange,
+		  @GLAccountNumber = @OldGlAccountNumber,
+	      @DonationDistributionId = @DonationDistributionId,
+		  @DonationDate = @DonationDate
 		END
     
 	IF(@DidAccountNumberChange = 1)
@@ -53,6 +56,7 @@ BEGIN
 		@OldAccountNumber = @OldGlAccountNumber,
 		@NewAccountNumber = @NewGlAccountNumber,
 		@DonationDistributionId = @DonationDistributionId,
-		@Amount = @NewAmount
+		@Amount = @NewAmount,
+		@DonationDate = @DonationDate
 	  END
-END
+  END

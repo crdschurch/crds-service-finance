@@ -12,6 +12,7 @@ BEGIN
   CREATE TABLE [dbo].cr_Adjusting_Journal_Entries(
     [Journal_Entry_ID] INT NOT NULL PRIMARY KEY IDENTITY(1,1),
     [Created_Date] DATETIME NOT NULL,
+	[Donation_Date] DATETIME NOT NULL,
     [Sent_To_GL_Date] DATETIME NULL,
 	[GL_Account_Number] NVARCHAR(20) NOT NULL,
     [Amount] MONEY NOT NULL,
