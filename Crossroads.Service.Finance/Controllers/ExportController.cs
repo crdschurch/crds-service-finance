@@ -1,19 +1,36 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Crossroads.Service.Finance.Services.Exports;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Crossroads.Service.Finance.Controllers
 {
-  [Route("api/Export")]
-  public class ExportController : Controller
-  {
-
-    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
-    [HttpGet]
-    [Route("adjustjournalentries")]
-    public IActionResult AdjustJournalEntries()
+    [Route("api/Export")]
+    public class ExportController : Controller
     {
-      _logger.Info("Running adjust journal entries job...");
-      return Ok();
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly IExportService _exportService;
+
+        public ExportController(IExportService exportService)
+        {
+            _exportService = exportService;
+        }
+
+        [HttpPost]
+        [Route("adjustjournalentries")]
+        public IActionResult AdjustJournalEntries()
+        {
+            try
+            {
+                _logger.Info("Running adjust journal entries job...");
+                _exportService.CreateJournalEntries();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                var msg = "DonorController: GetRecurringGifts";
+                _logger.Error($"Error creating journal entries: {ex.Message}");
+                return BadRequest(ex.Message);
+            }
+        }
     }
-  }
 }
