@@ -1,11 +1,11 @@
 USE MinistryPlatform
 GO
 
-IF EXISTS (SELECT * FROM sys.triggers WHERE object_id = OBJECT_ID(N'crds_tr_Write_Adjusting_Journal_Entries'))
-  DROP TRIGGER crds_tr_Write_Adjusting_Journal_Entries
+IF EXISTS (SELECT * FROM sys.triggers WHERE object_id = OBJECT_ID(N'crds_tr_Write_Distribution_Adjustments'))
+  DROP TRIGGER crds_tr_Write_Distribution_Adjustments
 GO 
 
-CREATE TRIGGER crds_tr_Write_Adjusting_Journal_Entries
+CREATE TRIGGER crds_tr_Write_Distribution_Adjustments
 ON Donation_Distributions
 AFTER UPDATE
 AS
