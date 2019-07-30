@@ -1,6 +1,6 @@
 -- =============================================
 -- Author:      John Cleaver
--- Create date: 2019-06-25
+-- Create date: 2019-07-30
 -- Description:	Create Adjustments for Amount Changed when
 -- Donation Distribution amounts change
 -- =============================================
@@ -20,7 +20,7 @@ CREATE OR ALTER PROCEDURE [dbo].api_crds_CreateAdjustingEntryForAmountChanged
 	@DonationDistributionId INT,
 	@DonationDate DATETIME
 AS
-	INSERT INTO cr_Adjusting_Journal_Entries
+	INSERT INTO cr_Distribution_Adjustments
 		([Created_Date],
 		[Donation_Date],
 		[Sent_To_GL_date],
