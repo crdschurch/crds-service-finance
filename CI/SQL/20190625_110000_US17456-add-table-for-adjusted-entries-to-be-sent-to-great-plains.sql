@@ -10,7 +10,7 @@ GO
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_name = 'cr_Distribution_Adjustments')
 BEGIN
   CREATE TABLE [dbo].cr_Distribution_Adjustments(
-    [Journal_Entry_ID] INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+    [Distribution_Adjustment_ID] INT NOT NULL PRIMARY KEY IDENTITY(1,1),
     [Created_Date] DATETIME NOT NULL,
 	[Donation_Date] DATETIME NOT NULL,
     [Processed_Date] DATETIME NULL,

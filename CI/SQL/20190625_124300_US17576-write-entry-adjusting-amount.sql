@@ -23,7 +23,7 @@ AS
 	INSERT INTO cr_Distribution_Adjustments
 		([Created_Date],
 		[Donation_Date],
-		[Sent_To_GL_date],
+		[Processed_Date],
 		[GL_Account_Number],
 		[Amount],
 		[Adjustment],
