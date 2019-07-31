@@ -16,7 +16,7 @@ namespace MinistryPlatform.Adjustments
         IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public List<MpAdjustingJournalEntry> GetAdjustmentsByDate(DateTime startDate, DateTime endDate)
+        public List<MpDistributionAdjustment> GetAdjustmentsByDate(DateTime startDate, DateTime endDate)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
@@ -44,7 +44,7 @@ namespace MinistryPlatform.Adjustments
                 .WithSelectColumns(columns)
                 .WithFilter(String.Join(" AND ", filters))
                 .Build()
-                .Search<MpAdjustingJournalEntry>();
+                .Search<MpDistributionAdjustment>();
 
             return mpAdjustingJournalEntries;
         }

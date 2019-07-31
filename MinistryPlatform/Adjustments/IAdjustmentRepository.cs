@@ -8,6 +8,6 @@ namespace MinistryPlatform.Adjustments
 {
     public interface IAdjustmentRepository
     {
-        List<MpAdjustingJournalEntry> GetAdjustmentsByDate(DateTime startDate, DateTime endDate);
+        List<MpDistributionAdjustment> GetAdjustmentsByDate(DateTime startDate, DateTime endDate);
     }
 }

@@ -6,11 +6,11 @@ using Newtonsoft.Json;
 
 namespace MinistryPlatform.Models
 {
-    [MpRestApiTable(Name = "cr_Adjusting_Journal_Entries")]
-    public class MpAdjustingJournalEntry
+    [MpRestApiTable(Name = "cr_Distribution_Adjustment")]
+    public class MpDistributionAdjustment
     {
-        [JsonProperty("Journal_Entry_ID")]
-        public int JournalEntryId { get; set; }
+        [JsonProperty("Distribution_Adjustment_ID")]
+        public int DistributionAdjustmentId { get; set; }
 
         [JsonProperty("Created_Date")]
         public DateTime CreatedDate { get; set; }
@@ -18,8 +18,8 @@ namespace MinistryPlatform.Models
         [JsonProperty("Donation_Date")]
         public DateTime DonationDate { get; set; }
 
-        [JsonProperty("Sent_To_GL_Date")]
-        public DateTime? SentToGLDate { get; set; }
+        [JsonProperty("Processed_Date")]
+        public DateTime? ProcessedDate { get; set; }
 
         [JsonProperty("GL_Account_Number")]
         public string GLAccountNumber { get; set; }
