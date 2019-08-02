@@ -23,18 +23,17 @@ namespace MinistryPlatform.Adjustments
                 "Journal_Entry_ID",
                 "Created_Date",
                 "Donation_Date",
-                "Sent_To_GL_Date",
+                "Processed_Date",
                 "GL_Account_Number",
                 "Amount",
                 "Adjustment",
                 "Description",
                 "Donation_Distribution_ID"
             };
-            //var filter = $"Sent_To_GL_Date IS NULL";
 
             var filters = new string[]
             {
-                $"Sent_To_GL_Date IS NULL",
+                $"Processed_Date IS NULL",
                 $"Created_Date >= '{startDate:yyyy-MM-dd}'",
                 $"Created_Date <= {endDate:sortable}"
             };
@@ -47,6 +46,16 @@ namespace MinistryPlatform.Adjustments
                 .Search<MpDistributionAdjustment>();
 
             return mpAdjustingJournalEntries;
+        }
+
+        public void UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .Build()
+                .Update(distributionAdjustments, "cr_Distribution_Adjustments");
         }
     }
 }

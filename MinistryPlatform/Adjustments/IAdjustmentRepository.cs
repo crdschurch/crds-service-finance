@@ -9,5 +9,6 @@ namespace MinistryPlatform.Adjustments
     public interface IAdjustmentRepository
     {
         List<MpDistributionAdjustment> GetAdjustmentsByDate(DateTime startDate, DateTime endDate);
+        void UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments);
     }
 }

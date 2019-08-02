@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace MinistryPlatform.Models
 {
-    [MpRestApiTable(Name = "cr_Distribution_Adjustment")]
+    [MpRestApiTable(Name = "cr_Distribution_Adjustments")]
     public class MpDistributionAdjustment
     {
         [JsonProperty("Distribution_Adjustment_ID")]

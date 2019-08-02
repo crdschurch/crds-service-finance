@@ -2,7 +2,9 @@
 using MinistryPlatform.Adjustments;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Crossroads.Service.Finance.Models;
+using MinistryPlatform.JournalEntries;
 using MinistryPlatform.Models;
 
 namespace Crossroads.Service.Finance.Services.Exports
@@ -10,11 +12,13 @@ namespace Crossroads.Service.Finance.Services.Exports
     public class ExportService: IExportService
     {
         private readonly IAdjustmentRepository _adjustmentRepository;
+        private readonly IJournalEntryRepository _journalEntryRepository;
         private readonly IMapper _mapper;
 
-        public ExportService(IAdjustmentRepository adjustmentRepository, IMapper mapper)
+        public ExportService(IAdjustmentRepository adjustmentRepository, IJournalEntryRepository journalEntryRepository, IMapper mapper)
         {
             _adjustmentRepository = adjustmentRepository;
+            _journalEntryRepository = journalEntryRepository;
             _mapper = mapper;
         }
 
@@ -24,15 +28,46 @@ namespace Crossroads.Service.Finance.Services.Exports
             var yesterday = DateTime.Now.AddDays(-1);
             var startDate = new DateTime(yesterday.Year, yesterday.Month, yesterday.Day);
             var endDate = new DateTime(yesterday.Year, yesterday.Month, yesterday.Day, 23, 59, 59);
-            var mpAdjustingJournalEntries = _adjustmentRepository.GetAdjustmentsByDate(startDate, endDate);
+            var mpDistributionAdjustments = _adjustmentRepository.GetAdjustmentsByDate(startDate, endDate);
 
-            // segment by account, then sort by donation date
-            Dictionary<string, Dictionary<int, JournalEntryDto>> journalEntryDtos = new Dictionary<string, Dictionary<int, JournalEntryDto>>();
+            var journalEntries = new List<MpJournalEntry>();
 
+            foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
+            {
+                var matchingMpJournalEntry = journalEntries.FirstOrDefault(r => r.GL_Account_Number == mpDistributionAdjustment.GLAccountNumber &&
+                                            r.AdjustmentYear == mpDistributionAdjustment.DonationDate.Year &&
+                                            r.AdjustmentMonth == mpDistributionAdjustment.DonationDate.Month);
 
-            // mark adjustments
+                // TODO: verify if this will ever be null
+                if (matchingMpJournalEntry == null)
+                {
+                    var mpJournalEntry = new MpJournalEntry
+                    {
+                        Amount = mpDistributionAdjustment.Amount,
+                        BatchID = "aaa",
+                        CreatedDate = DateTime.Now,
+                        Description = "test desc",
+                        GL_Account_Number = mpDistributionAdjustment.GLAccountNumber,
+                        AdjustmentYear = mpDistributionAdjustment.DonationDate.Year,
+                        AdjustmentMonth = mpDistributionAdjustment.DonationDate.Month
+                    };
+
+                    journalEntries.Add(mpJournalEntry);
+                }
+                else
+                {
+                    matchingMpJournalEntry.Amount = mpDistributionAdjustment.Amount;
+                }
+
+                // mark adjustment
+                mpDistributionAdjustment.ProcessedDate = DateTime.Now;
+            }
+
+            // update adjustments
+            _adjustmentRepository.UpdateAdjustments(mpDistributionAdjustments);
 
             // create journal entries
+            _journalEntryRepository.CreateOrUpdateMpJournalEntries(journalEntries);
         }
     }
 }
