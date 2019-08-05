@@ -36,7 +36,7 @@ namespace Crossroads.Service.Finance.Test.Exports
             _adjustmentRepository.Setup(r => r.GetAdjustmentsByDate(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .Returns(new List<MpDistributionAdjustment>());
 
-            _journalEntryRepository.Setup(r => r.CreateOrUpdateMpJournalEntries(It.IsAny<List<MpJournalEntry>>()));
+            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>()));
 
             // Act
             _fixture.CreateJournalEntries();
@@ -56,7 +56,7 @@ namespace Crossroads.Service.Finance.Test.Exports
 
             _adjustmentRepository.Setup(r => r.UpdateAdjustments(It.IsAny<List<MpDistributionAdjustment>>()));
 
-            _journalEntryRepository.Setup(r => r.CreateOrUpdateMpJournalEntries(It.IsAny<List<MpJournalEntry>>()));
+            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>()));
 
             // Act
             _fixture.CreateJournalEntries();

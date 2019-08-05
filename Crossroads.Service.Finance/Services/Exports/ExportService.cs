@@ -71,7 +71,7 @@ namespace Crossroads.Service.Finance.Services.Exports
             _adjustmentRepository.UpdateAdjustments(mpDistributionAdjustments);
 
             // create journal entries
-            _journalEntryRepository.CreateOrUpdateMpJournalEntries(journalEntries);
+            _journalEntryRepository.CreateMpJournalEntries(journalEntries);
         }
     }
 }
