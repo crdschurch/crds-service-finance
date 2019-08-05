@@ -30,6 +30,9 @@ namespace Crossroads.Service.Finance.Services.Exports
             var endDate = new DateTime(yesterday.Year, yesterday.Month, yesterday.Day, 23, 59, 59);
             var mpDistributionAdjustments = _adjustmentRepository.GetAdjustmentsByDate(startDate, endDate);
 
+            // TODO: We need to verify this batch ID with Finance and Velosio
+            var batchId = $"CRJE{yesterday.Year}{yesterday.Month}{yesterday.Day}01";
+
             var journalEntries = new List<MpJournalEntry>();
 
             foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
@@ -44,9 +47,9 @@ namespace Crossroads.Service.Finance.Services.Exports
                     var mpJournalEntry = new MpJournalEntry
                     {
                         Amount = mpDistributionAdjustment.Amount,
-                        BatchID = "aaa",
+                        BatchID = batchId,
                         CreatedDate = DateTime.Now,
-                        Description = "test desc",
+                        Description = "test desc", // TODO: understand what goes here
                         GL_Account_Number = mpDistributionAdjustment.GLAccountNumber,
                         AdjustmentYear = mpDistributionAdjustment.DonationDate.Year,
                         AdjustmentMonth = mpDistributionAdjustment.DonationDate.Month
