@@ -7,6 +7,6 @@ namespace MinistryPlatform.JournalEntries
 {
     public interface IJournalEntryRepository
     {
-        List<MpJournalEntry> CreateOrUpdateMpJournalEntries(List<MpJournalEntry> mpJournalEntries);
+        List<MpJournalEntry> CreateMpJournalEntries(List<MpJournalEntry> mpJournalEntries);
     }
 }

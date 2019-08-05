@@ -20,7 +20,7 @@ namespace MinistryPlatform.JournalEntries
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public List<MpJournalEntry> CreateOrUpdateMpJournalEntries(List<MpJournalEntry> mpJournalEntries)
+        public List<MpJournalEntry> CreateMpJournalEntries(List<MpJournalEntry> mpJournalEntries)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 

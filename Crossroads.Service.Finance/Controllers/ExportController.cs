@@ -16,7 +16,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost]
-        [Route("journalentries")]
+        [Route("journalentries/adjust")]
         public IActionResult AdjustJournalEntries()
         {
             try
