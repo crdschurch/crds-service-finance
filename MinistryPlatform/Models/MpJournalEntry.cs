@@ -16,7 +16,7 @@ namespace MinistryPlatform.Models
         public DateTime CreatedDate { get; set; }
 
         [JsonProperty("Exported_Date")]
-        public DateTime ExportedDate { get; set; }
+        public DateTime? ExportedDate { get; set; }
 
         [JsonProperty("GL_Account_Number")]
         public string GL_Account_Number { get; set; }

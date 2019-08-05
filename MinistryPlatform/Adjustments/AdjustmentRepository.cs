@@ -20,7 +20,7 @@ namespace MinistryPlatform.Adjustments
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
-                "Journal_Entry_ID",
+                "Distribution_Adjustment_ID",
                 "Created_Date",
                 "Donation_Date",
                 "Processed_Date",
@@ -35,7 +35,7 @@ namespace MinistryPlatform.Adjustments
             {
                 $"Processed_Date IS NULL",
                 $"Created_Date >= '{startDate:yyyy-MM-dd}'",
-                $"Created_Date <= {endDate:sortable}"
+                $"Created_Date <= '{endDate:yyyy-MM-dd}'"
             };
 
             var mpAdjustingJournalEntries = MpRestBuilder.NewRequestBuilder()

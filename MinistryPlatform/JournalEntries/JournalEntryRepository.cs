@@ -28,7 +28,7 @@ namespace MinistryPlatform.JournalEntries
             return MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .Build()
-                .Update(mpJournalEntries, "cr_Journal_Entries");
+                .Create(mpJournalEntries, "cr_Journal_Entries");
         }
     }
 }

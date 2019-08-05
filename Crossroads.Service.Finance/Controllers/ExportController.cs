@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Crossroads.Service.Finance.Controllers
 {
-    [Route("api/Export")]
+    [Route("api/[controller]")]
     public class ExportController : Controller
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -16,7 +16,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost]
-        [Route("adjustjournalentries")]
+        [Route("journalentries")]
         public IActionResult AdjustJournalEntries()
         {
             try

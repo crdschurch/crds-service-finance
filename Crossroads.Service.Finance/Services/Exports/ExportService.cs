@@ -25,9 +25,9 @@ namespace Crossroads.Service.Finance.Services.Exports
         public void CreateJournalEntries()
         {
             // get adjustments that are not exported
-            var yesterday = DateTime.Now.AddDays(-1);
+            var yesterday = DateTime.Now;
             var startDate = new DateTime(yesterday.Year, yesterday.Month, yesterday.Day);
-            var endDate = new DateTime(yesterday.Year, yesterday.Month, yesterday.Day, 23, 59, 59);
+            var endDate = yesterday.AddDays(1);
             var mpDistributionAdjustments = _adjustmentRepository.GetAdjustmentsByDate(startDate, endDate);
 
             // TODO: We need to verify this batch ID with Finance and Velosio
@@ -49,6 +49,7 @@ namespace Crossroads.Service.Finance.Services.Exports
                         Amount = mpDistributionAdjustment.Amount,
                         BatchID = batchId,
                         CreatedDate = DateTime.Now,
+                        ExportedDate = null,
                         Description = "test desc", // TODO: understand what goes here
                         GL_Account_Number = mpDistributionAdjustment.GLAccountNumber,
                         AdjustmentYear = mpDistributionAdjustment.DonationDate.Year,
