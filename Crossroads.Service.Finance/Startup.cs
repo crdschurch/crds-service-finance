@@ -21,6 +21,9 @@ using MinistryPlatform.Users;
 using Utilities.Logging;
 using Crossroads.Microservice.Settings;
 using Crossroads.Microservice.Logging;
+using Crossroads.Service.Finance.Services.Exports;
+using MinistryPlatform.Adjustments;
+using MinistryPlatform.JournalEntries;
 
 namespace Crossroads.Service.Finance
 {
@@ -82,6 +85,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
             services.AddSingleton<IRecurringService, RecurringService>();
             services.AddSingleton<IHealthService, HealthService>();
+            services.AddSingleton<IExportService, ExportService>();
 
             // Repo Layer
             services.AddSingleton<IBatchRepository, BatchRepository>();
@@ -97,6 +101,8 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IGatewayService, GatewayService>();
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<ICongregationRepository, CongregationRepository>();
+            services.AddSingleton<IAdjustmentRepository, AdjustmentRepository>();
+            services.AddSingleton<IJournalEntryRepository, JournalEntryRepository>();
 
             // Utilities Layer
             services.AddSingleton<IDataLoggingService, NewRelicAgentWrapper>();

@@ -12,11 +12,13 @@ BEGIN
   CREATE TABLE [dbo].cr_Journal_Entries(
 	[Journal_Entry_ID] INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	[Created_Date] DATETIME NOT NULL,
-	[Exported_Date] DATETIME NOT NULL,
+	[Exported_Date] DATETIME NULL,
 	[GL_Account_Number] NVARCHAR(20) NOT NULL,
 	[Batch_ID] NVARCHAR(20) NOT NULL,
 	[Amount] MONEY NOT NULL,
 	[Description] NVARCHAR(500),
+	[Adjustment_Year] INT NOT NULL,
+	[Adjustment_Month] INT NOT NULL,
 	[Domain_ID] INT NOT NULL CONSTRAINT [DF_cr_Journal_Entries_Domain_ID] DEFAULT ((1))
   )
 END
