@@ -22,6 +22,7 @@ using Utilities.Logging;
 using Crossroads.Microservice.Settings;
 using Crossroads.Microservice.Logging;
 using Crossroads.Service.Finance.Services.Exports;
+using Exports.JournalEntries;
 using MinistryPlatform.Adjustments;
 using MinistryPlatform.JournalEntries;
 
@@ -106,6 +107,9 @@ namespace Crossroads.Service.Finance
 
             // Utilities Layer
             services.AddSingleton<IDataLoggingService, NewRelicAgentWrapper>();
+
+            // Exports Layer
+            services.AddSingleton<IJournalEntryExport, VelosioExportClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

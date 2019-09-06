@@ -2,8 +2,12 @@
 using MinistryPlatform.Adjustments;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Xml.Linq;
 using Crossroads.Service.Finance.Models;
+using Exports.JournalEntries;
+using Exports.Models;
 using MinistryPlatform.JournalEntries;
 using MinistryPlatform.Models;
 
@@ -13,12 +17,14 @@ namespace Crossroads.Service.Finance.Services.Exports
     {
         private readonly IAdjustmentRepository _adjustmentRepository;
         private readonly IJournalEntryRepository _journalEntryRepository;
+        private readonly IJournalEntryExport _journalEntryExport;
         private readonly IMapper _mapper;
 
-        public ExportService(IAdjustmentRepository adjustmentRepository, IJournalEntryRepository journalEntryRepository, IMapper mapper)
+        public ExportService(IAdjustmentRepository adjustmentRepository, IJournalEntryRepository journalEntryRepository, IJournalEntryExport journalEntryExport, IMapper mapper)
         {
             _adjustmentRepository = adjustmentRepository;
             _journalEntryRepository = journalEntryRepository;
+            _journalEntryExport = journalEntryExport;
             _mapper = mapper;
         }
 
@@ -46,7 +52,6 @@ namespace Crossroads.Service.Finance.Services.Exports
                 {
                     var mpJournalEntry = new MpJournalEntry
                     {
-                        Amount = mpDistributionAdjustment.Amount,
                         BatchID = batchId,
                         CreatedDate = DateTime.Now,
                         ExportedDate = null,
@@ -56,11 +61,27 @@ namespace Crossroads.Service.Finance.Services.Exports
                         AdjustmentMonth = mpDistributionAdjustment.DonationDate.Month
                     };
 
+                    if (Math.Sign(mpDistributionAdjustment.Amount) == 1)
+                    {
+                        mpJournalEntry.CreditAmount = mpDistributionAdjustment.Amount;
+                    }
+                    else
+                    {
+                        mpJournalEntry.DebitAmount = mpDistributionAdjustment.Amount;
+                    }
+
                     journalEntries.Add(mpJournalEntry);
                 }
                 else
                 {
-                    matchingMpJournalEntry.Amount = mpDistributionAdjustment.Amount;
+                    if (Math.Sign(mpDistributionAdjustment.Amount) == 1)
+                    {
+                        matchingMpJournalEntry.CreditAmount = mpDistributionAdjustment.Amount;
+                    }
+                    else
+                    {
+                        matchingMpJournalEntry.DebitAmount = mpDistributionAdjustment.Amount;
+                    }
                 }
 
                 // mark adjustment
@@ -72,6 +93,78 @@ namespace Crossroads.Service.Finance.Services.Exports
 
             // create journal entries
             _journalEntryRepository.CreateMpJournalEntries(journalEntries);
+        }
+
+        public void HelloWorld()
+        {
+            var result = _journalEntryExport.HelloWorld().Result;
+        }
+
+        /// <summary>
+        /// This pulls Journal Entries and exports them grouped by Batch Number. There should only be one Batch per day, but this code is written to handle
+        /// instances where an export for a previous day may not have occurred (hence grouping exports by Batch Number). Velosio also needs each export to be grouped
+        /// by Batch Number as well.
+        ///
+        /// Date of export is set to the current date, as this doesn't have anything to do with the original export date. Velosio needs this to be set to the same date
+        /// the export is occurring to be able to validate the export.
+        /// </summary>
+        public void ExportJournalEntries()
+        {
+            // pull all journal entries that have not been processed
+            var journalEntries = _journalEntryRepository.GetMpJournalEntries();
+
+            var velosioJournalEntryStages = new List<VelosioJournalEntryStage>();
+
+            // total up journal entry metadata
+            foreach (var journalEntry in journalEntries)
+            {
+                var velosioJournalEntryStage =
+                    velosioJournalEntryStages.FirstOrDefault(r => r.BatchNumber == journalEntry.BatchID);
+
+                if (velosioJournalEntryStage == null)
+                {
+                    velosioJournalEntryStage = new VelosioJournalEntryStage
+                    {
+                        BatchNumber = journalEntry.BatchID,
+                        TotalCredits = journalEntry.DebitAmount,
+                        TotalDebits = journalEntry.CreditAmount,
+                        BatchDate = DateTime.Parse(DateTime.Now.ToShortDateString()),
+                        BatchData = new XElement("BatchDataSet", null)
+                    };
+
+                    velosioJournalEntryStage.BatchData.Add(SerializeJournalEntry(journalEntry));
+                    velosioJournalEntryStages.Add(velosioJournalEntryStage);
+                }
+                else
+                {
+                    velosioJournalEntryStage.BatchData.Add(SerializeJournalEntry(journalEntry));
+                    velosioJournalEntryStage.TotalCredits += journalEntry.CreditAmount;
+                    velosioJournalEntryStage.TotalDebits += journalEntry.DebitAmount;
+                }
+
+                velosioJournalEntryStage.TransactionCount++;
+
+                journalEntry.ExportedDate = DateTime.Parse(DateTime.Now.ToShortDateString());
+
+                _journalEntryExport.ExportJournalEntryStage(velosioJournalEntryStage);
+
+                //_journalEntryExport.ExportJournalEntryStage(velosioJournalEntryStage.BatchNumber, velosioJournalEntryStage.TotalCredits, velosioJournalEntryStage.TotalDebits, DateTime.Today, velosioJournalEntryStage.BatchData.ToString(), velosioJournalEntryStage.)
+            }
+
+            _journalEntryRepository.UpdateJournalEntries(journalEntries);
+        }
+
+        private XElement SerializeJournalEntry(MpJournalEntry mpJournalEntry)
+        {
+            var journalEntryXml = new XElement("BatchDataTable", null);
+            journalEntryXml.Add(new XElement("BatchNumber", mpJournalEntry.BatchID));
+            journalEntryXml.Add(new XElement("Reference", mpJournalEntry.GetReferenceString()));
+            journalEntryXml.Add(new XElement("TransactionDate", DateTime.Now.Date));
+            journalEntryXml.Add(new XElement("Account", mpJournalEntry.GL_Account_Number));
+            journalEntryXml.Add(new XElement("DebitAmount", mpJournalEntry.DebitAmount));
+            journalEntryXml.Add(new XElement("CreditAmount", mpJournalEntry.CreditAmount));
+
+            return journalEntryXml;
         }
     }
 }
