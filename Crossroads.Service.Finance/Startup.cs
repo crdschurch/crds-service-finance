@@ -25,6 +25,7 @@ using Crossroads.Service.Finance.Services.Exports;
 using Exports.JournalEntries;
 using MinistryPlatform.Adjustments;
 using MinistryPlatform.JournalEntries;
+using Crossroads.Service.Finance.Services.JournalEntryBatch;
 
 namespace Crossroads.Service.Finance
 {
@@ -77,6 +78,7 @@ namespace Crossroads.Service.Finance
 
             // Service Layer
             services.AddSingleton<IBatchService, BatchService>();
+            services.AddSingleton<IJournalEntryBatchService, JournalEntryBatchService>();
             services.AddSingleton<IContactService, ContactService>();
             services.AddSingleton<IDonationService, DonationService>();
             services.AddSingleton<IDepositService, DepositService>();

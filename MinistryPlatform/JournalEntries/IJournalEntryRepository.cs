@@ -8,7 +8,7 @@ namespace MinistryPlatform.JournalEntries
     public interface IJournalEntryRepository
     {
         List<MpJournalEntry> CreateMpJournalEntries(List<MpJournalEntry> mpJournalEntries);
-        List<MpJournalEntry> GetMpJournalEntries();
+        List<MpJournalEntry> GetMpJournalEntriesWhichHaventBeenExported();
         void UpdateJournalEntries(List<MpJournalEntry> mpJournalEntries);
     }
 }

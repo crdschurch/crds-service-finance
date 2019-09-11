@@ -9,6 +9,6 @@ namespace Exports.JournalEntries
     public interface IJournalEntryExport
     {
         Task<string> HelloWorld();
-        Task<string> ExportJournalEntryStage(VelosioJournalEntryStage velosioJournalEntryStage);
+        Task<string> ExportJournalEntryStage(VelosioJournalEntryBatch velosioJournalEntryStage);
     }
 }
