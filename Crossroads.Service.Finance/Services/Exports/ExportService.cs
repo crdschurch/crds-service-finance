@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 using Crossroads.Service.Finance.Models;
 using Exports.JournalEntries;
@@ -95,9 +96,10 @@ namespace Crossroads.Service.Finance.Services.Exports
             _journalEntryRepository.CreateMpJournalEntries(journalEntries);
         }
 
-        public void HelloWorld()
+        public string HelloWorld()
         {
             var result = _journalEntryExport.HelloWorld().Result;
+            return result;
         }
 
         /// <summary>
@@ -109,6 +111,20 @@ namespace Crossroads.Service.Finance.Services.Exports
         /// the export is occurring to be able to validate the export.
         /// </summary>
         public void ExportJournalEntries()
+        {
+            var velosioJournalEntryStages = CreateJournalEntryStages(true);
+            // TODO: uncomment when preliminary testing is complete
+            //_journalEntryExport.ExportJournalEntryStage(velosioJournalEntryStage);
+        }
+
+        public string ExportJournalEntriesManually()
+        {
+            var velosioJournalEntryStages = CreateJournalEntryStages(true);
+            var serializedData = SerializeJournalEntryStages(velosioJournalEntryStages);
+            return serializedData;
+        }
+
+        public List<VelosioJournalEntryStage> CreateJournalEntryStages(bool markEntriesAsProcessed = true)
         {
             // pull all journal entries that have not been processed
             var journalEntries = _journalEntryRepository.GetMpJournalEntries();
@@ -144,14 +160,14 @@ namespace Crossroads.Service.Finance.Services.Exports
 
                 velosioJournalEntryStage.TransactionCount++;
 
-                journalEntry.ExportedDate = DateTime.Parse(DateTime.Now.ToShortDateString());
-
-                _journalEntryExport.ExportJournalEntryStage(velosioJournalEntryStage);
-
-                //_journalEntryExport.ExportJournalEntryStage(velosioJournalEntryStage.BatchNumber, velosioJournalEntryStage.TotalCredits, velosioJournalEntryStage.TotalDebits, DateTime.Today, velosioJournalEntryStage.BatchData.ToString(), velosioJournalEntryStage.)
+                if (markEntriesAsProcessed == true)
+                {
+                    journalEntry.ExportedDate = DateTime.Parse(DateTime.Now.ToShortDateString());
+                }
             }
 
             _journalEntryRepository.UpdateJournalEntries(journalEntries);
+            return velosioJournalEntryStages;
         }
 
         private XElement SerializeJournalEntry(MpJournalEntry mpJournalEntry)
@@ -165,6 +181,29 @@ namespace Crossroads.Service.Finance.Services.Exports
             journalEntryXml.Add(new XElement("CreditAmount", mpJournalEntry.CreditAmount));
 
             return journalEntryXml;
+        }
+
+        // we return only the journal entry info, not the metadata required by Velosio for this export
+        public string SerializeJournalEntryStages(List<VelosioJournalEntryStage> velosioJournalEntryStages)
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("Batch;Account;Debit;Credit;");
+
+            foreach (var velosioJournalEntryStage in velosioJournalEntryStages)
+            {
+                // convert xml to new line in csv
+                foreach (var batchDataElement in velosioJournalEntryStage.BatchData.Descendants("BatchDataTable"))
+                {
+                    var elementString = batchDataElement.Descendants("BatchNumber").First().Value + "," +
+                                        batchDataElement.Descendants("Account").First().Value + "," +
+                                        batchDataElement.Descendants("DebitAmount").First().Value + "," +
+                                        batchDataElement.Descendants("CreditAmount").First().Value + ",";
+
+                    stringBuilder.AppendLine(elementString);
+                }
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }

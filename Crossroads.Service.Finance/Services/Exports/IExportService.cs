@@ -8,7 +8,8 @@ namespace Crossroads.Service.Finance.Services.Exports
     public interface IExportService
     {
         void CreateJournalEntries();
-        void HelloWorld();
+        string HelloWorld();
         void ExportJournalEntries();
+        string ExportJournalEntriesManually();
     }
 }

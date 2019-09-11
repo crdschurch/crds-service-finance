@@ -45,15 +45,15 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                //var msg = "DonorController: GetRecurringGifts";
-                //_logger.Error($"Error creating journal entries: {ex.Message}");
+                var msg = "ExportController: ExportHello";
+                _logger.Error($"Error running hello world: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }
 
         [HttpPost]
         [Route("journalentries/export")]
-        public IActionResult ExportExport()
+        public IActionResult ExportProgramatically()
         {
             try
             {
@@ -63,8 +63,22 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                //var msg = "DonorController: GetRecurringGifts";
-                //_logger.Error($"Error creating journal entries: {ex.Message}");
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("journalentries/export/manual")]
+        public IActionResult ExportManually()
+        {
+            try
+            {
+                _logger.Info("Running export...");
+                var result = _exportService.ExportJournalEntriesManually();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(ex.Message);
             }
         }
