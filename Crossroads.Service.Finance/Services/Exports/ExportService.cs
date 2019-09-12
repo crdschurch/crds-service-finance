@@ -130,7 +130,7 @@ namespace Crossroads.Service.Finance.Services.Exports
 
         public List<VelosioJournalEntryBatch> CreateJournalEntryStages(bool doMarkJournalEntriesAsProcessed = true)
         {
-            List<MpJournalEntry> journalEntries = _journalEntryRepository.GetMpJournalEntriesWhichHaventBeenExported();
+            List<MpJournalEntry> journalEntries = _journalEntryRepository.GetUnexportedJournalEntries();
             List<VelosioJournalEntryBatch> batches = _batchService.CreateBatchPerUniqueJournalEntryBatchId(journalEntries);
 
             foreach (var journalEntry in journalEntries)
