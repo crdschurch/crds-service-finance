@@ -32,7 +32,7 @@ namespace MinistryPlatform.JournalEntries
                 .Create(mpJournalEntries, "cr_Journal_Entries");
         }
 
-        public List<MpJournalEntry> GetMpJournalEntries()
+        public List<MpJournalEntry> GetUnexportedJournalEntries()
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
