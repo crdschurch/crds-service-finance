@@ -1,29 +1,33 @@
 ﻿using AutoMapper;
-using MinistryPlatform.Adjustments;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using Crossroads.Service.Finance.Models;
+using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Exports.JournalEntries;
 using Exports.Models;
+using MinistryPlatform.Adjustments;
 using MinistryPlatform.JournalEntries;
 using MinistryPlatform.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Crossroads.Service.Finance.Services.Exports
 {
     public class ExportService: IExportService
     {
         private readonly IAdjustmentRepository _adjustmentRepository;
+        private readonly IJournalEntryBatchService _batchService;
         private readonly IJournalEntryRepository _journalEntryRepository;
         private readonly IJournalEntryExport _journalEntryExport;
         private readonly IMapper _mapper;
 
-        public ExportService(IAdjustmentRepository adjustmentRepository, IJournalEntryRepository journalEntryRepository, IJournalEntryExport journalEntryExport, IMapper mapper)
+        public ExportService(IAdjustmentRepository adjustmentRepository,
+                             IJournalEntryBatchService batchService,
+                             IJournalEntryRepository journalEntryRepository, 
+                             IJournalEntryExport journalEntryExport,
+                             IMapper mapper)
         {
             _adjustmentRepository = adjustmentRepository;
+            _batchService = batchService;
             _journalEntryRepository = journalEntryRepository;
             _journalEntryExport = journalEntryExport;
             _mapper = mapper;
@@ -124,67 +128,27 @@ namespace Crossroads.Service.Finance.Services.Exports
             return serializedData;
         }
 
-        public List<VelosioJournalEntryStage> CreateJournalEntryStages(bool markEntriesAsProcessed = true)
+        public List<VelosioJournalEntryBatch> CreateJournalEntryStages(bool doMarkJournalEntriesAsProcessed = true)
         {
-            // pull all journal entries that have not been processed
-            var journalEntries = _journalEntryRepository.GetMpJournalEntries();
+            List<MpJournalEntry> journalEntries = _journalEntryRepository.GetUnexportedJournalEntries();
+            List<VelosioJournalEntryBatch> batches = _batchService.CreateBatchPerUniqueJournalEntryBatchId(journalEntries);
 
-            var velosioJournalEntryStages = new List<VelosioJournalEntryStage>();
-
-            // total up journal entry metadata
             foreach (var journalEntry in journalEntries)
             {
-                var velosioJournalEntryStage =
-                    velosioJournalEntryStages.FirstOrDefault(r => r.BatchNumber == journalEntry.BatchID);
+                _batchService.AddJournalEntryToAppropriateBatch(batches, journalEntry);
 
-                if (velosioJournalEntryStage == null)
-                {
-                    velosioJournalEntryStage = new VelosioJournalEntryStage
-                    {
-                        BatchNumber = journalEntry.BatchID,
-                        TotalCredits = journalEntry.DebitAmount,
-                        TotalDebits = journalEntry.CreditAmount,
-                        BatchDate = DateTime.Parse(DateTime.Now.ToShortDateString()),
-                        BatchData = new XElement("BatchDataSet", null)
-                    };
-
-                    velosioJournalEntryStage.BatchData.Add(SerializeJournalEntry(journalEntry));
-                    velosioJournalEntryStages.Add(velosioJournalEntryStage);
-                }
-                else
-                {
-                    velosioJournalEntryStage.BatchData.Add(SerializeJournalEntry(journalEntry));
-                    velosioJournalEntryStage.TotalCredits += journalEntry.CreditAmount;
-                    velosioJournalEntryStage.TotalDebits += journalEntry.DebitAmount;
-                }
-
-                velosioJournalEntryStage.TransactionCount++;
-
-                if (markEntriesAsProcessed == true)
+                if (doMarkJournalEntriesAsProcessed == true)
                 {
                     journalEntry.ExportedDate = DateTime.Parse(DateTime.Now.ToShortDateString());
                 }
             }
 
             _journalEntryRepository.UpdateJournalEntries(journalEntries);
-            return velosioJournalEntryStages;
-        }
-
-        private XElement SerializeJournalEntry(MpJournalEntry mpJournalEntry)
-        {
-            var journalEntryXml = new XElement("BatchDataTable", null);
-            journalEntryXml.Add(new XElement("BatchNumber", mpJournalEntry.BatchID));
-            journalEntryXml.Add(new XElement("Reference", mpJournalEntry.GetReferenceString()));
-            journalEntryXml.Add(new XElement("TransactionDate", DateTime.Now.Date));
-            journalEntryXml.Add(new XElement("Account", mpJournalEntry.GL_Account_Number));
-            journalEntryXml.Add(new XElement("DebitAmount", mpJournalEntry.DebitAmount));
-            journalEntryXml.Add(new XElement("CreditAmount", mpJournalEntry.CreditAmount));
-
-            return journalEntryXml;
+            return batches;
         }
 
         // we return only the journal entry info, not the metadata required by Velosio for this export
-        public string SerializeJournalEntryStages(List<VelosioJournalEntryStage> velosioJournalEntryStages)
+        public string SerializeJournalEntryStages(List<VelosioJournalEntryBatch> velosioJournalEntryStages)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("Batch;Account;Debit;Credit;");

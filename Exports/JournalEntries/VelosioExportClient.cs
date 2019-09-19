@@ -28,7 +28,7 @@ namespace Exports.JournalEntries
             return result.Body.HelloWorldResult;
         }
 
-        public async Task<string> ExportJournalEntryStage(VelosioJournalEntryStage velosioJournalEntryStage)
+        public async Task<string> ExportJournalEntryStage(VelosioJournalEntryBatch velosioJournalEntryStage)
         {
             //var body = new LoadBatchRequestBody();
             //var req = new VelosioJournalExport.LoadBatchRequest();
