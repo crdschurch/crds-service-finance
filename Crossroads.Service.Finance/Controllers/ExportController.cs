@@ -69,12 +69,12 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpPost]
         [Route("journalentries/export/manual")]
-        public IActionResult ExportManually()
+        public IActionResult ExportManually([FromHeader] bool markExported = true)
         {
             try
             {
                 _logger.Info("Running export...");
-                var result = _exportService.ExportJournalEntriesManually();
+                var result = _exportService.ExportJournalEntriesManually(markExported);
                 return Ok(result);
             }
             catch (Exception ex)

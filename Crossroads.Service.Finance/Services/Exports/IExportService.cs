@@ -10,6 +10,6 @@ namespace Crossroads.Service.Finance.Services.Exports
         void CreateJournalEntries();
         string HelloWorld();
         void ExportJournalEntries();
-        string ExportJournalEntriesManually();
+        string ExportJournalEntriesManually(bool markExported);
     }
 }

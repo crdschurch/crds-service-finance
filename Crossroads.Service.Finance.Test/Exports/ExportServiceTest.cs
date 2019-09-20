@@ -62,13 +62,14 @@ namespace Crossroads.Service.Finance.Test.Exports
         {
             // Arrange
             var mpAdjustmentsMock = MpDistributionAdjustmentMock.CreateList();
+            var mpJournalEntryMock = MpJournalEntryMock.CreateList();
 
             _adjustmentRepository.Setup(r => r.GetAdjustmentsByDate(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .Returns(mpAdjustmentsMock);
 
-            _adjustmentRepository.Setup(r => r.UpdateAdjustments(It.IsAny<List<MpDistributionAdjustment>>()));
+            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>())).Returns(mpJournalEntryMock);
 
-            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>()));
+            _adjustmentRepository.Setup(r => r.UpdateAdjustments(It.IsAny<List<MpDistributionAdjustment>>()));
 
             // Act
             _fixture.CreateJournalEntries();

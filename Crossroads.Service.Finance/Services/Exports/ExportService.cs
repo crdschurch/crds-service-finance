@@ -88,16 +88,22 @@ namespace Crossroads.Service.Finance.Services.Exports
                         matchingMpJournalEntry.DebitAmount = mpDistributionAdjustment.Amount;
                     }
                 }
+            }
 
-                // mark adjustment
+            // create journal entries
+            var mpJournalEntries = _journalEntryRepository.CreateMpJournalEntries(journalEntries);
+
+            foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
+            {
                 mpDistributionAdjustment.ProcessedDate = DateTime.Now;
+
+                // TODO: verify that this will not cause issues with the wrong adjustment being keyed to the wrong journal entry
+                mpDistributionAdjustment.JournalEntryId = mpJournalEntries
+                    .First(r => r.GL_Account_Number == mpDistributionAdjustment.GLAccountNumber).JournalEntryID;
             }
 
             // update adjustments
             _adjustmentRepository.UpdateAdjustments(mpDistributionAdjustments);
-
-            // create journal entries
-            _journalEntryRepository.CreateMpJournalEntries(journalEntries);
         }
 
         public string HelloWorld()
@@ -117,11 +123,12 @@ namespace Crossroads.Service.Finance.Services.Exports
         public void ExportJournalEntries()
         {
             var velosioJournalEntryStages = CreateJournalEntryStages(true);
+
             // TODO: uncomment when preliminary testing is complete
             //_journalEntryExport.ExportJournalEntryStage(velosioJournalEntryStage);
         }
 
-        public string ExportJournalEntriesManually()
+        public string ExportJournalEntriesManually(bool markExported = true)
         {
             var velosioJournalEntryStages = CreateJournalEntryStages(true);
             var serializedData = SerializeJournalEntryStages(velosioJournalEntryStages);
