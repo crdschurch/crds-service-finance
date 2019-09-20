@@ -16,8 +16,8 @@ DECLARE @DESCRIPTION nvarchar(255) = N'Journal Entries'
 DECLARE @VIEW_ORDER smallint = 9999
 DECLARE @TABLE_NAME nvarchar(50) = 'cr_Journal_Entries'
 DECLARE @PRIMARY_KEY nvarchar(50) = 'Journal_Entry_ID'
-DECLARE @DEFAULT_FIELD_LIST nvarchar(2000) = 'Journal_Entry_ID, Created_Date, Exported_Date, GL_Account_Number, Batch_ID, Amount, Description'
-DECLARE @SELECTED_RECORD_EXPRESSION nvarchar(255) = 'CONCAT(Journal_Entry_ID, Amount, Created_Date)'
+DECLARE @DEFAULT_FIELD_LIST nvarchar(2000) = 'Journal_Entry_ID, Created_Date, Exported_Date, GL_Account_Number, Batch_ID, Debit_Amount, Credit_Amount, Description'
+DECLARE @SELECTED_RECORD_EXPRESSION nvarchar(255) = 'CONCAT(Journal_Entry_ID, Debit_Amount, Credit_Amount, Created_Date)'
 DECLARE @DISPLAY_COPY bit = 0
 
 SELECT @EXISTING_PAGE_ID = [Page_ID] FROM [dbo].[dp_Pages] WHERE [Page_ID] = @PAGE_ID;

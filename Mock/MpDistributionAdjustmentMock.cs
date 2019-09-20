@@ -18,7 +18,7 @@ namespace Mock
             {
                 new MpDistributionAdjustment
                 {
-                    GLAccountNumber = "test_gl_account",
+                    GLAccountNumber = "40001-325-02",
                     DonationDate = new DateTime(2019, 08, 01),
                     Amount = 1
                 }

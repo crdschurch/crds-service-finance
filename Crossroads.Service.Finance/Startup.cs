@@ -22,8 +22,10 @@ using Utilities.Logging;
 using Crossroads.Microservice.Settings;
 using Crossroads.Microservice.Logging;
 using Crossroads.Service.Finance.Services.Exports;
+using Exports.JournalEntries;
 using MinistryPlatform.Adjustments;
 using MinistryPlatform.JournalEntries;
+using Crossroads.Service.Finance.Services.JournalEntryBatch;
 
 namespace Crossroads.Service.Finance
 {
@@ -76,6 +78,7 @@ namespace Crossroads.Service.Finance
 
             // Service Layer
             services.AddSingleton<IBatchService, BatchService>();
+            services.AddSingleton<IJournalEntryBatchService, JournalEntryBatchService>();
             services.AddSingleton<IContactService, ContactService>();
             services.AddSingleton<IDonationService, DonationService>();
             services.AddSingleton<IDepositService, DepositService>();
@@ -106,6 +109,9 @@ namespace Crossroads.Service.Finance
 
             // Utilities Layer
             services.AddSingleton<IDataLoggingService, NewRelicAgentWrapper>();
+
+            // Exports Layer
+            services.AddSingleton<IJournalEntryExport, VelosioExportClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

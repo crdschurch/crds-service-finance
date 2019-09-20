@@ -21,6 +21,7 @@ namespace MinistryPlatform.Adjustments
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
                 "Distribution_Adjustment_ID",
+                "Journal_Entry_ID",
                 "Created_Date",
                 "Donation_Date",
                 "Processed_Date",

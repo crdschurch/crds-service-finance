@@ -24,8 +24,11 @@ namespace MinistryPlatform.Models
         [JsonProperty("Batch_ID")]
         public string BatchID { get; set; }
 
-        [JsonProperty("Amount")]
-        public decimal Amount { get; set; }
+        [JsonProperty("Credit_Amount")]
+        public decimal CreditAmount { get; set; }
+
+        [JsonProperty("Debit_Amount")]
+        public decimal DebitAmount { get; set; }
 
         [JsonProperty("Description")]
         public string Description { get; set; }
@@ -35,5 +38,12 @@ namespace MinistryPlatform.Models
 
         [JsonProperty("Adjustment_Month")]
         public int AdjustmentMonth { get; set; }
+
+        public string GetReferenceString()
+        {
+            var tempDate = new DateTime(AdjustmentYear, AdjustmentMonth, 1);
+            var monthName = tempDate.ToString("MMM");
+            return $"{monthName} Revenue Reclassification";
+        }
     }
 }

@@ -12,6 +12,9 @@ namespace MinistryPlatform.Models
         [JsonProperty("Distribution_Adjustment_ID")]
         public int DistributionAdjustmentId { get; set; }
 
+        [JsonProperty("Journal_Entry_ID")]
+        public int? JournalEntryId { get; set; }
+
         [JsonProperty("Created_Date")]
         public DateTime CreatedDate { get; set; }
 
