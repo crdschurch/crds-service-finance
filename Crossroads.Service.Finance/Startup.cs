@@ -121,7 +121,7 @@ namespace Crossroads.Service.Finance
             {
                 app.UseDeveloperExceptionPage();
             }
-            //app.UseHangfireServer(); // TODO: Uncomment
+            app.UseHangfireServer();
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
