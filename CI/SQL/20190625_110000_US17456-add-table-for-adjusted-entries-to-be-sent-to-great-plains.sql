@@ -12,7 +12,7 @@ IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_name = 'cr_Di
 BEGIN
   CREATE TABLE [dbo].cr_Distribution_Adjustments(
     [Distribution_Adjustment_ID] INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[Journal_Entry_ID] INT NULL FOREIGN KEY REFERENCES [Journal_Entries]([Journal_Entry_ID]),
+	[Journal_Entry_ID] INT NULL FOREIGN KEY REFERENCES [cr_Journal_Entries]([Journal_Entry_ID]),
     [Created_Date] DATETIME NOT NULL,
 	[Donation_Date] DATETIME NOT NULL,
     [Processed_Date] DATETIME NULL,
