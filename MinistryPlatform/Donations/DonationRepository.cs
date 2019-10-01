@@ -99,6 +99,7 @@ namespace MinistryPlatform.Repositories
             }
         }
 
+        // TODO: Potentially remove this code
         public MpContactDonor GetContactDonor(int contactId)
         {
             MpContactDonor donor;
