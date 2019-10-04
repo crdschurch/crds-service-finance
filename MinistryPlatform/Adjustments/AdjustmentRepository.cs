@@ -16,7 +16,7 @@ namespace MinistryPlatform.Adjustments
         IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public List<MpDistributionAdjustment> GetAdjustmentsByDate()
+        public List<MpDistributionAdjustment> GetUnprocessedDistributionAdjustments()
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {

@@ -8,7 +8,7 @@ namespace MinistryPlatform.Adjustments
 {
     public interface IAdjustmentRepository
     {
-        List<MpDistributionAdjustment> GetAdjustmentsByDate();
+        List<MpDistributionAdjustment> GetUnprocessedDistributionAdjustments();
         void UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments);
     }
 }

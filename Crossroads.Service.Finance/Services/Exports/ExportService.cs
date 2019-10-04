@@ -36,7 +36,7 @@ namespace Crossroads.Service.Finance.Services.Exports
         public void CreateJournalEntries()
         {
             // get adjustments that haven't been processed yet
-            var mpDistributionAdjustments = _adjustmentRepository.GetAdjustmentsByDate();
+            var mpDistributionAdjustments = _adjustmentRepository.GetUnprocessedDistributionAdjustments();
 
             var today = DateTime.Now;
 
