@@ -35,14 +35,13 @@ namespace Crossroads.Service.Finance.Services.Exports
 
         public void CreateJournalEntries()
         {
-            // get adjustments from the previous day that are not exported
-            var yesterday = DateTime.Now.AddDays(-1);
-            var startDate = new DateTime(yesterday.Year, yesterday.Month, yesterday.Day);
-            var endDate = startDate.AddDays(1);
-            var mpDistributionAdjustments = _adjustmentRepository.GetAdjustmentsByDate(startDate, endDate);
+            // get adjustments that haven't been processed yet
+            var mpDistributionAdjustments = _adjustmentRepository.GetAdjustmentsByDate();
+
+            var today = DateTime.Now;
 
             // TODO: We need to verify this batch ID with Finance and Velosio
-            var batchId = $"CRJE{yesterday.Year}{yesterday.Month}{yesterday.Day}01";
+            var batchId = $"CRJE{today.Year}{today.Month}{today.Day}01";
 
             var journalEntries = new List<MpJournalEntry>();
 

@@ -45,7 +45,7 @@ namespace Crossroads.Service.Finance.Test.Exports
         public void ShouldCreateNoJournalEntriesIfNoAdjustments()
         {
             // Arrange
-            _adjustmentRepository.Setup(r => r.GetAdjustmentsByDate(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            _adjustmentRepository.Setup(r => r.GetAdjustmentsByDate())
                 .Returns(new List<MpDistributionAdjustment>());
 
             _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>()));
@@ -64,7 +64,7 @@ namespace Crossroads.Service.Finance.Test.Exports
             var mpAdjustmentsMock = MpDistributionAdjustmentMock.CreateList();
             var mpJournalEntryMock = MpJournalEntryMock.CreateList();
 
-            _adjustmentRepository.Setup(r => r.GetAdjustmentsByDate(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            _adjustmentRepository.Setup(r => r.GetAdjustmentsByDate())
                 .Returns(mpAdjustmentsMock);
 
             _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>())).Returns(mpJournalEntryMock);
