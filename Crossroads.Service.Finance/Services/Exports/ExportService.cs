@@ -72,7 +72,7 @@ namespace Crossroads.Service.Finance.Services.Exports
                     }
                     else
                     {
-                        mpJournalEntry.DebitAmount = mpDistributionAdjustment.Amount;
+                        mpJournalEntry.DebitAmount = Math.Abs(mpDistributionAdjustment.Amount);
                     }
 
                     journalEntries.Add(mpJournalEntry);
@@ -85,7 +85,7 @@ namespace Crossroads.Service.Finance.Services.Exports
                     }
                     else
                     {
-                        matchingMpJournalEntry.DebitAmount = mpDistributionAdjustment.Amount;
+                        matchingMpJournalEntry.DebitAmount = Math.Abs(mpDistributionAdjustment.Amount);
                     }
                 }
             }
