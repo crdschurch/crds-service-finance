@@ -16,7 +16,7 @@ namespace MinistryPlatform.Adjustments
         IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public List<MpDistributionAdjustment> GetAdjustmentsByDate(DateTime startDate, DateTime endDate)
+        public List<MpDistributionAdjustment> GetUnprocessedDistributionAdjustments()
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
             var columns = new string[] {
@@ -32,17 +32,10 @@ namespace MinistryPlatform.Adjustments
                 "Donation_Distribution_ID"
             };
 
-            var filters = new string[]
-            {
-                $"Processed_Date IS NULL",
-                $"Created_Date >= '{startDate:yyyy-MM-dd}'",
-                $"Created_Date <= '{endDate:yyyy-MM-dd}'"
-            };
-
             var mpAdjustingJournalEntries = MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithSelectColumns(columns)
-                .WithFilter(String.Join(" AND ", filters))
+                .WithFilter("Processed_Date IS NULL")
                 .Build()
                 .Search<MpDistributionAdjustment>();
 
