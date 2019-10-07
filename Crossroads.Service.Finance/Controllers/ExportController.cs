@@ -68,21 +68,15 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
+        //         [HttpGet("{contactId}/recurring-gifts")]
         [HttpPost]
-        [Route("journalentries/export/manual")]
-        public IActionResult ExportManually()
+        [Route("journalentries/export/manual/{update}")]
+        public IActionResult ExportManually(bool update = true)
         {
             try
             {
-                var markExported = true;
-
-                if (Request.Headers.Any(r => r.Key.ToLower() == "markexported"))
-                {
-                    markExported = Boolean.Parse(Request.Headers.First(r => r.Key.ToLower() == "markexported").Value);
-                }
-
                 _logger.Info("Running export...");
-                var result = _exportService.ExportJournalEntriesManually(markExported);
+                var result = _exportService.ExportJournalEntriesManually(update);
                 return Ok(result);
             }
             catch (Exception ex)
