@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Crossroads.Service.Finance.Services.Exports;
 using Microsoft.AspNetCore.Mvc;
 
@@ -67,14 +68,15 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
+        //         [HttpGet("{contactId}/recurring-gifts")]
         [HttpPost]
-        [Route("journalentries/export/manual")]
-        public IActionResult ExportManually([FromHeader] bool markExported = true)
+        [Route("journalentries/export/manual/{update}")]
+        public IActionResult ExportManually(bool update = true)
         {
             try
             {
                 _logger.Info("Running export...");
-                var result = _exportService.ExportJournalEntriesManually(markExported);
+                var result = _exportService.ExportJournalEntriesManually(update);
                 return Ok(result);
             }
             catch (Exception ex)
