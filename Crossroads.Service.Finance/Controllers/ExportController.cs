@@ -76,9 +76,9 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 var markExported = true;
 
-                if (Request.Headers.Any(r => r.Key == "markExported"))
+                if (Request.Headers.Any(r => r.Key.ToLower() == "markexported"))
                 {
-                    markExported = Boolean.Parse(Request.Headers.First(r => r.Key == "markExported").Value);
+                    markExported = Boolean.Parse(Request.Headers.First(r => r.Key.ToLower() == "markexported").Value);
                 }
 
                 _logger.Info("Running export...");
