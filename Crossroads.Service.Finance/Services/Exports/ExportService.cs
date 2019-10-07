@@ -129,7 +129,7 @@ namespace Crossroads.Service.Finance.Services.Exports
 
         public string ExportJournalEntriesManually(bool markExported = true)
         {
-            var velosioJournalEntryStages = CreateJournalEntryStages(true);
+            var velosioJournalEntryStages = CreateJournalEntryStages(markExported);
             var serializedData = SerializeJournalEntryStages(velosioJournalEntryStages);
             return serializedData;
         }
