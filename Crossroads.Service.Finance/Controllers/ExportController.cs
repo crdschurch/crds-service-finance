@@ -74,7 +74,13 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                var markExported = Boolean.Parse(Request.Headers.First(r => r.Key == "markExported").Value);
+                var markExported = true;
+
+                if (Request.Headers.Any(r => r.Key == "markExported"))
+                {
+                    markExported = Boolean.Parse(Request.Headers.First(r => r.Key == "markExported").Value);
+                }
+
                 _logger.Info("Running export...");
                 var result = _exportService.ExportJournalEntriesManually(markExported);
                 return Ok(result);
