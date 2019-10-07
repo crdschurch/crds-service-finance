@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Crossroads.Service.Finance.Services.Exports;
 using Microsoft.AspNetCore.Mvc;
 
@@ -69,10 +70,17 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpPost]
         [Route("journalentries/export/manual")]
-        public IActionResult ExportManually([FromHeader] bool markExported = true)
+        public IActionResult ExportManually()
         {
             try
             {
+                var markExported = true;
+
+                if (Request.Headers.Any(r => r.Key == "markExported"))
+                {
+                    markExported = Boolean.Parse(Request.Headers.First(r => r.Key == "markExported").Value);
+                }
+
                 _logger.Info("Running export...");
                 var result = _exportService.ExportJournalEntriesManually(markExported);
                 return Ok(result);
