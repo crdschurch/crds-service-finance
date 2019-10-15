@@ -51,6 +51,9 @@ namespace Crossroads.Service.Finance
             services.AddDistributedMemoryCache();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddCors();
+            services.AddMvc(option => option.EnableEndpointRouting = false);
+            //services.MvcOptions.EnableEndpointRouting = false;
+
 
             SettingsService settingsService = new SettingsService();
             services.AddSingleton<ISettingsService>(settingsService);
@@ -121,15 +124,28 @@ namespace Crossroads.Service.Finance
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseHangfireServer();
+            //app.UseHangfireServer();
+            //app.UseCors(builder => builder
+            //    .AllowAnyOrigin()
+            //    .AllowAnyMethod()
+            //    .AllowAnyHeader()
+            //    .AllowCredentials());
+
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials());
+                .AllowAnyHeader());
 
             // used for impersonation
             app.UseImpersonationMiddleware();
+
+            //app.UseRouting();
+
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllers();
+            //    //endpoints.MapRazorPages();
+            //});
 
             app.UseMvc();
 

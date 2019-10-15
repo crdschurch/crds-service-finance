@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Threading.Tasks;
 using MinistryPlatform.Models;
 
 namespace MinistryPlatform.Adjustments
 {
     public interface IAdjustmentRepository
     {
-        List<MpDistributionAdjustment> GetUnprocessedDistributionAdjustments();
-        void UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments);
+        Task<List<MpDistributionAdjustment>> GetUnprocessedDistributionAdjustments();
+        Task UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments);
     }
 }

@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Crossroads.Service.Finance.Services.Exports
 {
@@ -33,10 +35,11 @@ namespace Crossroads.Service.Finance.Services.Exports
             _mapper = mapper;
         }
 
-        public void CreateJournalEntries()
+        public async Task CreateJournalEntries()
         {
             // get adjustments that haven't been processed yet
-            var mpDistributionAdjustments = _adjustmentRepository.GetUnprocessedDistributionAdjustments();
+            Task<List<MpDistributionAdjustment>> mpDistributionAdjustmentsTask = _adjustmentRepository.GetUnprocessedDistributionAdjustments();
+            var mpDistributionAdjustments = await mpDistributionAdjustmentsTask;
 
             var today = DateTime.Now;
 
@@ -90,7 +93,8 @@ namespace Crossroads.Service.Finance.Services.Exports
             }
 
             // create journal entries
-            var mpJournalEntries = _journalEntryRepository.CreateMpJournalEntries(journalEntries);
+            var mpJournalEntriesTask = _journalEntryRepository.CreateMpJournalEntries(journalEntries);
+            var mpJournalEntries = await mpJournalEntriesTask;
 
             foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
             {
@@ -102,13 +106,13 @@ namespace Crossroads.Service.Finance.Services.Exports
             }
 
             // update adjustments
-            _adjustmentRepository.UpdateAdjustments(mpDistributionAdjustments);
+            await _adjustmentRepository.UpdateAdjustments(mpDistributionAdjustments);
         }
 
-        public string HelloWorld()
+        public async Task<string> HelloWorld()
         {
             var result = _journalEntryExport.HelloWorld().Result;
-            return result;
+            return await Task.FromResult(result);
         }
 
         /// <summary>
@@ -127,17 +131,19 @@ namespace Crossroads.Service.Finance.Services.Exports
             //_journalEntryExport.ExportJournalEntryStage(velosioJournalEntryStage);
         }
 
-        public string ExportJournalEntriesManually(bool markExported = true)
+        public async Task<string> ExportJournalEntriesManually(bool markExported = true)
         {
-            var velosioJournalEntryStages = CreateJournalEntryStages(markExported);
-            var serializedData = SerializeJournalEntryStages(velosioJournalEntryStages);
-            return serializedData;
+            var velosioJournalEntryBatch = await CreateJournalEntryStages(markExported);
+            var serializedDataTask = new Task<string>(() => SerializeJournalEntryStages(velosioJournalEntryBatch));
+            //var result = SerializeJournalEntryStages(velosioJournalEntryBatch);
+            var result = await serializedDataTask;
+            return result;
         }
 
-        public List<VelosioJournalEntryBatch> CreateJournalEntryStages(bool doMarkJournalEntriesAsProcessed = true)
+        public async Task<List<VelosioJournalEntryBatch>> CreateJournalEntryStages(bool doMarkJournalEntriesAsProcessed = true)
         {
-            List<MpJournalEntry> journalEntries = _journalEntryRepository.GetUnexportedJournalEntries();
-            List<VelosioJournalEntryBatch> batches = _batchService.CreateBatchPerUniqueJournalEntryBatchId(journalEntries);
+            List<MpJournalEntry> journalEntries = await _journalEntryRepository.GetUnexportedJournalEntries();
+            var batches = _batchService.CreateBatchPerUniqueJournalEntryBatchId(journalEntries);
 
             foreach (var journalEntry in journalEntries)
             {
@@ -149,17 +155,17 @@ namespace Crossroads.Service.Finance.Services.Exports
                 }
             }
 
-            _journalEntryRepository.UpdateJournalEntries(journalEntries);
+            await _journalEntryRepository.UpdateJournalEntries(journalEntries);
             return batches;
         }
 
         // we return only the journal entry info, not the metadata required by Velosio for this export
-        public string SerializeJournalEntryStages(List<VelosioJournalEntryBatch> velosioJournalEntryStages)
+        public string SerializeJournalEntryStages(List<VelosioJournalEntryBatch> velosioJournalEntryBatches)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("Batch;Account;Debit;Credit;");
 
-            foreach (var velosioJournalEntryStage in velosioJournalEntryStages)
+            foreach (var velosioJournalEntryStage in velosioJournalEntryBatches)
             {
                 // convert xml to new line in csv
                 foreach (var batchDataElement in velosioJournalEntryStage.BatchData.Descendants("BatchDataTable"))
@@ -173,7 +179,8 @@ namespace Crossroads.Service.Finance.Services.Exports
                 }
             }
 
-            return stringBuilder.ToString();
+            var returnResult = stringBuilder.ToString();
+            return returnResult;
         }
     }
 }

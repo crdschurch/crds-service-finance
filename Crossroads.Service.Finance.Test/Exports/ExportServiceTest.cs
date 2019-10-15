@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using AutoMapper;
 using Crossroads.Service.Finance.Services.Exports;
@@ -46,9 +47,7 @@ namespace Crossroads.Service.Finance.Test.Exports
         {
             // Arrange
             _adjustmentRepository.Setup(r => r.GetUnprocessedDistributionAdjustments())
-                .Returns(new List<MpDistributionAdjustment>());
-
-            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>()));
+                .Returns(new Task<List<MpDistributionAdjustment>>(() => MpDistributionAdjustmentMock.CreateList()));
 
             // Act
             _fixture.CreateJournalEntries();
@@ -65,9 +64,7 @@ namespace Crossroads.Service.Finance.Test.Exports
             var mpJournalEntryMock = MpJournalEntryMock.CreateList();
 
             _adjustmentRepository.Setup(r => r.GetUnprocessedDistributionAdjustments())
-                .Returns(mpAdjustmentsMock);
-
-            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>())).Returns(mpJournalEntryMock);
+                .Returns(new Task<List<MpDistributionAdjustment>>(MpDistributionAdjustmentMock.CreateList));
 
             _adjustmentRepository.Setup(r => r.UpdateAdjustments(It.IsAny<List<MpDistributionAdjustment>>()));
 

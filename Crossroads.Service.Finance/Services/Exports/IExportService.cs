@@ -7,9 +7,9 @@ namespace Crossroads.Service.Finance.Services.Exports
 {
     public interface IExportService
     {
-        void CreateJournalEntries();
-        string HelloWorld();
+        Task CreateJournalEntries();
+        Task<string> HelloWorld();
         void ExportJournalEntries();
-        string ExportJournalEntriesManually(bool markExported);
+        Task<string> ExportJournalEntriesManually(bool markExported);
     }
 }

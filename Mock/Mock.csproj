@@ -9,6 +9,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Integration|AnyCPU'" />
 
   <ItemGroup>
+    <PackageReference Include="System.Interactive.Async" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MinistryPlatform\MinistryPlatform.csproj" />
     <ProjectReference Include="..\Crossroads.Service.Finance\Crossroads.Service.Finance.csproj" />
     <ProjectReference Include="..\Pushpay\Pushpay.csproj" />

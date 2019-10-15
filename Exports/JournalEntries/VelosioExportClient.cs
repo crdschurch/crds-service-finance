@@ -21,7 +21,6 @@ namespace Exports.JournalEntries
         public async Task<string> HelloWorld()
         {
             var hw = new VelosioJournalExport.HelloWorldRequest();
-            //var result = VelosioJournalExport.SendGLBatchSoapClient.;
             var config = new SendGLBatchSoapClient.EndpointConfiguration();
             var client = new VelosioJournalExport.SendGLBatchSoapClient(config, _configurationWrapper);
             var result = await client.HelloWorldAsync();

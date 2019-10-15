@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="NewRelic.Agent.Api" Version="8.6.45" />
+    <PackageReference Include="System.Interactive.Async" Version="4.0.0" />
   </ItemGroup>
 
 </Project>
