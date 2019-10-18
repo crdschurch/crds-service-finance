@@ -134,9 +134,9 @@ namespace Crossroads.Service.Finance.Services.Exports
         public async Task<string> ExportJournalEntriesManually(bool markExported = true)
         {
             var velosioJournalEntryBatch = await CreateJournalEntryStages(markExported);
-            var serializedDataTask = new Task<string>(() => SerializeJournalEntryStages(velosioJournalEntryBatch));
-            //var result = SerializeJournalEntryStages(velosioJournalEntryBatch);
-            var result = await serializedDataTask;
+            //var serializedDataTask = new Task<string>(() => SerializeJournalEntryStages(velosioJournalEntryBatch));
+            var result = SerializeJournalEntryStages(velosioJournalEntryBatch);
+            //var result = await serializedDataTask;
             return result;
         }
 
