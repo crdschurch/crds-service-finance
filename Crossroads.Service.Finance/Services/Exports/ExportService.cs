@@ -78,13 +78,15 @@ namespace Crossroads.Service.Finance.Services.Exports
                 }
                 else
                 {
-                    if (Math.Sign(mpDistributionAdjustment.Amount) == 1)
+                    bool isPositiveNumber = Math.Sign(mpDistributionAdjustment.Amount) == 1;
+
+                    if (isPositiveNumber)
                     {
-                        matchingMpJournalEntry.CreditAmount = mpDistributionAdjustment.Amount;
+                        matchingMpJournalEntry.CreditAmount += mpDistributionAdjustment.Amount;
                     }
                     else
                     {
-                        matchingMpJournalEntry.DebitAmount = Math.Abs(mpDistributionAdjustment.Amount);
+                        matchingMpJournalEntry.DebitAmount += Math.Abs(mpDistributionAdjustment.Amount);
                     }
                 }
             }
