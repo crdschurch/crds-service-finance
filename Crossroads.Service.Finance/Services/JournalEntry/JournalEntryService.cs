@@ -9,7 +9,6 @@ namespace Crossroads.Service.Finance.Services.JournalEntry
     {
         public MpJournalEntry AdjustExistingJournalEntry(MpDistributionAdjustment mpDistributionAdjustment, MpJournalEntry journalEntry)
         {
-
             if ( IsCredit(mpDistributionAdjustment) )
             {
                 journalEntry.CreditAmount += mpDistributionAdjustment.Amount;
