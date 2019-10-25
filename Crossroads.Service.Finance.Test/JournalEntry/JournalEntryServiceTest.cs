@@ -21,11 +21,11 @@ namespace Crossroads.Service.Finance.Test.JournalEntry
             var sampleJournalEntry = CreateTestJournalEntry(20, 5000);
             var sampleAdjustment = CreateTestDistributionAdjustment(500);
 
-            MpJournalEntry actualAdjusted =_fixture.AdjustExistingJournalEntry(sampleAdjustment, sampleJournalEntry);
+            _fixture.AdjustExistingJournalEntry(sampleAdjustment, sampleJournalEntry);
             MpJournalEntry expectedAdjusted = CreateTestJournalEntry(20, 5500);
 
-            Assert.Equal(expectedAdjusted.CreditAmount, actualAdjusted.CreditAmount);
-            Assert.Equal(expectedAdjusted.DebitAmount, actualAdjusted.DebitAmount);
+            Assert.Equal(expectedAdjusted.CreditAmount, sampleJournalEntry.CreditAmount);
+            Assert.Equal(expectedAdjusted.DebitAmount, sampleJournalEntry.DebitAmount);
         }
 
         [Fact]
@@ -70,8 +70,6 @@ namespace Crossroads.Service.Finance.Test.JournalEntry
 
             Assert.Equal(expectedCountWithoutWashEntries, adjusted.Count);
         }
-
-
 
         private MpJournalEntry CreateTestJournalEntry(decimal debit, decimal credit) {
             var mpJournalEntry = new MpJournalEntry

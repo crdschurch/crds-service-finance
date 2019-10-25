@@ -154,7 +154,7 @@ namespace Crossroads.Service.Finance.Services.Exports
                 }
                 else
                 {
-                    matchingMpJournalEntry = _journalEntryService.AdjustExistingJournalEntry(mpDistributionAdjustment, matchingMpJournalEntry);
+                    _journalEntryService.AdjustExistingJournalEntry(mpDistributionAdjustment, matchingMpJournalEntry);
                 }
             }
 

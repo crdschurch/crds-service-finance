@@ -7,7 +7,7 @@ namespace Crossroads.Service.Finance.Services.JournalEntry
 {
     public class JournalEntryService : IJournalEntryService
     {
-        public MpJournalEntry AdjustExistingJournalEntry(MpDistributionAdjustment mpDistributionAdjustment, MpJournalEntry journalEntry)
+        public void AdjustExistingJournalEntry(MpDistributionAdjustment mpDistributionAdjustment, MpJournalEntry journalEntry)
         {
             if ( IsCredit(mpDistributionAdjustment) )
             {
@@ -17,8 +17,6 @@ namespace Crossroads.Service.Finance.Services.JournalEntry
             {
                 journalEntry.DebitAmount += Math.Abs(mpDistributionAdjustment.Amount);
             }
-
-            return journalEntry;
         }
 
         public MpJournalEntry CreateNewJournalEntry(string batchId, MpDistributionAdjustment mpDistributionAdjustment)
