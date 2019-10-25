@@ -1,17 +1,8 @@
-﻿using System;
-using AutoMapper;
-using Crossroads.Service.Finance.Models;
-using Crossroads.Service.Finance.Interfaces;
-using Crossroads.Service.Finance.Services;
-using Crossroads.Web.Common.Configuration;
-using MinistryPlatform.Interfaces;
+﻿using Crossroads.Service.Finance.Services.JournalEntry;
 using MinistryPlatform.Models;
-using Mock;
-using Xunit;
-using Moq;
-using Utilities.Logging;
-using Crossroads.Service.Finance.Services.JournalEntry;
+using System;
 using System.Collections.Generic;
+using Xunit;
 
 namespace Crossroads.Service.Finance.Test.JournalEntry
 {

@@ -1,9 +1,7 @@
-﻿using Exports.Models;
-using MinistryPlatform.Models;
+﻿using MinistryPlatform.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 
 namespace Crossroads.Service.Finance.Services.JournalEntry
 {
