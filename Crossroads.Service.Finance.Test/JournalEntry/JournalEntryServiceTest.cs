@@ -40,7 +40,7 @@ namespace Crossroads.Service.Finance.Test.JournalEntry
         }
 
         [Fact]
-        public void ShouldNotAdjustZeroViaNetMethodAmounts()
+        public void ShouldNotAttemptToNetBalancedDebitsAndCredits()
         {
             var sampleJournalEntry = CreateTestJournalEntry(0, 0);
 
