@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq;
-using Crossroads.Service.Finance.Services.Exports;
+﻿using Crossroads.Service.Finance.Services.Exports;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Crossroads.Service.Finance.Controllers
 {

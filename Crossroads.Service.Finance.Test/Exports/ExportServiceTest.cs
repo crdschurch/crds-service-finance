@@ -13,12 +13,14 @@ using MinistryPlatform.Models;
 using Mock;
 using Xunit;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
+using Crossroads.Service.Finance.Services.JournalEntry;
 
 namespace Crossroads.Service.Finance.Test.Exports
 {
     public class ExportServiceTest
     {
         private readonly Mock<IAdjustmentRepository> _adjustmentRepository;
+        private readonly Mock<IJournalEntryService> _journalEntryService;
         private readonly Mock<IJournalEntryBatchService> _batchService;
         private readonly Mock<IJournalEntryRepository> _journalEntryRepository;
         private readonly Mock<IJournalEntryExport> _journalEntryExport;
@@ -29,12 +31,14 @@ namespace Crossroads.Service.Finance.Test.Exports
         public ExportServiceTest()
         {
             _adjustmentRepository = new Mock<IAdjustmentRepository>();
+            _journalEntryService = new Mock<IJournalEntryService>();
             _batchService = new Mock<IJournalEntryBatchService>();
             _journalEntryRepository = new Mock<IJournalEntryRepository>();
             _journalEntryExport = new Mock<IJournalEntryExport>();
             _mapper = new Mock<IMapper>();
 
             _fixture = new ExportService(_adjustmentRepository.Object,
+                                        _journalEntryService.Object,
                                         _batchService.Object,
                                         _journalEntryRepository.Object, 
                                         _journalEntryExport.Object,
