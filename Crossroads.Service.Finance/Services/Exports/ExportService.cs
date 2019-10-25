@@ -39,7 +39,6 @@ namespace Crossroads.Service.Finance.Services.Exports
 
         public void CreateJournalEntries()
         {
-            // get adjustments that haven't been processed yet
             var mpDistributionAdjustments = _adjustmentRepository.GetUnprocessedDistributionAdjustments();
 
             var today = DateTime.Now;
@@ -48,19 +47,13 @@ namespace Crossroads.Service.Finance.Services.Exports
             var batchId = $"CRJE{today.Year}{today.Month}{today.Day}01";
 
             List<MpJournalEntry> journalEntries = GroupAdjustmentsIntoJournalEntries(mpDistributionAdjustments, batchId);
+            journalEntries.ForEach(e => _journalEntryService.NetCreditsAndDebits(e));
             journalEntries = _journalEntryService.RemoveWashEntries(journalEntries);
 
             // create journal entries
-            var mpJournalEntries = _journalEntryRepository.CreateMpJournalEntries(journalEntries);
+            List<MpJournalEntry> mpJournalEntries = SaveJournalEntriesToMp(journalEntries);
 
-            foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
-            {
-                mpDistributionAdjustment.ProcessedDate = DateTime.Now;
-
-                // TODO: verify that this will not cause issues with the wrong adjustment being keyed to the wrong journal entry
-                mpDistributionAdjustment.JournalEntryId = mpJournalEntries
-                    .First(r => r.GL_Account_Number == mpDistributionAdjustment.GLAccountNumber).JournalEntryID;
-            }
+            MarkDistributionAdjustmentsAsProcessedInMp(mpDistributionAdjustments, mpJournalEntries);
 
             // update adjustments
             _adjustmentRepository.UpdateAdjustments(mpDistributionAdjustments);
@@ -159,6 +152,34 @@ namespace Crossroads.Service.Finance.Services.Exports
             }
 
             return journalEntries;
+        }
+
+        private List<MpJournalEntry> SaveJournalEntriesToMp(List<MpJournalEntry> journalEntries)
+        {
+            var mpJournalEntries = new List<MpJournalEntry>();
+            if (journalEntries.Any())
+            {
+                mpJournalEntries = _journalEntryRepository.CreateMpJournalEntries(journalEntries);
+            }
+
+            return mpJournalEntries;
+        }
+
+        private static void MarkDistributionAdjustmentsAsProcessedInMp(List<MpDistributionAdjustment> mpDistributionAdjustments,
+                                                               List<MpJournalEntry> mpJournalEntries)
+        {
+            foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
+            {
+                mpDistributionAdjustment.ProcessedDate = DateTime.Now;
+
+                if (mpJournalEntries.Any())
+                {
+                    mpDistributionAdjustment.JournalEntryId =
+                        mpJournalEntries
+                            .FirstOrDefault(r => r.GL_Account_Number == mpDistributionAdjustment.GLAccountNumber)?
+                            .JournalEntryID;
+                }
+            }
         }
     }
 }
