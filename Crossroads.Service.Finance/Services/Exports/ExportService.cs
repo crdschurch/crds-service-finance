@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Crossroads.Service.Finance.Services.JournalEntry;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Exports.JournalEntries;
 using Exports.Models;
@@ -15,12 +16,14 @@ namespace Crossroads.Service.Finance.Services.Exports
     public class ExportService: IExportService
     {
         private readonly IAdjustmentRepository _adjustmentRepository;
+        private readonly IJournalEntryService _journalEntryService;
         private readonly IJournalEntryBatchService _batchService;
         private readonly IJournalEntryRepository _journalEntryRepository;
         private readonly IJournalEntryExport _journalEntryExport;
         private readonly IMapper _mapper;
 
         public ExportService(IAdjustmentRepository adjustmentRepository,
+                             IJournalEntryService journalEntryService,
                              IJournalEntryBatchService batchService,
                              IJournalEntryRepository journalEntryRepository, 
                              IJournalEntryExport journalEntryExport,
@@ -28,6 +31,7 @@ namespace Crossroads.Service.Finance.Services.Exports
         {
             _adjustmentRepository = adjustmentRepository;
             _batchService = batchService;
+            _journalEntryService = journalEntryService;
             _journalEntryRepository = journalEntryRepository;
             _journalEntryExport = journalEntryExport;
             _mapper = mapper;
@@ -43,53 +47,8 @@ namespace Crossroads.Service.Finance.Services.Exports
             // TODO: We need to verify this batch ID with Finance and Velosio
             var batchId = $"CRJE{today.Year}{today.Month}{today.Day}01";
 
-            var journalEntries = new List<MpJournalEntry>();
-
-            foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
-            {
-                var matchingMpJournalEntry = journalEntries.FirstOrDefault(r => r.GL_Account_Number == mpDistributionAdjustment.GLAccountNumber &&
-                                            r.AdjustmentYear == mpDistributionAdjustment.DonationDate.Year &&
-                                            r.AdjustmentMonth == mpDistributionAdjustment.DonationDate.Month);
-
-                // TODO: verify if this will ever be null
-                if (matchingMpJournalEntry == null)
-                {
-                    var mpJournalEntry = new MpJournalEntry
-                    {
-                        BatchID = batchId,
-                        CreatedDate = DateTime.Now,
-                        ExportedDate = null,
-                        Description = "test desc", // TODO: understand what goes here
-                        GL_Account_Number = mpDistributionAdjustment.GLAccountNumber,
-                        AdjustmentYear = mpDistributionAdjustment.DonationDate.Year,
-                        AdjustmentMonth = mpDistributionAdjustment.DonationDate.Month
-                    };
-
-                    if (Math.Sign(mpDistributionAdjustment.Amount) == 1)
-                    {
-                        mpJournalEntry.CreditAmount = mpDistributionAdjustment.Amount;
-                    }
-                    else
-                    {
-                        mpJournalEntry.DebitAmount = Math.Abs(mpDistributionAdjustment.Amount);
-                    }
-
-                    journalEntries.Add(mpJournalEntry);
-                }
-                else
-                {
-                    bool isPositiveNumber = Math.Sign(mpDistributionAdjustment.Amount) == 1;
-
-                    if (isPositiveNumber)
-                    {
-                        matchingMpJournalEntry.CreditAmount += mpDistributionAdjustment.Amount;
-                    }
-                    else
-                    {
-                        matchingMpJournalEntry.DebitAmount += Math.Abs(mpDistributionAdjustment.Amount);
-                    }
-                }
-            }
+            List<MpJournalEntry> journalEntries = GroupAdjustmentsIntoJournalEntries(mpDistributionAdjustments, batchId);
+            journalEntries = _journalEntryService.RemoveWashEntries(journalEntries);
 
             // create journal entries
             var mpJournalEntries = _journalEntryRepository.CreateMpJournalEntries(journalEntries);
@@ -176,6 +135,30 @@ namespace Crossroads.Service.Finance.Services.Exports
             }
 
             return stringBuilder.ToString();
+        }
+
+        private List<MpJournalEntry> GroupAdjustmentsIntoJournalEntries(List<MpDistributionAdjustment> mpDistributionAdjustments, string batchId)
+        {
+            var journalEntries = new List<MpJournalEntry>();
+
+            foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
+            {
+                var matchingMpJournalEntry = journalEntries.FirstOrDefault(r => r.GL_Account_Number == mpDistributionAdjustment.GLAccountNumber &&
+                                            r.AdjustmentYear == mpDistributionAdjustment.DonationDate.Year &&
+                                            r.AdjustmentMonth == mpDistributionAdjustment.DonationDate.Month);
+
+                if (matchingMpJournalEntry == null)
+                {
+                    MpJournalEntry newJournalEntry = _journalEntryService.CreateNewJournalEntry(batchId, mpDistributionAdjustment);
+                    journalEntries.Add(newJournalEntry);
+                }
+                else
+                {
+                    matchingMpJournalEntry = _journalEntryService.AdjustExistingJournalEntry(mpDistributionAdjustment, matchingMpJournalEntry);
+                }
+            }
+
+            return journalEntries;
         }
     }
 }
