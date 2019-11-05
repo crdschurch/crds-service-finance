@@ -43,6 +43,13 @@ namespace Crossroads.Service.Finance.Services
         private const int NotSiteSpecificCongregationId = 5;
         private readonly string CongregationFieldKey = Environment.GetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY");
 
+        private Dictionary<string, int> _recurringGiftStatuses = new Dictionary<string, int>
+        {
+            { "Active", 1 },
+            { "Paused", 2 },
+            { "Cancelled", 3 }
+        };
+
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
                               IProgramRepository programRepository, IContactRepository contactRepository, IDonorRepository donorRepository,
@@ -385,7 +392,7 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Congregation_ID", mpRecurringGift.CongregationId)
             );
 
-            if (mpRecurringGift.Status != updatedPushpayRecurringGift.Status)
+            if (mpRecurringGift.RecurringGiftStatusId != _recurringGiftStatuses[updatedPushpayRecurringGift.Status])
             {
                 updateGift.Add(new JProperty("Status_Changed_Date", System.DateTime.Now));
             }
