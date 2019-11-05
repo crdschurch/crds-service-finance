@@ -21,17 +21,17 @@ namespace Mock
                 new MpDonation
                 {
                     DonationId = 23,
-                    TransactionCode = "PP-1a"
+                    TransactionCode = "1a"
                 },
                 new MpDonation
                 {
                     DonationId = 24,
-                    TransactionCode = "PP-2b"
+                    TransactionCode = "2b"
                 },
                 new MpDonation
                 {
                     DonationId = 25,
-                    TransactionCode = "PP-3c"
+                    TransactionCode = "3c"
                 },
             };
 

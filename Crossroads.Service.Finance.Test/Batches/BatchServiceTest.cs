@@ -53,9 +53,9 @@ namespace Crossroads.Service.Finance.Test.Batches
                 ProcessorTransferId = "transferId"
             };
 
-            _donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-1a")).Returns(donationsMock[0]);
-            _donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-2b")).Returns(donationsMock[0]);
-            _donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-3c")).Returns(donationsMock[0]);
+            _donationRepository.Setup(r => r.GetDonationByTransactionCode("1a")).Returns(donationsMock[0]);
+            _donationRepository.Setup(r => r.GetDonationByTransactionCode("2b")).Returns(donationsMock[0]);
+            _donationRepository.Setup(r => r.GetDonationByTransactionCode("3c")).Returns(donationsMock[0]);
 
             var result = _fixture.BuildDonationBatch(chargesMock, "depositName", timestamp, "transferId");
 
