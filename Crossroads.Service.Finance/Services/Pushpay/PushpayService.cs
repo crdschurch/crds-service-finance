@@ -108,15 +108,15 @@ namespace Crossroads.Service.Finance.Services
                 // PushPay creates the donation a variable amount of time after the webhook comes in
                 //   so it still may not be available
                 // if pushpayPayment is null, let it go into catch statement to re-run
-                var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
+                var donation = _donationService.GetDonationByTransactionCode("PP-" + pushpayPayment.TransactionId);
 
                 // TODO: Consider removing this logging at some point if logs get too bloated
                 // validate if we actually received the webhook for a donation
                 var mpDonationExistence = (donation != null) ? "Donation exists in MP" : "Donation does not exist in MP";
 
-                Console.WriteLine($"Getting donation details for {pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
+                Console.WriteLine($"Getting donation details for {"PP-" + pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
                 var pullingDonationDetailsEntry = new LogEventEntry(LogEventType.pullingDonationDetails);
-                pullingDonationDetailsEntry.Push("gettingDonationDetails", $"Getting donation details for {pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
+                pullingDonationDetailsEntry.Push("gettingDonationDetails", $"Getting donation details for {"PP-" + pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
                 _dataLoggingService.LogDataEvent(pullingDonationDetailsEntry);
 
                 // add payment token so that we can identify easier via api
@@ -208,7 +208,7 @@ namespace Crossroads.Service.Finance.Services
                     noSelectedSiteEntry.Push("noSelectedSite", donation);
                     _dataLoggingService.LogDataEvent(noSelectedSiteEntry);
 
-                    Console.WriteLine($"No selected site for donation {pushpayPayment.TransactionId}");
+                    Console.WriteLine($"No selected site for donation {"PP-" + pushpayPayment.TransactionId}");
                 }
 
                 return donation;
