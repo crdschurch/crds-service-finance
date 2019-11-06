@@ -162,12 +162,13 @@ namespace Crossroads.Service.Finance.Services.Exports
             return journalEntries;
         }
 
-        private List<MpJournalEntry> SaveJournalEntriesToMp(List<MpJournalEntry> journalEntries)
+        private async Task<List<MpJournalEntry>> SaveJournalEntriesToMp(List<MpJournalEntry> journalEntries)
         {
             var mpJournalEntries = new List<MpJournalEntry>();
             if (journalEntries.Any())
             {
-                mpJournalEntries = _journalEntryRepository.CreateMpJournalEntries(journalEntries);
+                var mpJournalEntriesTask = _journalEntryRepository.CreateMpJournalEntries(journalEntries);
+                mpJournalEntries = await mpJournalEntriesTask;
             }
 
             return mpJournalEntries;
