@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -25,7 +26,7 @@ namespace MinistryPlatform.Donors
             _authRepo = authenticationRepository;
         }
 
-        public int? GetDonorIdByProcessorId(string processorId)
+        public async Task<int?> GetDonorIdByProcessorId(string processorId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -44,11 +45,11 @@ namespace MinistryPlatform.Donors
             };
 
             var filter = $"Processor_ID = '{processorId}' AND Processor_Type_ID = {pushpayProcessorType}";
-            var donorAccounts = MpRestBuilder.NewRequestBuilder()
+            var donorAccounts = await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithSelectColumns(columns)
                 .WithFilter(filter)
-                .Build()
+                .BuildAsync()
                 .Search<MpDonorAccount>();
 
             //return donorId if any donor accounts
@@ -60,7 +61,7 @@ namespace MinistryPlatform.Donors
             return donorAccounts.First().DonorId;
         }
 
-        public MpDonor GetDonorByDonorId(int donorId)
+        public async Task<MpDonor> GetDonorByDonorId(int donorId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -72,11 +73,11 @@ namespace MinistryPlatform.Donors
             };
 
             var donorFilter = $"Donor_ID = '{donorId}'";
-            var donor = MpRestBuilder.NewRequestBuilder()
+            var donor = await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithSelectColumns(donorColumns)
                 .WithFilter(donorFilter)
-                .Build()
+                .BuildAsync()
                 .Get<MpDonor>(donorId);
 
             return donor;

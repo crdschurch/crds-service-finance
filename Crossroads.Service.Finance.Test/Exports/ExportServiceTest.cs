@@ -75,9 +75,9 @@ namespace Crossroads.Service.Finance.Test.Exports
 
             _journalEntryService.Setup(e => e.RemoveWashEntries(It.IsAny<List<MpJournalEntry>>())).Returns(mpJournalEntryMock);
 
-            _adjustmentRepository.Setup(r => r.GetUnprocessedDistributionAdjustments()).Returns(mpAdjustmentsMock);
+            _adjustmentRepository.Setup(r => r.GetUnprocessedDistributionAdjustments()).Returns(Task.FromResult(mpAdjustmentsMock));
 
-            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>())).Returns(mpJournalEntryMock);
+            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>())).Returns(Task.FromResult(mpJournalEntryMock));
 
             _adjustmentRepository.Setup(r => r.UpdateAdjustments(It.IsAny<List<MpDistributionAdjustment>>()));
 

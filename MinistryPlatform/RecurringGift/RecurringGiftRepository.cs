@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -23,16 +24,16 @@ namespace MinistryPlatform.Repositories
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
 
-        public MpRecurringGift FindRecurringGiftBySubscriptionId(string subscriptionId)
+        public async Task<MpRecurringGift> FindRecurringGiftBySubscriptionId(string subscriptionId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             // exclude Cancelled gifts (keep Active and Paused)
             var filter = $"Subscription_ID = '{subscriptionId}' AND Recurring_Gifts.[Recurring_Gift_Status_ID] <> 3";
-            var gifts = MpRestBuilder.NewRequestBuilder()
+            var gifts = await MpRestBuilder.NewRequestBuilder()
                                 .WithAuthenticationToken(token)
                                 .WithFilter(filter)
-                                .Build()
+                                .BuildAsync()
                                 .Search<MpRecurringGift>();
 
             if (!gifts.Any())

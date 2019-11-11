@@ -2,17 +2,18 @@
 using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IDonationService
     {
         List<DonationDto> SetDonationStatus(List<DonationDto> donations, int batchId);
-        DonationDto Update(DonationDto donation);
+        Task<DonationDto> Update(DonationDto donation);
         List<DonationDto> Update(List<DonationDto> donations);
-        DonationDto GetDonationByTransactionCode(string transactionCode);
-        MpDonor CreateDonor(MpDonor donor);
-        MpDonorAccount CreateDonorAccount(MpDonorAccount donor);
+        Task<DonationDto> GetDonationByTransactionCode(string transactionCode);
+        Task<MpDonor> CreateDonor(MpDonor donor);
+        Task<MpDonorAccount> CreateDonorAccount(MpDonorAccount donor);
         void UpdateDonorAccount(JObject donorAccount);
         List<RecurringGiftDto> GetRecurringGifts(int contactId);
         List<RecurringGiftDto> GetRelatedContactRecurringGifts(int userContactId, int relatedContactId);

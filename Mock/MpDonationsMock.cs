@@ -35,6 +35,26 @@ namespace Mock
                 },
             };
 
+        public static List<MpDonation> CreateListTask() =>
+            new List<MpDonation>
+            {
+                new MpDonation
+                {
+                    DonationId = 23,
+                    TransactionCode = "1a"
+                },
+                new MpDonation
+                {
+                    DonationId = 24,
+                    TransactionCode = "2b"
+                },
+                new MpDonation
+                {
+                    DonationId = 25,
+                    TransactionCode = "3c"
+                },
+            };
+
         public static List<MpDonation> CreateEmpty() => new List<MpDonation> { };
     }
 }

@@ -7,6 +7,7 @@ using MinistryPlatform.Models;
 using Mock;
 using Moq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Crossroads.Service.Finance.Test.Donations
@@ -50,7 +51,7 @@ namespace Crossroads.Service.Finance.Test.Donations
 
             _mapper.Setup(m => m.Map<MpDonation>(It.IsAny<DonationDto>())).Returns(mpDonation);
             _mapper.Setup(m => m.Map<DonationDto>(It.IsAny<MpDonation>())).Returns(donationDto);
-            _donationRepository.Setup(m => m.GetDonationByTransactionCode(It.IsAny<string>())).Returns(mpDonation);
+            _donationRepository.Setup(m => m.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(mpDonation));
 
             // Act
             var result = _fixture.GetDonationByTransactionCode(transactionCode);
@@ -96,7 +97,7 @@ namespace Crossroads.Service.Finance.Test.Donations
 
             _mapper.Setup(m => m.Map<List<MpDonation>>(It.IsAny<List<DonationDto>>())).Returns(mpDonations);
             _mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationDtos);
-            _donationRepository.Setup(m => m.Update(It.IsAny<List<MpDonation>>())).Returns(mpDonations);
+            _donationRepository.Setup(m => m.Update(It.IsAny<List<MpDonation>>())).Returns(Task.FromResult(mpDonations));
 
             // Act
             var result = _fixture.Update(donationDtos);
@@ -130,7 +131,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             };
 
             _mapper.Setup(m => m.Map<List<RecurringGiftDto>>(It.IsAny<List<MpRecurringGift>>())).Returns(recurringGiftDto);
-            _donationRepository.Setup(r => r.GetRecurringGifts(It.IsAny<int>())).Returns(MpRecurringGiftMock.CreateList(123));
+            _donationRepository.Setup(r => r.GetRecurringGifts(It.IsAny<int>())).Returns(Task.FromResult(MpRecurringGiftMock.CreateList(123)));
 
             // Act
             var result = _fixture.GetRecurringGifts(contactId);
@@ -187,7 +188,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             };
 
             _mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationDto);
-            _donationRepository.Setup(r => r.GetDonationHistoryByContactId(It.IsAny<int>(), null, null)).Returns(MpDonationDetailMock.CreateList());
+            _donationRepository.Setup(r => r.GetDonationHistoryByContactId(It.IsAny<int>(), null, null)).Returns(Task.FromResult(MpDonationDetailMock.CreateList()));
             _mapper.Setup(m => m.Map<List<DonationDetailDto>>(It.IsAny<List<MpDonationDetail>>())).Returns(donationHistory);
 
             // Act
@@ -231,7 +232,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             _contactService.Setup(m => m.GetContactIdBySessionId(token)).Returns(contactId);
             _contactService.Setup(m => m.GetCogiversByContactId(contactId)).Returns(contacts);
             _mapper.Setup(m => m.Map<List<DonationDetailDto>>(It.IsAny<List<MpDonationDetail>>())).Returns(donationHistory);
-            _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId, null, null)).Returns(mpDonationHistories);
+            _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId, null, null)).Returns(Task.FromResult(mpDonationHistories));
 
             // Act
             var result = _fixture.GetDonations(contactId);

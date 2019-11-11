@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -24,15 +25,15 @@ namespace MinistryPlatform.Repositories
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public MpDonation GetDonationByTransactionCode(string transactionCode)
+        public async Task<MpDonation> GetDonationByTransactionCode(string transactionCode)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var filter = $"Transaction_Code = '{transactionCode}'";
-            var donations = MpRestBuilder.NewRequestBuilder()
+            var donations = await MpRestBuilder.NewRequestBuilder()
                                 .WithAuthenticationToken(token)
                                 .WithFilter(filter)
-                                .Build()
+                                .BuildAsync()
                                 .Search<MpDonation>();
 
             if(!donations.Any())
@@ -46,39 +47,39 @@ namespace MinistryPlatform.Repositories
             return donations.First();
         }
 
-        public List<MpDonation> Update(List<MpDonation> donations)
+        public async Task<List<MpDonation>> Update(List<MpDonation> donations)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
-            return MpRestBuilder.NewRequestBuilder()
+            return await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Update(donations);
         }
 
-        public MpDonation Update(MpDonation donation)
+        public async Task<MpDonation> Update(MpDonation donation)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
-            return MpRestBuilder.NewRequestBuilder()
+            return await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Update(donation);
         }
 
-        public MpDonor CreateDonor(MpDonor donor)
+        public async Task<MpDonor> CreateDonor(MpDonor donor)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
-            return MpRestBuilder.NewRequestBuilder()
+            return await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Create(donor);
         }
 
-        public MpDonorAccount CreateDonorAccount(MpDonorAccount donor)
+        public async Task<MpDonorAccount> CreateDonorAccount(MpDonorAccount donor)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
-            return MpRestBuilder.NewRequestBuilder()
+            return await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Create(donor);
         }
 
@@ -138,7 +139,7 @@ namespace MinistryPlatform.Repositories
             return donor;
         }
 
-        public List<MpRecurringGift> GetRecurringGifts(int contactId)
+        public async Task<List<MpRecurringGift>> GetRecurringGifts(int contactId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -169,16 +170,16 @@ namespace MinistryPlatform.Repositories
                 $"(Recurring_Gifts.[End_Date] IS NULL OR Recurring_Gifts.[Recurring_Gift_Status_ID] = {PausedRecurringGiftStatusId})"
             };
 
-            return MpRestBuilder.NewRequestBuilder()
+            return (await MpRestBuilder.NewRequestBuilder()
                                 .WithSelectColumns(columns)
                                 .WithAuthenticationToken(token)
                                 .WithFilter(String.Join(" AND ", filters))
                                 .OrderBy("Recurring_Gifts.[Recurring_Gift_ID] DESC")
-                                .Build()
-                                .Search<MpRecurringGift>().ToList();
+                                .BuildAsync()
+                                .Search<MpRecurringGift>()).ToList();
         }
 
-        public List<MpRecurringGift> GetRecurringGiftsByContactIdAndDates(int contactId, DateTime? startDate = null,
+        public async Task<List<MpRecurringGift>> GetRecurringGiftsByContactIdAndDates(int contactId, DateTime? startDate = null,
             DateTime? endDate = null)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
@@ -220,16 +221,16 @@ namespace MinistryPlatform.Repositories
                 filters.Add($"Recurring_Gifts.[End_Date] <= '{endDate:yyyy-MM-dd}'");
             }
 
-            return MpRestBuilder.NewRequestBuilder()
+            return (await MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(columns)
                 .WithAuthenticationToken(token)
                 .WithFilter(String.Join(" AND ", filters))
                 .OrderBy("Recurring_Gifts.[Recurring_Gift_ID] DESC")
-                .Build()
-                .Search<MpRecurringGift>().ToList();
+                .BuildAsync()
+                .Search<MpRecurringGift>()).ToList();
         }
 
-        public List<MpDonation> GetDonations(int contactId)
+        public async Task<List<MpDonation>> GetDonations(int contactId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -245,15 +246,15 @@ namespace MinistryPlatform.Repositories
 
             var filter = $"Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
 
-            return MpRestBuilder.NewRequestBuilder()
+            return (await MpRestBuilder.NewRequestBuilder()
                                 .WithSelectColumns(columns)
                                 .WithAuthenticationToken(token)
                                 .WithFilter(filter)
-                                .Build()
-                                .Search<MpDonation>().ToList();
+                                .BuildAsync()
+                                .Search<MpDonation>()).ToList();
         }
 
-        public List<MpDonationDetail> GetDonationHistoryByContactId(int contactId, DateTime? startDate, DateTime? endDate)
+        public async Task<List<MpDonationDetail>> GetDonationHistoryByContactId(int contactId, DateTime? startDate, DateTime? endDate)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -294,16 +295,16 @@ namespace MinistryPlatform.Repositories
 
             var order = "Donation_ID_Table.[Donation_Date] DESC";
 
-            return MpRestBuilder.NewRequestBuilder()
+            return (await MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(selectColumns)
                 .WithAuthenticationToken(token)
                 .WithFilter(String.Join(" AND ", filters))
                 .OrderBy(order)
-                .Build()
-                .Search<MpDonationDetail>().ToList();
+                .BuildAsync()
+                .Search<MpDonationDetail>()).ToList();
         }
 
-        public List<MpDonationDetail> GetOtherGiftsByContactId(int contactId)
+        public async Task<List<MpDonationDetail>> GetOtherGiftsByContactId(int contactId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -319,16 +320,16 @@ namespace MinistryPlatform.Repositories
 
             var order = "Donation_ID_Table.[Donation_Date] DESC";
 
-            return MpRestBuilder.NewRequestBuilder()
+            return (await MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(selectColumns)
                 .WithAuthenticationToken(token)
                 .WithFilter(filter)
                 .OrderBy(order)
-                .Build()
-                .Search<MpDonationDetail>().ToList();
+                .BuildAsync()
+                .Search<MpDonationDetail>()).ToList();
         }
 
-        public List<MpDonationDetail> GetOtherGiftsForRelatedContact(int contactId, DateTime? startDate = null,
+        public async Task<List<MpDonationDetail>> GetOtherGiftsForRelatedContact(int contactId, DateTime? startDate = null,
             DateTime? endDate = null)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
@@ -358,13 +359,13 @@ namespace MinistryPlatform.Repositories
 
             var order = "Donation_ID_Table.[Donation_Date] DESC";
 
-            return MpRestBuilder.NewRequestBuilder()
+            return (await MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(selectColumns)
                 .WithAuthenticationToken(token)
                 .WithFilter(String.Join(" AND ", filters))
                 .OrderBy(order)
-                .Build()
-                .Search<MpDonationDetail>().ToList();
+                .BuildAsync()
+                .Search<MpDonationDetail>()).ToList();
         }
     }
 }

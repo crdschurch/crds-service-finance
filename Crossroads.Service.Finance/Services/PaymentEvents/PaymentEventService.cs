@@ -3,6 +3,7 @@ using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Crossroads.Service.Finance.Controllers;
 using Newtonsoft.Json.Linq;
 using Pushpay.Models;
@@ -34,7 +35,7 @@ namespace Crossroads.Service.Finance.Services
             _dataLoggingService = dataLoggingService;
         }
 
-        public void CreateDeposit(SettlementEventDto settlementEventDto)
+        public async void CreateDeposit(SettlementEventDto settlementEventDto)
         {
             Console.WriteLine($"Creating deposit: {settlementEventDto.Key}");
 
@@ -43,7 +44,7 @@ namespace Crossroads.Service.Finance.Services
             _dataLoggingService.LogDataEvent(depositCreationEntry);
 
             // 1. Check to see if the deposit has already been created.  If we do throw an exception.
-            var existingDeposit = _depositService.GetDepositByProcessorTransferId(settlementEventDto.Key);
+            var existingDeposit = await _depositService.GetDepositByProcessorTransferId(settlementEventDto.Key);
             if (existingDeposit != null)
             {
                 //_logger.LogError($"Deposit already exists for settlement: {settlementEventDto.Key}");
@@ -58,7 +59,7 @@ namespace Crossroads.Service.Finance.Services
 
             // 2. Get all payments associated with a settlement from Pushpay's API. Throw an exception
             // if none are found.
-            var settlementPayments = _pushpayService.GetDonationsForSettlement(settlementEventDto.Key);
+            var settlementPayments = await _pushpayService.GetDonationsForSettlement(settlementEventDto.Key);
             Console.WriteLine($"Settlement {settlementEventDto.Key} contains {settlementPayments.Count} ({settlementPayments}) donations from pushpay");
 
             if (settlementPayments == null || settlementPayments.Count <= 0)
@@ -74,7 +75,7 @@ namespace Crossroads.Service.Finance.Services
             }
 
             // 3. Create and Save the Batch to MP.
-            var donationBatch = _batchService.BuildDonationBatch(settlementPayments, settlementEventDto.Name,
+            var donationBatch = await _batchService.BuildDonationBatch(settlementPayments, settlementEventDto.Name,
                 DateTime.Now, settlementEventDto.Key);
             var savedDonationBatch = _batchService.SaveDonationBatch(donationBatch);
             donationBatch.Id = savedDonationBatch.Id;
@@ -94,8 +95,8 @@ namespace Crossroads.Service.Finance.Services
             _dataLoggingService.LogDataEvent(batchUpdatedEntry);
 
             // 5. Create Deposit with the associated batch (should be one batch for one deposit)
-            var deposit = _depositService.BuildDeposit(settlementEventDto);
-            deposit = _depositService.SaveDeposit(deposit);
+            var deposit = await _depositService.BuildDeposit(settlementEventDto);
+            deposit = await _depositService.SaveDeposit(deposit);
             Console.WriteLine($"Deposit created: {deposit.Id}");
 
             var depositCreatedEntry = new LogEventEntry(LogEventType.depositCreated);

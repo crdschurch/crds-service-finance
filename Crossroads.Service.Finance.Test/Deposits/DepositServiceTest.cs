@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
@@ -64,10 +65,10 @@ namespace Crossroads.Service.Finance.Test.Deposits
                 new MpDeposit(),
             };
 
-            _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(mpDeposits);
+            _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(Task.FromResult(mpDeposits));
 
             // Act
-            var result = _fixture.BuildDeposit(settlementEventDto);
+            var result = _fixture.BuildDeposit(settlementEventDto).Result;
 
             // Assert
             Assert.Equal(settlementKey, result.ProcessorTransferId);
@@ -110,10 +111,10 @@ namespace Crossroads.Service.Finance.Test.Deposits
                 new MpDeposit(),
             };
 
-            _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(mpDeposits);
+            _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(Task.FromResult(mpDeposits));
 
             // Act
-            var result = _fixture.BuildDeposit(settlementEventDto);
+            var result = _fixture.BuildDeposit(settlementEventDto).Result;
 
             // Assert
             Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.VendorDetailUrl);
@@ -155,10 +156,10 @@ namespace Crossroads.Service.Finance.Test.Deposits
                 new MpDeposit() {},
             };
 
-            _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(mpDeposits);
+            _depositRepository.Setup(r => r.GetByName(It.IsAny<string>())).Returns(Task.FromResult(mpDeposits));
 
             // Act
-            var result = _fixture.BuildDeposit(settlementEventDto);
+            var result = _fixture.BuildDeposit(settlementEventDto).Result;
 
             // Assert
             Assert.Equal($"{_pushpayWebEndpoint}/pushpay/0/settlements?includeCardSettlements=True&includeAchSettlements=True&fromDate=02-03-2018&toDate=02-03-2018", result.VendorDetailUrl);
@@ -192,7 +193,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
 
             _mapper.Setup(m => m.Map<MpDeposit>(It.IsAny<DepositDto>())).Returns(newMpDeposit);
             _mapper.Setup(m => m.Map<DepositDto>(It.IsAny<MpDeposit>())).Returns(newDepositDto);
-            _depositRepository.Setup(r => r.CreateDeposit(It.IsAny<MpDeposit>())).Returns(newMpDeposit);
+            _depositRepository.Setup(r => r.CreateDeposit(It.IsAny<MpDeposit>())).Returns(Task.FromResult(newMpDeposit));
 
             // Act
             var result = _fixture.SaveDeposit(depositDto);
@@ -219,10 +220,10 @@ namespace Crossroads.Service.Finance.Test.Deposits
 
             _mapper.Setup(m => m.Map<MpDeposit>(It.IsAny<DepositDto>())).Returns(new MpDeposit());
             _mapper.Setup(m => m.Map<DepositDto>(It.IsAny<MpDeposit>())).Returns(depositDto);
-            _depositRepository.Setup(m => m.GetDepositByProcessorTransferId(processorTransferId)).Returns(mpDeposit);
+            _depositRepository.Setup(m => m.GetDepositByProcessorTransferId(processorTransferId)).Returns(Task.FromResult(mpDeposit));
 
             // Act
-            var result = _fixture.GetDepositByProcessorTransferId(processorTransferId);
+            var result = _fixture.GetDepositByProcessorTransferId(processorTransferId).Result;
 
             // Assert
             Assert.Equal(processorTransferId, result.ProcessorTransferId);
@@ -243,12 +244,12 @@ namespace Crossroads.Service.Finance.Test.Deposits
                 }
             };
 
-            _pushpayService.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(depositDtos);
+            _pushpayService.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(Task.FromResult(depositDtos));
             _depositRepository.Setup(m => m.GetByTransferIds(It.IsAny<List<string>>()))
-                .Returns(new List<MpDeposit>());
+                .Returns(Task.FromResult(new List<MpDeposit>()));
 
             // Act
-            var result = _fixture.GetDepositsForSync(startDate, endDate);
+            var result = _fixture.GetDepositsForSync(startDate, endDate).Result;
 
             // Assert
             Assert.NotNull(result);

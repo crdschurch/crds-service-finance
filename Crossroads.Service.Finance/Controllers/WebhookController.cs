@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,7 @@ namespace Crossroads.Service.Finance.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        public IActionResult HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
+        public async Task<IActionResult> HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
         {
             try
             {
@@ -54,10 +55,10 @@ namespace Crossroads.Service.Finance.Controllers
                         _pushpayService.UpdateDonationDetails(pushpayWebhook);
                         return Ok();
                     case "recurring_payment_changed":
-                        var updatedGift = _pushpayService.UpdateRecurringGift(pushpayWebhook);
+                        var updatedGift = await _pushpayService.UpdateRecurringGift(pushpayWebhook);
                         return StatusCode(200, updatedGift);
                     case "recurring_payment_created":
-                        var newGift = _pushpayService.CreateRecurringGift(pushpayWebhook);
+                        var newGift = await _pushpayService.CreateRecurringGift(pushpayWebhook);
                         return StatusCode(201, newGift);
                     default:
                         return NotFound();

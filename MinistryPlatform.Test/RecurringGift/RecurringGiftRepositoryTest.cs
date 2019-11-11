@@ -90,7 +90,7 @@ namespace MinistryPlatform.Test.Donations
             _request.Setup(m => m.Search<MpRecurringGift>()).Returns(mpRecurringGifts);
 
             // Act
-            var result = _fixture.FindRecurringGiftBySubscriptionId(subscriptionId);
+            var result = _fixture.FindRecurringGiftBySubscriptionId(subscriptionId).Result;
 
             // Assert
             Assert.Equal(subscriptionId, result.SubscriptionId);

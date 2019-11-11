@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
@@ -31,7 +32,7 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // This function creates the batch in MP, then returns the object so that the deposit can be added to the batch
-        public DonationBatchDto BuildDonationBatch(List<PaymentDto> charges, string depositName, 
+        public async Task<DonationBatchDto> BuildDonationBatch(List<PaymentDto> charges, string depositName, 
             DateTime eventTimestamp, string transferKey)
         {
             var batch = new DonationBatchDto()
@@ -48,7 +49,7 @@ namespace Crossroads.Service.Finance.Services
 
             foreach (var charge in charges)
             {
-                var mpDonation = _donationRepository.GetDonationByTransactionCode(charge.TransactionId);
+                var mpDonation = await _donationRepository.GetDonationByTransactionCode(charge.TransactionId);
                 if (mpDonation != null)
                 {
                     // Add the charge amount to the batch total amount
@@ -74,9 +75,9 @@ namespace Crossroads.Service.Finance.Services
             return batch;
         }
 
-        public DonationBatchDto SaveDonationBatch(DonationBatchDto donationBatchDto)
+        public async Task<DonationBatchDto> SaveDonationBatch(DonationBatchDto donationBatchDto)
         {
-            var mpBatch = _batchRepository.CreateDonationBatch(_mapper.Map<MpDonationBatch>(donationBatchDto));
+            var mpBatch = await _batchRepository.CreateDonationBatch(_mapper.Map<MpDonationBatch>(donationBatchDto));
             return _mapper.Map<DonationBatchDto>(mpBatch);
         }
 

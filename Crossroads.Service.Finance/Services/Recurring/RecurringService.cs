@@ -32,7 +32,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
             _recurringGiftRepository = recurringGiftRepository;
         }
 
-        public List<string> SyncRecurringGifts(DateTime startDate, DateTime endDate)
+        public async Task<List<string>> SyncRecurringGifts(DateTime startDate, DateTime endDate)
         {
             var start = new DateTime(startDate.Year, startDate.Month, startDate.Day);
             var end = new DateTime(endDate.Year, endDate.Month, endDate.Day, 23, 59, 59);
@@ -43,7 +43,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
             Console.WriteLine($"Starting SyncRecurringGifts at {DateTime.Now:G}");
 
             // get new and updated recurring gifts.
-            var pushpayRecurringGifts = _pushpayService.GetRecurringGiftsByDateRange(start, end);
+            var pushpayRecurringGifts = await _pushpayService.GetRecurringGiftsByDateRange(start, end);
 
             Console.WriteLine($"Syncing {pushpayRecurringGifts.Count} gifts from pushpay");
 

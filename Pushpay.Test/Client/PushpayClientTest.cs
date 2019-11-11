@@ -9,6 +9,7 @@ using Pushpay.Token;
 using Pushpay.Models;
 using System.Reactive.Linq;
 using System;
+using System.Threading.Tasks;
 using Crossroads.Service.Finance.Models;
 
 namespace Pushpay.Test
@@ -33,7 +34,7 @@ namespace Pushpay.Test
             {
                 AccessToken = "123"
             };
-            _tokenService.Setup(r => r.GetOAuthToken(It.IsAny<string>())).Returns(Observable.Return(token));
+            _tokenService.Setup(r => r.GetOAuthToken(It.IsAny<string>())).Returns(Task.FromResult(token));
         }
 
 
@@ -61,7 +62,7 @@ namespace Pushpay.Test
                     }
                  });
 
-            var result = _fixture.GetDonations("settlement-key-123");
+            var result = _fixture.GetDonations("settlement-key-123").Result;
 
             Assert.Equal(2, result.Count);
         }
@@ -76,7 +77,7 @@ namespace Pushpay.Test
                     ErrorException = new Exception()
                 });
 
-            Assert.Throws<Exception>(() => _fixture.GetDonations("settlement-key-123"));
+            Assert.Throws<Exception>(() => _fixture.GetDonations("settlement-key-123").Result);
         }
 
         [Fact]

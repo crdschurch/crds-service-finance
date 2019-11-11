@@ -44,7 +44,7 @@ namespace Pushpay.Test
         {
             SetupOauth();
 
-            var result = _fixture.GetOAuthToken().Wait();
+            var result = _fixture.GetOAuthToken().Result;
 
             Assert.Equal(accessToken, result.AccessToken);
             Assert.Equal(tokenType, result.TokenType);
@@ -61,7 +61,7 @@ namespace Pushpay.Test
                     StatusCode = HttpStatusCode.BadRequest
                 });
 
-            Assert.Throws<Exception>(() => _fixture.GetOAuthToken().Wait());
+            Assert.Throws<Exception>(() => _fixture.GetOAuthToken().Result);
         }
     }
 }

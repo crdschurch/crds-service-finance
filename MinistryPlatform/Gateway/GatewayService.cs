@@ -42,11 +42,11 @@ namespace Crossroads.Service.Finance.Services
          * the user to do so. This is scheduled to be used for the first few months
          * of the pushpay migration for credit cards migrations.
          */
-        public void CancelStripeRecurringGift(string stripeSubscriptionId)
+        public async void CancelStripeRecurringGift(string stripeSubscriptionId)
         {
             try
             {
-                var stripeRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(stripeSubscriptionId);
+                var stripeRecurringGift = await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(stripeSubscriptionId);
                 //var donor = _donorRepository.GetDonorByDonorId(stripeRecurringGift.DonorId);
                 var tokenWithImpersonate = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 

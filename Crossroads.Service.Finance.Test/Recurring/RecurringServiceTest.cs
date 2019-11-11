@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
@@ -52,16 +53,16 @@ namespace Crossroads.Service.Finance.Test.Recurring
             };
 
             _pushpayService.Setup(m => m.GetRecurringGiftsByDateRange(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .Returns(pushpayRecurringGifts);
+                .Returns(Task.FromResult(pushpayRecurringGifts));
 
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
                 .Returns(new List<MpRecurringGift>());
 
             _pushpayService.Setup(m => m.BuildAndCreateNewRecurringGift(It.IsAny<PushpayRecurringGiftDto>()))
-                .Returns(new MpRecurringGift{ SubscriptionId = "123abc"});
+                .Returns(Task.FromResult(new MpRecurringGift{ SubscriptionId = "123abc"}));
 
             // Act
-            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
+            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1)).Result;
 
             // Assert
             _pushpayService.VerifyAll();
@@ -84,13 +85,13 @@ namespace Crossroads.Service.Finance.Test.Recurring
             };
 
             _pushpayService.Setup(m => m.GetRecurringGiftsByDateRange(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .Returns(pushpayRecurringGifts);
+                .Returns(Task.FromResult(pushpayRecurringGifts));
 
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
                 .Returns(new List<MpRecurringGift>{ new MpRecurringGift {SubscriptionId = "123abc" }});
 
             // Act
-            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
+            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1)).Result;
 
             // Assert
             _pushpayService.VerifyAll();
@@ -122,16 +123,16 @@ namespace Crossroads.Service.Finance.Test.Recurring
             };
 
             _pushpayService.Setup(m => m.GetRecurringGiftsByDateRange(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .Returns(pushpayRecurringGifts);
+                .Returns(Task.FromResult(pushpayRecurringGifts));
 
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
                 .Returns(mpRecurringGifts);
 
             _pushpayService.Setup(m => m.UpdateRecurringGiftForSync(pushpayRecurringGifts[0], mpRecurringGifts[0]))
-                .Returns(new RecurringGiftDto());
+                .Returns(Task.FromResult(new RecurringGiftDto()));
 
             // Act
-            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
+            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1)).Result;
 
             // Assert
             _pushpayService.VerifyAll();
@@ -164,16 +165,16 @@ namespace Crossroads.Service.Finance.Test.Recurring
             };
 
             _pushpayService.Setup(m => m.GetRecurringGiftsByDateRange(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .Returns(pushpayRecurringGifts);
+                .Returns(Task.FromResult(pushpayRecurringGifts));
 
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
                 .Returns(mpRecurringGifts);
 
             _pushpayService.Setup(m => m.UpdateRecurringGiftForSync(pushpayRecurringGifts[0], mpRecurringGifts[0]))
-                .Returns(new RecurringGiftDto());
+                .Returns(Task.FromResult(new RecurringGiftDto()));
 
             // Act
-            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1));
+            var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1)).Result;
 
             // Assert
             _pushpayService.VerifyAll();
@@ -208,16 +209,16 @@ namespace Crossroads.Service.Finance.Test.Recurring
             };
 
             _pushpayService.Setup(m => m.GetRecurringGiftsByDateRange(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .Returns(pushpayRecurringGifts);
+                .Returns(Task.FromResult(pushpayRecurringGifts));
 
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
                 .Returns(mpRecurringGifts);
 
             _pushpayService.Setup(m => m.UpdateRecurringGiftForSync(pushpayRecurringGifts[0], mpRecurringGifts[0]))
-                .Returns(new RecurringGiftDto());
+                .Returns(Task.FromResult(new RecurringGiftDto()));
 
             // Act
-            var result = _fixture.SyncRecurringGifts(testDate.AddDays(-1), testDate);
+            var result = _fixture.SyncRecurringGifts(testDate.AddDays(-1), testDate).Result;
 
             // Assert
             _pushpayService.VerifyAll();

@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -32,9 +33,9 @@ namespace Crossroads.Service.Finance.Services
             _contactService = contactService;
         }
 
-        public DonationDto GetDonationByTransactionCode(string transactionCode)
+        public async Task<DonationDto> GetDonationByTransactionCode(string transactionCode)
         {
-            var mpDonation = _mpDonationRepository.GetDonationByTransactionCode(transactionCode);
+            var mpDonation = await _mpDonationRepository.GetDonationByTransactionCode(transactionCode);
             if (mpDonation == null) return null;
             var donationDto = _mapper.Map<DonationDto>(mpDonation);
             return donationDto;
@@ -59,9 +60,9 @@ namespace Crossroads.Service.Finance.Services
             return updatedDonations;
         }
 
-        public DonationDto Update(DonationDto donation)
+        public async Task<DonationDto> Update(DonationDto donation)
         {
-            var mpDonation = _mpDonationRepository.Update(_mapper.Map<MpDonation>(donation));
+            var mpDonation = await _mpDonationRepository.Update(_mapper.Map<MpDonation>(donation));
             return _mapper.Map<DonationDto>(mpDonation);
         }
 
@@ -71,14 +72,14 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<List<DonationDto>>(mpDonations);
         }
 
-        public MpDonor CreateDonor(MpDonor donor)
+        public async Task<MpDonor> CreateDonor(MpDonor donor)
         {
-            return _mpDonationRepository.CreateDonor(donor);
+            return await _mpDonationRepository.CreateDonor(donor);
         }
 
-        public MpDonorAccount CreateDonorAccount(MpDonorAccount donor)
+        public async Task<MpDonorAccount> CreateDonorAccount(MpDonorAccount donor)
         {
-            return _mpDonationRepository.CreateDonorAccount(donor);
+            return await _mpDonationRepository.CreateDonorAccount(donor);
         }
 
         public void UpdateDonorAccount(JObject donorAccount)

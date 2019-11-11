@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
@@ -70,9 +71,9 @@ namespace Crossroads.Service.Finance.Services
             _mpNotSiteSpecificCongregationId = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "NotSiteSpecific") ?? 5;
         }
 
-        public List<PaymentDto> GetDonationsForSettlement(string settlementKey)
+        public async Task<List<PaymentDto>> GetDonationsForSettlement(string settlementKey)
         {
-            var result = _pushpayClient.GetDonations(settlementKey);
+            var result = await _pushpayClient.GetDonations(settlementKey);
             return _mapper.Map<List<PaymentDto>>(result);
         }
 
@@ -101,14 +102,14 @@ namespace Crossroads.Service.Finance.Services
 
         // if this fails, it will schedule it to be re-run in 60 seconds,
         //  after 15 minutes of trying it'll give up
-        public DonationDto UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false)
+        public async Task<DonationDto> UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false)
         {
             try {
-                var pushpayPayment = _pushpayClient.GetPayment(webhook);
+                var pushpayPayment = await _pushpayClient.GetPayment(webhook);
                 // PushPay creates the donation a variable amount of time after the webhook comes in
                 //   so it still may not be available
                 // if pushpayPayment is null, let it go into catch statement to re-run
-                var donation = _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
+                var donation = await _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
 
                 // TODO: Consider removing this logging at some point if logs get too bloated
                 // validate if we actually received the webhook for a donation
@@ -130,7 +131,7 @@ namespace Crossroads.Service.Finance.Services
                     donation.IsRecurringGift = true;
                     try
                     {
-                        var mpRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPayment.RecurringPaymentToken);
+                        var mpRecurringGift = await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPayment.RecurringPaymentToken);
                         donation.RecurringGiftId = mpRecurringGift.RecurringGiftId;
                     }
                     catch (Exception)
@@ -145,7 +146,7 @@ namespace Crossroads.Service.Finance.Services
                 // if it doesn't exist, attach a donor account so we have access to payment details
                 if (donation.DonorAccountId == null)
                 {
-                    var mpDonorAccount = CreateDonorAccount(pushpayPayment, donation.DonorId);
+                    var mpDonorAccount = await CreateDonorAccount(pushpayPayment, donation.DonorId);
                     donation.DonorAccountId = mpDonorAccount.DonorAccountId;   
                 }
 
@@ -167,7 +168,7 @@ namespace Crossroads.Service.Finance.Services
                 if (pushpayPayment.RefundFor != null)
                 {
                     // Set payment type for refunds
-                    var refund = _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
+                    var refund = await _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
                     Console.WriteLine("Refunding Transaction Id: " + refund.TransactionCode);
 
                     var refundingTransactionEntry = new LogEventEntry(LogEventType.refundingTransaction);
@@ -177,7 +178,7 @@ namespace Crossroads.Service.Finance.Services
                     donation.PaymentTypeId = refund.PaymentTypeId;
                 }
                 donation.DonationStatusDate = DateTime.Now;
-                var updatedDonation = _donationService.Update(donation);
+                var updatedDonation = await _donationService.Update(donation);
                 Console.WriteLine($"Donation updated: {updatedDonation.DonationId} -> {webhook.Events[0].Links.Payment}");
 
                 // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
@@ -246,15 +247,15 @@ namespace Crossroads.Service.Finance.Services
             }
         }
 
-        public List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
+        public async Task<List<SettlementEventDto>> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
         {
-            var result = _pushpayClient.GetDepositsByDateRange(startDate, endDate);
+            var result = await _pushpayClient.GetDepositsByDateRange(startDate, endDate);
             return _mapper.Map<List<SettlementEventDto>>(result);
         }
 
-        public RecurringGiftDto CreateRecurringGift(PushpayWebhook webhook)
+        public async Task<RecurringGiftDto> CreateRecurringGift(PushpayWebhook webhook)
         {
-            var pushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
+            var pushpayRecurringGift = await _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
             int? congregationId = null;
 
             var creatingRecurringGiftEvent = new LogEventEntry(LogEventType.creatingRecurringGift);
@@ -276,14 +277,14 @@ namespace Crossroads.Service.Finance.Services
                 ViewRecurringPayment = viewRecurringGiftDto,
                 MerchantViewRecurringPayment = merchantViewRecurringGiftDto
             };
-            var mpRecurringGift = BuildAndCreateNewRecurringGift(pushpayRecurringGift);
+            var mpRecurringGift = await BuildAndCreateNewRecurringGift(pushpayRecurringGift);
             return _mapper.Map<RecurringGiftDto>(mpRecurringGift);
         }
 
-        public RecurringGiftDto UpdateRecurringGift(PushpayWebhook webhook)
+        public async Task<RecurringGiftDto> UpdateRecurringGift(PushpayWebhook webhook)
         {
-            var updatedPushpayRecurringGift = _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
-            var existingMpRecurringGift = _recurringGiftRepository.FindRecurringGiftBySubscriptionId(updatedPushpayRecurringGift.PaymentToken);
+            var updatedPushpayRecurringGift = await _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
+            var existingMpRecurringGift = await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(updatedPushpayRecurringGift.PaymentToken);
 
             if (updatedPushpayRecurringGift.PushpayFields != null && updatedPushpayRecurringGift.PushpayFields.Any(r => r.Key == CongregationFieldKey))
             {
@@ -331,21 +332,28 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<RecurringGiftDto>(existingMpRecurringGift);
         }
 
-        public RecurringGiftDto UpdateRecurringGiftForSync(PushpayRecurringGiftDto pushpayRecurringGift,
+        public async Task<RecurringGiftDto> UpdateRecurringGiftForSync(PushpayRecurringGiftDto pushpayRecurringGift,
             MpRecurringGift mpRecurringGift)
         {
             var status = pushpayRecurringGift.Status;
             if (status == "Active")
             {
-                var updatedMpRecurringGift = BuildUpdateRecurringGift(mpRecurringGift, pushpayRecurringGift);
+                var buildUpdateRecurringGiftTask =
+                    Task.Run(() => BuildUpdateRecurringGift(mpRecurringGift, pushpayRecurringGift));
+                var updatedMpRecurringGift = await buildUpdateRecurringGiftTask;
 
                 _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
-                var updatedDonorAccount = BuildUpdateDonorAccount(mpRecurringGift, pushpayRecurringGift);
+
+                var updatedDonorAccountTask = 
+                    Task.Run(() => BuildUpdateDonorAccount(mpRecurringGift, pushpayRecurringGift));
+                var updatedDonorAccount = await updatedDonorAccountTask;
+
                 _donationService.UpdateDonorAccount(updatedDonorAccount);
             }
             else if (status == "Cancelled" || status == "Paused")
             {
-                var updatedMpRecurringGift = BuildEndDatedRecurringGift(mpRecurringGift, pushpayRecurringGift);
+                var updatedMpRecurringGiftTask = Task.Run(() => BuildEndDatedRecurringGift(mpRecurringGift, pushpayRecurringGift));
+                var updatedMpRecurringGift = await updatedMpRecurringGiftTask;
                 _recurringGiftRepository.UpdateRecurringGift(updatedMpRecurringGift);
             }
 
@@ -406,10 +414,10 @@ namespace Crossroads.Service.Finance.Services
             );
         }
 
-        public MpRecurringGift BuildAndCreateNewRecurringGift (PushpayRecurringGiftDto pushpayRecurringGift)
+        public async Task<MpRecurringGift> BuildAndCreateNewRecurringGift (PushpayRecurringGiftDto pushpayRecurringGift)
         {
             var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
-            var mpDonor = FindOrCreateDonorAndDonorAccount(pushpayRecurringGift);
+            var mpDonor = await FindOrCreateDonorAndDonorAccount(pushpayRecurringGift);
 
             mpRecurringGift.DonorId = mpDonor.DonorId.Value;
             mpRecurringGift.DonorAccountId = mpDonor.DonorAccountId.Value;
@@ -439,8 +447,11 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
             mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
-            mpRecurringGift.Notes = GetRecurringGiftNotes(pushpayRecurringGift);
             mpRecurringGift.UpdatedOn = pushpayRecurringGift.UpdatedOn;
+
+            var mpRecurringGiftNotesTask = Task.Run(() => GetRecurringGiftNotes(pushpayRecurringGift));
+            mpRecurringGift.Notes = await mpRecurringGiftNotesTask;
+            
 
             // note: this is normally set when the recurring gift is created via the webhook, but can be set here when the recurring gifts sync. Pushpay
             // does not currently send over the view recurring gift link except during the webhook, so this code will not populate the user view link until 
@@ -535,14 +546,14 @@ namespace Crossroads.Service.Finance.Services
         }
 
 
-        private MpDonor FindOrCreateDonorAndDonorAccount(PushpayRecurringGiftDto gift)
+        private async Task<MpDonor> FindOrCreateDonorAndDonorAccount(PushpayRecurringGiftDto gift)
         {
-            var donorId = _donorRepository.GetDonorIdByProcessorId(gift.Payer.Key);
+            var donorId = await _donorRepository.GetDonorIdByProcessorId(gift.Payer.Key);
             if (donorId != null) {
-                var existingMatchedDonor = _donorRepository.GetDonorByDonorId(donorId.GetValueOrDefault());
+                var existingMatchedDonor = await _donorRepository.GetDonorByDonorId(donorId.GetValueOrDefault());
                 // we found a matching donor by processor id (i.e. we have previously matched them)
                 //   create a new donor account on donor for this recurring gift
-                existingMatchedDonor.DonorAccountId = CreateDonorAccount(gift, existingMatchedDonor.DonorId.Value).DonorAccountId;
+                existingMatchedDonor.DonorAccountId = (await CreateDonorAccount(gift, existingMatchedDonor.DonorId.Value)).DonorAccountId;
                 return existingMatchedDonor;
             }
             // we didn't match a donor with a processor id (i.e. previously matched), so let's
@@ -565,15 +576,15 @@ namespace Crossroads.Service.Finance.Services
                         StatementMethodId = 2, // email+online
                         SetupDate = DateTime.Now
                     };
-                    matchedContact.DonorId = _donationService.CreateDonor(mpDonor).DonorId;
+                    matchedContact.DonorId = (await _donationService.CreateDonor(mpDonor)).DonorId;
                 }
 
                 // create donor account and attach to contact
-                matchedContact.DonorAccountId = CreateDonorAccount(gift, matchedContact.DonorId.Value).DonorAccountId;
+                matchedContact.DonorAccountId = (await CreateDonorAccount(gift, matchedContact.DonorId.Value)).DonorAccountId;
                 return matchedContact;
             } else {
                 // donor not matched, assign to default contact
-                var donorAccount = CreateDonorAccount(gift, _mpDefaultContactDonorId);
+                var donorAccount = await CreateDonorAccount(gift, _mpDefaultContactDonorId);
                 var mpDoner = new MpDonor()
                 {
                     DonorId = _mpDefaultContactDonorId,
@@ -637,10 +648,10 @@ namespace Crossroads.Service.Finance.Services
             }
         }
 
-        private MpDonorAccount CreateDonorAccount(PushpayTransactionBaseDto basePushpayTransaction, int donorId)
+        private async Task<MpDonorAccount> CreateDonorAccount(PushpayTransactionBaseDto basePushpayTransaction, int donorId)
         {
             var mpDonorAccount = MapDonorAccountPaymentDetails(basePushpayTransaction, donorId);
-            return _donationService.CreateDonorAccount(mpDonorAccount);
+            return await _donationService.CreateDonorAccount(mpDonorAccount);
         }
 
         private int GetRecurringGiftStatusId(string recurringGiftStatus)
@@ -658,9 +669,9 @@ namespace Crossroads.Service.Finance.Services
             }
         }
 
-        public List<PushpayRecurringGiftDto> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
+        public async Task<List<PushpayRecurringGiftDto>> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
         {
-            var pushpayRecurringGiftDtos = _pushpayClient.GetNewAndUpdatedRecurringGiftsByDateRange(startDate, endDate);
+            var pushpayRecurringGiftDtos = await _pushpayClient.GetNewAndUpdatedRecurringGiftsByDateRange(startDate, endDate);
             return pushpayRecurringGiftDtos;
         }
 
