@@ -44,16 +44,16 @@ namespace MinistryPlatform.Repositories
             return gifts.First();
         }
 
-        public MpRecurringGift CreateRecurringGift(MpRecurringGift mpRecurringGift)
+        public async Task<MpRecurringGift> CreateRecurringGift(MpRecurringGift mpRecurringGift)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             try
             {
-                return MpRestBuilder.NewRequestBuilder()
+                return (await MpRestBuilder.NewRequestBuilder()
                     .WithAuthenticationToken(token)
-                    .Build()
-                    .Create(mpRecurringGift);
+                    .BuildAsync()
+                    .Create(mpRecurringGift));
             }
             catch (Exception e)
             {
@@ -62,15 +62,15 @@ namespace MinistryPlatform.Repositories
             }
         }
 
-        public void UpdateRecurringGift(JObject mpRecurringGift)
+        public async void UpdateRecurringGift(JObject mpRecurringGift)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             try
             {
-                MpRestBuilder.NewRequestBuilder()
+                await MpRestBuilder.NewRequestBuilder()
                     .WithAuthenticationToken(token)
-                    .Build()
+                    .BuildAsync()
                     .Update(mpRecurringGift, "Recurring_Gifts");
             }
             catch (Exception e)
@@ -79,7 +79,7 @@ namespace MinistryPlatform.Repositories
             }
         }
 
-        public List<MpRecurringGift> FindRecurringGiftsByDonorId(int donorId)
+        public Task<List<MpRecurringGift>> FindRecurringGiftsByDonorId(int donorId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -110,13 +110,13 @@ namespace MinistryPlatform.Repositories
                                 .WithAuthenticationToken(token)
                                 .WithSelectColumns(columns)
                                 .WithFilter(filter)
-                                .Build()
+                                .BuildAsync()
                                 .Search<MpRecurringGift>();
 
             return gifts;
         }
 
-	    public List<MpRecurringGift> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds)
+	    public Task<List<MpRecurringGift>> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds)
         {
 
 
@@ -126,7 +126,7 @@ namespace MinistryPlatform.Repositories
             var gifts = MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithFilter(filter)
-                .Build()
+                .BuildAsync()
                 .Search<MpRecurringGift>();
 
             return gifts;

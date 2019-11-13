@@ -193,8 +193,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
                               .Returns(mockHousehold);
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
-                              .Returns(new MpProgram());
-            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>()));
+                              .Returns(Task.FromResult(new MpProgram()));
+            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>())).Returns(Task.FromResult(new MpRecurringGift()));
                                //.Returns(null);
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto(){ DonorId = 1 });
@@ -264,8 +264,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
                               .Returns(mockHousehold);
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
-                              .Returns(new MpProgram());
-            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>()));
+                              .Returns(Task.FromResult(new MpProgram()));
+            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>())).Returns(Task.FromResult(new MpRecurringGift()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
             _donationService.Setup(m => m.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
@@ -338,7 +338,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
                                   .Returns(mockHousehold);
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
-                                  .Returns(new MpProgram());
+                                  .Returns(Task.FromResult(new MpProgram()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
 
@@ -411,7 +411,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
                               .Returns(mockHousehold);
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
-                              .Returns(new MpProgram());
+                              .Returns(Task.FromResult(new MpProgram()));
             _recurringGiftRepository.Setup(m => m.UpdateRecurringGift(It.IsAny<JObject>()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });

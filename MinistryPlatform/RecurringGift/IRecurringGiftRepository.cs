@@ -7,10 +7,10 @@ namespace MinistryPlatform.Interfaces
 {
     public interface IRecurringGiftRepository
     {
-        MpRecurringGift CreateRecurringGift(MpRecurringGift mpRecurringGift);
+        Task<MpRecurringGift> CreateRecurringGift(MpRecurringGift mpRecurringGift);
         void UpdateRecurringGift(JObject mpRecurringGift);
         Task<MpRecurringGift> FindRecurringGiftBySubscriptionId(string subscriptionId);
-        List<MpRecurringGift> FindRecurringGiftsByDonorId(int donorId);
-        List<MpRecurringGift> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds);
+        Task<List<MpRecurringGift>> FindRecurringGiftsByDonorId(int donorId);
+        Task<List<MpRecurringGift>> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds);
     }
 }

@@ -134,7 +134,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             _donationRepository.Setup(r => r.GetRecurringGifts(It.IsAny<int>())).Returns(Task.FromResult(MpRecurringGiftMock.CreateList(123)));
 
             // Act
-            var result = _fixture.GetRecurringGifts(contactId);
+            var result = _fixture.GetRecurringGifts(contactId).Result;
 
             // Assert
             Assert.Single(result);
@@ -192,7 +192,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             _mapper.Setup(m => m.Map<List<DonationDetailDto>>(It.IsAny<List<MpDonationDetail>>())).Returns(donationHistory);
 
             // Act
-            var result = _fixture.GetDonations("token");
+            var result = _fixture.GetDonations("token").Result;
 
             // Assert
             Assert.Single(result);
@@ -235,7 +235,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId, null, null)).Returns(Task.FromResult(mpDonationHistories));
 
             // Act
-            var result = _fixture.GetDonations(contactId);
+            var result = _fixture.GetDonations(contactId).Result;
 
             // Assert
             Assert.NotNull(result);

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -18,7 +19,7 @@ namespace MinistryPlatform.Repositories
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public MpProgram GetProgramByName(string programName)
+        public async Task<MpProgram> GetProgramByName(string programName)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -26,10 +27,10 @@ namespace MinistryPlatform.Repositories
             //  a program like I'm in
             var escapedName = programName.Replace("'", "''");
             var filter = $"Program_Name = '{escapedName}'";
-            var programs = MpRestBuilder.NewRequestBuilder()
+            var programs = await MpRestBuilder.NewRequestBuilder()
                                 .WithAuthenticationToken(token)
                                 .WithFilter(filter)
-                                .Build()
+                                .BuildAsync()
                                 .Search<MpProgram>();
 
             if(!programs.Any())

@@ -66,9 +66,9 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<DonationDto>(mpDonation);
         }
 
-        public List<DonationDto> Update(List<DonationDto> donations)
+        public async Task<List<DonationDto>> Update(List<DonationDto> donations)
         {
-            var mpDonations = _mpDonationRepository.Update(_mapper.Map<List<MpDonation>>(donations));
+            var mpDonations = await _mpDonationRepository.Update(_mapper.Map<List<MpDonation>>(donations));
             return _mapper.Map<List<DonationDto>>(mpDonations);
         }
 
@@ -87,9 +87,9 @@ namespace Crossroads.Service.Finance.Services
             _mpDonationRepository.UpdateDonorAccount(donorAccount);
         }
 
-        public List<RecurringGiftDto> GetRecurringGifts(int contactId)
+        public async Task<List<RecurringGiftDto>> GetRecurringGifts(int contactId)
         {
-            var records = _mpDonationRepository.GetRecurringGifts(contactId);
+            var records = await _mpDonationRepository.GetRecurringGifts(contactId);
             var dtos = _mapper.Map<List<RecurringGiftDto>>(records);
 
             // mark stripe gifts as not having a valid subscription status
@@ -188,16 +188,16 @@ namespace Crossroads.Service.Finance.Services
             return mpPledge;
         }
 
-        public List<DonationDetailDto> GetDonations(string token)
+        public async Task<List<DonationDetailDto>> GetDonations(string token)
         {
             var contactId = _contactService.GetContactIdBySessionId(token);
-            var records = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
+            var records = await _mpDonationRepository.GetDonationHistoryByContactId(contactId);
             return _mapper.Map<List<DonationDetailDto>>(records);
         }
 
-        public List<DonationDetailDto> GetDonations(int contactId)
+        public async Task<List<DonationDetailDto>> GetDonations(int contactId)
         {
-            var records = _mpDonationRepository.GetDonationHistoryByContactId(contactId);
+            var records = await _mpDonationRepository.GetDonationHistoryByContactId(contactId);
             return _mapper.Map<List<DonationDetailDto>>(records);
         }
 

@@ -1,9 +1,10 @@
-﻿using MinistryPlatform.Models;
+﻿using System.Threading.Tasks;
+using MinistryPlatform.Models;
 
 namespace MinistryPlatform.Interfaces
 {
     public interface IProgramRepository
     {
-        MpProgram GetProgramByName(string programName);
+        Task<MpProgram> GetProgramByName(string programName);
     }
 }

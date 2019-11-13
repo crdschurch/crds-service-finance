@@ -313,7 +313,7 @@ namespace Crossroads.Service.Finance.Services
             var status = updatedPushpayRecurringGift.Status;
             if (status == "Active")
             {
-                var updatedMpRecurringGift = BuildUpdateRecurringGift(existingMpRecurringGift, updatedPushpayRecurringGift);
+                var updatedMpRecurringGift = await BuildUpdateRecurringGift(existingMpRecurringGift, updatedPushpayRecurringGift);
 
                 // vendor detail url is not available in the pushpay api when getting a recurring gift
                 updatedMpRecurringGift.Add(new JProperty("Vendor_Detail_URL", webhook.Events[0].Links.ViewRecurringPayment));
@@ -375,7 +375,7 @@ namespace Crossroads.Service.Finance.Services
             return updateGift;
         }
 
-        private JObject BuildUpdateRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
+        private async Task<JObject> BuildUpdateRecurringGift(MpRecurringGift mpRecurringGift, PushpayRecurringGiftDto updatedPushpayRecurringGift)
         {
             var mappedMpRecurringGift = _mapper.Map<MpRecurringGift>(updatedPushpayRecurringGift);
 
@@ -386,7 +386,7 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Day_Of_Month", mappedMpRecurringGift.DayOfMonth),
                 new JProperty("Day_Of_Week_ID", mappedMpRecurringGift.DayOfWeek),
                 new JProperty("Start_Date", mappedMpRecurringGift.StartDate),
-                new JProperty("Program_ID", _programRepository.GetProgramByName(updatedPushpayRecurringGift.Fund.Code).ProgramId),
+                new JProperty("Program_ID", (await _programRepository.GetProgramByName(updatedPushpayRecurringGift.Fund.Code)).ProgramId),
                 new JProperty("End_Date", null),
                 new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status)),
                 new JProperty("Updated_On", updatedPushpayRecurringGift.UpdatedOn),
@@ -445,7 +445,7 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.CongregationId = congregationId;
 
             mpRecurringGift.ConsecutiveFailureCount = 0;
-            mpRecurringGift.ProgramId = _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code).ProgramId;
+            mpRecurringGift.ProgramId = (await _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code)).ProgramId;
             mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
             mpRecurringGift.UpdatedOn = pushpayRecurringGift.UpdatedOn;
 
@@ -490,7 +490,7 @@ namespace Crossroads.Service.Finance.Services
                 Console.WriteLine($"No selected site for donation {pushpayRecurringGift.PaymentToken}");
             }
 
-            mpRecurringGift = _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
+            mpRecurringGift = await _recurringGiftRepository.CreateRecurringGift(mpRecurringGift);
 
             // STRIPE CANCELLATION - this can be removed after there are no more Stripe recurring gifts
             // This cancels a Stripe gift if a subscription id was uploaded to Pushpay (i.e. through pushpay migration tool)
@@ -500,7 +500,7 @@ namespace Crossroads.Service.Finance.Services
             }
 
             // This cancels all Stripe gifts on the donor that are the same program
-            var mpRecurringGifts = _recurringGiftRepository.FindRecurringGiftsByDonorId((int)mpDonor.DonorId);
+            var mpRecurringGifts = await _recurringGiftRepository.FindRecurringGiftsByDonorId((int)mpDonor.DonorId);
             if (mpRecurringGifts != null && mpRecurringGifts.Count > 0)
             {
                 foreach (MpRecurringGift gift in mpRecurringGifts)

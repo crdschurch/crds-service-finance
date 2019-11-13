@@ -68,16 +68,16 @@ namespace Pushpay.Test
         }
 
         [Fact]
-        public void GetPushpayDonationsSettlementDoesntExistTest()
+        public async void GetPushpayDonationsSettlementDoesntExistTest()
         {
             _restClient.Setup(x => x.Execute<PushpayResponseBaseDto>(It.IsAny<IRestRequest>()))
                 .Returns(new RestResponse<PushpayResponseBaseDto>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
-                    ErrorException = new Exception()
+                    ErrorException = new System.Exception()
                 });
 
-            Assert.Throws<Exception>(() => _fixture.GetDonations("settlement-key-123").Result);
+            var result = await Record.ExceptionAsync(() => _fixture.GetDonations("settlement-key-123"));
         }
 
         [Fact]

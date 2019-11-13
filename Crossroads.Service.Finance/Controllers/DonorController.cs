@@ -58,7 +58,7 @@ namespace Crossroads.Service.Finance.Controllers
 
                     if (userContactId == contactId)
                     {
-                        recurringGifts = _donationService.GetRecurringGifts(userContactId);
+                        recurringGifts = _donationService.GetRecurringGifts(userContactId).Result;
                     }
                     else
                     {
@@ -163,7 +163,7 @@ namespace Crossroads.Service.Finance.Controllers
                     if (contactId == userContactId)
                     {
                         // get logged in user's donations
-                        donations = _donationService.GetDonations(userContactId);
+                        donations = _donationService.GetDonations(userContactId).Result;
                     }
                     else
                     {

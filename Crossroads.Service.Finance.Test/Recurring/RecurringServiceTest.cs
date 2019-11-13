@@ -56,7 +56,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 .Returns(Task.FromResult(pushpayRecurringGifts));
 
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
-                .Returns(new List<MpRecurringGift>());
+                .Returns(Task.FromResult(new List<MpRecurringGift>()));
 
             _pushpayService.Setup(m => m.BuildAndCreateNewRecurringGift(It.IsAny<PushpayRecurringGiftDto>()))
                 .Returns(Task.FromResult(new MpRecurringGift{ SubscriptionId = "123abc"}));
@@ -88,7 +88,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 .Returns(Task.FromResult(pushpayRecurringGifts));
 
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
-                .Returns(new List<MpRecurringGift>{ new MpRecurringGift {SubscriptionId = "123abc" }});
+                .Returns(Task.FromResult(new List<MpRecurringGift>{ new MpRecurringGift {SubscriptionId = "123abc" }}));
 
             // Act
             var result = _fixture.SyncRecurringGifts(DateTime.Now, DateTime.Now.AddDays(1)).Result;
@@ -126,7 +126,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 .Returns(Task.FromResult(pushpayRecurringGifts));
 
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
-                .Returns(mpRecurringGifts);
+                .Returns(Task.FromResult(mpRecurringGifts));
 
             _pushpayService.Setup(m => m.UpdateRecurringGiftForSync(pushpayRecurringGifts[0], mpRecurringGifts[0]))
                 .Returns(Task.FromResult(new RecurringGiftDto()));
@@ -168,7 +168,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 .Returns(Task.FromResult(pushpayRecurringGifts));
 
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
-                .Returns(mpRecurringGifts);
+                .Returns(Task.FromResult(mpRecurringGifts));
 
             _pushpayService.Setup(m => m.UpdateRecurringGiftForSync(pushpayRecurringGifts[0], mpRecurringGifts[0]))
                 .Returns(Task.FromResult(new RecurringGiftDto()));
@@ -212,7 +212,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
                 .Returns(Task.FromResult(pushpayRecurringGifts));
 
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
-                .Returns(mpRecurringGifts);
+                .Returns(Task.FromResult(mpRecurringGifts));
 
             _pushpayService.Setup(m => m.UpdateRecurringGiftForSync(pushpayRecurringGifts[0], mpRecurringGifts[0]))
                 .Returns(Task.FromResult(new RecurringGiftDto()));

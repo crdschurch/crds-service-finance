@@ -27,6 +27,8 @@ using MinistryPlatform.Adjustments;
 using MinistryPlatform.JournalEntries;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Crossroads.Service.Finance.Services.JournalEntry;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance
 {
@@ -52,8 +54,12 @@ namespace Crossroads.Service.Finance
             services.AddDistributedMemoryCache();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddCors();
-            services.AddMvc(option => option.EnableEndpointRouting = false);
+            //services.AddMvc(option => option.EnableEndpointRouting = false);
             //services.MvcOptions.EnableEndpointRouting = false;
+
+            services.AddMvc(option => option.EnableEndpointRouting = false)
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
 
             SettingsService settingsService = new SettingsService();
@@ -117,6 +123,8 @@ namespace Crossroads.Service.Finance
 
             // Exports Layer
             services.AddSingleton<IJournalEntryExport, VelosioExportClient>();
+
+            //services.AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -148,6 +156,8 @@ namespace Crossroads.Service.Finance
             //    endpoints.MapControllers();
             //    //endpoints.MapRazorPages();
             //});
+
+
 
             app.UseMvc();
 
