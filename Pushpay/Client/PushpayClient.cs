@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reactive.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Crossroads.Service.Finance.Models;
+﻿using Crossroads.Service.Finance.Models;
 using log4net;
 using Newtonsoft.Json;
 using Pushpay.Models;
 using Pushpay.Token;
 using RestSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pushpay.Client
 {
@@ -120,7 +118,7 @@ namespace Pushpay.Client
         // execute request, retry if rate limited
         private async Task<IRestResponse<PushpayResponseBaseDto>> ExecuteList(RestRequest request, string scope)
         {
-            AddAuth(request, scope);
+            await AddAuth(request, scope);
             var response = _restClient.Execute<PushpayResponseBaseDto>(request);
             if ((int)response.StatusCode == 429)
             {

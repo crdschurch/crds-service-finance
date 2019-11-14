@@ -1,16 +1,13 @@
-using Xunit;
-using System.Net;
 using Moq;
-using RestSharp;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using Pushpay.Client;
-using Pushpay.Token;
 using Pushpay.Models;
-using System.Reactive.Linq;
+using Pushpay.Token;
+using RestSharp;
 using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
-using Crossroads.Service.Finance.Models;
+using Xunit;
 
 namespace Pushpay.Test
 {
@@ -36,7 +33,6 @@ namespace Pushpay.Test
             };
             _tokenService.Setup(r => r.GetOAuthToken(It.IsAny<string>())).Returns(Task.FromResult(token));
         }
-
 
         [Fact]
         public void GetPushpayDonationsTest()
@@ -78,6 +74,8 @@ namespace Pushpay.Test
                 });
 
             var result = await Record.ExceptionAsync(() => _fixture.GetDonations("settlement-key-123"));
+            Assert.NotNull(result);
+            Assert.IsType<Exception>(result);
         }
 
         [Fact]

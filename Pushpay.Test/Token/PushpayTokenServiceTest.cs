@@ -33,25 +33,11 @@ namespace Pushpay.Test
             pushpayResponseData.token_type = tokenType;
             pushpayResponseData.expires_in = expiresIn;
             pushpayResponseData.refresh_token = null;
-
-            var tokenResponse = new OAuth2TokenResponse
-            {
-                AccessToken = accessToken,
-                TokenType = tokenType,
-                ExpiresIn = expiresIn,
-                RefreshToken = null
-            };
-
-            //var x = new RestResponse<OAuth2TokenResponse>
-            //{
-            //    {
-            //    }
-            //}
-
+            var convertedResponse = JsonConvert.SerializeObject(pushpayResponseData);
 
             IRestResponse<OAuth2TokenResponse> restResponse = new RestResponse<OAuth2TokenResponse>
             {
-                //Content = tokenResponse,
+                Content = convertedResponse,
                 StatusCode = HttpStatusCode.OK
             };
 
@@ -75,39 +61,19 @@ namespace Pushpay.Test
         [Fact]
         public async void GetOAuthTokenTestFailure()
         {
-            //_restClient.Setup(x => x.ExecuteAsync(It.IsAny<IRestRequest>(), It.IsAny<Action<IRestResponse>>()))
-            //    .Returns(new RestResponse<object>
-            //    {
-            //        StatusCode = HttpStatusCode.BadRequest
-            //    });
+            SetupOauth();
 
-            _restClient.Setup(x => x.ExecuteAsync<object>(
-                    Moq.It.IsAny<IRestRequest>(),
-                    Moq.It.IsAny<Action<IRestResponse<object>, RestRequestAsyncHandle>>()))
-                .Callback<IRestRequest, Action<IRestResponse<object>, RestRequestAsyncHandle>>((request, callback) =>
-                {
-                    var responseMock = new Mock<IRestResponse<object>>();
-                    responseMock.Setup(r => r.Data).Returns(new RestResponse<object>
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        ErrorException = new Exception()
-                    });
-                    callback(responseMock.Object, null);
-                });
+            IRestResponse<OAuth2TokenResponse> restResponse = new RestResponse<OAuth2TokenResponse>
+            {
+                StatusCode = HttpStatusCode.NotFound
+            };
 
-                //await Assert.ThrowsAsync<Exception>(() => _fixture.GetOAuthToken());
+            _restClient.Setup(x => x.ExecuteTaskAsync<OAuth2TokenResponse>(It.IsAny<IRestRequest>()))
+                .Returns(Task.FromResult(restResponse));
 
-                try
-                {
-                    var result = await Record.ExceptionAsync(() => _fixture.GetOAuthToken());
-                }
-                catch (Exception e)
-                {
-                    Assert.NotNull(e);
-                    throw;
-                }
-
-                Assert.False(true);
+            var result = await Record.ExceptionAsync(() => _fixture.GetOAuthToken("test"));
+            Assert.NotNull(result);
+            Assert.IsType<Exception>(result);
         }
     }
 }

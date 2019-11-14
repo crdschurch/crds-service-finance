@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Pushpay.Models;
 using System.Threading.Tasks;
-using Pushpay.Models;
 
 namespace Pushpay.Token
 {

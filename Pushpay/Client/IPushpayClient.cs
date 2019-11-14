@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Crossroads.Service.Finance.Models;
+using Pushpay.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Crossroads.Service.Finance.Models;
-using Pushpay.Models;
 
 namespace Pushpay.Client
 {
