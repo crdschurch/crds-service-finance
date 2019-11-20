@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pushpay.Test", "Pushpay.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities", "Utilities\Utilities.csproj", "{D390A202-59E9-4B88-AC36-A48BDFA42290}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exports", "Exports\Exports.csproj", "{71FB5E96-B3E3-4A40-AF94-55551BF3FBC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Exports", "Exports\Exports.csproj", "{71FB5E96-B3E3-4A40-AF94-55551BF3FBC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

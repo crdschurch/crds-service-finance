@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Exports.Models;
 
 namespace Exports.JournalEntries
@@ -9,6 +10,7 @@ namespace Exports.JournalEntries
     public interface IJournalEntryExport
     {
         Task<string> HelloWorld();
-        Task<string> ExportJournalEntryStage(VelosioJournalEntryBatch velosioJournalEntryStage);
+        Task<string> ExportJournalEntryStage(string batchNumber, decimal totalDebits, decimal totalCredits,
+            int transactionCount, XElement batchData);
     }
 }
