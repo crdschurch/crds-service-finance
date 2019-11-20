@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Crossroads.Service.Finance.Services.Exports
 {
@@ -77,8 +78,29 @@ namespace Crossroads.Service.Finance.Services.Exports
         {
             var velosioJournalEntryStages = CreateJournalEntryStages(true);
 
-            // TODO: uncomment when preliminary testing is complete
-            //_journalEntryExport.ExportJournalEntryStage(velosioJournalEntryStage);
+            // set totals here for validation
+            decimal totalDebits = new decimal(0.0);
+            decimal totalCredits = new decimal(0.0);
+            int transactionCount = 0;
+
+            var batchDataSetElement = new XElement("BatchDataSet", null);
+
+            // convert entries to XML here
+            foreach (var velosioJournalEntryBatch in velosioJournalEntryStages)
+            {
+                totalDebits += velosioJournalEntryBatch.TotalDebits;
+                totalCredits += velosioJournalEntryBatch.TotalCredits;
+                transactionCount++;
+
+                batchDataSetElement.Add(velosioJournalEntryBatch.BatchData);
+            }
+
+            _journalEntryExport.ExportJournalEntryStage(
+                velosioJournalEntryStages.First().BatchNumber,
+                totalDebits,
+                totalCredits,
+                transactionCount,
+                batchDataSetElement);
         }
 
         public string ExportJournalEntriesManually(bool markExported = true)
@@ -88,7 +110,7 @@ namespace Crossroads.Service.Finance.Services.Exports
             return serializedData;
         }
 
-        public List<VelosioJournalEntryBatch> CreateJournalEntryStages(bool doMarkJournalEntriesAsProcessed = true)
+        public List<VelosioJournalEntryBatch> CreateJournalEntryStages(bool markJournalEntriesAsProcessed = true)
         {
             List<MpJournalEntry> journalEntries = _journalEntryRepository.GetUnexportedJournalEntries();
             List<VelosioJournalEntryBatch> batches = _batchService.CreateBatchPerUniqueJournalEntryBatchId(journalEntries);
@@ -97,13 +119,17 @@ namespace Crossroads.Service.Finance.Services.Exports
             {
                 _batchService.AddJournalEntryToAppropriateBatch(batches, journalEntry);
 
-                if (doMarkJournalEntriesAsProcessed == true)
+                if (markJournalEntriesAsProcessed == true)
                 {
                     journalEntry.ExportedDate = DateTime.Parse(DateTime.Now.ToShortDateString());
                 }
             }
 
-            _journalEntryRepository.UpdateJournalEntries(journalEntries);
+            if (markJournalEntriesAsProcessed)
+            {
+                _journalEntryRepository.UpdateJournalEntries(journalEntries);
+            }
+
             return batches;
         }
 
