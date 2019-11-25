@@ -378,7 +378,7 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Frequency_ID", mappedMpRecurringGift.FrequencyId),
                 new JProperty("Day_Of_Month", mappedMpRecurringGift.DayOfMonth),
                 new JProperty("Day_Of_Week_ID", mappedMpRecurringGift.DayOfWeek),
-                new JProperty("Start_Date", mappedMpRecurringGift.StartDate),
+                new JProperty("Start_Date", mpRecurringGift.StartDate != null ? mpRecurringGift.StartDate : mappedMpRecurringGift.StartDate),
                 new JProperty("Program_ID", _programRepository.GetProgramByName(updatedPushpayRecurringGift.Fund.Code).ProgramId),
                 new JProperty("End_Date", null),
                 new JProperty("Recurring_Gift_Status_ID", GetRecurringGiftStatusId(mappedMpRecurringGift.Status)),
