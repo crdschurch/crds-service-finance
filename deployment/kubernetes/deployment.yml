@@ -88,3 +88,5 @@ spec:
               value: $CRDS_ENV
             - name: LOGZ_IO_KEY
               value: $LOGZ_IO_KEY
+            - name: EXPORT_SERVICE_KEY
+              value: $EXPORT_SERVICE_KEY

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AutoMapper;
+using Crossroads.Service.Finance.Helpers;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Hangfire;
@@ -191,7 +192,7 @@ namespace Crossroads.Service.Finance.Services
                 // (this is a different business rule from soft credit donations)
                 if (pushpayPayment.PushpayFields != null && pushpayPayment.PushpayFields.Any(r => r.Key == CongregationFieldKey))
                 {
-                    var congregationName = pushpayPayment.PushpayFields.First(r => r.Key == CongregationFieldKey).Value;
+                    var congregationName = TranslateCongregation.Translate(pushpayPayment.PushpayFields.First(r => r.Key == CongregationFieldKey).Value);
                     var congregations = _congregationRepository.GetCongregationByCongregationName(congregationName);
 
                     if (congregations.Any())
@@ -294,7 +295,7 @@ namespace Crossroads.Service.Finance.Services
 
             if (updatedPushpayRecurringGift.PushpayFields != null && updatedPushpayRecurringGift.PushpayFields.Any(r => r.Key == CongregationFieldKey))
             {
-                var congregationName = updatedPushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value;
+                var congregationName = TranslateCongregation.Translate(updatedPushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value);
                 var congregations = _congregationRepository.GetCongregationByCongregationName(congregationName);
 
                 if (congregations.Any())
@@ -464,7 +465,7 @@ namespace Crossroads.Service.Finance.Services
 
             if (pushpayRecurringGift.PushpayFields!= null && pushpayRecurringGift.PushpayFields.Any(r => r.Key == CongregationFieldKey))
             {
-                var congregationName = pushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value;
+                var congregationName = TranslateCongregation.Translate(pushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value);
                 var congregations = _congregationRepository.GetCongregationByCongregationName(congregationName);
 
                 if (congregations.Any())

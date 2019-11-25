@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Crossroads.Web.Common.Configuration;
 using Exports.Models;
 using VelosioJournalExport;
@@ -20,24 +23,27 @@ namespace Exports.JournalEntries
 
         public async Task<string> HelloWorld()
         {
-            var hw = new VelosioJournalExport.HelloWorldRequest();
-            //var result = VelosioJournalExport.SendGLBatchSoapClient.;
             var config = new SendGLBatchSoapClient.EndpointConfiguration();
-            var client = new VelosioJournalExport.SendGLBatchSoapClient(config, _configurationWrapper);
+            var client = new SendGLBatchSoapClient(config, _configurationWrapper);
             var result = await client.HelloWorldAsync();
             return result.Body.HelloWorldResult;
         }
 
-        public async Task<string> ExportJournalEntryStage(VelosioJournalEntryBatch velosioJournalEntryStage)
+        public async Task<string> ExportJournalEntryStage(string batchNumber, decimal totalDebits, decimal totalCredits, int transactionCount, XElement batchData)
         {
-            //var body = new LoadBatchRequestBody();
-            //var req = new VelosioJournalExport.LoadBatchRequest();
             var config = new SendGLBatchSoapClient.EndpointConfiguration();
-            var client = new VelosioJournalExport.SendGLBatchSoapClient(config, _configurationWrapper);
-            //client.ClientCredentials.UserName = "token";
-            var result = await client.LoadBatchAsync("token", velosioJournalEntryStage.BatchNumber, 
-                velosioJournalEntryStage.TotalDebits, velosioJournalEntryStage.TotalCredits, velosioJournalEntryStage.TransactionCount, 
-                velosioJournalEntryStage.BatchData.ToString());
+            var client = new SendGLBatchSoapClient(config, _configurationWrapper);
+
+            var token = Environment.GetEnvironmentVariable("EXPORT_SERVICE_KEY");
+
+            var result = await client.LoadBatchAsync(
+                token,
+                batchNumber,
+                totalDebits,
+                totalCredits,
+                transactionCount,
+                batchData.ToString());
+
             return result.Body.LoadBatchResult;
         }
     }
