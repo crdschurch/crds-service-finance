@@ -81,7 +81,6 @@ namespace Crossroads.Service.Finance.Services.Exports
             // set totals here for validation
             decimal totalDebits = new decimal(0.0);
             decimal totalCredits = new decimal(0.0);
-            int transactionCount = 0;
 
             var batchDataSetElement = new XElement("BatchDataSet", null);
 
@@ -90,10 +89,10 @@ namespace Crossroads.Service.Finance.Services.Exports
             {
                 totalDebits += velosioJournalEntryBatch.TotalDebits;
                 totalCredits += velosioJournalEntryBatch.TotalCredits;
-                transactionCount++;
-
                 batchDataSetElement.Add(velosioJournalEntryBatch.BatchData);
             }
+
+            int transactionCount = batchDataSetElement.Descendants("BatchDataTable").Count();
 
             _journalEntryExport.ExportJournalEntryStage(
                 velosioJournalEntryStages.First().BatchNumber,
