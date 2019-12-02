@@ -125,7 +125,7 @@ namespace Crossroads.Service.Finance.Test.Exports
                 "CRJE20190903",
                 5.0m,
                 5.0m,
-                1,
+                0,
                 It.IsAny<XElement>()
             ));
 
