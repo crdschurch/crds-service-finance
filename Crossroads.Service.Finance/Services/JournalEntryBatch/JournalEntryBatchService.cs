@@ -34,7 +34,7 @@ namespace Crossroads.Service.Finance.Services.JournalEntryBatch
             var journalEntryXml = new XElement("BatchDataTable", null);
             journalEntryXml.Add(new XElement("BatchNumber", mpJournalEntry.BatchID));
             journalEntryXml.Add(new XElement("Reference", mpJournalEntry.GetReferenceString()));
-            journalEntryXml.Add(new XElement("TransactionDate", DateTime.Now.Date));
+            journalEntryXml.Add(new XElement("TransactionDate", DateTime.Now.Date.ToShortDateString()));
             journalEntryXml.Add(new XElement("Account", mpJournalEntry.GL_Account_Number));
             journalEntryXml.Add(new XElement("DebitAmount", mpJournalEntry.DebitAmount));
             journalEntryXml.Add(new XElement("CreditAmount", mpJournalEntry.CreditAmount));
