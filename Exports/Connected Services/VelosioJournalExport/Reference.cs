@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 
 using Crossroads.Web.Common.Configuration;
+using System;
 
 namespace VelosioJournalExport
 {
@@ -312,7 +313,7 @@ namespace VelosioJournalExport
         
         private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration, IConfigurationWrapper configWrapper)
         {
-            var url = configWrapper.GetMpConfigValue("MP-TOOLS", "SociusUrl");
+            var url = Environment.GetEnvironmentVariable("VELOSIO_EXPORT_URL");
 
             if ((endpointConfiguration == EndpointConfiguration.SendGLBatchSoap))
             {
