@@ -49,8 +49,8 @@ namespace Exports.JournalEntries
                                                      totalCredits,
                                                      transactionCount,
                                                      batchData.ToString());
-                Console.WriteLine("Velosio export result: " + result);
-                _logger.Info($"The result of the velosio export call was: {result}");
+                Console.WriteLine("Velosio export result: " + result.Body.LoadBatchResult);
+                _logger.Info($"The result of the velosio export call was: {result.Body.LoadBatchResult}");
             }
             catch (Exception exc) {
                 Console.WriteLine("Velosio export error result: " + exc);
