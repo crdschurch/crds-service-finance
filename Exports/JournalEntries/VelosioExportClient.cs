@@ -56,7 +56,7 @@ namespace Exports.JournalEntries
                 Console.WriteLine("totalCredits: " + totalCredits);
                 Console.WriteLine("transactionCount: " + transactionCount);
                 Console.WriteLine("batchData.ToString(): " + batchData.ToString());
-                Console.WriteLine("CLIENT ENDPOINT: " + client.Endpoint);
+                Console.WriteLine("CLIENT ENDPOINT: " + client.Endpoint.Address);
                 Console.WriteLine("CONFIG AS STRING: " + config.ToString());
 
 
