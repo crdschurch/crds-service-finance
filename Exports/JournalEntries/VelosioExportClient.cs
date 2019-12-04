@@ -49,6 +49,7 @@ namespace Exports.JournalEntries
                                                      totalCredits,
                                                      transactionCount,
                                                      batchData.ToString());
+                _logger.Error("The result of the velosio export call was:", result);
             }
             catch (Exception exc) {
                 _logger.Error("An exception occurred trying to send batch data", exc);
