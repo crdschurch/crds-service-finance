@@ -44,6 +44,15 @@ namespace Crossroads.Service.Finance.Services.JournalEntry
             return mpJournalEntry;
         }
 
+        public List<MpJournalEntry> AddBatchIdsAndClean(List<MpJournalEntry> journalEntries)
+        {
+            journalEntries.ForEach(e => NetCreditsAndDebits(e));
+            journalEntries = RemoveWashEntries(journalEntries);
+
+            journalEntries = AddBatchIdsToJournalEntries(journalEntries);
+            return journalEntries;
+        }
+
         public MpJournalEntry NetCreditsAndDebits(MpJournalEntry journalEntry)
         {
             if ( IsNetCredit(journalEntry) )
@@ -64,6 +73,21 @@ namespace Crossroads.Service.Finance.Services.JournalEntry
         {
             List<MpJournalEntry> nonRedundantAdjustments = journalEntries.Where(e => e.CreditAmount != e.DebitAmount).ToList<MpJournalEntry>();
             return nonRedundantAdjustments;
+        }
+
+        public List<MpJournalEntry> AddBatchIdsToJournalEntries(List<MpJournalEntry> entries)
+        {
+            int batchNumber = 1;
+            var today = DateTime.Now;
+
+            foreach (MpJournalEntry journalEntry in entries)
+            {
+                var batchId = $"CRJE{today.Year}{today.Month}{today.Day}{batchNumber.ToString("000")}";
+                journalEntry.BatchID = batchId;
+                batchNumber++;
+            }
+
+            return entries;
         }
 
         private static bool IsNetDebit(MpJournalEntry journalEntry)

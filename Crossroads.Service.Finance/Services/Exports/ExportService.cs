@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services.JournalEntry;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Exports.JournalEntries;
@@ -17,6 +18,7 @@ namespace Crossroads.Service.Finance.Services.Exports
     public class ExportService: IExportService
     {
         private readonly IAdjustmentRepository _adjustmentRepository;
+        private readonly IAdjustmentsToJournalEntriesService _adjustmentsToJournalEntriesService;
         private readonly IJournalEntryService _journalEntryService;
         private readonly IJournalEntryBatchService _batchService;
         private readonly IJournalEntryRepository _journalEntryRepository;
@@ -24,6 +26,7 @@ namespace Crossroads.Service.Finance.Services.Exports
         private readonly IMapper _mapper;
 
         public ExportService(IAdjustmentRepository adjustmentRepository,
+                             IAdjustmentsToJournalEntriesService adjustmentsToJournalEntriesService,
                              IJournalEntryService journalEntryService,
                              IJournalEntryBatchService batchService,
                              IJournalEntryRepository journalEntryRepository, 
@@ -31,6 +34,7 @@ namespace Crossroads.Service.Finance.Services.Exports
                              IMapper mapper)
         {
             _adjustmentRepository = adjustmentRepository;
+            _adjustmentsToJournalEntriesService = adjustmentsToJournalEntriesService;
             _batchService = batchService;
             _journalEntryService = journalEntryService;
             _journalEntryRepository = journalEntryRepository;
@@ -42,14 +46,8 @@ namespace Crossroads.Service.Finance.Services.Exports
         {
             var mpDistributionAdjustments = _adjustmentRepository.GetUnprocessedDistributionAdjustments();
 
-            var today = DateTime.Now;
-
-            // TODO: We need to verify this batch ID with Finance and Velosio
-            var batchId = $"CRJE{today.Year}{today.Month}{today.Day}01";
-
-            List<MpJournalEntry> journalEntries = GroupAdjustmentsIntoJournalEntries(mpDistributionAdjustments, batchId);
-            journalEntries.ForEach(e => _journalEntryService.NetCreditsAndDebits(e));
-            journalEntries = _journalEntryService.RemoveWashEntries(journalEntries);
+            List<MpJournalEntry> journalEntries = _adjustmentsToJournalEntriesService.Convert(mpDistributionAdjustments);
+            journalEntries = _journalEntryService.AddBatchIdsAndClean(journalEntries);
 
             // create journal entries
             List<MpJournalEntry> mpJournalEntries = SaveJournalEntriesToMp(journalEntries);
@@ -76,7 +74,7 @@ namespace Crossroads.Service.Finance.Services.Exports
         /// </summary>
         public void ExportJournalEntries()
         {
-            var velosioJournalEntryStages = CreateJournalEntryStages(true);
+            List<VelosioJournalEntryBatch> velosioJournalEntryStages = CreateBatchesFromJournalEntries(true);
 
             // set totals here for validation
             decimal totalDebits = new decimal(0.0);
@@ -104,12 +102,12 @@ namespace Crossroads.Service.Finance.Services.Exports
 
         public string ExportJournalEntriesManually(bool markExported = true)
         {
-            var velosioJournalEntryStages = CreateJournalEntryStages(markExported);
+            var velosioJournalEntryStages = CreateBatchesFromJournalEntries(markExported);
             var serializedData = SerializeJournalEntryStages(velosioJournalEntryStages);
             return serializedData;
         }
 
-        public List<VelosioJournalEntryBatch> CreateJournalEntryStages(bool markJournalEntriesAsProcessed = true)
+        public List<VelosioJournalEntryBatch> CreateBatchesFromJournalEntries(bool markJournalEntriesAsProcessed = true)
         {
             List<MpJournalEntry> journalEntries = _journalEntryRepository.GetUnexportedJournalEntries();
             List<VelosioJournalEntryBatch> batches = _batchService.CreateBatchPerUniqueJournalEntryBatchId(journalEntries);
@@ -153,30 +151,6 @@ namespace Crossroads.Service.Finance.Services.Exports
             }
 
             return stringBuilder.ToString();
-        }
-
-        private List<MpJournalEntry> GroupAdjustmentsIntoJournalEntries(List<MpDistributionAdjustment> mpDistributionAdjustments, string batchId)
-        {
-            var journalEntries = new List<MpJournalEntry>();
-
-            foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
-            {
-                var matchingMpJournalEntry = journalEntries.FirstOrDefault(r => r.GL_Account_Number == mpDistributionAdjustment.GLAccountNumber &&
-                                            r.AdjustmentYear == mpDistributionAdjustment.DonationDate.Year &&
-                                            r.AdjustmentMonth == mpDistributionAdjustment.DonationDate.Month);
-
-                if (matchingMpJournalEntry == null)
-                {
-                    MpJournalEntry newJournalEntry = _journalEntryService.CreateNewJournalEntry(batchId, mpDistributionAdjustment);
-                    journalEntries.Add(newJournalEntry);
-                }
-                else
-                {
-                    _journalEntryService.AdjustExistingJournalEntry(mpDistributionAdjustment, matchingMpJournalEntry);
-                }
-            }
-
-            return journalEntries;
         }
 
         private List<MpJournalEntry> SaveJournalEntriesToMp(List<MpJournalEntry> journalEntries)
