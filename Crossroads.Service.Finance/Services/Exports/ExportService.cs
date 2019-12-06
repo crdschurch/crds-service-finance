@@ -114,7 +114,7 @@ namespace Crossroads.Service.Finance.Services.Exports
 
             foreach (var journalEntry in journalEntries)
             {
-                _batchService.AddJournalEntryToAppropriateBatch(batches, journalEntry);
+                _batchService.AddJournalEntryToAppropriateBatch(batches, journalEntry, journalEntries.First().BatchID);
 
                 if (markJournalEntriesAsProcessed == true)
                 {
@@ -126,6 +126,9 @@ namespace Crossroads.Service.Finance.Services.Exports
             {
                 _journalEntryRepository.UpdateJournalEntries(journalEntries);
             }
+
+            // Batch numbers need to be the same, or the total won't work
+            batches.ForEach(b => b.BatchNumber = journalEntries.First().BatchID);
 
             return batches;
         }
