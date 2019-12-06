@@ -14,12 +14,14 @@ using Mock;
 using Xunit;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Crossroads.Service.Finance.Services.JournalEntry;
+using Crossroads.Service.Finance.Interfaces;
 
 namespace Crossroads.Service.Finance.Test.Exports
 {
     public class ExportServiceTest
     {
         private readonly Mock<IAdjustmentRepository> _adjustmentRepository;
+        private readonly Mock<IAdjustmentsToJournalEntriesService> _adjustmentsToJournalEntriesService;
         private readonly Mock<IJournalEntryService> _journalEntryService;
         private readonly Mock<IJournalEntryBatchService> _batchService;
         private readonly Mock<IJournalEntryRepository> _journalEntryRepository;
@@ -31,6 +33,7 @@ namespace Crossroads.Service.Finance.Test.Exports
         public ExportServiceTest()
         {
             _adjustmentRepository = new Mock<IAdjustmentRepository>();
+            _adjustmentsToJournalEntriesService = new Mock<IAdjustmentsToJournalEntriesService>();
             _journalEntryService = new Mock<IJournalEntryService>();
             _batchService = new Mock<IJournalEntryBatchService>();
             _journalEntryRepository = new Mock<IJournalEntryRepository>();
@@ -38,6 +41,7 @@ namespace Crossroads.Service.Finance.Test.Exports
             _mapper = new Mock<IMapper>();
 
             _fixture = new ExportService(_adjustmentRepository.Object,
+                                        _adjustmentsToJournalEntriesService.Object,
                                         _journalEntryService.Object,
                                         _batchService.Object,
                                         _journalEntryRepository.Object, 
@@ -54,9 +58,7 @@ namespace Crossroads.Service.Finance.Test.Exports
 
             _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>()));
 
-            _journalEntryService.Setup(e => e.NetCreditsAndDebits(It.IsAny<MpJournalEntry>())).Returns(It.IsAny<MpJournalEntry>());
-
-            _journalEntryService.Setup(e => e.RemoveWashEntries(It.IsAny<List<MpJournalEntry>>())).Returns(new List<MpJournalEntry>() { null });
+            _journalEntryService.Setup(e => e.AddBatchIdsAndClean(It.IsAny<List<MpJournalEntry>>())).Returns(new List<MpJournalEntry>() { null });
 
             // Act
             _fixture.CreateJournalEntries();
@@ -72,9 +74,7 @@ namespace Crossroads.Service.Finance.Test.Exports
             var mpAdjustmentsMock = MpDistributionAdjustmentMock.CreateList();
             var mpJournalEntryMock = MpJournalEntryMock.CreateList();
 
-            _journalEntryService.Setup(e => e.NetCreditsAndDebits(It.IsAny<MpJournalEntry>())).Returns(It.IsAny<MpJournalEntry>());
-
-            _journalEntryService.Setup(e => e.RemoveWashEntries(It.IsAny<List<MpJournalEntry>>())).Returns(mpJournalEntryMock);
+            _journalEntryService.Setup(e => e.AddBatchIdsAndClean(It.IsAny<List<MpJournalEntry>>())).Returns(mpJournalEntryMock);
 
             _adjustmentRepository.Setup(r => r.GetUnprocessedDistributionAdjustments()).Returns(mpAdjustmentsMock);
 

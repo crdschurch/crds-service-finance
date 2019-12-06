@@ -49,16 +49,6 @@ namespace Exports.JournalEntries
                                                      totalCredits,
                                                      transactionCount,
                                                      batchData.ToString());
-                Console.WriteLine("Velosio export result: " + result.Body.LoadBatchResult);
-                Console.WriteLine("token: " + token);
-                Console.WriteLine("batchNumber: " + batchNumber);
-                Console.WriteLine("totalDebits: " + totalDebits);
-                Console.WriteLine("totalCredits: " + totalCredits);
-                Console.WriteLine("transactionCount: " + transactionCount);
-                Console.WriteLine("batchData.ToString(): " + batchData.ToString());
-                Console.WriteLine("CLIENT ENDPOINT: " + client.Endpoint.Address);
-                Console.WriteLine("CONFIG AS STRING: " + config.ToString());
-
 
                 _logger.Info($"The result of the velosio export call was: {result.Body.LoadBatchResult}");
             }
