@@ -19,21 +19,20 @@ namespace Crossroads.Service.Finance.Services.JournalEntryBatch
             return batches;
         }
 
-        public void AddJournalEntryToAppropriateBatch(List<VelosioJournalEntryBatch> batches, MpJournalEntry journalEntry)
+        public void AddJournalEntryToAppropriateBatch(List<VelosioJournalEntryBatch> batches, MpJournalEntry journalEntry, string sharedBatchIdForDisplay)
         {
             VelosioJournalEntryBatch batch = batches.Single(b => b.BatchNumber == journalEntry.BatchID);
-
             batch.BatchDate = GetLastDayOfMonthDonationWasMadeIn(journalEntry);
-            batch.BatchData.Add(SerializeJournalEntry(journalEntry, batch));
+            batch.BatchData.Add(SerializeJournalEntry(journalEntry, batch, sharedBatchIdForDisplay));
             batch.TotalCredits += journalEntry.CreditAmount;
             batch.TotalDebits += journalEntry.DebitAmount;
             batch.TransactionCount++;
         }
 
-        private XElement SerializeJournalEntry(MpJournalEntry mpJournalEntry, VelosioJournalEntryBatch batch)
+        private XElement SerializeJournalEntry(MpJournalEntry mpJournalEntry, VelosioJournalEntryBatch batch, string sharedBatchIdForDisplay)
         {
             var journalEntryXml = new XElement("BatchDataTable", null);
-            journalEntryXml.Add(new XElement("BatchNumber", batch));
+            journalEntryXml.Add(new XElement("BatchNumber", sharedBatchIdForDisplay));
             journalEntryXml.Add(new XElement("Reference", mpJournalEntry.GetReferenceString()));
             journalEntryXml.Add(new XElement("TransactionDate", 
                                              GetLastDayOfMonthDonationWasMadeIn(mpJournalEntry).Date.ToShortDateString()));

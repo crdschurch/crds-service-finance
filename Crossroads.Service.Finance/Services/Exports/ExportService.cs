@@ -114,7 +114,7 @@ namespace Crossroads.Service.Finance.Services.Exports
 
             foreach (var journalEntry in journalEntries)
             {
-                _batchService.AddJournalEntryToAppropriateBatch(batches, journalEntry);
+                _batchService.AddJournalEntryToAppropriateBatch(batches, journalEntry, journalEntries.First().BatchID);
 
                 if (markJournalEntriesAsProcessed == true)
                 {

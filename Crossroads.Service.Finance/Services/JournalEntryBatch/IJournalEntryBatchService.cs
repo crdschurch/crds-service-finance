@@ -7,6 +7,6 @@ namespace Crossroads.Service.Finance.Services.JournalEntryBatch
     public interface IJournalEntryBatchService
     {
         List<VelosioJournalEntryBatch> CreateBatchPerUniqueJournalEntryBatchId(List<MpJournalEntry> journalEntries);
-        void AddJournalEntryToAppropriateBatch(List<VelosioJournalEntryBatch> batches, MpJournalEntry journalEntry);
+        void AddJournalEntryToAppropriateBatch(List<VelosioJournalEntryBatch> batches, MpJournalEntry journalEntry, string sharedBatchIdForDisplay);
     }
 }
