@@ -1,7 +1,5 @@
-﻿using System;
+﻿using MinistryPlatform.Models;
 using System.Collections.Generic;
-using Crossroads.Service.Finance.Models;
-using MinistryPlatform.Models;
 
 namespace Crossroads.Service.Finance.Interfaces
 {

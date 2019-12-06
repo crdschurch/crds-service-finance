@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using AutoMapper;
-using Crossroads.Service.Finance.Models;
-using Crossroads.Service.Finance.Interfaces;
-using Crossroads.Web.Common.Configuration;
-using MinistryPlatform.Interfaces;
-using MinistryPlatform.Models;
-using Utilities.Logging;
+﻿using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services.JournalEntry;
+using MinistryPlatform.Models;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Crossroads.Service.Finance.Services
