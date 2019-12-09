@@ -2,11 +2,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MinistryPlatform.JournalEntries;
 
 namespace Crossroads.Service.Finance.Services.JournalEntry
 {
     public class JournalEntryService : IJournalEntryService
     {
+        private readonly IJournalEntryRepository _journalEntryRepository;
+
+        public JournalEntryService(IJournalEntryRepository journalEntryRepository)
+        {
+            _journalEntryRepository = journalEntryRepository;
+        }
+
         public void AdjustExistingJournalEntry(MpDistributionAdjustment mpDistributionAdjustment, MpJournalEntry journalEntry)
         {
             if ( IsCredit(mpDistributionAdjustment) )
@@ -79,6 +87,15 @@ namespace Crossroads.Service.Finance.Services.JournalEntry
         {
             int batchNumber = 1;
             var today = DateTime.Now;
+
+            // get highest batch number for the current day here and use when creating next batch ids
+            var batchIds = _journalEntryRepository.GetCurrentDateBatchIds();
+
+            if (batchIds.Any())
+            {
+                var maxBatchId = batchIds.Max();
+                batchNumber = int.Parse(maxBatchId.Substring(maxBatchId.Length - 3)) + 1;
+            }
 
             foreach (MpJournalEntry journalEntry in entries)
             {
