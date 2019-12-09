@@ -78,7 +78,7 @@ namespace MinistryPlatform.JournalEntries
             };
 
             // get the batch ids for the current day
-            var filter = $"Exported_Date >= '{DateTime.Now:yyyy-MM-dd}'";
+            var filter = $"Created_Date >= '{DateTime.Now:yyyy-MM-dd}' AND Created_Date < '{DateTime.Now.AddDays(1):yyyy-MM-dd}'";
 
             return MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(selectColumns)
