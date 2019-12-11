@@ -97,11 +97,11 @@ namespace Crossroads.Service.Finance.Services.JournalEntry
                 batchNumber = int.Parse(maxBatchId.Substring(maxBatchId.Length - 3)) + 1;
             }
 
+            var batchId = $"CRJE{today.Year}{today.Month}{today.Day}{batchNumber.ToString("000")}";
+
             foreach (MpJournalEntry journalEntry in entries)
             {
-                var batchId = $"CRJE{today.Year}{today.Month}{today.Day}{batchNumber.ToString("000")}";
                 journalEntry.BatchID = batchId;
-                batchNumber++;
             }
 
             return entries;
