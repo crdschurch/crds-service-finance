@@ -27,7 +27,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                var msg = "DonorController: GetRecurringGifts";
                 _logger.Error($"Error creating journal entries: {ex.Message}");
                 return BadRequest(ex.Message);
             }
@@ -45,7 +44,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                var msg = "ExportController: ExportHello";
                 _logger.Error($"Error running hello world: {ex.Message}");
                 return BadRequest(ex.Message);
             }

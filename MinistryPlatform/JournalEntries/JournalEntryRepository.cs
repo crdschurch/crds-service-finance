@@ -68,5 +68,24 @@ namespace MinistryPlatform.JournalEntries
                 .Build()
                 .Update(mpJournalEntries, "cr_Journal_Entries");
         }
+
+        public List<string> GetCurrentDateBatchIds()
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var selectColumns = new string[] {
+                "Batch_ID"
+            };
+
+            // get the batch ids for the current day
+            var filter = $"Created_Date >= '{DateTime.Now:yyyy-MM-dd}' AND Created_Date < '{DateTime.Now.AddDays(1):yyyy-MM-dd}'";
+
+            return MpRestBuilder.NewRequestBuilder()
+                .WithSelectColumns(selectColumns)
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .Build()
+                .Search<MpJournalEntry>().Select(r => r.BatchID).ToList();
+        }
     }
 }

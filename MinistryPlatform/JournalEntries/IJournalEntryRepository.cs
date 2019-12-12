@@ -10,5 +10,6 @@ namespace MinistryPlatform.JournalEntries
         List<MpJournalEntry> CreateMpJournalEntries(List<MpJournalEntry> mpJournalEntries);
         List<MpJournalEntry> GetUnexportedJournalEntries();
         void UpdateJournalEntries(List<MpJournalEntry> mpJournalEntries);
+        List<string> GetCurrentDateBatchIds();
     }
 }

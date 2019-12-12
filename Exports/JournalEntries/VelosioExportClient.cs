@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Crossroads.Web.Common.Configuration;
 using Exports.Models;
+using log4net;
 using VelosioJournalExport;
 
 namespace Exports.JournalEntries
@@ -15,6 +17,7 @@ namespace Exports.JournalEntries
     public class VelosioExportClient : IJournalEntryExport
     {
         private readonly IConfigurationWrapper _configurationWrapper;
+        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public VelosioExportClient(IConfigurationWrapper configurationWrapper)
         {
@@ -36,13 +39,34 @@ namespace Exports.JournalEntries
 
             var token = Environment.GetEnvironmentVariable("EXPORT_SERVICE_KEY");
 
-            var result = await client.LoadBatchAsync(
-                token,
-                batchNumber,
-                totalDebits,
-                totalCredits,
-                transactionCount,
-                batchData.ToString());
+            LoadBatchResponse result;
+
+            try
+            {
+                result = await client.LoadBatchAsync(token,
+                                                     batchNumber,
+                                                     totalDebits,
+                                                     totalCredits,
+                                                     transactionCount,
+                                                     batchData.ToString());
+
+                Console.WriteLine("Velosio export result: " + result.Body.LoadBatchResult);
+                Console.WriteLine("token: " + token);
+                Console.WriteLine("batchNumber: " + batchNumber);
+                Console.WriteLine("totalDebits: " + totalDebits);
+                Console.WriteLine("totalCredits: " + totalCredits);
+                Console.WriteLine("transactionCount: " + transactionCount);
+                Console.WriteLine("batchData.ToString(): " + batchData.ToString());
+                Console.WriteLine("CLIENT ENDPOINT: " + client.Endpoint.Address);
+                Console.WriteLine("CONFIG AS STRING: " + config.ToString());
+
+                _logger.Info($"The result of the velosio export call was: {result.Body.LoadBatchResult}");
+            }
+            catch (Exception exc) {
+                Console.WriteLine("Velosio export error result: " + exc);
+                _logger.Error("An exception occurred trying to send batch data", exc);
+                result = null;
+            }
 
             return result.Body.LoadBatchResult;
         }
