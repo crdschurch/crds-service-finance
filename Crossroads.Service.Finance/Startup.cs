@@ -78,6 +78,7 @@ namespace Crossroads.Service.Finance
             // }
 
             // Service Layer
+            services.AddSingleton<IBatchService, BatchService>();
             services.AddSingleton<IAdjustmentsToJournalEntriesService, AdjustmentsToJournalEntriesService>();
             services.AddSingleton<IJournalEntryService, JournalEntryService>();
             services.AddSingleton<IJournalEntryBatchService, JournalEntryBatchService>();
