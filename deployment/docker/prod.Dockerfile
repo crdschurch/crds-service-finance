@@ -51,9 +51,9 @@ RUN echo 'installing gnupg' \
 RUN echo 'deb http://apt.newrelic.com/debian/ newrelic non-free' | tee /etc/apt/sources.list.d/newrelic.list \
 && wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add - \
 && apt-get update \
-&& apt-get install newrelic-netcore20-agent
+&& apt-get install newrelic-netcore31-agent
 
-ENV CORECLR_NEWRELIC_HOME=/usr/local/newrelic-netcore20-agent
+ENV CORECLR_NEWRELIC_HOME=/usr/local/newrelic-netcore31-agent
 
 CMD $CORECLR_NEWRELIC_HOME/run.sh dotnet Crossroads.Service.Finance.dll
 
