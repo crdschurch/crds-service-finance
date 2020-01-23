@@ -37,7 +37,7 @@ CORECLR_PROFILER_PATH=/usr/local/newrelic-netcore20-agent/libNewRelicProfiler.so
 WORKDIR /app/finance
  
 # Copy over the build from the previous step 
-COPY --from=build-env /app/Crossroads.Service.Finance/out . 
+COPY --from=build-env /app/out . 
 
 # Install wget
 RUN echo 'installing wget' \
