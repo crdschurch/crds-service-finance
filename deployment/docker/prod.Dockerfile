@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . ./
 
 # Run Unit Tests 
-RUN dotnet test Crossroads.Service.Finance.Tests/Crossroads.Service.Finance.Test.csproj 
+RUN dotnet test Crossroads.Service.Finance.Test/Crossroads.Service.Finance.Test.csproj 
 RUN dotnet test MinistryPlatform.Test/MinistryPlatform.Test.csproj 
 RUN dotnet test Pushpay.Test/Pushpay.Test.csproj 
 
