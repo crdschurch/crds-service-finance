@@ -53,7 +53,10 @@ namespace Crossroads.Service.Finance.Services.Exports
             // create journal entries
             List<MpJournalEntry> mpJournalEntries =  await SaveJournalEntriesToMp(journalEntries);
 
-            MarkDistributionAdjustmentsAsProcessedInMp(mpDistributionAdjustments, mpJournalEntries);/////
+            var markDistributionAdjustmentsAsProcessedInMpTask =
+                Task.Run((() => MarkDistributionAdjustmentsAsProcessedInMp(mpDistributionAdjustments, mpJournalEntries)));
+
+            await markDistributionAdjustmentsAsProcessedInMpTask;
 
             // update adjustments
             _adjustmentRepository.UpdateAdjustments(mpDistributionAdjustments);
@@ -106,9 +109,6 @@ namespace Crossroads.Service.Finance.Services.Exports
         {
             var velosioJournalEntryStages = await CreateBatchesFromJournalEntries(markExported);
 
-            //var updatedDonorAccountTask =
-            //    Task.Run(() => BuildUpdateDonorAccount(mpRecurringGift, pushpayRecurringGift));
-
             var serializeJournalEntryStagesTask =
                 Task.Run(() => SerializeJournalEntryStages(velosioJournalEntryStages));
 
@@ -137,7 +137,7 @@ namespace Crossroads.Service.Finance.Services.Exports
 
             if (markJournalEntriesAsProcessed)
             {
-                _journalEntryRepository.UpdateJournalEntries(journalEntries);
+                await _journalEntryRepository.UpdateJournalEntries(journalEntries);
             }
 
             // Batch numbers need to be the same, or the total won't work

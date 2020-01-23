@@ -42,18 +42,6 @@ namespace Crossroads.Service.Finance.Services
             return null;
         }
 
-        public async Task<ContactDto> GetBySessionId(string sessionId)
-        {
-            var contactId = await _contactRepository.GetBySessionId(sessionId);
-            var mpContact = await _contactRepository.GetContact(contactId);
-            return _mapper.Map<ContactDto>(mpContact);
-        }
-
-        public Task<ContactDto> GetContactBySessionId(string sessionId)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<List<ContactDto>> GetCogiversByContactId(int contactId)
         {
             // TODO: If the performance needs to be improved, consider moving to a proc to

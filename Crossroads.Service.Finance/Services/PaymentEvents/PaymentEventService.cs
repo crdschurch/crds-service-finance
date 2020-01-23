@@ -16,7 +16,6 @@ namespace Crossroads.Service.Finance.Services
         private readonly IBatchService _batchService;
         private readonly IDepositService _depositService;
         private readonly IDonationService _donationService;
-        //private readonly ILogger _logger;
         private readonly IPushpayService _pushpayService;
 
         private readonly IDataLoggingService _dataLoggingService;
@@ -77,7 +76,7 @@ namespace Crossroads.Service.Finance.Services
             // 3. Create and Save the Batch to MP.
             var donationBatch = await _batchService.BuildDonationBatch(settlementPayments, settlementEventDto.Name,
                 DateTime.Now, settlementEventDto.Key);
-            var savedDonationBatch = _batchService.SaveDonationBatch(donationBatch);
+            var savedDonationBatch = await _batchService.SaveDonationBatch(donationBatch);
             donationBatch.Id = savedDonationBatch.Id;
             Console.WriteLine($"Batch created: {savedDonationBatch.Id}");
 
@@ -86,7 +85,9 @@ namespace Crossroads.Service.Finance.Services
             _dataLoggingService.LogDataEvent(batchCreatedEntry);
 
             // 4. Update all the donations to have a status of deposited and to be part of the new batch.
-            var updateDonations = await _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id);
+            var updateDonationsTask = Task.Run((() =>
+                _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id)));
+            var updateDonations = await updateDonationsTask;
             await _donationService.Update(updateDonations);
             Console.WriteLine($"Updated donations for batch: {donationBatch.Id}");
 

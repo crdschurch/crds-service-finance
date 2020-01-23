@@ -78,18 +78,12 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<List<PaymentDto>>(result);
         }
 
-        private PaymentDto GetPayment(PushpayWebhook webhook)
-        {
-            var result = _pushpayClient.GetPayment(webhook);
-            return _mapper.Map<PaymentDto>(result);
-        }
-
         // called from webhook controller
-        public void UpdateDonationDetails(PushpayWebhook webhook)
+        public async void UpdateDonationDetails(PushpayWebhook webhook)
         {
             // try to update details, if it fails, it will schedule to rerun
             //  via hangfire in 1 minute
-            UpdateDonationDetailsFromPushpay(webhook, true);
+            await UpdateDonationDetailsFromPushpay(webhook, true);
         }
 
         public void AddUpdateDonationDetailsJob(PushpayWebhook webhook)

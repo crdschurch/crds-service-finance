@@ -84,11 +84,8 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                var x = 1;
                 return BadRequest(ex.Message);
             }
-
-            //return Ok(result); 
         }
     }
 }

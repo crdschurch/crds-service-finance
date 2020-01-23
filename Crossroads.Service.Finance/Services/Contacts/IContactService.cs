@@ -10,7 +10,6 @@ namespace Crossroads.Service.Finance.Interfaces
     {
         Task<int> GetContactIdBySessionId(string sessionId);
         Task<ContactDto> GetContact(int contactId);
-        Task<ContactDto> GetContactBySessionId(string sessionId);
         Task<List<ContactDto>> GetCogiversByContactId(int contactId);
         Task<ContactRelationship> GetCogiverContactRelationship(int contactId, int relatedContactId);
         Task<List<ContactDto>> GetHouseholdMinorChildren(int householdId);

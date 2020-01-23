@@ -8,7 +8,7 @@ namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IDonationService
     {
-        Task<List<DonationDto>> SetDonationStatus(List<DonationDto> donations, int batchId);
+        List<DonationDto> SetDonationStatus(List<DonationDto> donations, int batchId);
         Task<DonationDto> Update(DonationDto donation);
         Task<List<DonationDto>> Update(List<DonationDto> donations);
         Task<DonationDto> GetDonationByTransactionCode(string transactionCode);

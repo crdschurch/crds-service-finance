@@ -42,7 +42,7 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // need to make sure to handle declined or refunded - do not change status
-        public async Task<List<DonationDto>> SetDonationStatus(List<DonationDto> donations, int batchId)
+        public List<DonationDto> SetDonationStatus(List<DonationDto> donations, int batchId)
         {
             var updatedDonations = donations;
 
@@ -111,7 +111,7 @@ namespace Crossroads.Service.Finance.Services
             var householdMinorChildren = await _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
             if (householdMinorChildren.Exists(householdChild => householdChild.ContactId == relatedContactId))
             {
-                var mpRecurringGifts = GetRecurringGifts(relatedContactId);
+                var mpRecurringGifts = await GetRecurringGifts(relatedContactId);
                 return _mapper.Map<List<RecurringGiftDto>>(mpRecurringGifts);
             }
 
