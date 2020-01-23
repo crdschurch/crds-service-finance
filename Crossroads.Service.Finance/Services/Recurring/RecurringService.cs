@@ -70,7 +70,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
                     if (mpGift == null)
                     {
                         Console.WriteLine($"create new {pushpayRecurringGiftId}");
-                        _pushpayService.BuildAndCreateNewRecurringGift(pushPayGift);
+                        await _pushpayService.BuildAndCreateNewRecurringGift(pushPayGift);
                         giftIdsSynced.Add(pushpayRecurringGiftId);
                     }
                     // if the recurring gift DOES exist in MP, check to see when it was last updated and update it if the Pushpay version is newer
@@ -80,7 +80,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
                         if (IsPushpayDateNewer(mpGift.UpdatedOn ?? DateTime.MinValue, pushPayGift.UpdatedOn))
                         {
                             Console.WriteLine($"update existing {pushpayRecurringGiftId}");
-                            _pushpayService.UpdateRecurringGiftForSync(pushPayGift, mpGift);
+                            await _pushpayService.UpdateRecurringGiftForSync(pushPayGift, mpGift);
                             giftIdsSynced.Add(pushpayRecurringGiftId);
                         }
                     }

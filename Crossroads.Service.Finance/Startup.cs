@@ -54,8 +54,6 @@ namespace Crossroads.Service.Finance
             services.AddDistributedMemoryCache();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddCors();
-            //services.AddMvc(option => option.EnableEndpointRouting = false);
-            //services.MvcOptions.EnableEndpointRouting = false;
 
             services.AddMvc(option => option.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
@@ -124,8 +122,6 @@ namespace Crossroads.Service.Finance
 
             // Exports Layer
             services.AddSingleton<IJournalEntryExport, VelosioExportClient>();
-
-            //services.AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -135,12 +131,12 @@ namespace Crossroads.Service.Finance
             {
                 app.UseDeveloperExceptionPage();
             }
-            //app.UseHangfireServer();
-            //app.UseCors(builder => builder
-            //    .AllowAnyOrigin()
-            //    .AllowAnyMethod()
-            //    .AllowAnyHeader()
-            //    .AllowCredentials());
+            app.UseHangfireServer();
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
 
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
@@ -149,16 +145,6 @@ namespace Crossroads.Service.Finance
 
             // used for impersonation
             app.UseImpersonationMiddleware();
-
-            //app.UseRouting();
-
-            //app.UseEndpoints(endpoints =>
-            //{
-            //    endpoints.MapControllers();
-            //    //endpoints.MapRazorPages();
-            //});
-
-
 
             app.UseMvc();
 

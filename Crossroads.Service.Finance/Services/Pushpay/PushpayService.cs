@@ -226,12 +226,12 @@ namespace Crossroads.Service.Finance.Services
                    
                     return null;
                 }
-                // it's been more than 10 minutes, let's chalk it up as PushPay
+                // it's been more than 15 minutes, let's chalk it up as PushPay
                 //   ain't going to create it and call it a day
                 else
                 {
                     // dont throw an exception as Hangfire tries to handle it
-                    Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP after 10 minutes of trying. Giving up.", e);
+                    Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP after 15 minutes of trying. Giving up.", e);
 
                     var donationNotFoundFailEntry = new LogEventEntry(LogEventType.donationNotFoundFail);
                     donationNotFoundFailEntry.Push("webhookPayment", webhook.Events[0].Links.Payment);
@@ -539,7 +539,6 @@ namespace Crossroads.Service.Finance.Services
             };
             return string.Join(" ", notes);
         }
-
 
         private async Task<MpDonor> FindOrCreateDonorAndDonorAccount(PushpayRecurringGiftDto gift)
         {
