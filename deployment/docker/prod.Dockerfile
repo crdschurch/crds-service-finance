@@ -26,7 +26,7 @@ RUN dotnet test Pushpay.Test/Pushpay.Test.csproj
 RUN dotnet publish -c Release -o out 
  
 # Step 1: Build runtime image 
-FROM microsoft/aspnetcore:2.0 
+FROM microsoft/aspnetcore:3.1 
 
 # new relic env vars
 ENV CORECLR_ENABLE_PROFILING=1 \
