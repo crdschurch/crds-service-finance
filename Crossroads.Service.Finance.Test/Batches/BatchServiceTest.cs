@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
@@ -53,11 +54,11 @@ namespace Crossroads.Service.Finance.Test.Batches
                 ProcessorTransferId = "transferId"
             };
 
-            _donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-1a")).Returns(donationsMock[0]);
-            _donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-2b")).Returns(donationsMock[0]);
-            _donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-3c")).Returns(donationsMock[0]);
+            _donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-1a")).Returns(Task.FromResult(donationsMock[0]));
+            _donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-2b")).Returns(Task.FromResult(donationsMock[1]));
+            _donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-3c")).Returns(Task.FromResult(donationsMock[2]));
 
-            var result = _fixture.BuildDonationBatch(chargesMock, "depositName", timestamp, "transferId");
+            var result = _fixture.BuildDonationBatch(chargesMock, "depositName", timestamp, "transferId").Result;
 
             Assert.Equal(expectedBatch.SetupDateTime, timestamp);
             Assert.Equal(expectedBatch.FinalizedDateTime, timestamp);
@@ -85,11 +86,11 @@ namespace Crossroads.Service.Finance.Test.Batches
                 BatchTotalAmount = 20
             };
 
-            _batchRepository.Setup(r => r.CreateDonationBatch(It.IsAny<MpDonationBatch>())).Returns(mpBatch);
+            _batchRepository.Setup(r => r.CreateDonationBatch(It.IsAny<MpDonationBatch>())).Returns(Task.FromResult(mpBatch));
             _mapper.Setup(m => m.Map<MpDonationBatch>(It.IsAny<DonationBatchDto>())).Returns(mpBatch);
             _mapper.Setup(m => m.Map<DonationBatchDto>(It.IsAny<MpDonationBatch>())).Returns(batchnew);
 
-            var result = _fixture.SaveDonationBatch(batch);
+            var result = _fixture.SaveDonationBatch(batch).Result;
 
             Assert.Equal(result.Id, mpBatch.Id);
             Assert.Equal(result.BatchTotalAmount, mpBatch.BatchTotalAmount);
@@ -116,7 +117,7 @@ namespace Crossroads.Service.Finance.Test.Batches
                 DepositId = 12
             };
 
-            _batchRepository.Setup(r => r.CreateDonationBatch(It.IsAny<MpDonationBatch>())).Returns(mpBatch);
+            _batchRepository.Setup(r => r.CreateDonationBatch(It.IsAny<MpDonationBatch>())).Returns(Task.FromResult(mpBatch));
             _mapper.Setup(m => m.Map<MpDonationBatch>(It.IsAny<DonationBatchDto>())).Returns(mpBatch);
             _mapper.Setup(m => m.Map<DonationBatchDto>(It.IsAny<MpDonationBatch>())).Returns(batchnew);
 

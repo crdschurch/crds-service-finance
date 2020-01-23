@@ -27,6 +27,8 @@ using MinistryPlatform.Adjustments;
 using MinistryPlatform.JournalEntries;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Crossroads.Service.Finance.Services.JournalEntry;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance
 {
@@ -52,6 +54,11 @@ namespace Crossroads.Service.Finance
             services.AddDistributedMemoryCache();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddCors();
+
+            services.AddMvc(option => option.EnableEndpointRouting = false)
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+
 
             SettingsService settingsService = new SettingsService();
             services.AddSingleton<ISettingsService>(settingsService);
@@ -130,6 +137,11 @@ namespace Crossroads.Service.Finance
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
+
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             // used for impersonation
             app.UseImpersonationMiddleware();

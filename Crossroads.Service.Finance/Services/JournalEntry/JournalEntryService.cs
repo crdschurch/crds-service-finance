@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MinistryPlatform.JournalEntries;
 
 namespace Crossroads.Service.Finance.Services.JournalEntry
@@ -52,29 +53,44 @@ namespace Crossroads.Service.Finance.Services.JournalEntry
             return mpJournalEntry;
         }
 
-        public List<MpJournalEntry> AddBatchIdsAndClean(List<MpJournalEntry> journalEntries)
+        public async Task<List<MpJournalEntry>> AddBatchIdsAndClean(List<MpJournalEntry> journalEntries)
         {
-            journalEntries.ForEach(e => NetCreditsAndDebits(e));
-            journalEntries = RemoveWashEntries(journalEntries);
+            var journalEntryTasks = new List<Task>();
 
-            journalEntries = AddBatchIdsToJournalEntries(journalEntries);
-            return journalEntries;
+            foreach (var journalEntry in journalEntries)
+            {
+                journalEntryTasks.Add(NetCreditsAndDebits(journalEntry));
+            }
+
+            journalEntries.ForEach(e => NetCreditsAndDebits(e));
+
+            var entries = journalEntries;
+            var removeWashEntriesTask = Task.Run(() => RemoveWashEntries(entries));
+            var washedEntries = await removeWashEntriesTask;
+
+            washedEntries = await AddBatchIdsToJournalEntries(washedEntries);
+            return washedEntries;
         }
 
-        public MpJournalEntry NetCreditsAndDebits(MpJournalEntry journalEntry)
+        public Task<MpJournalEntry> NetCreditsAndDebits(MpJournalEntry journalEntry)
         {
-            if ( IsNetCredit(journalEntry) )
+            var netCreditsAndDebitsTask = Task.Run(() =>
             {
-                journalEntry.CreditAmount -= journalEntry.DebitAmount;
-                journalEntry.DebitAmount = 0;
-            }
-            else if ( IsNetDebit(journalEntry) )
-            {
-                journalEntry.DebitAmount -= journalEntry.CreditAmount;
-                journalEntry.CreditAmount = 0;
-            }
+                if (IsNetCredit(journalEntry))
+                {
+                    journalEntry.CreditAmount -= journalEntry.DebitAmount;
+                    journalEntry.DebitAmount = 0;
+                }
+                else if (IsNetDebit(journalEntry))
+                {
+                    journalEntry.DebitAmount -= journalEntry.CreditAmount;
+                    journalEntry.CreditAmount = 0;
+                }
 
-            return journalEntry;
+                return journalEntry;
+            });
+
+            return netCreditsAndDebitsTask;
         }
 
         public List<MpJournalEntry> RemoveWashEntries(List<MpJournalEntry> journalEntries)
@@ -83,13 +99,13 @@ namespace Crossroads.Service.Finance.Services.JournalEntry
             return nonRedundantAdjustments;
         }
 
-        public List<MpJournalEntry> AddBatchIdsToJournalEntries(List<MpJournalEntry> entries)
+        public async Task<List<MpJournalEntry>> AddBatchIdsToJournalEntries(List<MpJournalEntry> entries)
         {
             int batchNumber = 1;
             var today = DateTime.Now;
 
             // get highest batch number for the current day here and use when creating next batch ids
-            var batchIds = _journalEntryRepository.GetCurrentDateBatchIds();
+            var batchIds = await _journalEntryRepository.GetCurrentDateBatchIds();
 
             if (batchIds.Any())
             {

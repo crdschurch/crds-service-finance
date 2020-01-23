@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using System.Threading.Tasks;
 using Crossroads.Service.Finance.Interfaces;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
@@ -34,11 +35,11 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpPost("sync")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult SyncSettlements()
+        public async Task<IActionResult> SyncSettlements()
         {
             try
             {
-                var deposits = _depositService.SyncDeposits();
+                var deposits = await _depositService.SyncDeposits();
                 if (deposits == null || deposits.Count == 0)
                 {
                     Console.WriteLine($"No deposits to sync");
@@ -51,7 +52,8 @@ namespace Crossroads.Service.Finance.Controllers
                 }
                 foreach (var deposit in deposits)
                 {
-                    _paymentEventService.CreateDeposit(deposit);
+                    var createDepositTask = new Task(() => _paymentEventService.CreateDeposit(deposit));
+                    await createDepositTask;
                 }
                 Console.WriteLine($"SyncSettlements created {deposits.Count} deposits");
 

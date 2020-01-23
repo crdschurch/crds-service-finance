@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Crossroads.Service.Finance.Models;
 
 namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IDepositService
     {
-        DepositDto BuildDeposit(SettlementEventDto settlementEventDto);
-        DepositDto SaveDeposit(DepositDto depositDto);
-        DepositDto GetDepositByProcessorTransferId(string key);
-        List<SettlementEventDto> SyncDeposits();
-        List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate);
+        Task<DepositDto> BuildDeposit(SettlementEventDto settlementEventDto);
+        Task<DepositDto> SaveDeposit(DepositDto depositDto);
+        Task<DepositDto> GetDepositByProcessorTransferId(string key);
+        Task<List<SettlementEventDto>> SyncDeposits();
+        Task<List<SettlementEventDto>> GetDepositsForSync(DateTime startDate, DateTime endDate);
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -17,17 +18,17 @@ namespace MinistryPlatform.Repositories
                                IConfigurationWrapper configurationWrapper,
                                IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public MpDeposit CreateDeposit(MpDeposit mpDeposit)
+        public async Task<MpDeposit> CreateDeposit(MpDeposit mpDeposit)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
-            return MpRestBuilder.NewRequestBuilder()
+            return await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Create(mpDeposit);
         }
 
-        public MpDeposit GetDepositByProcessorTransferId(string processorTransferId)
+        public async Task<MpDeposit> GetDepositByProcessorTransferId(string processorTransferId)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -36,41 +37,41 @@ namespace MinistryPlatform.Repositories
             };
             var filter = $"Processor_Transfer_ID = '{processorTransferId}'";
 
-            var deposits = MpRestBuilder.NewRequestBuilder()
+            var deposits = await MpRestBuilder.NewRequestBuilder()
                                 .WithAuthenticationToken(token)
                                 .WithSelectColumns(columns)
                                 .WithFilter(filter)
-                                .Build()
+                                .BuildAsync()
                                 .Search<MpDeposit>();
 
             return deposits.FirstOrDefault();
         }
 
-        public List<MpDeposit> GetByTransferIds(List<string> transferIds)
+        public async Task<List<MpDeposit>> GetByTransferIds(List<string> transferIds)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var filter = $"Processor_Transfer_ID IN (" + string.Join(',', transferIds ) + ")";
 
-            var deposits = MpRestBuilder.NewRequestBuilder()
+            var deposits = await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithFilter(filter)
-                .Build()
+                .BuildAsync()
                 .Search<MpDeposit>();
 
             return deposits;
         }
 
-        public List<MpDeposit> GetByName(string depositName)
+        public async Task<List<MpDeposit>> GetByName(string depositName)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var filter = $"Deposit_Name LIKE '%{depositName}%'";
 
-            var deposits = MpRestBuilder.NewRequestBuilder()
+            var deposits = await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithFilter(filter)
-                .Build()
+                .BuildAsync()
                 .Search<MpDeposit>();
 
             return deposits;

@@ -3,6 +3,7 @@ using Crossroads.Service.Finance.Services.JournalEntry;
 using MinistryPlatform.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -15,7 +16,7 @@ namespace Crossroads.Service.Finance.Services
             _journalEntryService = journalEntryService;
         }
 
-        public List<MpJournalEntry> Convert(List<MpDistributionAdjustment> mpDistributionAdjustments)
+        public async Task<List<MpJournalEntry>> Convert(List<MpDistributionAdjustment> mpDistributionAdjustments)
         {
             var journalEntries = new List<MpJournalEntry>();
 
@@ -27,6 +28,10 @@ namespace Crossroads.Service.Finance.Services
 
                 if (matchingMpJournalEntry == null)
                 {
+                    var journalEntryTask = Task.Run(() =>
+                        _journalEntryService.CreateNewJournalEntry(null, mpDistributionAdjustment));
+                    journalEntries.Add(await journalEntryTask);
+
                     MpJournalEntry newJournalEntry = _journalEntryService.CreateNewJournalEntry(null, mpDistributionAdjustment);
                     journalEntries.Add(newJournalEntry);
                 }

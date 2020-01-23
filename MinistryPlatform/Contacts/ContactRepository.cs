@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -26,9 +27,9 @@ namespace MinistryPlatform.Repositories
             _authRepo = authenticationRepository;
         }
 
-        public MpDonor MatchContact(string firstName, string lastName, string phone, string email)
+        public async Task<MpDonor> MatchContact(string firstName, string lastName, string phone, string email)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
 
             var parameters = new Dictionary<string, object>
             {
@@ -40,9 +41,9 @@ namespace MinistryPlatform.Repositories
                 {"@DomainId", 1},
             };
 
-            var result = MpRestBuilder.NewRequestBuilder()
+            var result = await MpRestBuilder.NewRequestBuilder()
                             .WithAuthenticationToken(token)
-                            .Build()
+                            .BuildAsync()
                             .ExecuteStoredProc<MpDonor>("api_Common_FindMatchingContact", parameters);
                          
             if(!result.Any() || !result.First().Any())
@@ -57,28 +58,28 @@ namespace MinistryPlatform.Repositories
             return donorContact;
         }
 
-        public MpHousehold GetHousehold(int householdId)
+        public async Task<MpHousehold> GetHousehold(int householdId)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
             var columns = new string[] {
                 "Congregation_ID"
             };
 
-            return MpRestBuilder.NewRequestBuilder()
+            return await MpRestBuilder.NewRequestBuilder()
                                 .WithAuthenticationToken(token)
                                 .WithSelectColumns(columns)
-                                .Build()
+                                .BuildAsync()
                                 .Get<MpHousehold>(householdId);
         }
 
-        public int GetBySessionId(string sessionId)
+        public async Task<int> GetBySessionId(string sessionId)
         {
-            return _authRepo.GetContactId(sessionId);
+            return await _authRepo.GetContactIdAsync(sessionId);
         }
 
-        public MpContact GetContact(int contactId)
+        public async Task<MpContact> GetContact(int contactId)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
             var columns = new string[] {
                 "Contact_ID",
                 "Household_ID",
@@ -103,9 +104,9 @@ namespace MinistryPlatform.Repositories
             return contacts.FirstOrDefault();
         }
 
-        public List<MpContactRelationship> GetActiveContactRelationships(int contactId, int contactRelationshipId)
+        public async Task<List<MpContactRelationship>> GetActiveContactRelationships(int contactId, int contactRelationshipId)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
             var columns = new string[] {
                 "Contact_Relationship_ID",
                 "Contact_ID_Table.[Contact_ID]",
@@ -125,19 +126,19 @@ namespace MinistryPlatform.Repositories
                 "Related_Contact_ID_Table_Contact_Status_ID_Table.[Contact_Status] = 'Active'"
             };
 
-            var relatedContacts = MpRestBuilder.NewRequestBuilder()
+            var relatedContacts = await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithSelectColumns(columns)
                 .WithFilter(String.Join(" AND ", filters))
-                .Build()
+                .BuildAsync()
                 .Search<MpContactRelationship>();
             
             return relatedContacts;
         }
 
-        public MpContactRelationship GetActiveContactRelationship(int contactId, int relatedContactId, int contactRelationshipId)
+        public async Task<MpContactRelationship> GetActiveContactRelationship(int contactId, int relatedContactId, int contactRelationshipId)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
 
             var filters = new string[]
             {
@@ -148,18 +149,18 @@ namespace MinistryPlatform.Repositories
                 $"(Contact_Relationships.[End_Date] IS NULL OR Contact_Relationships.[End_Date] > '{DateTime.Now:yyyy-MM-dd}')"
             };
 
-            var contactRelationships = MpRestBuilder.NewRequestBuilder()
+            var contactRelationships = await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithFilter(String.Join(" AND ", filters))
-                .Build()
+                .BuildAsync()
                 .Search<MpContactRelationship>();
 
             return contactRelationships.FirstOrDefault();
         }
 
-        public List<MpContact> GetHouseholdMinorChildren(int householdId)
+        public async Task<List<MpContact>> GetHouseholdMinorChildren(int householdId)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
 
             var columns = new string[] {
                 "Contact_ID",
@@ -178,17 +179,17 @@ namespace MinistryPlatform.Repositories
                 $"Household_Position_ID_Table.[Household_Position_ID] = {householdPositionMinorChild}"
             };
 
-            return MpRestBuilder.NewRequestBuilder()
+            return await MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(columns)
                 .WithAuthenticationToken(token)
                 .WithFilter(String.Join(" AND ", filters))
-                .Build()
+                .BuildAsync()
                 .Search<MpContact>();
         }
 
-        public MpContactAddress GetContactAddressByContactId(int contactId)
+        public async Task<MpContactAddress> GetContactAddressByContactId(int contactId)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
 
             var columns = new string[] {
                 "[Contact_ID]",
@@ -205,11 +206,11 @@ namespace MinistryPlatform.Repositories
                 $"[Contact_ID] = {contactId}"
             };
 
-            var result = MpRestBuilder.NewRequestBuilder()
+            var result = await MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(columns)
                 .WithAuthenticationToken(token)
                 .WithFilter(String.Join(" AND ", filters))
-                .Build()
+                .BuildAsync()
                 .Search<MpContactAddress>();
 
             return result.FirstOrDefault();

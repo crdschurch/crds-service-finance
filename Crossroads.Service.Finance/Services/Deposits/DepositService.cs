@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Interfaces;
@@ -39,11 +40,11 @@ namespace Crossroads.Service.Finance.Services
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
         }
 
-        public DepositDto BuildDeposit(SettlementEventDto settlementEventDto)
+        public async Task<DepositDto> BuildDeposit(SettlementEventDto settlementEventDto)
         {
             var depositName = settlementEventDto.Name;
             var depositKey = settlementEventDto.Key;
-            var existingDeposits = _depositRepository.GetByName(depositName);
+            var existingDeposits = await _depositRepository.GetByName(depositName);
 
             // append a number to the deposit, based on how many deposits already exist by that name
             // with the datetime and deposit type
@@ -89,20 +90,20 @@ namespace Crossroads.Service.Finance.Services
             return depositDto;
         }
 
-        public DepositDto SaveDeposit(DepositDto depositDto)
+        public async Task<DepositDto> SaveDeposit(DepositDto depositDto)
         {
-            var mpDepositResult = _depositRepository.CreateDeposit(_mapper.Map<MpDeposit>(depositDto));
+            var mpDepositResult = await _depositRepository.CreateDeposit(_mapper.Map<MpDeposit>(depositDto));
             var mappedObject = _mapper.Map<DepositDto>(mpDepositResult);
             return mappedObject;
         }
 
-        public DepositDto GetDepositByProcessorTransferId(string key)
+        public async Task<DepositDto> GetDepositByProcessorTransferId(string key)
         {
-            return _mapper.Map<DepositDto>(_depositRepository.GetDepositByProcessorTransferId(key));
+            return _mapper.Map<DepositDto>(await _depositRepository.GetDepositByProcessorTransferId(key));
         }
 
         // this will pull desposits by a date range and determine which ones we need to create in the system
-        public List<SettlementEventDto> SyncDeposits()
+        public async Task<List<SettlementEventDto>> SyncDeposits()
         {
             // we look back however many days are specified in the mp config setting
             var startDate = DateTime.Now.AddDays(-(_depositProcessingOffset));
@@ -115,7 +116,7 @@ namespace Crossroads.Service.Finance.Services
             logEventEntry.Push("endDate", endDate);
             _dataLoggingService.LogDataEvent(logEventEntry);
 
-            var depositDtos = GetDepositsForSync(startDate, endDate);
+            var depositDtos = await GetDepositsForSync(startDate, endDate);
 
             if (depositDtos == null || !depositDtos.Any())
             {
@@ -125,9 +126,9 @@ namespace Crossroads.Service.Finance.Services
             return depositDtos;
         }
 
-        public List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate)
+        public async Task<List<SettlementEventDto>> GetDepositsForSync(DateTime startDate, DateTime endDate)
         {
-            var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
+            var deposits = await _pushpayService.GetDepositsByDateRange(startDate, endDate);
             Console.WriteLine($"{deposits.Count} found in pushpay");
 
             var depositsFoundEntry = new LogEventEntry(LogEventType.incomingPushpayWebhook);
@@ -142,7 +143,7 @@ namespace Crossroads.Service.Finance.Services
             var transferIds = deposits.Select(r => "'" + r.Key + "'").ToList();
 
             // check to see if any of the deposits we're pulling over have already been deposited
-            var existingDeposits = _depositRepository.GetByTransferIds(transferIds);
+            var existingDeposits = await _depositRepository.GetByTransferIds(transferIds);
             Console.WriteLine($"{existingDeposits.Count} of these deposits found in MP");
 
             var alreadyDepositedEntry = new LogEventEntry(LogEventType.depositsAlreadyDeposited);

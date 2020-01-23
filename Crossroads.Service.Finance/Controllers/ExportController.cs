@@ -1,6 +1,10 @@
 ﻿using Crossroads.Service.Finance.Services.Exports;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
+using System.Runtime;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -22,7 +26,7 @@ namespace Crossroads.Service.Finance.Controllers
             try
             {
                 _logger.Info("Running adjust journal entries job...");
-                _exportService.CreateJournalEntries();
+                _exportService.CreateJournalEntriesAsync();
                 return Ok();
             }
             catch (Exception ex)
@@ -34,12 +38,12 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpGet]
         [Route("journalentries/hello")]
-        public IActionResult ExportHello()
+        public async Task<IActionResult> ExportHello()
         {
             try
             {
                 _logger.Info("Running hello world...");
-                _exportService.HelloWorld();
+                await _exportService.HelloWorld();
                 return Ok();
             }
             catch (Exception ex)
@@ -65,16 +69,18 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
-        //         [HttpGet("{contactId}/recurring-gifts")]
         [HttpPost]
         [Route("journalentries/export/manual/{update}")]
-        public IActionResult ExportManually(bool update = true)
+        public async Task<ActionResult<string>> ExportManually(bool update = true)
         {
+            string result = String.Empty; 
+
             try
             {
                 _logger.Info("Running export...");
-                var result = _exportService.ExportJournalEntriesManually(update);
-                return Ok(result);
+                 var resultTask = _exportService.ExportJournalEntriesManually(update);
+                 result = resultTask.Result;
+                 return Ok(result);
             }
             catch (Exception ex)
             {

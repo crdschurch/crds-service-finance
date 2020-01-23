@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -18,7 +19,7 @@ namespace MinistryPlatform.Test.Donations
         readonly Mock<IConfigurationWrapper> _configurationWrapper;
         readonly Mock<IMinistryPlatformRestRequestBuilder> _restRequest;
         readonly Mock<IMinistryPlatformRestRequestBuilderFactory> _restRequestBuilder;
-        readonly Mock<IMinistryPlatformRestRequest> _request;
+        readonly Mock<IMinistryPlatformRestRequestAsync> _request;
         readonly Mock<IMapper> _mapper;
 
         const string token = "123abc";
@@ -33,13 +34,13 @@ namespace MinistryPlatform.Test.Donations
             _configurationWrapper = new Mock<IConfigurationWrapper>(MockBehavior.Strict);
             _restRequest = new Mock<IMinistryPlatformRestRequestBuilder>(MockBehavior.Strict);
             _mapper = new Mock<IMapper>(MockBehavior.Strict);
-            _request = new Mock<IMinistryPlatformRestRequest>();
+            _request = new Mock<IMinistryPlatformRestRequestAsync>();
 
             _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(It.IsAny<string>())).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
             _fixture = new ProgramRepository(_restRequestBuilder.Object,
                 _apiUserRepository.Object,
@@ -54,9 +55,9 @@ namespace MinistryPlatform.Test.Donations
             {
                 ProgramName = programName
             };
-            _request.Setup(m => m.Search<MpProgram>()).Returns(new List<MpProgram>() { mockProgram });
+            _request.Setup(m => m.Search<MpProgram>()).Returns(Task.FromResult(new List<MpProgram>() { mockProgram }));
 
-            var result = _fixture.GetProgramByName(programName);
+            var result = _fixture.GetProgramByName(programName).Result;
 
             Assert.NotNull(result);
             Assert.Equal(result.ProgramName, programName);
@@ -66,9 +67,9 @@ namespace MinistryPlatform.Test.Donations
         public void GetProgramByNameEmpty()
         {
             // return empty list
-            _request.Setup(m => m.Search<MpProgram>()).Returns(new List<MpProgram>() {});
+            _request.Setup(m => m.Search<MpProgram>()).Returns(Task.FromResult(new List<MpProgram>() {}));
 
-            var result = _fixture.GetProgramByName(programName);
+            var result = _fixture.GetProgramByName(programName).Result;
 
             Assert.Null(result);
         }

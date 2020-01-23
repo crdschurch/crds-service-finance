@@ -11,6 +11,7 @@ using Moq;
 using Xunit;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using System.Threading.Tasks;
 using Mock;
 
 namespace MinistryPlatform.Test.Donations
@@ -21,7 +22,7 @@ namespace MinistryPlatform.Test.Donations
         readonly Mock<IConfigurationWrapper> _configurationWrapper;
         readonly Mock<IMinistryPlatformRestRequestBuilder> _restRequest;
         readonly Mock<IMinistryPlatformRestRequestBuilderFactory> _restRequestBuilder;
-        readonly Mock<IMinistryPlatformRestRequest> _request;
+        readonly Mock<IMinistryPlatformRestRequestAsync> _request;
         readonly Mock<IMapper> _mapper;
 
         private string token = "123abc";
@@ -37,12 +38,12 @@ namespace MinistryPlatform.Test.Donations
             _configurationWrapper = new Mock<IConfigurationWrapper>(MockBehavior.Strict);
             _restRequest = new Mock<IMinistryPlatformRestRequestBuilder>(MockBehavior.Strict);
             _mapper = new Mock<IMapper>(MockBehavior.Strict);
-            _request = new Mock<IMinistryPlatformRestRequest>(MockBehavior.Strict);
+            _request = new Mock<IMinistryPlatformRestRequestAsync>(MockBehavior.Strict);
 
             _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
             _fixture = new DonationRepository(_restRequestBuilder.Object,
                 _apiUserRepository.Object,
@@ -69,12 +70,12 @@ namespace MinistryPlatform.Test.Donations
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpDonation>()).Returns(mpDonations);
+            _request.Setup(m => m.Search<MpDonation>()).Returns(Task.FromResult(mpDonations));
 
             // Act
-            var result = _fixture.GetDonationByTransactionCode(transactionCode);
+            var result = _fixture.GetDonationByTransactionCode(transactionCode).Result;
 
             // Assert
             Assert.Equal(transactionCode, result.TransactionCode);
@@ -92,10 +93,10 @@ namespace MinistryPlatform.Test.Donations
                 }
             };
 
-            _request.Setup(m => m.Update(It.IsAny<List<MpDonation>>(), null)).Returns(mpDonations);
+            _request.Setup(m => m.Update(It.IsAny<List<MpDonation>>(), null, false)).Returns(Task.FromResult(mpDonations));
 
             // Act
-            var result = _fixture.Update(mpDonations);
+            var result = _fixture.Update(mpDonations).Result;
 
             // Assert
             Assert.Single(result);
@@ -104,7 +105,7 @@ namespace MinistryPlatform.Test.Donations
         [Fact]
         public void ShouldUpdateDonorAccount()
         {
-            _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts"));
+            _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts", false));
             _fixture.UpdateDonorAccount(new JObject());
         }
 
@@ -143,12 +144,12 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(String.Join(" AND ", filters))).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.OrderBy("Recurring_Gifts.[Recurring_Gift_ID] DESC")).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);            
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);            
 
-            _request.Setup(m => m.Search<MpRecurringGift>()).Returns(MpRecurringGiftMock.CreateList(contactId));
+            _request.Setup(m => m.Search<MpRecurringGift>()).Returns(Task.FromResult(MpRecurringGiftMock.CreateList(contactId)));
 
             // Act
-            var responseRecurringGift = _fixture.GetRecurringGifts(contactId);
+            var responseRecurringGift = _fixture.GetRecurringGifts(contactId).Result;
 
             // Assert
             Assert.Equal(contactId, responseRecurringGift.FirstOrDefault().ContactId);
@@ -189,12 +190,12 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(String.Join(" AND ", filters))).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.OrderBy("Recurring_Gifts.[Recurring_Gift_ID] DESC")).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpRecurringGift>()).Returns(MpRecurringGiftMock.CreateEmptyList());
+            _request.Setup(m => m.Search<MpRecurringGift>()).Returns(Task.FromResult(MpRecurringGiftMock.CreateEmptyList()));
 
             // Act
-            var responseRecurringGift = _fixture.GetRecurringGifts(contactId);
+            var responseRecurringGift = _fixture.GetRecurringGifts(contactId).Result;
 
             // Assert
             Assert.Empty(responseRecurringGift);
@@ -219,12 +220,12 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpDonation>()).Returns(MpDonationsMock.CreateList());
+            _request.Setup(m => m.Search<MpDonation>()).Returns(Task.FromResult(MpDonationsMock.CreateList()));
 
             // Act
-            var responseDonations = _fixture.GetDonations(contactId);
+            var responseDonations = _fixture.GetDonations(contactId).Result;
 
             // Assert
             Assert.Equal(3, responseDonations.Count);
@@ -249,12 +250,12 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpDonation>()).Returns(MpDonationsMock.CreateEmpty());
+            _request.Setup(m => m.Search<MpDonation>()).Returns(Task.FromResult(MpDonationsMock.CreateEmpty()));
 
             // Act
-            var responseDonations = _fixture.GetDonations(contactId);
+            var responseDonations = _fixture.GetDonations(contactId).Result;
 
             // Assert
             Assert.Empty(responseDonations);
@@ -306,9 +307,9 @@ namespace MinistryPlatform.Test.Donations
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.OrderBy(order)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpDonationDetail>()).Returns(mpDonationHistories);
+            _request.Setup(m => m.Search<MpDonationDetail>()).Returns(Task.FromResult(mpDonationHistories));
 
             // Act
             var result = _fixture.GetDonationHistoryByContactId(contactId, new DateTime(2018, 7, 9));

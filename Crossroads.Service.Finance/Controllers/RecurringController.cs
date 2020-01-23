@@ -37,11 +37,11 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpPost("sync")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult SyncRecurringGifts([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> SyncRecurringGifts([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             try
             {
-                _recurringService.SyncRecurringGifts(startDate, endDate);
+                await _recurringService.SyncRecurringGifts(startDate, endDate);
                 return Ok();
             }
             catch (Exception ex)

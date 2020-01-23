@@ -3,18 +3,18 @@ using MinistryPlatform.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace Crossroads.Service.Finance.Services.JournalEntryBatch
 {
     public class JournalEntryBatchService : IJournalEntryBatchService
     {
-        public List<VelosioJournalEntryBatch> CreateBatchPerUniqueJournalEntryBatchId(List<MpJournalEntry> journalEntries)
+        public async Task<List<VelosioJournalEntryBatch>> CreateBatchPerUniqueJournalEntryBatchId(List<MpJournalEntry> journalEntries)
         {
             List<string> uniqueBatchIds = journalEntries.Select(jE => jE.BatchID).Distinct().ToList<string>();
-            List<VelosioJournalEntryBatch> batches = uniqueBatchIds
-                                                        .Select(batchId => new VelosioJournalEntryBatch(batchId))
-                                                        .ToList();
+            var batches = uniqueBatchIds
+                .Select(batchId => new VelosioJournalEntryBatch(batchId)).ToList();
 
             return batches;
         }
