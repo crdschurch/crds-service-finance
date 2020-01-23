@@ -190,7 +190,7 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpGet("contacts/related")]
         [ProducesResponseType(typeof(List<ContactDto>), 200)]
         [ProducesResponseType(204)]
-        public IActionResult GetDonorRelatedContacts()
+        public async Task<IActionResult> GetDonorRelatedContacts()
         {
             var authDto = (AuthDTO)HttpContext.Items["authDto"];
 
@@ -209,7 +209,7 @@ namespace Crossroads.Service.Finance.Controllers
                     contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
                 }
 
-                var userDonationVisibleContacts = _contactService.GetDonorRelatedContacts(contactId);
+                var userDonationVisibleContacts = await _contactService.GetDonorRelatedContacts(contactId);
                 return Ok(userDonationVisibleContacts);
             }
             catch (Exception ex)
