@@ -75,7 +75,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             };
 
             // Act
-            var result = _fixture.SetDonationStatus(donations, batchId).Result;
+            var result = _fixture.SetDonationStatus(donations, batchId);
 
             // Assert
             Assert.Equal(DonationStatus.Deposited.GetHashCode(), result[0].DonationStatusId);
