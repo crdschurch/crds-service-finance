@@ -86,8 +86,8 @@ namespace Crossroads.Service.Finance.Services
             _dataLoggingService.LogDataEvent(batchCreatedEntry);
 
             // 4. Update all the donations to have a status of deposited and to be part of the new batch.
-            var updateDonations = _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id);
-            _donationService.Update(updateDonations);
+            var updateDonations = await _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id);
+            await _donationService.Update(updateDonations);
             Console.WriteLine($"Updated donations for batch: {donationBatch.Id}");
 
             var batchUpdatedEntry = new LogEventEntry(LogEventType.batchUpdated);

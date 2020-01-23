@@ -93,7 +93,7 @@ namespace MinistryPlatform.Test.Donations
                 }
             };
 
-            _request.Setup(m => m.Update(It.IsAny<List<MpDonation>>(), null)).Returns(Task.FromResult(mpDonations));
+            _request.Setup(m => m.Update(It.IsAny<List<MpDonation>>(), null, false)).Returns(Task.FromResult(mpDonations));
 
             // Act
             var result = _fixture.Update(mpDonations).Result;
@@ -105,7 +105,7 @@ namespace MinistryPlatform.Test.Donations
         [Fact]
         public void ShouldUpdateDonorAccount()
         {
-            _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts"));
+            _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts", false));
             _fixture.UpdateDonorAccount(new JObject());
         }
 

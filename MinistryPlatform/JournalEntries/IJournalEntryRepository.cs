@@ -11,5 +11,6 @@ namespace MinistryPlatform.JournalEntries
         Task<List<MpJournalEntry>> CreateMpJournalEntries(List<MpJournalEntry> mpJournalEntries);
         Task <List<MpJournalEntry>> GetUnexportedJournalEntries();
         Task UpdateJournalEntries(List<MpJournalEntry> mpJournalEntries);
+	    Task<List<string>> GetCurrentDateBatchIds();
     }
 }

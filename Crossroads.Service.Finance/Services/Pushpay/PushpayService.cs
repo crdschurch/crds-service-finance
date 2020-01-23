@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using Crossroads.Service.Finance.Helpers;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Hangfire;
@@ -109,15 +110,15 @@ namespace Crossroads.Service.Finance.Services
                 // PushPay creates the donation a variable amount of time after the webhook comes in
                 //   so it still may not be available
                 // if pushpayPayment is null, let it go into catch statement to re-run
-                var donation = await _donationService.GetDonationByTransactionCode(pushpayPayment.TransactionId);
+                var donation = await _donationService.GetDonationByTransactionCode("PP-" + pushpayPayment.TransactionId);
 
                 // TODO: Consider removing this logging at some point if logs get too bloated
                 // validate if we actually received the webhook for a donation
                 var mpDonationExistence = (donation != null) ? "Donation exists in MP" : "Donation does not exist in MP";
 
-                Console.WriteLine($"Getting donation details for {pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
+                Console.WriteLine($"Getting donation details for {"PP-" + pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
                 var pullingDonationDetailsEntry = new LogEventEntry(LogEventType.pullingDonationDetails);
-                pullingDonationDetailsEntry.Push("gettingDonationDetails", $"Getting donation details for {pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
+                pullingDonationDetailsEntry.Push("gettingDonationDetails", $"Getting donation details for {"PP-" + pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
                 _dataLoggingService.LogDataEvent(pullingDonationDetailsEntry);
 
                 // add payment token so that we can identify easier via api
@@ -185,14 +186,14 @@ namespace Crossroads.Service.Finance.Services
                 // (this is a different business rule from soft credit donations)
                 if (pushpayPayment.PushpayFields != null && pushpayPayment.PushpayFields.Any(r => r.Key == CongregationFieldKey))
                 {
-                    var congregationName = pushpayPayment.PushpayFields.First(r => r.Key == CongregationFieldKey).Value;
-                    var congregations = _congregationRepository.GetCongregationByCongregationName(congregationName);
+                    var congregationName = TranslateCongregation.Translate(pushpayPayment.PushpayFields.First(r => r.Key == CongregationFieldKey).Value);
+                    var congregations = await _congregationRepository.GetCongregationByCongregationName(congregationName);
 
                     if (congregations.Any())
                     {
                         var congregation = congregations.First(r => r.CongregationName == congregationName);
 
-                        var donationDistributions = _donationDistributionRepository.GetByDonationId(donation.DonationId);
+                        var donationDistributions = await _donationDistributionRepository.GetByDonationId(donation.DonationId);
 
                         foreach (var donationDistribution in donationDistributions)
                         {
@@ -200,7 +201,7 @@ namespace Crossroads.Service.Finance.Services
                             donationDistribution.HCDonorCongregationId = congregation.CongregationId;
                         }
 
-                        _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
+                        await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
                     }
                 }
                 else
@@ -209,7 +210,7 @@ namespace Crossroads.Service.Finance.Services
                     noSelectedSiteEntry.Push("noSelectedSite", donation);
                     _dataLoggingService.LogDataEvent(noSelectedSiteEntry);
 
-                    Console.WriteLine($"No selected site for donation {pushpayPayment.TransactionId}");
+                    Console.WriteLine($"No selected site for donation {"PP-" + pushpayPayment.TransactionId}");
                 }
 
                 return donation;
@@ -288,8 +289,8 @@ namespace Crossroads.Service.Finance.Services
 
             if (updatedPushpayRecurringGift.PushpayFields != null && updatedPushpayRecurringGift.PushpayFields.Any(r => r.Key == CongregationFieldKey))
             {
-                var congregationName = updatedPushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value;
-                var congregations = _congregationRepository.GetCongregationByCongregationName(congregationName);
+                var congregationName = TranslateCongregation.Translate(updatedPushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value);
+                var congregations = await _congregationRepository.GetCongregationByCongregationName(congregationName);
 
                 if (congregations.Any())
                 {
@@ -433,7 +434,7 @@ namespace Crossroads.Service.Finance.Services
             {
                 if (mpDonor.HouseholdId != null)
                 {
-                    var mpHousehold = _contactRepository.GetHousehold(mpDonor.HouseholdId.GetValueOrDefault());
+                    var mpHousehold = await _contactRepository.GetHousehold(mpDonor.HouseholdId.GetValueOrDefault());
 
                     if (mpHousehold.CongregationId != null)
                     {
@@ -468,8 +469,8 @@ namespace Crossroads.Service.Finance.Services
 
             if (pushpayRecurringGift.PushpayFields!= null && pushpayRecurringGift.PushpayFields.Any(r => r.Key == CongregationFieldKey))
             {
-                var congregationName = pushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value;
-                var congregations = _congregationRepository.GetCongregationByCongregationName(congregationName);
+                var congregationName = TranslateCongregation.Translate(pushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value);
+                var congregations = await _congregationRepository.GetCongregationByCongregationName(congregationName);
 
                 if (congregations.Any())
                 {
@@ -558,7 +559,7 @@ namespace Crossroads.Service.Finance.Services
             }
             // we didn't match a donor with a processor id (i.e. previously matched), so let's
             //   run the same stored proc that PushPay uses to attempt to match
-            var matchedContact = _contactRepository.MatchContact(gift.Payer.FirstName, gift.Payer.LastName,
+            var matchedContact = await _contactRepository.MatchContact(gift.Payer.FirstName, gift.Payer.LastName,
                                             gift.Payer.MobileNumber, gift.Payer.EmailAddress);
 
             if (matchedContact != null)

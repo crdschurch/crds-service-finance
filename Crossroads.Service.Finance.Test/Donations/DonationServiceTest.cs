@@ -75,7 +75,7 @@ namespace Crossroads.Service.Finance.Test.Donations
             };
 
             // Act
-            var result = _fixture.SetDonationStatus(donations, batchId);
+            var result = _fixture.SetDonationStatus(donations, batchId).Result;
 
             // Assert
             Assert.Equal(DonationStatus.Deposited.GetHashCode(), result[0].DonationStatusId);
@@ -148,12 +148,12 @@ namespace Crossroads.Service.Finance.Test.Donations
             var contactId = 1234567;
             var pledgeIds = new int[] { 12, 25, 66 };
 
-            _contactService.Setup(m => m.GetContactIdBySessionId(token)).Returns(contactId);
-            _pledgeRepository.Setup(r => r.GetActiveAndCompleted(It.IsAny<int>())).Returns(MpPledgeMock.CreateList(pledgeIds[0], pledgeIds[1], pledgeIds[2]));
-            _donationDistributionRepository.Setup(r => r.GetByPledges(It.IsAny<List<int>>())).Returns(MpDonationDistributionMock.CreateList(pledgeIds[0], pledgeIds[1]));
+            _contactService.Setup(m => m.GetContactIdBySessionId(token)).Returns(Task.FromResult(contactId));
+            _pledgeRepository.Setup(r => r.GetActiveAndCompleted(It.IsAny<int>())).Returns(Task.FromResult(MpPledgeMock.CreateList(pledgeIds[0], pledgeIds[1], pledgeIds[2])));
+            _donationDistributionRepository.Setup(r => r.GetByPledges(It.IsAny<List<int>>())).Returns(Task.FromResult(MpDonationDistributionMock.CreateList(pledgeIds[0], pledgeIds[1])));
 
             // Act
-            var result = _fixture.CalculatePledges(contactId);
+            var result = _fixture.CalculatePledges(contactId).Result;
 
             // Assert
             Assert.Equal(12, result[0].PledgeId);
@@ -229,8 +229,8 @@ namespace Crossroads.Service.Finance.Test.Donations
                 }
             };
 
-            _contactService.Setup(m => m.GetContactIdBySessionId(token)).Returns(contactId);
-            _contactService.Setup(m => m.GetCogiversByContactId(contactId)).Returns(contacts);
+            _contactService.Setup(m => m.GetContactIdBySessionId(token)).Returns(Task.FromResult(contactId));
+            _contactService.Setup(m => m.GetCogiversByContactId(contactId)).Returns(Task.FromResult(contacts));
             _mapper.Setup(m => m.Map<List<DonationDetailDto>>(It.IsAny<List<MpDonationDetail>>())).Returns(donationHistory);
             _donationRepository.Setup(m => m.GetDonationHistoryByContactId(contactId, null, null)).Returns(Task.FromResult(mpDonationHistories));
 

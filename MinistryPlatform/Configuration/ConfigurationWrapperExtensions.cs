@@ -11,14 +11,14 @@ namespace MinistryPlatform.Configuration
 {
     public static class ConfigurationWrapperExtensions
     {
-        public static int? GetAppMpConfigIntValue(this IConfigurationWrapper configWrapper, string key)
-        {
-          return configWrapper.GetMpConfigIntValue("CRDS-FINANCE", key);
-        }
+        //public static int? GetAppMpConfigIntValue(this IConfigurationWrapper configWrapper, string key)
+        //{
+        //  return configWrapper.GetMpConfigIntValue("CRDS-FINANCE", key);
+        //}
 
-        public static string GetAppMpConfigValue(this IConfigurationWrapper configWrapper, string key)
-        {
-          return configWrapper.GetMpConfigValue("CRDS-FINANCE", key);
-        }
+        //public static string GetAppMpConfigValue(this IConfigurationWrapper configWrapper, string key)
+        //{
+        //  return configWrapper.GetMpConfigValue("CRDS-FINANCE", key);
+        //}
     }
 }

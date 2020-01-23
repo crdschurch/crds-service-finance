@@ -49,7 +49,7 @@ namespace Crossroads.Service.Finance.Services
 
             foreach (var charge in charges)
             {
-                var mpDonation = await _donationRepository.GetDonationByTransactionCode(charge.TransactionId);
+                var mpDonation = await _donationRepository.GetDonationByTransactionCode("PP-" + charge.TransactionId);
                 if (mpDonation != null)
                 {
                     // Add the charge amount to the batch total amount

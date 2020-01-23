@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -17,7 +18,7 @@ namespace MinistryPlatform.Congregations
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
 
-        public List<MpCongregation> GetCongregationByCongregationName(string congregationName)
+        public async Task<List<MpCongregation>> GetCongregationByCongregationName(string congregationName)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 

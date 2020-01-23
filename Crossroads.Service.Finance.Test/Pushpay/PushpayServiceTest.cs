@@ -186,12 +186,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                               .Returns(Task.FromResult((MpDonor)null));
             // don't match
             _contactRepository.Setup(m => m.MatchContact(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                              .Returns((MpDonor)null);
+                              .Returns(Task.FromResult((MpDonor)null));
             _donationService.Setup(m => m.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
                             .Returns(Task.FromResult(mockDonorAccount));
             _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
-                              .Returns(mockHousehold);
+                              .Returns(Task.FromResult(mockHousehold));
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
                               .Returns(Task.FromResult(new MpProgram()));
             _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>())).Returns(Task.FromResult(new MpRecurringGift()));
@@ -262,7 +262,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _donorRepository.Setup(m => m.GetDonorByDonorId(It.IsAny<int>()))
                               .Returns(Task.FromResult(mpDonor));
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
-                              .Returns(mockHousehold);
+                              .Returns(Task.FromResult(mockHousehold));
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
                               .Returns(Task.FromResult(new MpProgram()));
             _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>())).Returns(Task.FromResult(new MpRecurringGift()));
@@ -331,12 +331,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 .Returns(Task.FromResult((MpDonor)null));
             // don't match
             _contactRepository.Setup(m => m.MatchContact(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                                  .Returns((MpDonor)null);
+                                  .Returns(Task.FromResult((MpDonor)null));
             _donationService.Setup(m => m.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
                                 .Returns(Task.FromResult(mockDonorAccount));
             _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
-                                  .Returns(mockHousehold);
+                                  .Returns(Task.FromResult(mockHousehold));
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
                                   .Returns(Task.FromResult(new MpProgram()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
@@ -405,11 +405,11 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 .Returns(Task.FromResult(mpDonor));
             // don't match
             _contactRepository.Setup(m => m.MatchContact(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                              .Returns((MpDonor)null);
+                              .Returns(Task.FromResult((MpDonor)null));
             _donationService.Setup(m => m.UpdateDonorAccount(It.IsAny<JObject>()));
             _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
-                              .Returns(mockHousehold);
+                              .Returns(Task.FromResult(mockHousehold));
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
                               .Returns(Task.FromResult(new MpProgram()));
             _recurringGiftRepository.Setup(m => m.UpdateRecurringGift(It.IsAny<JObject>()));

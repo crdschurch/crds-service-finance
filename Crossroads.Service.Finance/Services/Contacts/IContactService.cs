@@ -8,14 +8,14 @@ namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IContactService
     {
-        int GetContactIdBySessionId(string sessionId);
-        ContactDto GetContact(int contactId);
-        ContactDto GetBySessionId(string sessionId);
-        List<ContactDto> GetCogiversByContactId(int contactId);
-        ContactRelationship GetCogiverContactRelationship(int contactId, int relatedContactId);
-        List<ContactDto> GetHouseholdMinorChildren(int householdId);
-        List<ContactDto> GetDonorRelatedContacts(int contactId);
-        ContactAddressDto GetContactAddressByContactId(int contactId);
-        int GetContactIdByEmailAddress(string emailAddress);
+        Task<int> GetContactIdBySessionId(string sessionId);
+        Task<ContactDto> GetContact(int contactId);
+        Task<ContactDto> GetContactBySessionId(string sessionId);
+        Task<List<ContactDto>> GetCogiversByContactId(int contactId);
+        Task<ContactRelationship> GetCogiverContactRelationship(int contactId, int relatedContactId);
+        Task<List<ContactDto>> GetHouseholdMinorChildren(int householdId);
+        Task<List<ContactDto>> GetDonorRelatedContacts(int contactId);
+        Task<ContactAddressDto> GetContactAddressByContactId(int contactId);
+        Task<int> GetContactIdByEmailAddress(string emailAddress);
     }
 }

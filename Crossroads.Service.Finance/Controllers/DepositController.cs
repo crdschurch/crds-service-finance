@@ -52,8 +52,8 @@ namespace Crossroads.Service.Finance.Controllers
                 }
                 foreach (var deposit in deposits)
                 {
-                    //var serializedDataTask = new Task<string>(() => SerializeJournalEntryStages(velosioJournalEntryBatch));
-                    _paymentEventService.CreateDeposit(deposit);
+                    var createDepositTask = new Task(() => _paymentEventService.CreateDeposit(deposit));
+                    await createDepositTask;
                 }
                 Console.WriteLine($"SyncSettlements created {deposits.Count} deposits");
 

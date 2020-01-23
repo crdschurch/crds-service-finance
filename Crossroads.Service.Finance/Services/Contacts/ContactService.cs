@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using MinistryPlatform.Models;
 using System.Linq;
 using System;
+using System.Threading.Tasks;
 using MinistryPlatform.Users;
 
 namespace Crossroads.Service.Finance.Services
@@ -25,15 +26,15 @@ namespace Crossroads.Service.Finance.Services
             _mapper = mapper;
         }
 
-        public int GetContactIdBySessionId(string sessionId)
+        public async Task<int> GetContactIdBySessionId(string sessionId)
         {
-            var contactId = _contactRepository.GetBySessionId(sessionId);
+            var contactId = await _contactRepository.GetBySessionId(sessionId);
             return contactId;
         }
 
-        public ContactDto GetContact(int contactId)
+        public async Task<ContactDto> GetContact(int contactId)
         {
-            var mpContact = _contactRepository.GetContact(contactId);
+            var mpContact = await _contactRepository.GetContact(contactId);
             if (mpContact != null)
             {
                 return _mapper.Map<ContactDto>(mpContact);
@@ -41,47 +42,52 @@ namespace Crossroads.Service.Finance.Services
             return null;
         }
 
-        public ContactDto GetBySessionId(string sessionId)
+        public async Task<ContactDto> GetBySessionId(string sessionId)
         {
-            var contactId = _contactRepository.GetBySessionId(sessionId);
-            var mpContact = _contactRepository.GetContact(contactId);
+            var contactId = await _contactRepository.GetBySessionId(sessionId);
+            var mpContact = await _contactRepository.GetContact(contactId);
             return _mapper.Map<ContactDto>(mpContact);
         }
 
-        public List<ContactDto> GetCogiversByContactId(int contactId)
+        public Task<ContactDto> GetContactBySessionId(string sessionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<List<ContactDto>> GetCogiversByContactId(int contactId)
         {
             // TODO: If the performance needs to be improved, consider moving to a proc to
             // reduce number of service calls
-            var contactRelationships = _contactRepository.GetActiveContactRelationships(contactId, cogiverRelationshipId);
+            var contactRelationships = await _contactRepository.GetActiveContactRelationships(contactId, cogiverRelationshipId);
 
             var cogivers = new List<MpContact>();
             foreach (MpContactRelationship relatedContact in contactRelationships)
             {
-                var contact = _contactRepository.GetContact(relatedContact.RelatedContactId);
+                var contact = await _contactRepository.GetContact(relatedContact.RelatedContactId);
                 cogivers.Add(contact);
             }
 
             return _mapper.Map<List<ContactDto>>(cogivers);
         }
 
-        public ContactRelationship GetCogiverContactRelationship(int contactId, int relatedContactId)
+        public async Task<ContactRelationship> GetCogiverContactRelationship(int contactId, int relatedContactId)
         {
-            var contactRelationship = _contactRepository.GetActiveContactRelationship(contactId, relatedContactId, cogiverRelationshipId);
+            var contactRelationship = await _contactRepository.GetActiveContactRelationship(contactId, relatedContactId, cogiverRelationshipId);
             return _mapper.Map<ContactRelationship>(contactRelationship);
         }
 
-        public List<ContactDto> GetHouseholdMinorChildren(int householdId)
+        public async Task<List<ContactDto>> GetHouseholdMinorChildren(int householdId)
         {
-            var householdMinorChildren = _contactRepository.GetHouseholdMinorChildren(householdId);
+            var householdMinorChildren = await _contactRepository.GetHouseholdMinorChildren(householdId);
             return _mapper.Map<List<ContactDto>>(householdMinorChildren);
         }
 
-        public List<ContactDto> GetDonorRelatedContacts(int userContactId)
+        public async Task<List<ContactDto>> GetDonorRelatedContacts(int userContactId)
         {
-            var userContact = GetContact(userContactId);
-            var cogivers = GetCogiversByContactId(userContactId);
+            var userContact = await GetContact(userContactId);
+            var cogivers = await GetCogiversByContactId(userContactId);
             var userDonationVisibleContacts = new List<ContactDto>();
-            var householdMinorChildren = GetHouseholdMinorChildren(userContact.HouseholdId.Value);
+            var householdMinorChildren = await GetHouseholdMinorChildren(userContact.HouseholdId.Value);
             userDonationVisibleContacts.AddRange(cogivers);
             userDonationVisibleContacts.AddRange(householdMinorChildren);
             userDonationVisibleContacts = userDonationVisibleContacts.OrderBy(c => c.Nickname).ThenBy(c => c.FirstName).ThenBy(c => c.LastName).ToList();
@@ -89,15 +95,15 @@ namespace Crossroads.Service.Finance.Services
             return userDonationVisibleContacts;
         }
 
-        public ContactAddressDto GetContactAddressByContactId(int contactId)
+        public async Task<ContactAddressDto> GetContactAddressByContactId(int contactId)
         {
-            var mpContactAddress = _contactRepository.GetContactAddressByContactId(contactId);
+            var mpContactAddress = await _contactRepository.GetContactAddressByContactId(contactId);
             return _mapper.Map<ContactAddressDto>(mpContactAddress);
         }
 
-        public int GetContactIdByEmailAddress(string emailAddress)
+        public async Task<int> GetContactIdByEmailAddress(string emailAddress)
         {
-            var contactId = _userRepository.GetUserByEmailAddress(emailAddress);
+            var contactId = await _userRepository.GetUserByEmailAddress(emailAddress);
             return contactId;
         }
     }

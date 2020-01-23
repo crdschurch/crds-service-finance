@@ -15,12 +15,14 @@ using Mock;
 using Xunit;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Crossroads.Service.Finance.Services.JournalEntry;
+using Crossroads.Service.Finance.Interfaces;
 
 namespace Crossroads.Service.Finance.Test.Exports
 {
     public class ExportServiceTest
     {
         private readonly Mock<IAdjustmentRepository> _adjustmentRepository;
+        private readonly Mock<IAdjustmentsToJournalEntriesService> _adjustmentsToJournalEntriesService;
         private readonly Mock<IJournalEntryService> _journalEntryService;
         private readonly Mock<IJournalEntryBatchService> _batchService;
         private readonly Mock<IJournalEntryRepository> _journalEntryRepository;
@@ -32,13 +34,15 @@ namespace Crossroads.Service.Finance.Test.Exports
         public ExportServiceTest()
         {
             _adjustmentRepository = new Mock<IAdjustmentRepository>();
+            _adjustmentsToJournalEntriesService = new Mock<IAdjustmentsToJournalEntriesService>();
             _journalEntryService = new Mock<IJournalEntryService>();
             _batchService = new Mock<IJournalEntryBatchService>();
             _journalEntryRepository = new Mock<IJournalEntryRepository>();
-            _journalEntryExport = new Mock<IJournalEntryExport>();
+            _journalEntryExport = new Mock<IJournalEntryExport>(MockBehavior.Strict);
             _mapper = new Mock<IMapper>();
 
             _fixture = new ExportService(_adjustmentRepository.Object,
+                                        _adjustmentsToJournalEntriesService.Object,
                                         _journalEntryService.Object,
                                         _batchService.Object,
                                         _journalEntryRepository.Object, 
@@ -51,14 +55,13 @@ namespace Crossroads.Service.Finance.Test.Exports
         {
             // Arrange
             _adjustmentRepository.Setup(r => r.GetUnprocessedDistributionAdjustments())
-                .Returns(new Task<List<MpDistributionAdjustment>>(() => MpDistributionAdjustmentMock.CreateList()));
+                .Returns(Task.FromResult<List<MpDistributionAdjustment>>(null));
 
-            _journalEntryService.Setup(e => e.NetCreditsAndDebits(It.IsAny<MpJournalEntry>())).Returns(It.IsAny<MpJournalEntry>());
-
-            _journalEntryService.Setup(e => e.RemoveWashEntries(It.IsAny<List<MpJournalEntry>>())).Returns(new List<MpJournalEntry>() { null });
+            _journalEntryService.Setup(e => e.AddBatchIdsAndClean(
+                It.IsAny<List<MpJournalEntry>>())).Returns(Task.FromResult(new List<MpJournalEntry>() { null }));
 
             // Act
-            _fixture.CreateJournalEntries();
+            _fixture.CreateJournalEntriesAsync();
 
             // Assert
             _journalEntryRepository.VerifyAll();
@@ -71,9 +74,7 @@ namespace Crossroads.Service.Finance.Test.Exports
             var mpAdjustmentsMock = MpDistributionAdjustmentMock.CreateList();
             var mpJournalEntryMock = MpJournalEntryMock.CreateList();
 
-            _journalEntryService.Setup(e => e.NetCreditsAndDebits(It.IsAny<MpJournalEntry>())).Returns(It.IsAny<MpJournalEntry>());
-
-            _journalEntryService.Setup(e => e.RemoveWashEntries(It.IsAny<List<MpJournalEntry>>())).Returns(mpJournalEntryMock);
+            _journalEntryService.Setup(e => e.AddBatchIdsAndClean(It.IsAny<List<MpJournalEntry>>())).Returns(Task.FromResult(mpJournalEntryMock));
 
             _adjustmentRepository.Setup(r => r.GetUnprocessedDistributionAdjustments()).Returns(Task.FromResult(mpAdjustmentsMock));
 
@@ -82,7 +83,7 @@ namespace Crossroads.Service.Finance.Test.Exports
             _adjustmentRepository.Setup(r => r.UpdateAdjustments(It.IsAny<List<MpDistributionAdjustment>>()));
 
             // Act
-            _fixture.CreateJournalEntries();
+            _fixture.CreateJournalEntriesAsync();
 
             // Assert
             _journalEntryRepository.VerifyAll();
@@ -91,35 +92,47 @@ namespace Crossroads.Service.Finance.Test.Exports
         [Fact]
         public void ShouldSubmitJournalEntriesForExport()
         {
-            // TODO: Reimplement this test once we're ready to start pushing data to Velosio
-            //// Arrange
-            //var mpJournalEntriesMock = MpJournalEntryMock.CreateList();
+            // Arrange
+            var mpJournalEntriesMock = MpJournalEntryMock.CreateList();
 
-            //var batchId = "CRJE20190903";
-            //var creditAmount = 5.0m;
-            //var debitAmount = 5.0m;
-            //var batchDate = new DateTime(2019, 09, 03);
-            //var batchData = "batchData";
-            //var transactionCount = 5;
+            var batchId = "CRJE20190903";
+            var creditAmount = 5.0m;
+            var debitAmount = 5.0m;
+            var batchDate = new DateTime(2019, 09, 03);
+            var batchData = "batchData";
+            var transactionCount = 0;
 
-            //var velosioJournalEntryStage = new VelosioJournalEntryStage
-            //{
-            //    BatchNumber = batchId,
-            //    BatchDate = batchDate,
-            //    TotalDebits = debitAmount,
-            //    TotalCredits = creditAmount,
-            //    BatchData = new XElement("batchdata", batchData),
-            //    TransactionCount = transactionCount
-            //};
+            var velosioJournalEntryBatch = new VelosioJournalEntryBatch("CRJE20190903")
+            {
+                BatchNumber = batchId,
+                BatchDate = batchDate,
+                TotalDebits = debitAmount,
+                TotalCredits = creditAmount,
+                BatchData = new XElement("batchData", batchData),
+                TransactionCount = transactionCount
+            };
+            var mockBatchList = new List<VelosioJournalEntryBatch>
+            {
+                velosioJournalEntryBatch
+            };
 
-            //_journalEntryRepository.Setup(m => m.GetMpJournalEntries()).Returns(mpJournalEntriesMock);
-            //_journalEntryExport.Setup(m => m.ExportJournalEntryStage(It.IsAny<VelosioJournalEntryStage>()));
+            _journalEntryRepository.Setup(m => m.GetUnexportedJournalEntries()).Returns(Task.FromResult(mpJournalEntriesMock));
+            _batchService.Setup(m => m.CreateBatchPerUniqueJournalEntryBatchId(It.IsAny<List<MpJournalEntry>>()))
+                .Returns(Task.FromResult(mockBatchList));
 
-            //// Act
-            //_fixture.ExportJournalEntries();
+            _journalEntryExport.Setup<Task>(m => m.ExportJournalEntryStage(
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<decimal>(),
+                It.IsAny<int>(),
+                It.IsAny<System.Xml.Linq.XElement>()
+            )).Returns(Task.FromResult<string>("test"));
 
-            //// Assert
-            //_journalEntryExport.VerifyAll();
+            // Act
+            var result = _fixture.ExportJournalEntries().Result;
+
+            // Assert
+            _journalEntryExport.VerifyAll();
         }
     }
 }

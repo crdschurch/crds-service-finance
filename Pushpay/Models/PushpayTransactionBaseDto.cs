@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Pushpay.Models.JSONConverter;
 
 namespace Pushpay.Models
 {
@@ -34,6 +35,7 @@ namespace Pushpay.Models
         public PushpayLinksDto Links { get; set; }
 
         [JsonProperty("updatedOn")]
+        [JsonConverter(typeof(JsonDateUtcConverter))]
         public DateTime UpdatedOn { get; set; }
 
         [JsonProperty("fields")]

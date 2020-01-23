@@ -42,7 +42,7 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // need to make sure to handle declined or refunded - do not change status
-        public List<DonationDto> SetDonationStatus(List<DonationDto> donations, int batchId)
+        public async Task<List<DonationDto>> SetDonationStatus(List<DonationDto> donations, int batchId)
         {
             var updatedDonations = donations;
 
@@ -104,11 +104,11 @@ namespace Crossroads.Service.Finance.Services
             return dtos;
         }
 
-        public List<RecurringGiftDto> GetRelatedContactRecurringGifts(int userContactId, int relatedContactId)
+        public async Task<List<RecurringGiftDto>> GetRelatedContactRecurringGifts(int userContactId, int relatedContactId)
         {
             // check if household minor child
-            var userContact = _contactService.GetContact(userContactId);
-            var householdMinorChildren = _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
+            var userContact = await _contactService.GetContact(userContactId);
+            var householdMinorChildren = await _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
             if (householdMinorChildren.Exists(householdChild => householdChild.ContactId == relatedContactId))
             {
                 var mpRecurringGifts = GetRecurringGifts(relatedContactId);
@@ -116,11 +116,11 @@ namespace Crossroads.Service.Finance.Services
             }
 
             // check if relatedContactId has an active co-giver contact relationship with userContactId
-            var cogiverContactRelationship = _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
+            var cogiverContactRelationship = await _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
             if (cogiverContactRelationship != null)
             {
                 // relatedContactId is a cogiver contact relationship
-                var mpRecurringGifts = _mpDonationRepository.GetRecurringGiftsByContactIdAndDates(relatedContactId,
+                var mpRecurringGifts = await _mpDonationRepository.GetRecurringGiftsByContactIdAndDates(relatedContactId,
                     cogiverContactRelationship.StartDate,
                     cogiverContactRelationship.EndDate);
                 return _mapper.Map<List<RecurringGiftDto>>(mpRecurringGifts);
@@ -128,41 +128,41 @@ namespace Crossroads.Service.Finance.Services
             throw new Exception($"Contact {userContactId} does not have access to view giving history for contact {relatedContactId}");
         }
 
-        public List<PledgeDto> GetPledges(int contactId)
+        public async Task<List<PledgeDto>> GetPledges(int contactId)
         {
-            var mpPledges = CalculatePledges(contactId);
+            var mpPledges = await CalculatePledges(contactId);
             return _mapper.Map<List<PledgeDto>>(mpPledges);
         }
 
-        public List<PledgeDto> GetRelatedContactPledge(int userContactId, int relatedContactId)
+        public async Task<List<PledgeDto>> GetRelatedContactPledge(int userContactId, int relatedContactId)
         {
             // check if household minor child
-            var userContact = _contactService.GetContact(userContactId);
-            var householdMinorChildren = _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
+            var userContact = await _contactService.GetContact(userContactId);
+            var householdMinorChildren = await _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
             if (householdMinorChildren.Exists(householdChild => householdChild.ContactId == relatedContactId))
             {
-                var mpPledges = GetPledges(relatedContactId);
+                var mpPledges = await GetPledges(relatedContactId);
                 return _mapper.Map<List<PledgeDto>>(mpPledges);
             }
 
             // check if relatedContactId has an active co-giver contact relationship with userContactId
-            var cogiverContactRelationship = _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
+            var cogiverContactRelationship = await _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
             if (cogiverContactRelationship != null)
             {
-                var mpPledges = GetPledges(relatedContactId);
+                var mpPledges = await GetPledges(relatedContactId);
                 return _mapper.Map<List<PledgeDto>>(mpPledges);
             }
             throw new Exception($"Contact {userContactId} does not have access to view campaigns for contact {relatedContactId}");
         }
 
-        public List<MpPledge> CalculatePledges(int contactId)
+        public async Task<List<MpPledge>> CalculatePledges(int contactId)
         {
-            var mpPledges = _mpPledgeRepository.GetActiveAndCompleted(contactId);
+            var mpPledges = await _mpPledgeRepository.GetActiveAndCompleted(contactId);
 
             if (mpPledges.Any())
             {
                 // get totals donations so far for this pledge
-                var donationDistributions = _mpDonationDistributionRepository.GetByPledges(mpPledges.Select(r => r.PledgeId).ToList());
+                var donationDistributions = await _mpDonationDistributionRepository.GetByPledges(mpPledges.Select(r => r.PledgeId).ToList());
                 foreach (var mpPledge in mpPledges)
                 {
                     var donationsForPledge = donationDistributions.Where(dd => dd.PledgeId == mpPledge.PledgeId).ToList();
@@ -190,7 +190,7 @@ namespace Crossroads.Service.Finance.Services
 
         public async Task<List<DonationDetailDto>> GetDonations(string token)
         {
-            var contactId = _contactService.GetContactIdBySessionId(token);
+            var contactId = await _contactService.GetContactIdBySessionId(token);
             var records = await _mpDonationRepository.GetDonationHistoryByContactId(contactId);
             return _mapper.Map<List<DonationDetailDto>>(records);
         }
@@ -201,29 +201,29 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<List<DonationDetailDto>>(records);
         }
 
-        public List<DonationDetailDto> GetOtherGifts(int contactId)
+        public async Task<List<DonationDetailDto>> GetOtherGifts(int contactId)
         {
-            var records = _mpDonationRepository.GetOtherGiftsByContactId(contactId);
+            var records = await _mpDonationRepository.GetOtherGiftsByContactId(contactId);
             return _mapper.Map<List<DonationDetailDto>>(records);
         }
 
-        public List<DonationDetailDto> GetRelatedContactOtherGifts(int userContactId, int relatedContactId)
+        public async Task<List<DonationDetailDto>> GetRelatedContactOtherGifts(int userContactId, int relatedContactId)
         {
             // check if household minor child
-            var userContact = _contactService.GetContact(userContactId);
-            var householdMinorChildren = _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
+            var userContact = await _contactService.GetContact(userContactId);
+            var householdMinorChildren = await _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
             if (householdMinorChildren.Exists(householdChild => householdChild.ContactId == relatedContactId))
             {
-                var mpDonationHistory = GetOtherGifts(relatedContactId);
+                var mpDonationHistory = await GetOtherGifts(relatedContactId);
                 return _mapper.Map<List<DonationDetailDto>>(mpDonationHistory);
             }
 
             // check if relatedContactId has an active co-giver contact relationship with userContactId
-            var cogiverContactRelationship = _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
+            var cogiverContactRelationship = await _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
             if (cogiverContactRelationship != null)
             {
                 // relatedContactId is a cogiver contact relationship
-                var mpDonationHistory = _mpDonationRepository.GetOtherGiftsForRelatedContact(relatedContactId,
+                var mpDonationHistory = await _mpDonationRepository.GetOtherGiftsForRelatedContact(relatedContactId,
                     cogiverContactRelationship.StartDate,
                     cogiverContactRelationship.EndDate);
                 return _mapper.Map<List<DonationDetailDto>>(mpDonationHistory);
@@ -231,23 +231,23 @@ namespace Crossroads.Service.Finance.Services
             throw new Exception($"Contact {userContactId} does not have access to view giving history for contact {relatedContactId}");
         }
 
-        public List<DonationDetailDto> GetRelatedContactDonations(int userContactId, int relatedContactId)
+        public async Task<List<DonationDetailDto>> GetRelatedContactDonations(int userContactId, int relatedContactId)
         {
             // check if household minor child
-            var userContact = _contactService.GetContact(userContactId);
-            var householdMinorChildren = _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
+            var userContact = await _contactService.GetContact(userContactId);
+            var householdMinorChildren = await _contactService.GetHouseholdMinorChildren(userContact.HouseholdId.Value);
             if (householdMinorChildren.Exists(householdChild => householdChild.ContactId == relatedContactId))
             {
-                var mpDonationHistory = GetDonations(relatedContactId);
+                var mpDonationHistory = await GetDonations(relatedContactId);
                 return _mapper.Map<List<DonationDetailDto>>(mpDonationHistory);
             }
 
             // check if relatedContactId has an active co-giver contact relationship with userContactId
-            var cogiverContactRelationship = _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
+            var cogiverContactRelationship = await _contactService.GetCogiverContactRelationship(userContactId, relatedContactId);
             if (cogiverContactRelationship != null)
             {
                 // relatedContactId is a cogiver contact relationship
-                var mpDonationHistory = _mpDonationRepository.GetDonationHistoryByContactId(relatedContactId,
+                var mpDonationHistory = await _mpDonationRepository.GetDonationHistoryByContactId(relatedContactId,
                                                                            cogiverContactRelationship.StartDate,
                                                                            cogiverContactRelationship.EndDate);
                 return _mapper.Map<List<DonationDetailDto>>(mpDonationHistory);

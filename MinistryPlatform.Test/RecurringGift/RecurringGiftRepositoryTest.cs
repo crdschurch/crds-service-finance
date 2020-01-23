@@ -100,7 +100,7 @@ namespace MinistryPlatform.Test.Donations
         [Fact]
         public void UpdateRecurringGift()
         {
-            _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts"));
+            _request.Setup(m => m.Update(It.IsAny<JObject>(), "Donor_Accounts", false));
             _fixture.UpdateRecurringGift(new JObject());
         }
 

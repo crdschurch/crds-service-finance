@@ -10,6 +10,6 @@ namespace MinistryPlatform.Adjustments
     public interface IAdjustmentRepository
     {
         Task<List<MpDistributionAdjustment>> GetUnprocessedDistributionAdjustments();
-        Task UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments);
+        void UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments);
     }
 }

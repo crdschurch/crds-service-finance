@@ -43,7 +43,7 @@ namespace MinistryPlatform.Adjustments
             return await mpAdjustingJournalEntries;
         }
 
-        public async Task UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments)
+        public async void UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using Crossroads.Service.Finance.Services.Health;
 
 namespace Crossroads.Service.Finance.Controllers
@@ -17,11 +18,11 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpGet]
         [Route("status")]
-        public IActionResult GetHealth(int contactId)
+        public async Task<IActionResult> GetHealth(int contactId)
         {
             try
             {
-                if (_healthService.GetHangfireStatus() == false)
+                if ((await _healthService.GetHangfireStatus()) == false)
                 {
                     return StatusCode(500, "Hangfire Heartbeat Failed");
                 }

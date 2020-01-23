@@ -88,3 +88,7 @@ spec:
               value: $CRDS_ENV
             - name: LOGZ_IO_KEY
               value: $LOGZ_IO_KEY
+            - name: EXPORT_SERVICE_KEY
+              value: $EXPORT_SERVICE_KEY
+            - name: VELOSIO_EXPORT_URL
+              value: $VELOSIO_EXPORT_URL
