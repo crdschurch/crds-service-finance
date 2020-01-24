@@ -28,7 +28,7 @@ namespace Crossroads.Service.Finance.Middleware
                 try
                 {
                     var impersonatedUserEmail = context.Request.Headers["ImpersonateUserEmail"];
-                    var userContactId = _contactService.GetContactIdByEmailAddress(impersonatedUserEmail);
+                    var userContactId = await _contactService.GetContactIdByEmailAddress(impersonatedUserEmail);
                     var impersonatedContactId = new KeyValuePair<String, StringValues>("ImpersonatedContactId", userContactId.ToString());
                     context.Request.Headers.Add(impersonatedContactId);
 
