@@ -147,6 +147,8 @@ namespace Crossroads.Service.Finance.Controllers
 
             var userContactId = authDto.UserInfo.Mp.ContactId;
 
+            _logger.Info(("Getting donations"));
+
             try 
             { 
                 // override contact id if impersonating
