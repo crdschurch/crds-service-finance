@@ -28,6 +28,7 @@ using MinistryPlatform.JournalEntries;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Crossroads.Service.Finance.Services.JournalEntry;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance
@@ -65,6 +66,12 @@ namespace Crossroads.Service.Finance
 
             Logger.SetUpLogging(settingsService.GetSetting("LOGZ_IO_KEY"),
                                 settingsService.GetSetting("CRDS_ENV"));
+
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddDebug();
+            });
 
             // Dependency Injection
             CrossroadsWebCommonConfig.Register(services);
