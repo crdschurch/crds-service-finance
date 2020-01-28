@@ -64,14 +64,14 @@ namespace Crossroads.Service.Finance
             SettingsService settingsService = new SettingsService();
             services.AddSingleton<ISettingsService>(settingsService);
 
+            //services.AddLogging(loggingBuilder =>
+            //{
+            //    loggingBuilder.AddConsole();
+            //    loggingBuilder.AddDebug();
+            //});
+
             Logger.SetUpLogging(settingsService.GetSetting("LOGZ_IO_KEY"),
                                 settingsService.GetSetting("CRDS_ENV"));
-
-            services.AddLogging(loggingBuilder =>
-            {
-                loggingBuilder.AddConsole();
-                loggingBuilder.AddDebug();
-            });
 
             // Dependency Injection
             CrossroadsWebCommonConfig.Register(services);
