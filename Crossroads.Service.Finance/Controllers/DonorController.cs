@@ -19,7 +19,8 @@ namespace Crossroads.Service.Finance.Controllers
     [Route("api/[controller]")]
     public class DonorController : AuthBaseController
     {
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        //private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IDonationService _donationService;
         private readonly IContactService _contactService;
 
