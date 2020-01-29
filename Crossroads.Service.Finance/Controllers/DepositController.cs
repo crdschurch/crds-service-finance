@@ -1,29 +1,22 @@
-﻿using System;
-using System.ComponentModel;
-using System.Reflection;
-using System.Threading.Tasks;
-using Crossroads.Service.Finance.Interfaces;
-using log4net;
+﻿using Crossroads.Service.Finance.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Utilities.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Controllers
 {
     [Route("api/[controller]")]
     public class DepositController : Controller
     {
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly IDepositService _depositService;
         private readonly IPaymentEventService _paymentEventService;
-        private readonly IDataLoggingService _dataLoggingService;
 
-        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService,
-            IDataLoggingService dataLoggingService)
+        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService)
         {
             _depositService = depositService;
             _paymentEventService = paymentEventService;
-            _dataLoggingService = dataLoggingService;
         }
 
         /// <summary>
@@ -34,7 +27,8 @@ namespace Crossroads.Service.Finance.Controllers
         /// </remarks>
         [HttpPost("sync")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> SyncSettlements()
         {
             try
@@ -42,11 +36,8 @@ namespace Crossroads.Service.Finance.Controllers
                 var deposits = await _depositService.SyncDeposits();
                 if (deposits == null || deposits.Count == 0)
                 {
-                    Console.WriteLine($"No deposits to sync");
-
-                    var noDepositsToSyncEntry = new LogEventEntry(LogEventType.noDepositsToSync);
-                    noDepositsToSyncEntry.Push("syncDate", DateTime.Now.ToShortDateString());
-                    _dataLoggingService.LogDataEvent(noDepositsToSyncEntry);
+                    Console.WriteLine("No deposits to sync");
+                    _logger.Info("No deposits to sync");
 
                     return NoContent();
                 }
@@ -55,18 +46,18 @@ namespace Crossroads.Service.Finance.Controllers
                     var createDepositTask = new Task(() => _paymentEventService.CreateDeposit(deposit));
                     await createDepositTask;
                 }
-                Console.WriteLine($"SyncSettlements created {deposits.Count} deposits");
 
-                var logEventEntry = new LogEventEntry(LogEventType.depositsCreatedCount);
-                logEventEntry.Push("depositsCreatedCount", deposits.Count);
-                _dataLoggingService.LogDataEvent(logEventEntry);
+                Console.WriteLine($"SyncSettlements created {deposits.Count} deposits");
+                _logger.Info($"SyncSettlements created {deposits.Count} deposits");
 
                 return Ok(new {created = deposits.Count});
             }
             catch (Exception ex)
             {
-                _logger.Error("Error in SyncSettlements: " + ex.Message, ex);
-                return StatusCode(400, ex);
+                Console.WriteLine($"Error in SyncSettlements: {ex.Message}, {ex}");
+                _logger.Error($"Error in SyncSettlements: {ex.Message}, {ex}");
+
+                return StatusCode(500);
             }
         }
     }

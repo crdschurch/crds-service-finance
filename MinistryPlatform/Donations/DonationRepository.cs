@@ -17,8 +17,8 @@ namespace MinistryPlatform.Repositories
 {
     public class DonationRepository : MinistryPlatformBase, IDonationRepository
     {
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private const int PausedRecurringGiftStatusId = 2;
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public DonationRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
@@ -38,9 +38,8 @@ namespace MinistryPlatform.Repositories
 
             if(!donations.Any())
             {
-                // TODO possibly refactor to create a more custom exception
-                //throw new Exception($"Donation does not exist for transaction code: {transactionCode}");
                 _logger.Error($"Donation does not exist for transaction code: {transactionCode}");
+                Console.WriteLine($"Donation does not exist for transaction code: {transactionCode}");
                 return null;
             }
 
@@ -94,49 +93,11 @@ namespace MinistryPlatform.Repositories
                     .Build()
                     .Update(donorAccount, "Donor_Accounts");
             }
-            catch (Exception e)
-            {
-                _logger.Error($"UpdateRecurringGift: Error updating recurring gift: {JsonConvert.SerializeObject(donorAccount)}", e);
-            }
-        }
-
-        // TODO: Potentially remove this code
-        public MpContactDonor GetContactDonor(int contactId)
-        {
-            MpContactDonor donor;
-            try
-            {
-                var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
-                var parameters = new Dictionary<string, object>
-                {
-                    { "@Contact_ID", contactId }
-                };
-
-                var filter = $"api_crds_Get_Contact_Donor";
-                var storedProcReturn = MpRestBuilder.NewRequestBuilder()
-                                .WithAuthenticationToken(token)
-                                .WithFilter(filter)
-                                .Build()
-                                .Search<MpContactDonor>();
-
-                if (storedProcReturn != null && storedProcReturn.Count > 0)
-                    donor = storedProcReturn[0];
-                else
-                {
-                    donor = new MpContactDonor
-                    {
-                        ContactId = contactId,
-                        RegisteredUser = true
-                    };
-                }
-            }
             catch (Exception ex)
             {
-                throw new ApplicationException(
-                    string.Format("GetDonorRecord failed.  Contact Id: {0}", contactId), ex);
+                _logger.Error(ex, $"UpdateRecurringGift: Error updating recurring gift: {JsonConvert.SerializeObject(donorAccount)}, {ex.Message}");
+                Console.WriteLine($"UpdateRecurringGift: Error updating recurring gift: {JsonConvert.SerializeObject(donorAccount)}, {ex.Message}");
             }
-
-            return donor;
         }
 
         public async Task<List<MpRecurringGift>> GetRecurringGifts(int contactId)

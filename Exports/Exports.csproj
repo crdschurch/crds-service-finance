@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Crossroads.Microservice.Logging" Version="0.0.4" />
     <PackageReference Include="Crossroads.Web.Common" Version="2.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.1" />
     <PackageReference Include="System.Interactive.Async" Version="4.0.0" />

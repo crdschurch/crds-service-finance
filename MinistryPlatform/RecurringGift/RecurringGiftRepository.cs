@@ -16,7 +16,6 @@ namespace MinistryPlatform.Repositories
 {
     public class RecurringGiftRepository : MinistryPlatformBase, IRecurringGiftRepository
     {
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public RecurringGiftRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
@@ -47,36 +46,20 @@ namespace MinistryPlatform.Repositories
         public async Task<MpRecurringGift> CreateRecurringGift(MpRecurringGift mpRecurringGift)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
-
-            try
-            {
-                return (await MpRestBuilder.NewRequestBuilder()
-                    .WithAuthenticationToken(token)
-                    .BuildAsync()
-                    .Create(mpRecurringGift));
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"CreateRecurringGift: Error creating recurring gift: {JsonConvert.SerializeObject(mpRecurringGift)}", e);
-                return null;
-            }
+            return (await MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .BuildAsync()
+                .Create(mpRecurringGift));
         }
 
         public async void UpdateRecurringGift(JObject mpRecurringGift)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
-            try
-            {
-                await MpRestBuilder.NewRequestBuilder()
-                    .WithAuthenticationToken(token)
-                    .BuildAsync()
-                    .Update(mpRecurringGift, "Recurring_Gifts");
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"UpdateRecurringGift: Error updating recurring gift: {JsonConvert.SerializeObject(mpRecurringGift)}", e);
-            }
+            await MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .BuildAsync()
+                .Update(mpRecurringGift, "Recurring_Gifts");
         }
 
         public Task<List<MpRecurringGift>> FindRecurringGiftsByDonorId(int donorId)
@@ -118,8 +101,6 @@ namespace MinistryPlatform.Repositories
 
 	    public Task<List<MpRecurringGift>> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds)
         {
-
-
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             var filter = $"Subscription_ID IN ({string.Join(",", subscriptionIds.Select(item => "'" + item + "'"))})";

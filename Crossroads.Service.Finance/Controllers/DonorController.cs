@@ -1,17 +1,14 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
-//using Crossroads.Service.Finance.Security;
-using Crossroads.Web.Common.Security;
-using Crossroads.Web.Common.Services;
-using log4net;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
 using Crossroads.Web.Auth.Controllers;
 using Crossroads.Web.Auth.Models;
 using Crossroads.Web.Common.Auth.Helpers;
+using Crossroads.Web.Common.Security;
+using Crossroads.Web.Common.Services;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -20,7 +17,6 @@ namespace Crossroads.Service.Finance.Controllers
     public class DonorController : AuthBaseController
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-        //private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IDonationService _donationService;
         private readonly IContactService _contactService;
 
@@ -41,6 +37,7 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpGet("{contactId}/recurring-gifts")]
         [ProducesResponseType(typeof(List<RecurringGiftDto>), 200)]
         [ProducesResponseType(204)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GetRecurringGifts(int contactId)
         {
             var authDto = (AuthDTO)HttpContext.Items["authDto"];
@@ -55,7 +52,8 @@ namespace Crossroads.Service.Finance.Controllers
                 {
                     if (authDto.UserInfo.Mp.CanImpersonate == false)
                     {
-                        throw new Exception("Impersonation Error");
+                        throw new Exception($"Impersonation Error - contactId={authDto.UserInfo.Mp.ContactId}, " +
+                                            $"Impersonated contactId={Request.Headers["ImpersonatedContactId"]}");
                     }
 
                     userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
@@ -78,9 +76,9 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                var msg = "DonorController: GetRecurringGifts";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
+                Console.WriteLine($"Error in DonorController.GetRecurringGifts: {ex.Message}");
+                _logger.Error(ex,$"Error in DonorController.GetRecurringGifts: {ex.Message}");
+                return StatusCode(500);
             }
         }
 
@@ -91,6 +89,7 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpGet("contact/{contactId}/pledges")]
         [ProducesResponseType(typeof(List<PledgeDto>), 200)]
         [ProducesResponseType(204)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GetMyPledges(int contactId)
         {
             var authDto = (AuthDTO)HttpContext.Items["authDto"];
@@ -105,7 +104,8 @@ namespace Crossroads.Service.Finance.Controllers
                 {
                     if (authDto.UserInfo.Mp.CanImpersonate == false)
                     {
-                        throw new Exception("Impersonation Error");
+                        throw new Exception($"Impersonation Error - contactId={authDto.UserInfo.Mp.ContactId}, " +
+                                            $"Impersonated contactId={Request.Headers["ImpersonatedContactId"]}");
                     }
 
                     userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
@@ -129,9 +129,9 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                var msg = "DonorController: GetPledges";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
+                Console.WriteLine($"Error in DonorController.GetMyPledges: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
+                _logger.Error(ex, $"Error in DonorController.GetMyPledges: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
+                return StatusCode(500);
             }
         }
 
@@ -142,6 +142,7 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpGet("contact/{contactId}/donations")]
         [ProducesResponseType(typeof(List<DonationDto>), 200)]
         [ProducesResponseType(204)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GetDonationHistory(int contactId)
         {
             var authDto = (AuthDTO)HttpContext.Items["authDto"];
@@ -157,7 +158,8 @@ namespace Crossroads.Service.Finance.Controllers
                 {
                     if (authDto.UserInfo.Mp.CanImpersonate == false)
                     {
-                        throw new Exception("Impersonation Error");
+                        throw new Exception($"Impersonation Error - Contact Id: {authDto.UserInfo.Mp.ContactId}, " +
+                                            $"Impersonated Contact Id: {Request.Headers["ImpersonatedContactId"]}");
                     }
 
                     userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
@@ -184,15 +186,16 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                var msg = "DonationController: GetDonationHistory";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
+                Console.WriteLine($"Error in DonorController.GetDonationHistory: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
+                _logger.Error(ex, $"Error in DonorController.GetDonationHistory: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
+                return StatusCode(500);
             }
-            }
+        }
 
         [HttpGet("contacts/related")]
         [ProducesResponseType(typeof(List<ContactDto>), 200)]
         [ProducesResponseType(204)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GetDonorRelatedContacts()
         {
             var authDto = (AuthDTO)HttpContext.Items["authDto"];
@@ -206,7 +209,8 @@ namespace Crossroads.Service.Finance.Controllers
                 {
                     if (authDto.UserInfo.Mp.CanImpersonate == false)
                     {
-                        throw new Exception("Impersonation Error");
+                        throw new Exception($"Impersonation Error - Contact Id: {authDto.UserInfo.Mp.ContactId}, " +
+                                            $"Impersonated Contact Id: {Request.Headers["ImpersonatedContactId"]}");
                     }
 
                     contactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
@@ -217,9 +221,9 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                var msg = "DonationController: GetDonorRelatedContacts";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
+                Console.WriteLine($"Error in DonorController.GetDonorRelatedContacts: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
+                _logger.Error(ex, $"Error in DonorController.GetDonorRelatedContacts: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
+                return StatusCode(500);
             }
         }
 
@@ -230,6 +234,7 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpGet("{contactId}/othergifts")]
         [ProducesResponseType(typeof(List<DonationDto>), 200)]
         [ProducesResponseType(204)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GetOtherGifts(int contactId)
         {
             var authDto = (AuthDTO)HttpContext.Items["authDto"];
@@ -243,7 +248,8 @@ namespace Crossroads.Service.Finance.Controllers
                 {
                     if (authDto.UserInfo.Mp.CanImpersonate == false)
                     {
-                        throw new Exception("Impersonation Error");
+                        throw new Exception($"Impersonation Error - Contact Id: {authDto.UserInfo.Mp.ContactId}, " +
+                                            $"Impersonated Contact Id: {Request.Headers["ImpersonatedContactId"]}");
                     }
 
                     userContactId = int.Parse(Request.Headers["ImpersonatedContactId"]);
@@ -270,9 +276,9 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                var msg = "DonorController: GetOtherGifts";
-                _logger.Error(msg, ex);
-                return BadRequest(ex.Message);
+                Console.WriteLine($"Error in DonorController.GetOtherGifts: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
+                _logger.Error(ex, $"Error in DonorController.GetOtherGifts: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
+                return StatusCode(500);
             }
         }
     }

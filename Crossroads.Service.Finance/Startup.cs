@@ -1,35 +1,33 @@
 ﻿using AutoMapper;
+using Crossroads.Microservice.Logging;
+using Crossroads.Microservice.Settings;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Middleware;
 using Crossroads.Service.Finance.Services;
+using Crossroads.Service.Finance.Services.Exports;
+using Crossroads.Service.Finance.Services.Health;
+using Crossroads.Service.Finance.Services.JournalEntry;
+using Crossroads.Service.Finance.Services.JournalEntryBatch;
+using Crossroads.Service.Finance.Services.Recurring;
 using Crossroads.Web.Common.Configuration;
+using Exports.JournalEntries;
 using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MinistryPlatform.Adjustments;
+using MinistryPlatform.Congregations;
 using MinistryPlatform.Donors;
 using MinistryPlatform.Interfaces;
+using MinistryPlatform.JournalEntries;
 using MinistryPlatform.Repositories;
+using MinistryPlatform.Users;
+using Newtonsoft.Json;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
-using Crossroads.Service.Finance.Middleware;
-using Crossroads.Service.Finance.Services.Health;
-using Crossroads.Service.Finance.Services.Recurring;
-using MinistryPlatform.Congregations;
-using MinistryPlatform.Users;
-using Utilities.Logging;
-using Crossroads.Microservice.Settings;
-using Crossroads.Microservice.Logging;
-using Crossroads.Service.Finance.Services.Exports;
-using Exports.JournalEntries;
-using MinistryPlatform.Adjustments;
-using MinistryPlatform.JournalEntries;
-using Crossroads.Service.Finance.Services.JournalEntryBatch;
-using Crossroads.Service.Finance.Services.JournalEntry;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Crossroads.Service.Finance
 {
@@ -123,9 +121,6 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<ICongregationRepository, CongregationRepository>();
             services.AddSingleton<IAdjustmentRepository, AdjustmentRepository>();
             services.AddSingleton<IJournalEntryRepository, JournalEntryRepository>();
-
-            // Utilities Layer
-            services.AddSingleton<IDataLoggingService, NewRelicAgentWrapper>();
 
             // Exports Layer
             services.AddSingleton<IJournalEntryExport, VelosioExportClient>();

@@ -12,7 +12,6 @@ namespace MinistryPlatform.Repositories
 {
     public class PledgeRepository : MinistryPlatformBase, IPledgeRepository
     {
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         const int pledgeStatusActive = 1;
         const int pledgeStatusCompleted = 2;
         const int capitalCampaign = 1;
