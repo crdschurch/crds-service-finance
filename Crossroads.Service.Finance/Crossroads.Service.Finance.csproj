@@ -68,7 +68,6 @@
     <ProjectReference Include="..\Exports\Exports.csproj" />
     <ProjectReference Include="..\MinistryPlatform\MinistryPlatform.csproj" />
     <ProjectReference Include="..\Pushpay\Pushpay.csproj" />
-    <ProjectReference Include="..\Utilities\Utilities.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="LowercaseDocumentFilter.cs" />

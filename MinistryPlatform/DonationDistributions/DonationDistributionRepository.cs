@@ -15,8 +15,6 @@ namespace MinistryPlatform.Repositories
     public class DonationDistributionRepository : MinistryPlatformBase, IDonationDistributionRepository
     {
 
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
         public DonationDistributionRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
             IConfigurationWrapper configurationWrapper,

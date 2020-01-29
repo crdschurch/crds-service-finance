@@ -5,6 +5,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Demo|AnyCPU'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Integration|AnyCPU'" />
   <ItemGroup>
+    <PackageReference Include="Crossroads.Microservice.Logging" Version="0.0.4" />
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.1" />

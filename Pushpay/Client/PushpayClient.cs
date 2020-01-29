@@ -15,7 +15,8 @@ namespace Pushpay.Client
 {
     public class PushpayClient : IPushpayClient
     {
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
         private readonly string recurringGiftsScope = "merchant:view_recurring_payments";
@@ -214,6 +215,7 @@ namespace Pushpay.Client
                         }
                         else
                         {
+                            _logger.Error($"No data in response: {request.Resource}");
                             Console.WriteLine($"No data in response: {request.Resource}");
                         }
                     }

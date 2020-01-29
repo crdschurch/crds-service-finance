@@ -1,16 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoMapper;
-using Crossroads.Service.Finance.Models;
+﻿using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Services;
 using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Mock;
-using Xunit;
 using Moq;
-using Utilities.Logging;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Crossroads.Service.Finance.Test.Batches
 {
@@ -20,7 +19,6 @@ namespace Crossroads.Service.Finance.Test.Batches
         private readonly Mock<IBatchRepository> _batchRepository;
         private readonly Mock<IMapper> _mapper;
         private readonly Mock<IConfigurationWrapper> _configurationWrapper;
-        private readonly Mock<IDataLoggingService> _dataLoggingService;
 
         private readonly IBatchService _fixture;
 
@@ -29,11 +27,9 @@ namespace Crossroads.Service.Finance.Test.Batches
             _configurationWrapper = new Mock<IConfigurationWrapper>();
             _donationRepository = new Mock<IDonationRepository>();
             _batchRepository = new Mock<IBatchRepository>();
-            _dataLoggingService = new Mock<IDataLoggingService>();
             _mapper = new Mock<IMapper>();
 
-            _fixture = new BatchService(_donationRepository.Object, _batchRepository.Object, _dataLoggingService.Object,
-                _mapper.Object, _configurationWrapper.Object);
+            _fixture = new BatchService(_donationRepository.Object, _batchRepository.Object, _mapper.Object, _configurationWrapper.Object);
         }
 
         [Fact]

@@ -1,18 +1,17 @@
-﻿using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
-using log4net;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MinistryPlatform.Repositories
 {
     public class ProgramRepository : MinistryPlatformBase, IProgramRepository
     {
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public ProgramRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
@@ -35,6 +34,7 @@ namespace MinistryPlatform.Repositories
 
             if(!programs.Any())
             {
+                Console.WriteLine($"GetProgramByName: No program found with name {filter}");
                 _logger.Error($"GetProgramByName: No program found with name {filter}");
                 return null;
             }

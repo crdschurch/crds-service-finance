@@ -15,7 +15,6 @@ namespace MinistryPlatform.JournalEntries
 {
     public class JournalEntryRepository : MinistryPlatformBase, IJournalEntryRepository
     {
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public JournalEntryRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,

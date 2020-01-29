@@ -19,9 +19,9 @@ namespace Crossroads.Service.Finance.Services
         private readonly IMapper _mapper;
         private readonly IContactService _contactService;
 
-        const int imInPledgeId = 1103;
-        readonly DateTime imInObsessedStartDate = DateTime.Parse("3/18/2018");
-        readonly DateTime imInObsessedEndDate = DateTime.Parse("12/31/2019");
+        private const int ImInPledgeId = 1103;
+        private readonly DateTime _imInObsessedStartDate = DateTime.Parse("3/18/2018");
+        private readonly DateTime _imInObsessedEndDate = DateTime.Parse("12/31/2019");
 
         public DonationService(IDonationRepository mpDonationRepository, IDonationDistributionRepository mpDonationDistributionRepository, IPledgeRepository mpPledgeRepository, IMapper mapper,
             IContactService contactService)
@@ -167,7 +167,7 @@ namespace Crossroads.Service.Finance.Services
                 {
                     var donationsForPledge = donationDistributions.Where(dd => dd.PledgeId == mpPledge.PledgeId).ToList();
                     mpPledge.PledgeDonationsTotal = donationsForPledge.Sum(dd => dd.Amount);
-                    if (mpPledge.PledgeCampaignId == imInPledgeId)
+                    if (mpPledge.PledgeCampaignId == ImInPledgeId)
                     {
                         SetImInPledgeInfo(mpPledge);
                     }
@@ -178,11 +178,11 @@ namespace Crossroads.Service.Finance.Services
         }
 
         public MpPledge SetImInPledgeInfo(MpPledge mpPledge) {
-            if (mpPledge.FirstInstallmentDate >= imInObsessedStartDate)
+            if (mpPledge.FirstInstallmentDate >= _imInObsessedStartDate)
             {
                 mpPledge.CampaignName = "I'm In: Obsessed";
-                mpPledge.CampaignStartDate = imInObsessedStartDate;
-                mpPledge.CampaignEndDate = imInObsessedEndDate;
+                mpPledge.CampaignStartDate = _imInObsessedStartDate;
+                mpPledge.CampaignEndDate = _imInObsessedEndDate;
             }
 
             return mpPledge;

@@ -15,8 +15,7 @@ namespace MinistryPlatform.Repositories
     public class ContactRepository : MinistryPlatformBase, IContactRepository
     {
         IAuthenticationRepository _authRepo;
-        private const int pushpayProcessorType = 1;
-        private const int householdPositionMinorChild = 2;
+        private const int HouseholdPositionMinorChild = 2;
 
         public ContactRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
@@ -176,7 +175,7 @@ namespace MinistryPlatform.Repositories
             var filters = new string[]
             {
                 $"Household_ID_Table.[Household_ID] = {householdId}",
-                $"Household_Position_ID_Table.[Household_Position_ID] = {householdPositionMinorChild}"
+                $"Household_Position_ID_Table.[Household_Position_ID] = {HouseholdPositionMinorChild}"
             };
 
             return await MpRestBuilder.NewRequestBuilder()

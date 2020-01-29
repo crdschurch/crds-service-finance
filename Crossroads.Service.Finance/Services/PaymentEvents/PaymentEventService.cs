@@ -1,58 +1,43 @@
-﻿using System;
+﻿using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
-using Crossroads.Service.Finance.Interfaces;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
-using Crossroads.Service.Finance.Controllers;
-using Newtonsoft.Json.Linq;
-using Pushpay.Models;
-using Utilities.Logging;
 
 namespace Crossroads.Service.Finance.Services
 {
     public class PaymentEventService : IPaymentEventService
     {
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly IBatchService _batchService;
         private readonly IDepositService _depositService;
         private readonly IDonationService _donationService;
         private readonly IPushpayService _pushpayService;
 
-        private readonly IDataLoggingService _dataLoggingService;
-        
         // This value is used when creating the batch name for exporting to GP.  It must be 15 characters or less.
         private const string BatchNameDateFormat = @"\M\PyyMMddHHmmss";
         private readonly string PushpayMerchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
 
         public PaymentEventService(IBatchService batchService, IDepositService depositService, IDonationService donationService,
-            IPushpayService pushpayService, IDataLoggingService dataLoggingService)
+            IPushpayService pushpayService)
         {
             _batchService = batchService;
             _depositService = depositService;
             _donationService = donationService;
             _pushpayService = pushpayService;
-            _dataLoggingService = dataLoggingService;
         }
 
         public async void CreateDeposit(SettlementEventDto settlementEventDto)
         {
             Console.WriteLine($"Creating deposit: {settlementEventDto.Key}");
-
-            var depositCreationEntry = new LogEventEntry(LogEventType.creatingDeposit);
-            depositCreationEntry.Push("creatingDepositForSettlement", settlementEventDto.Key);
-            _dataLoggingService.LogDataEvent(depositCreationEntry);
+            _logger.Info($"Creating deposit: {settlementEventDto.Key}");
 
             // 1. Check to see if the deposit has already been created.  If we do throw an exception.
             var existingDeposit = await _depositService.GetDepositByProcessorTransferId(settlementEventDto.Key);
             if (existingDeposit != null)
             {
-                //_logger.LogError($"Deposit already exists for settlement: {settlementEventDto.Key}");
                 Console.WriteLine($"Deposit already exists for settlement: {settlementEventDto.Key}");
-
-                var depositExistsEntry = new LogEventEntry(LogEventType.depositExistsForSettlement);
-                depositExistsEntry.Push("depositExistsForSettlement", settlementEventDto.Key);
-                _dataLoggingService.LogDataEvent(depositExistsEntry);
-
+                _logger.Info($"Deposit already exists for settlement: {settlementEventDto.Key}");
                 return;
             }
 
@@ -61,15 +46,10 @@ namespace Crossroads.Service.Finance.Services
             var settlementPayments = await _pushpayService.GetDonationsForSettlement(settlementEventDto.Key);
             Console.WriteLine($"Settlement {settlementEventDto.Key} contains {settlementPayments.Count} ({settlementPayments}) donations from pushpay");
 
-            if (settlementPayments == null || settlementPayments.Count <= 0)
+            if (settlementPayments.Count <= 0)
             {
-                //_logger.LogError($"No charges found for settlement: {settlementEventDto.Key}");
                 Console.WriteLine($"No charges found for settlement: {settlementEventDto.Key}");
-
-                var noChargesEntry = new LogEventEntry(LogEventType.noChargesForSettlement);
-                noChargesEntry.Push("webhookType", settlementEventDto.Key);
-                _dataLoggingService.LogDataEvent(noChargesEntry);
-
+                _logger.Info($"No charges found for settlement: {settlementEventDto.Key}");
                 return;
             }
 
@@ -78,31 +58,25 @@ namespace Crossroads.Service.Finance.Services
                 DateTime.Now, settlementEventDto.Key);
             var savedDonationBatch = await _batchService.SaveDonationBatch(donationBatch);
             donationBatch.Id = savedDonationBatch.Id;
-            Console.WriteLine($"Batch created: {savedDonationBatch.Id}");
 
-            var batchCreatedEntry = new LogEventEntry(LogEventType.batchCreated);
-            batchCreatedEntry.Push("batchCreated", savedDonationBatch.Id);
-            _dataLoggingService.LogDataEvent(batchCreatedEntry);
+            _logger.Info($"Batch created: {savedDonationBatch.Id}");
+            Console.WriteLine($"Batch created: {savedDonationBatch.Id}");
 
             // 4. Update all the donations to have a status of deposited and to be part of the new batch.
             var updateDonationsTask = Task.Run((() =>
                 _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id)));
             var updateDonations = await updateDonationsTask;
             await _donationService.Update(updateDonations);
-            Console.WriteLine($"Updated donations for batch: {donationBatch.Id}");
 
-            var batchUpdatedEntry = new LogEventEntry(LogEventType.batchUpdated);
-            batchUpdatedEntry.Push("batchUpdated", donationBatch.Id);
-            _dataLoggingService.LogDataEvent(batchUpdatedEntry);
+            _logger.Info($"Updated donations for batch: {donationBatch.Id}");
+            Console.WriteLine($"Updated donations for batch: {donationBatch.Id}");
 
             // 5. Create Deposit with the associated batch (should be one batch for one deposit)
             var deposit = await _depositService.BuildDeposit(settlementEventDto);
             deposit = await _depositService.SaveDeposit(deposit);
-            Console.WriteLine($"Deposit created: {deposit.Id}");
 
-            var depositCreatedEntry = new LogEventEntry(LogEventType.depositCreated);
-            depositCreatedEntry.Push("depositCreated", deposit.Id);
-            _dataLoggingService.LogDataEvent(depositCreatedEntry);
+            _logger.Info($"Deposit created: {deposit.Id}");
+            Console.WriteLine($"Deposit created: {deposit.Id}");
 
             // 6. Update batch with deposit id and name and resave
             donationBatch.DepositId = deposit.Id;

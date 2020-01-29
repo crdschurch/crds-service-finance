@@ -18,6 +18,8 @@ namespace Crossroads.Service.Finance.Services.Exports
 {
     public class ExportService : IExportService
     {
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly IAdjustmentRepository _adjustmentRepository;
         private readonly IAdjustmentsToJournalEntriesService _adjustmentsToJournalEntriesService;
         private readonly IJournalEntryService _journalEntryService;

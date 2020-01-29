@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Service.Finance.Services.Recurring;
@@ -11,7 +7,9 @@ using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Moq;
 using Pushpay.Models;
-using Utilities.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Crossroads.Service.Finance.Test.Recurring
@@ -22,7 +20,6 @@ namespace Crossroads.Service.Finance.Test.Recurring
         private readonly Mock<IMapper> _mapper;
         private readonly Mock<IPushpayService> _pushpayService;
         private readonly Mock<IConfigurationWrapper> _configWrapper;
-        private readonly Mock<IDataLoggingService> _dataLoggingService;
         private readonly Mock<IRecurringGiftRepository> _recurringGiftRepository;
 
         private readonly IRecurringService _fixture;
@@ -33,11 +30,10 @@ namespace Crossroads.Service.Finance.Test.Recurring
             _mapper = new Mock<IMapper>();
             _pushpayService = new Mock<IPushpayService>();
             _configWrapper = new Mock<IConfigurationWrapper>();
-            _dataLoggingService = new Mock<IDataLoggingService>();
             _recurringGiftRepository = new Mock<IRecurringGiftRepository>();
 
             _fixture = new RecurringService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object,
-                _dataLoggingService.Object, _recurringGiftRepository.Object);
+                _recurringGiftRepository.Object);
         }
 
         [Fact]

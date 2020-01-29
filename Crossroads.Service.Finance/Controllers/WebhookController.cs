@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using Crossroads.Service.Finance.Interfaces;
+﻿using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Utilities.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -12,12 +11,11 @@ namespace Crossroads.Service.Finance.Controllers
     public class WebhookController : Controller
     {
         private readonly IPushpayService _pushpayService;
-        private readonly IDataLoggingService _dataLoggingService;
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public WebhookController(IPushpayService pushpayService, IDataLoggingService dataLoggingService)
+        public WebhookController(IPushpayService pushpayService)
         {
             _pushpayService = pushpayService;
-            _dataLoggingService = dataLoggingService;
         }
 
         /// <summary>
@@ -30,7 +28,7 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpPost("pushpay")]
         [ProducesResponseType(200)]
         [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
         {
             try
@@ -40,10 +38,6 @@ namespace Crossroads.Service.Finance.Controllers
                 _pushpayService.SaveWebhookData(pushpayWebhook);
 
                 var pushpayEvent = pushpayWebhook.Events[0];
-
-                var logEventEntry = new LogEventEntry(LogEventType.incomingPushpayWebhook);
-                logEventEntry.Push("webhookType", pushpayEvent.EventType);
-                _dataLoggingService.LogDataEvent(logEventEntry);
 
                 switch (pushpayEvent.EventType)
                 {
@@ -56,18 +50,19 @@ namespace Crossroads.Service.Finance.Controllers
                         return Ok();
                     case "recurring_payment_changed":
                         var updatedGift = await _pushpayService.UpdateRecurringGift(pushpayWebhook);
-                        return StatusCode(200, updatedGift);
+                        return StatusCode(200);
                     case "recurring_payment_created":
                         var newGift = await _pushpayService.CreateRecurringGift(pushpayWebhook);
-                        return StatusCode(201, newGift);
+                        return StatusCode(201);
                     default:
                         return NotFound();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Webhook error: {ex.Message}");
-                return StatusCode(400, ex);
+                Console.WriteLine($"Error WebhookController.HandlePushpayWebhooks: {ex.Message}");
+                _logger.Error(ex, $"Error WebhookController.HandlePushpayWebhooks: {ex.Message}");
+                return StatusCode(500);
             }
         }
     }
