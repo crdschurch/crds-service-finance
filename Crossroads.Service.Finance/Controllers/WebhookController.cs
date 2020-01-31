@@ -25,11 +25,12 @@ namespace Crossroads.Service.Finance.Controllers
         ///    Called by Pushpay when a new donation is created, or a recurring gift is created/updated
         /// </remarks>
         /// <param name="pushpayWebhook">Pushpay webhook.</param>
-        [HttpPost("pushpay")]
+        /// <param name="congregationId"></param>
+        [HttpPost("pushpay/{congregationId?}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(201)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook)
+        public async Task<IActionResult> HandlePushpayWebhooks([FromBody] PushpayWebhook pushpayWebhook, int? congregationId = null)
         {
             try
             {
@@ -49,10 +50,10 @@ namespace Crossroads.Service.Finance.Controllers
                         _pushpayService.UpdateDonationDetails(pushpayWebhook);
                         return Ok();
                     case "recurring_payment_changed":
-                        var updatedGift = await _pushpayService.UpdateRecurringGift(pushpayWebhook);
+                        var updatedGift = await _pushpayService.UpdateRecurringGift(pushpayWebhook, congregationId);
                         return StatusCode(200);
                     case "recurring_payment_created":
-                        var newGift = await _pushpayService.CreateRecurringGift(pushpayWebhook);
+                        var newGift = await _pushpayService.CreateRecurringGift(pushpayWebhook, congregationId);
                         return StatusCode(201);
                     default:
                         return NotFound();
