@@ -67,6 +67,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
             _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
             _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
+            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
 
             var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock).Result;
 
@@ -83,6 +85,11 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
             _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
             _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
+            int? nullableInt = 1;
+            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
             var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock).Result;
 
@@ -99,6 +106,11 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
             _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
             _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
+            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
+            int? nullableInt = 1;
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
             var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock).Result;
 
@@ -125,6 +137,11 @@ namespace Crossroads.Service.Finance.Test.Pushpay
 
             _mapper.Setup(m => m.Map<List<SettlementEventDto>>(It.IsAny<List<PushpaySettlementDto>>())).Returns(depositDtos);
             _pushpayClient.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(Task.FromResult(pushpayDepositDtos));
+            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
+            int? nullableInt = 1;
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
             // Act
             var result = _fixture.GetDepositsByDateRange(startDate, endDate).Result;
@@ -165,7 +182,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     Code = "I'm In"
                 },
                 Links = new PushpayLinksDto(),
-                PaymentMethodType = "ACH"
+                PaymentMethodType = "ACH",
+                Campus = new PushpayCampusDto
+                {
+                    Key = "test",
+                    Name = "test"
+                }
             };
             var mpRecurringGift = new MpRecurringGift()
             {
@@ -196,7 +218,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto(){ DonorId = 1 });
 
-            var result = _fixture.CreateRecurringGift(webhook).Result;
+            var result = _fixture.CreateRecurringGift(webhook, null).Result;
 
             Assert.Equal(1, result.DonorId);
         }
@@ -237,7 +259,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     Code = "I'm In"
                 },
                 Links = new PushpayLinksDto(),
-                PaymentMethodType = "ACH"
+                PaymentMethodType = "ACH",
+                Campus = new PushpayCampusDto
+                {
+                    Key = "test",
+                    Name = "test"
+                }
             };
             var mpRecurringGift = new MpRecurringGift()
             {
@@ -268,8 +295,11 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _donationService.Setup(m => m.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
                             .Returns(Task.FromResult(mockDonorAccount));
             _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
+            int? nullableInt = 1;
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
-            var result = _fixture.CreateRecurringGift(webhook).Result;
+            var result = _fixture.CreateRecurringGift(webhook, null).Result;
             Assert.Equal(1, result.DonorId);
         }
 
@@ -306,7 +336,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     Code = "I'm In"
                 },
                 Links = new PushpayLinksDto(),
-                PaymentMethodType = "ACH"
+                PaymentMethodType = "ACH",
+                Campus = new PushpayCampusDto
+                {
+                    Key = "test",
+                    Name = "test"
+                }
             };
             var mpRecurringGift = new MpRecurringGift()
             {
@@ -338,8 +373,11 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                                   .Returns(Task.FromResult(new MpProgram()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
+            int? nullableInt = 1;
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
-            var result = _fixture.CreateRecurringGift(webhook).Result;
+            var result = _fixture.CreateRecurringGift(webhook, null).Result;
 
             Assert.Equal(1, result.DonorId);
         }
@@ -412,8 +450,11 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _recurringGiftRepository.Setup(m => m.UpdateRecurringGift(It.IsAny<JObject>()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
+            int? nullableInt = 1;
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
-            var result = _fixture.UpdateRecurringGift(webhook);
+            var result = _fixture.UpdateRecurringGift(webhook, null);
         }
 
 

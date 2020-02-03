@@ -69,7 +69,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
                     {
                         _logger.Info($"Create new recurring gift: {pushpayRecurringGiftId}");
                         Console.WriteLine($"Create new recurring gift: {pushpayRecurringGiftId}");
-                        await _pushpayService.BuildAndCreateNewRecurringGift(pushPayGift);
+                        await _pushpayService.BuildAndCreateNewRecurringGift(pushPayGift, null);
                         giftIdsSynced.Add(pushpayRecurringGiftId);
                     }
                     // if the recurring gift DOES exist in MP, check to see when it was last updated and update it if the Pushpay version is newer

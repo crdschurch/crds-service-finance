@@ -54,7 +54,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
             _recurringGiftRepository.Setup(m => m.FindRecurringGiftsBySubscriptionIds(It.IsAny<List<string>>()))
                 .Returns(Task.FromResult(new List<MpRecurringGift>()));
 
-            _pushpayService.Setup(m => m.BuildAndCreateNewRecurringGift(It.IsAny<PushpayRecurringGiftDto>()))
+            _pushpayService.Setup(m => m.BuildAndCreateNewRecurringGift(It.IsAny<PushpayRecurringGiftDto>(), It.IsAny<int?>()))
                 .Returns(Task.FromResult(new MpRecurringGift{ SubscriptionId = "123abc"}));
 
             // Act

@@ -40,6 +40,10 @@ namespace Pushpay.Models
 
         [JsonProperty("fields")]
         public List<PushpayFieldValueDto> PushpayFields { get; set; }
+
+        [JsonProperty("campus")]
+        public PushpayCampusDto Campus { get; set; }
+
     }
 
     public class RecurringGiftAmount
@@ -125,5 +129,14 @@ namespace Pushpay.Models
 
         [JsonProperty("accountType")]
         public string AccountType { get; set; }
+    }
+
+    public class PushpayCampusDto
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("key")]
+        public string Key { get; set; }
     }
 }
