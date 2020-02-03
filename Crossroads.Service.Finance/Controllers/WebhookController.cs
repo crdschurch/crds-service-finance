@@ -34,6 +34,8 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
+                pushpayWebhook.CongregationId = congregationId;
+
                 Console.WriteLine("⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡ Incoming webhook ⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️");
                 Console.WriteLine(JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
                 _pushpayService.SaveWebhookData(pushpayWebhook);

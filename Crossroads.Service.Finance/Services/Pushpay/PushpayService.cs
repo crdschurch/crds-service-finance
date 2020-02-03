@@ -202,7 +202,7 @@ namespace Crossroads.Service.Finance.Services
                 // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
                 // (this is a different business rule from soft credit donations) - default to using the id from the
                 // webhook if possible so we don't have to mess with name matching
-                int? congregationId = await LookupCongregationId(pushpayPayment.PushpayFields, pushpayPayment.Campus.Key, null);
+                int? congregationId = await LookupCongregationId(pushpayPayment.PushpayFields, pushpayPayment.Campus.Key, webhook.CongregationId);
 
                 // if neither source of congregation id is available, log it and move on
                 if (congregationId == null)
