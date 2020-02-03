@@ -14,6 +14,8 @@ namespace Crossroads.Service.Finance.Models
         public IList<PushpayWebhookEvent> Events { get; set; }
 
         public DateTime? IncomingTimeUtc { get; set; }
+
+        public int? CongregationId { get; set; }
     }
 
     public class PushpayWebhookLinks
