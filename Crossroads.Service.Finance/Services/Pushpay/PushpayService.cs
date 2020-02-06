@@ -661,16 +661,15 @@ namespace Crossroads.Service.Finance.Services
 
         public async Task<int> LookupCongregationId(List<PushpayFieldValueDto> pushpayFields, string campusKey, int? congregationId)
         {
-            if (congregationId != null)
+            if (congregationId != null && congregationId != 0)
             {
                 return congregationId.GetValueOrDefault();
             }
 
-            // default to not site specific
-            var lookupCongregationId = NotSiteSpecificCongregationId;
+            var lookupCongregationId = 0;
 
             // only look up on the name if we didn't get this from the webhook
-            if (congregationId == null && (pushpayFields != null && pushpayFields.Any(r => r.Key == CongregationFieldKey)))
+            if ((congregationId == null || congregationId == 0) && (pushpayFields != null && pushpayFields.Any(r => r.Key == CongregationFieldKey)))
             {
                 var congregationName = TranslateCongregation.Translate(pushpayFields.First(r => r.Key == CongregationFieldKey).Value);
                 var congregations = await _congregationRepository.GetCongregationByCongregationName(congregationName);
@@ -685,6 +684,12 @@ namespace Crossroads.Service.Finance.Services
                 // get the pushpay campus key here
                 lookupCongregationId = (await _configurationWrapper.GetMpConfigIntValueAsync("test", campusKey)).GetValueOrDefault();
             }
+
+            if (congregationId != null && congregationId != 0)
+            {
+                lookupCongregationId = NotSiteSpecificCongregationId;
+            }
+
 
             return lookupCongregationId;
         }
