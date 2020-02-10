@@ -38,6 +38,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
 
         public PushpayServiceTest()
         {
+            System.Environment.SetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY", "1234");
+
             _pushpayClient = new Mock<IPushpayClient>();
             _donationService = new Mock<IDonationService>();
             _mapper = new Mock<IMapper>();
@@ -79,6 +81,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         [Fact]
         public void ShouldUpdateDonationStatusSuccessFromPushpay()
         {
+            System.Environment.SetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY", "1234");
             string transactionCode = "87234354v";
             var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Task.FromResult(Mock.PushpayPaymentDtoMock.CreateSuccess()));
@@ -507,6 +510,148 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             var expected = "First Name: Dez Last Name: Bryant Phone: (653) 665-9090 Email: dez@cowboys.com ";
             expected += "Address1: Street Address Not Provided Address2:  City, State Zip: ,  83566 Country: USA";
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void ShouldGetSiteConfigFromFields()
+        {
+            // Arrange
+            var pushpayFields = new List<PushpayFieldValueDto>
+            {
+                new PushpayFieldValueDto
+                {
+                    Key = "1234",
+                    Value = "Mason",
+                    Label = "site"
+                }
+            };
+
+            var campusKey = "abcedf123456";
+            int? congregationId = null;
+
+            var mpCongregations = new List<MpCongregation>
+            {
+                new MpCongregation
+                {
+                    CongregationName = "Mason",
+                    CongregationId = 123
+                }
+            };
+
+            _congregationRepository.Setup(m => m.GetCongregationByCongregationName("Mason")).Returns(Task.FromResult(mpCongregations));
+
+            // Act
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+
+            // Assert
+            Assert.Equal(123, siteId);
+        }
+
+        [Fact]
+        public void ShouldGetSiteConfigFromWebhookId()
+        {
+            // Arrange
+            var pushpayFields = new List<PushpayFieldValueDto>
+            {
+                new PushpayFieldValueDto
+                {
+                    Key = "1234",
+                    Value = "Mason",
+                    Label = "site"
+                }
+            };
+
+            var campusKey = "abcedf123456";
+            int? congregationId = 5;
+
+            var mpCongregations = new List<MpCongregation>
+            {
+                new MpCongregation
+                {
+                    CongregationName = "Mason",
+                    CongregationId = 123
+                }
+            };
+
+            _congregationRepository.Setup(m => m.GetCongregationByCongregationName("Mason")).Returns(Task.FromResult(mpCongregations));
+
+            // Act
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+
+            // Assert
+            Assert.Equal(5, siteId);
+        }
+
+        [Fact]
+        public void ShouldGetSiteConfigFromMpConfigValue()
+        {
+            // Arrange
+            var pushpayFields = new List<PushpayFieldValueDto>
+            {
+                new PushpayFieldValueDto
+                {
+                    Key = "1234",
+                    Value = "Mason",
+                    Label = "site"
+                }
+            };
+
+            var campusKey = "abcedf123456";
+            int? congregationId = 5;
+
+            var mpCongregations = new List<MpCongregation>
+            {
+                new MpCongregation
+                {
+                    CongregationName = "Mason",
+                    CongregationId = 123
+                }
+            };
+
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync("CRDS-FINANCE", campusKey, false))
+                .Returns(Task.FromResult(congregationId));
+
+            // Act
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+
+            // Assert
+            Assert.Equal(5, siteId);
+        }
+
+        [Fact]
+        public void ShouldGetSiteConfigDefault()
+        {
+            // Arrange
+            var pushpayFields = new List<PushpayFieldValueDto>
+            {
+                new PushpayFieldValueDto
+                {
+                    Key = "1234",
+                    Value = "Mason",
+                    Label = "site"
+                }
+            };
+
+            var campusKey = "abcedf123456";
+            int? notFoundCongregationId = 0;
+
+            var mpCongregations = new List<MpCongregation>
+            {
+                new MpCongregation
+                {
+                    CongregationName = "Mason",
+                    CongregationId = 123
+                }
+            };
+
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync("CRDS-FINANCE", campusKey, false))
+                .Returns(Task.FromResult(notFoundCongregationId));
+
+            // Act
+            var siteId = _fixture.LookupCongregationId(null, campusKey, null).Result;
+
+            // Assert
+            Assert.Equal(5, siteId);
         }
     }
 }

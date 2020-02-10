@@ -682,14 +682,13 @@ namespace Crossroads.Service.Finance.Services
             else
             {
                 // get the pushpay campus key here
-                lookupCongregationId = (await _configurationWrapper.GetMpConfigIntValueAsync("test", campusKey)).GetValueOrDefault();
+                lookupCongregationId = (await _configurationWrapper.GetMpConfigIntValueAsync("CRDS-FINANCE", campusKey)).GetValueOrDefault();
             }
 
-            if (congregationId != null && congregationId != 0)
+            if (lookupCongregationId == 0)
             {
                 lookupCongregationId = NotSiteSpecificCongregationId;
             }
-
 
             return lookupCongregationId;
         }
