@@ -14,6 +14,7 @@ namespace MinistryPlatform.Interfaces
         Task<MpDonation> Update(MpDonation donation);
         Task<MpDonor> CreateDonor(MpDonor donor);
         Task<MpDonorAccount> CreateDonorAccount(MpDonorAccount donor);
+        Task<List<MpDonorAccount>> GetDonorAccounts(int donorId);
         void UpdateDonorAccount(JObject donorAccount);
         Task<List<MpRecurringGift>> GetRecurringGifts(int contactId);
         Task<List<MpRecurringGift>> GetRecurringGiftsByContactIdAndDates(int contactId, DateTime? startDate = null, DateTime? endDate = null);

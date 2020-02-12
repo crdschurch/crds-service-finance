@@ -82,6 +82,11 @@ namespace Crossroads.Service.Finance.Services
             return await _mpDonationRepository.CreateDonorAccount(donor);
         }
 
+        public async Task<List<MpDonorAccount>> GetDonorAccounts(int donorId)
+        {
+            return await _mpDonationRepository.GetDonorAccounts(donorId);
+        }
+
         public void UpdateDonorAccount(JObject donorAccount)
         {
             _mpDonationRepository.UpdateDonorAccount(donorAccount);

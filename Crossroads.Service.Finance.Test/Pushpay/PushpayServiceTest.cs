@@ -68,6 +68,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Task.FromResult(Mock.PushpayPaymentDtoMock.CreateProcessing()));
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
             _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
+            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>())).ReturnsAsync(new List<MpDonorAccount>());
             _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
             _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
                 .Returns(Task.FromResult(new List<MpDonationDistribution>()));
@@ -87,6 +88,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Task.FromResult(Mock.PushpayPaymentDtoMock.CreateSuccess()));
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
             _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
+            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>())).ReturnsAsync(new List<MpDonorAccount>());
             _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
             int? nullableInt = 1;
             _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
@@ -108,6 +110,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Task.FromResult(Mock.PushpayPaymentDtoMock.CreateFailed()));
             _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
             _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
+            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>())).ReturnsAsync(new List<MpDonorAccount>());
             _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
             _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
                 .Returns(Task.FromResult(new List<MpDonationDistribution>()));

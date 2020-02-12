@@ -82,6 +82,28 @@ namespace MinistryPlatform.Repositories
                 .Create(donor);
         }
 
+        public async Task<List<MpDonorAccount>> GetDonorAccounts(int donorId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var columns = new[]
+            {
+                "Donor_Accounts.[Donor_Account_ID]"
+                , "Donor_ID_Table.[Donor_ID]"
+                , "Donor_Accounts.[Non-Assignable]"
+                , "Account_Type_ID_Table.[Account_Type_ID]"
+                , "Donor_Accounts.[Closed]"
+                , "Donor_Accounts.[Institution_Name]"
+                , "Donor_Accounts.[Account_Number]"
+                , "Donor_Accounts.[Routing_Number]"
+                , "Donor_Accounts.[Processor_ID]"
+                , "Processor_Type_ID_Table.[Processor_Type_ID]"
+            };
+            var filter = $"Donor_ID_Table.[Donor_ID] = { donorId }";
+
+            return await MpRestBuilder.NewRequestBuilder().WithAuthenticationToken(token).WithSelectColumns(columns)
+                .WithFilter(filter).BuildAsync().Search<MpDonorAccount>();
+        }
+
         public void UpdateDonorAccount(JObject donorAccount)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
