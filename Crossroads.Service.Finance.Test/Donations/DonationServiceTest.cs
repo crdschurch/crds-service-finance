@@ -241,5 +241,32 @@ namespace Crossroads.Service.Finance.Test.Donations
             Assert.NotNull(result);
             Assert.Equal(5544555, result[0].DonationId);
         }
+        
+        [Fact]
+        public async Task GetDonorAccounts()
+        {
+
+            // Arrange
+            var donorId = 777790;
+            var mpDonorAccount = new MpDonorAccount
+            {
+                Closed = false,
+                AccountNumber = "4894894894",
+                InstitutionName = "Bank Of America",
+                DomainId = 1,
+                DonorId = 777790,
+                DonorAccountId = 8098
+            };
+
+            _donationRepository.Setup(m => m.GetDonorAccounts(donorId))
+                .ReturnsAsync(new List<MpDonorAccount> {mpDonorAccount});
+            
+            
+            // Act
+            var results = await _fixture.GetDonorAccounts(donorId);
+
+            // Assert
+            Assert.Contains(mpDonorAccount, results);
+        }
     }
 }
