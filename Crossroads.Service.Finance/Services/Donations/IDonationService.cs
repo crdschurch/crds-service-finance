@@ -14,6 +14,7 @@ namespace Crossroads.Service.Finance.Interfaces
         Task<DonationDto> GetDonationByTransactionCode(string transactionCode);
         Task<MpDonor> CreateDonor(MpDonor donor);
         Task<MpDonorAccount> CreateDonorAccount(MpDonorAccount donor);
+        Task<List<MpDonorAccount>> GetDonorAccounts(int donorId);
         void UpdateDonorAccount(JObject donorAccount);
         Task<List<RecurringGiftDto>> GetRecurringGifts(int contactId);
         Task<List<RecurringGiftDto>> GetRelatedContactRecurringGifts(int userContactId, int relatedContactId);

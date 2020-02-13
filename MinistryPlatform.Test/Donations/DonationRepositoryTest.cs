@@ -317,5 +317,52 @@ namespace MinistryPlatform.Test.Donations
             // Assert
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public async Task GetDonorAccounts()
+        {
+
+            // Arrange
+            var donorId = 777790;
+            var token = "abc123432afe";
+            var columns = new[]
+            {
+                "Donor_Accounts.[Donor_Account_ID]"
+                , "Donor_ID_Table.[Donor_ID]"
+                , "Donor_Accounts.[Non-Assignable]"
+                , "Account_Type_ID_Table.[Account_Type_ID]"
+                , "Donor_Accounts.[Closed]"
+                , "Donor_Accounts.[Institution_Name]"
+                , "Donor_Accounts.[Account_Number]"
+                , "Donor_Accounts.[Routing_Number]"
+                , "Donor_Accounts.[Processor_ID]"
+                , "Processor_Type_ID_Table.[Processor_Type_ID]"
+            };
+            var filter = $"Donor_ID_Table.[Donor_ID] = { donorId }";
+            var mpDonorAccount = new MpDonorAccount
+            {
+                Closed = false,
+                AccountNumber = "4894894894",
+                InstitutionName = "Bank Of America",
+                DomainId = 1,
+                DonorId = 777790,
+                DonorAccountId = 8098
+            };
+            
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(columns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
+            
+            _request.Setup(m => m.Search<MpDonorAccount>()).ReturnsAsync(new List<MpDonorAccount>{mpDonorAccount});
+            
+            // Act
+            var results = await _fixture.GetDonorAccounts(donorId);
+
+            // Assert
+            Assert.Contains(mpDonorAccount, results);
+        }
     }
 }

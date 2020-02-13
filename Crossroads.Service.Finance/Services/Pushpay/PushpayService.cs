@@ -165,7 +165,7 @@ namespace Crossroads.Service.Finance.Services
                 // if it doesn't exist, attach a donor account so we have access to payment details
                 if (donation.DonorAccountId == null)
                 {
-                    var mpDonorAccount = await CreateDonorAccount(pushpayPayment, donation.DonorId);
+                    var mpDonorAccount = await GetOrCreateDonorAccount(pushpayPayment, donation.DonorId);
                     donation.DonorAccountId = mpDonorAccount.DonorAccountId;   
                 }
 
@@ -514,7 +514,7 @@ namespace Crossroads.Service.Finance.Services
                 var existingMatchedDonor = await _donorRepository.GetDonorByDonorId(donorId.GetValueOrDefault());
                 // we found a matching donor by processor id (i.e. we have previously matched them)
                 //   create a new donor account on donor for this recurring gift
-                existingMatchedDonor.DonorAccountId = (await CreateDonorAccount(gift, existingMatchedDonor.DonorId.Value)).DonorAccountId;
+                existingMatchedDonor.DonorAccountId = (await GetOrCreateDonorAccount(gift, existingMatchedDonor.DonorId.Value)).DonorAccountId;
                 return existingMatchedDonor;
             }
             // we didn't match a donor with a processor id (i.e. previously matched), so let's
@@ -613,6 +613,33 @@ namespace Crossroads.Service.Finance.Services
         {
             var mpDonorAccount = MapDonorAccountPaymentDetails(basePushpayTransaction, donorId);
             return await _donationService.CreateDonorAccount(mpDonorAccount);
+        }
+
+        private async Task<MpDonorAccount> GetOrCreateDonorAccount(PushpayTransactionBaseDto basePushPayTransaction,
+            int donorId)
+        {
+            var mpDonorAccount = MapDonorAccountPaymentDetails(basePushPayTransaction, donorId);
+            var mpCurrentDonorAccounts = await _donationService.GetDonorAccounts(donorId);
+
+            var matchingDonorAccounts = mpCurrentDonorAccounts.Where(da => 
+                da.Closed == mpDonorAccount.Closed 
+                && da.NonAssignable == mpDonorAccount.NonAssignable
+                && da.AccountNumber == mpDonorAccount.AccountNumber
+                && da.DonorId == mpDonorAccount.DonorId
+                && da.InstitutionName == mpDonorAccount.InstitutionName
+                && da.ProcessorId == mpDonorAccount.ProcessorId
+                && da.RoutingNumber == mpDonorAccount.RoutingNumber
+                && da.AccountTypeId == mpDonorAccount.AccountTypeId
+                && da.ProcessorTypeId == mpDonorAccount.ProcessorTypeId).ToList();
+
+            if (matchingDonorAccounts.Count > 0)
+            {
+                return matchingDonorAccounts[0];
+            }
+            else
+            {
+                return await _donationService.CreateDonorAccount(mpDonorAccount);
+            }
         }
 
         private int GetRecurringGiftStatusId(string recurringGiftStatus)
