@@ -514,7 +514,7 @@ namespace Crossroads.Service.Finance.Services
                 var existingMatchedDonor = await _donorRepository.GetDonorByDonorId(donorId.GetValueOrDefault());
                 // we found a matching donor by processor id (i.e. we have previously matched them)
                 //   create a new donor account on donor for this recurring gift
-                existingMatchedDonor.DonorAccountId = (await CreateDonorAccount(gift, existingMatchedDonor.DonorId.Value)).DonorAccountId;
+                existingMatchedDonor.DonorAccountId = (await GetOrCreateDonorAccount(gift, existingMatchedDonor.DonorId.Value)).DonorAccountId;
                 return existingMatchedDonor;
             }
             // we didn't match a donor with a processor id (i.e. previously matched), so let's

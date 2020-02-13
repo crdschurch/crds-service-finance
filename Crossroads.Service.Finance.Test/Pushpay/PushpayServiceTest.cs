@@ -300,6 +300,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
             _donationService.Setup(m => m.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
                             .Returns(Task.FromResult(mockDonorAccount));
+            _donationService.Setup(m => m.GetDonorAccounts(It.IsAny<int>()))
+                            .Returns(Task.FromResult(new List<MpDonorAccount>{mockDonorAccount}));
             _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
             int? nullableInt = 1;
             _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
