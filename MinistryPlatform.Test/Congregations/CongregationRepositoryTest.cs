@@ -71,7 +71,7 @@ namespace MinistryPlatform.Test.Congregations
             _request.Setup(m => m.Search<MpCongregation>()).Returns(MpCongregationMock.CreateList());
 
             // Act
-            var response = _fixture.GetCongregationByCongregationName(congregationName);
+            var response = _fixture.GetCongregationByCongregationName(congregationName).Result;
 
             // Assert
             Assert.Equal(1, response.Count);

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using AutoMapper;
 using Crossroads.Service.Finance.Services.Exports;
@@ -37,7 +38,7 @@ namespace Crossroads.Service.Finance.Test.Exports
             _journalEntryService = new Mock<IJournalEntryService>();
             _batchService = new Mock<IJournalEntryBatchService>();
             _journalEntryRepository = new Mock<IJournalEntryRepository>();
-            _journalEntryExport = new Mock<IJournalEntryExport>();
+            _journalEntryExport = new Mock<IJournalEntryExport>(MockBehavior.Strict);
             _mapper = new Mock<IMapper>();
 
             _fixture = new ExportService(_adjustmentRepository.Object,
@@ -54,14 +55,13 @@ namespace Crossroads.Service.Finance.Test.Exports
         {
             // Arrange
             _adjustmentRepository.Setup(r => r.GetUnprocessedDistributionAdjustments())
-                .Returns(new List<MpDistributionAdjustment>());
+                .Returns(Task.FromResult<List<MpDistributionAdjustment>>(null));
 
-            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>()));
-
-            _journalEntryService.Setup(e => e.AddBatchIdsAndClean(It.IsAny<List<MpJournalEntry>>())).Returns(new List<MpJournalEntry>() { null });
+            _journalEntryService.Setup(e => e.AddBatchIdsAndClean(
+                It.IsAny<List<MpJournalEntry>>())).Returns(Task.FromResult(new List<MpJournalEntry>() { null }));
 
             // Act
-            _fixture.CreateJournalEntries();
+            _fixture.CreateJournalEntriesAsync();
 
             // Assert
             _journalEntryRepository.VerifyAll();
@@ -74,16 +74,16 @@ namespace Crossroads.Service.Finance.Test.Exports
             var mpAdjustmentsMock = MpDistributionAdjustmentMock.CreateList();
             var mpJournalEntryMock = MpJournalEntryMock.CreateList();
 
-            _journalEntryService.Setup(e => e.AddBatchIdsAndClean(It.IsAny<List<MpJournalEntry>>())).Returns(mpJournalEntryMock);
+            _journalEntryService.Setup(e => e.AddBatchIdsAndClean(It.IsAny<List<MpJournalEntry>>())).Returns(Task.FromResult(mpJournalEntryMock));
 
-            _adjustmentRepository.Setup(r => r.GetUnprocessedDistributionAdjustments()).Returns(mpAdjustmentsMock);
+            _adjustmentRepository.Setup(r => r.GetUnprocessedDistributionAdjustments()).Returns(Task.FromResult(mpAdjustmentsMock));
 
-            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>())).Returns(mpJournalEntryMock);
+            _journalEntryRepository.Setup(r => r.CreateMpJournalEntries(It.IsAny<List<MpJournalEntry>>())).Returns(Task.FromResult(mpJournalEntryMock));
 
             _adjustmentRepository.Setup(r => r.UpdateAdjustments(It.IsAny<List<MpDistributionAdjustment>>()));
 
             // Act
-            _fixture.CreateJournalEntries();
+            _fixture.CreateJournalEntriesAsync();
 
             // Assert
             _journalEntryRepository.VerifyAll();
@@ -92,7 +92,6 @@ namespace Crossroads.Service.Finance.Test.Exports
         [Fact]
         public void ShouldSubmitJournalEntriesForExport()
         {
-            // TODO: Reimplement this test once we're ready to start pushing data to Velosio
             // Arrange
             var mpJournalEntriesMock = MpJournalEntryMock.CreateList();
 
@@ -101,7 +100,7 @@ namespace Crossroads.Service.Finance.Test.Exports
             var debitAmount = 5.0m;
             var batchDate = new DateTime(2019, 09, 03);
             var batchData = "batchData";
-            var transactionCount = 5;
+            var transactionCount = 0;
 
             var velosioJournalEntryBatch = new VelosioJournalEntryBatch("CRJE20190903")
             {
@@ -109,7 +108,7 @@ namespace Crossroads.Service.Finance.Test.Exports
                 BatchDate = batchDate,
                 TotalDebits = debitAmount,
                 TotalCredits = creditAmount,
-                BatchData = new XElement("batchdata", batchData),
+                BatchData = new XElement("batchData", batchData),
                 TransactionCount = transactionCount
             };
             var mockBatchList = new List<VelosioJournalEntryBatch>
@@ -117,20 +116,20 @@ namespace Crossroads.Service.Finance.Test.Exports
                 velosioJournalEntryBatch
             };
 
-            _journalEntryRepository.Setup(m => m.GetUnexportedJournalEntries()).Returns(mpJournalEntriesMock);
+            _journalEntryRepository.Setup(m => m.GetUnexportedJournalEntries()).Returns(Task.FromResult(mpJournalEntriesMock));
             _batchService.Setup(m => m.CreateBatchPerUniqueJournalEntryBatchId(It.IsAny<List<MpJournalEntry>>()))
-                .Returns(mockBatchList);
+                .Returns(Task.FromResult(mockBatchList));
 
-            _journalEntryExport.Setup(m => m.ExportJournalEntryStage(
-                "CRJE20190903",
-                5.0m,
-                5.0m,
-                0,
-                It.IsAny<XElement>()
-            ));
+            _journalEntryExport.Setup<Task>(m => m.ExportJournalEntryStage(
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<decimal>(),
+                It.IsAny<int>(),
+                It.IsAny<System.Xml.Linq.XElement>()
+            )).Returns(Task.FromResult<string>("test"));
 
             // Act
-            _fixture.ExportJournalEntries();
+            var result = _fixture.ExportJournalEntries().Result;
 
             // Assert
             _journalEntryExport.VerifyAll();

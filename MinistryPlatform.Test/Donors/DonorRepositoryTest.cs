@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -20,7 +21,7 @@ namespace MinistryPlatform.Test.Donors
         readonly Mock<IConfigurationWrapper> _configurationWrapper;
         readonly Mock<IMinistryPlatformRestRequestBuilder> _restRequest;
         readonly Mock<IMinistryPlatformRestRequestBuilderFactory> _restRequestBuilder;
-        readonly Mock<IMinistryPlatformRestRequest> _request;
+        readonly Mock<IMinistryPlatformRestRequestAsync> _request;
         readonly Mock<IMapper> _mapper;
         readonly Mock<IAuthenticationRepository> _authenticationRepository;
 
@@ -39,12 +40,12 @@ namespace MinistryPlatform.Test.Donors
             _authenticationRepository = new Mock<IAuthenticationRepository>(MockBehavior.Strict);
             _mapper = new Mock<IMapper>(MockBehavior.Strict);
 
-            _request = new Mock<IMinistryPlatformRestRequest>();
+            _request = new Mock<IMinistryPlatformRestRequestAsync>();
 
             _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
             _fixture = new DonorRepository(_restRequestBuilder.Object,
                 _apiUserRepository.Object,
@@ -89,9 +90,9 @@ namespace MinistryPlatform.Test.Donors
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(columns)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpDonorAccount>()).Returns(mpDonorAccounts);
+            _request.Setup(m => m.Search<MpDonorAccount>()).Returns(Task.FromResult(mpDonorAccounts));
 
             // Act
             var result = _fixture.GetDonorIdByProcessorId(processorId);
@@ -133,12 +134,12 @@ namespace MinistryPlatform.Test.Donors
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(columns)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpDonorAccount>()).Returns(mpDonorAccounts);
+            _request.Setup(m => m.Search<MpDonorAccount>()).Returns(Task.FromResult(mpDonorAccounts));
 
             // Act
-            var result = _fixture.GetDonorIdByProcessorId(processorId);
+            var result = _fixture.GetDonorIdByProcessorId(processorId).Result;
 
             // Assert
             Assert.Null(result);
@@ -166,9 +167,9 @@ namespace MinistryPlatform.Test.Donors
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(donorFilter)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(donorColumns)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
-            _request.Setup(m => m.Get<MpDonor>(donorId)).Returns(new MpDonor());
+            _request.Setup(m => m.Get<MpDonor>(donorId)).Returns(Task.FromResult(new MpDonor()));
 
             // Act
             var result = _fixture.GetDonorByDonorId(donorId);
@@ -199,12 +200,12 @@ namespace MinistryPlatform.Test.Donors
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(donorFilter)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(donorColumns)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
-            _request.Setup(m => m.Get<MpDonor>(donorId)).Returns((MpDonor)null);
+            _request.Setup(m => m.Get<MpDonor>(donorId)).Returns(Task.FromResult((MpDonor)null));
 
             // Act
-            var result = _fixture.GetDonorByDonorId(donorId);
+            var result = _fixture.GetDonorByDonorId(donorId).Result;
 
             // Assert
             Assert.Null(result);

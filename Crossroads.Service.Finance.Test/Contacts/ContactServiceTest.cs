@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
@@ -37,10 +38,10 @@ namespace Crossroads.Service.Finance.Test.Contacts
             var token = "123abc";
             var contactId = 1234567;
 
-            _contactRepository.Setup(m => m.GetBySessionId(token)).Returns(contactId);
+            _contactRepository.Setup(m => m.GetBySessionId(token)).Returns(Task.FromResult(contactId));
 
             // Act
-            var result = _fixture.GetContactIdBySessionId(token);
+            var result = _fixture.GetContactIdBySessionId(token).Result;
 
             // Assert
             Assert.Equal(1234567, result);
@@ -69,8 +70,8 @@ namespace Crossroads.Service.Finance.Test.Contacts
                 new ContactDto()
             };
 
-            _contactRepository.Setup(m => m.GetActiveContactRelationships(5544555, cogiverRelationshipId)).Returns(mpContactRelationships);
-            _contactRepository.Setup(m => m.GetContact(9988776)).Returns(mpContact);
+            _contactRepository.Setup(m => m.GetActiveContactRelationships(5544555, cogiverRelationshipId)).Returns(Task.FromResult(mpContactRelationships));
+            _contactRepository.Setup(m => m.GetContact(9988776)).Returns(Task.FromResult(mpContact));
             _mapper.Setup(m => m.Map<List<ContactDto>>(It.IsAny<List<MpContact>>())).Returns(contactDtos);
 
             // Act
@@ -85,17 +86,17 @@ namespace Crossroads.Service.Finance.Test.Contacts
         public void ShouldGetDonorRelatedContacts()
         {
             var mockContactId = 5565;
-            _contactRepository.Setup(m => m.GetContact(It.IsAny<int>())).Returns(MpContactMock.Create());
+            _contactRepository.Setup(m => m.GetContact(It.IsAny<int>())).Returns(Task.FromResult(MpContactMock.Create()));
             _mapper.Setup(m => m.Map<ContactDto>(It.IsAny<MpContact>())).Returns(ContactMock.Create());
-            _contactRepository.Setup(m => m.GetActiveContactRelationships(mockContactId, 42)).Returns(MpContactRelationshipMock.CreateList());
+            _contactRepository.Setup(m => m.GetActiveContactRelationships(mockContactId, 42)).Returns(Task.FromResult(MpContactRelationshipMock.CreateList()));
             // doesn't matter because this gets mapped
-            _contactRepository.Setup(m => m.GetContact(It.IsAny<int>())).Returns(MpContactMock.Create());
+            _contactRepository.Setup(m => m.GetContact(It.IsAny<int>())).Returns(Task.FromResult(MpContactMock.Create()));
             _mapper.Setup(m => m.Map<List<ContactDto>>(It.IsAny<List<MpContact>>())).Returns(ContactMock.CreateList());
             // doesn't matter because this gets mapped
-            _contactRepository.Setup(m => m.GetHouseholdMinorChildren(It.IsAny<int>())).Returns(MpContactMock.CreateList());
+            _contactRepository.Setup(m => m.GetHouseholdMinorChildren(It.IsAny<int>())).Returns(Task.FromResult(MpContactMock.CreateList()));
             _mapper.Setup(m => m.Map<List<ContactDto>>(It.IsAny<List<MpContact>>())).Returns(ContactMock.CreateList());
 
-            var result = _fixture.GetDonorRelatedContacts(mockContactId);
+            var result = _fixture.GetDonorRelatedContacts(mockContactId).Result;
 
             _contactRepository.VerifyAll();
 
@@ -115,7 +116,7 @@ namespace Crossroads.Service.Finance.Test.Contacts
             var contactId = 5544555;
             var contactAddressDto = new ContactAddressDto();
 
-            _contactRepository.Setup(m => m.GetContactAddressByContactId(contactId)).Returns(new MpContactAddress());
+            _contactRepository.Setup(m => m.GetContactAddressByContactId(contactId)).Returns(Task.FromResult(new MpContactAddress()));
             _mapper.Setup(m => m.Map<ContactAddressDto>(It.IsAny<MpContactAddress>())).Returns(contactAddressDto);
 
             // Act

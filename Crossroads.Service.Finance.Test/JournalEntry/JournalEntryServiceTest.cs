@@ -2,6 +2,7 @@
 using MinistryPlatform.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MinistryPlatform.JournalEntries;
 using Xunit;
 using Moq;
@@ -38,7 +39,7 @@ namespace Crossroads.Service.Finance.Test.JournalEntry
         public void ShouldNetCreditsAndDebitsWhenCreditAmountHigher() {
             var sampleJournalEntry = CreateTestJournalEntry(20, 5000);
 
-            MpJournalEntry actualAdjusted = _fixture.NetCreditsAndDebits(sampleJournalEntry);
+            MpJournalEntry actualAdjusted = _fixture.NetCreditsAndDebits(sampleJournalEntry).Result;
             MpJournalEntry expectedAdjusted = CreateTestJournalEntry(0, 4980);
 
             Assert.Equal(expectedAdjusted.CreditAmount, actualAdjusted.CreditAmount);
@@ -50,7 +51,7 @@ namespace Crossroads.Service.Finance.Test.JournalEntry
         {
             var sampleJournalEntry = CreateTestJournalEntry(0, 0);
 
-            MpJournalEntry actualAdjusted = _fixture.NetCreditsAndDebits(sampleJournalEntry);
+            MpJournalEntry actualAdjusted = _fixture.NetCreditsAndDebits( sampleJournalEntry).Result;
             MpJournalEntry expectedAdjusted = CreateTestJournalEntry(0, 0);
 
             Assert.Equal(expectedAdjusted.CreditAmount, actualAdjusted.CreditAmount);

@@ -1,22 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reactive.Linq;
-using System.Reflection;
-using System.Threading;
-using Crossroads.Service.Finance.Models;
+﻿using Crossroads.Service.Finance.Models;
 using log4net;
 using Newtonsoft.Json;
 using Pushpay.Models;
 using Pushpay.Token;
 using RestSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pushpay.Client
 {
     public class PushpayClient : IPushpayClient
     {
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly Uri apiUri = new Uri(Environment.GetEnvironmentVariable("PUSHPAY_API_ENDPOINT") ?? "https://sandbox-api.pushpay.io/v1");
         private readonly string donationsScope = "read merchant:view_payments";
         private readonly string recurringGiftsScope = "merchant:view_recurring_payments";
@@ -35,27 +35,27 @@ namespace Pushpay.Client
             _restClient.BaseUrl = apiUri;
         }
 
-        public List<PushpayPaymentDto> GetDonations(string settlementKey)
+        public async Task<List<PushpayPaymentDto>> GetDonations(string settlementKey)
         {
             var resource = $"settlement/{settlementKey}/payments";
-            var data = CreateAndExecuteRequest(resource, Method.GET, donationsScope, null, true);
+            var data = await CreateAndExecuteRequest(resource, Method.GET, donationsScope, null, true);
             return JsonConvert.DeserializeObject<List<PushpayPaymentDto>>(data);
         }
 
-        public PushpayPaymentDto GetPayment(PushpayWebhook webhook)
+        public async Task<PushpayPaymentDto> GetPayment(PushpayWebhook webhook)
         {
             var uri = webhook.Events[0].Links.Payment;
-            var data = CreateAndExecuteRequest(uri, Method.GET, donationsScope);
+            var data = await CreateAndExecuteRequest(uri, Method.GET, donationsScope);
             return data == null ? null : JsonConvert.DeserializeObject<PushpayPaymentDto>(data);
         }
 
-        public PushpayRecurringGiftDto GetRecurringGift(string resource)
+        public async Task<PushpayRecurringGiftDto> GetRecurringGift(string resource)
         {
-            var data = CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope);
+            var data = await CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope);
             return data == null ? null : JsonConvert.DeserializeObject<PushpayRecurringGiftDto>(data);
         }
 
-        public List<PushpaySettlementDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
+        public async Task<List<PushpaySettlementDto>> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
         {
             var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
             var resource = "settlements";
@@ -64,7 +64,7 @@ namespace Pushpay.Client
                 new QueryParameter("depositFrom", modStartDate)
             };
 
-            var data = CreateAndExecuteRequest(resource, Method.GET, donationsScope, queryParams, true);
+            var data = await CreateAndExecuteRequest(resource, Method.GET, donationsScope, queryParams, true);
             return JsonConvert.DeserializeObject<List<PushpaySettlementDto>>(data);
         }
 
@@ -77,7 +77,7 @@ namespace Pushpay.Client
             return pushpayRetrySeconds + backoffSeconds + randomSeconds;
         }
 
-        public List<PushpayRecurringGiftDto> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
+        public async Task<List<PushpayRecurringGiftDto>> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
         {
             var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
             var modEndDate = endDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
@@ -93,15 +93,15 @@ namespace Pushpay.Client
                 new QueryParameter("status", "cancelled"),
                 new QueryParameter("pageSize", "100")
             };
-            var data = CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true);
+            var data = await CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true);
             var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
             return recurringGifts;
         }
 
         // execute request, retry if rate limited
-        private IRestResponse Execute(RestRequest request, string scope)
+        private async Task<IRestResponse> Execute(RestRequest request, string scope)
         {
-            AddAuth(request, scope);
+            await AddAuth(request, scope);
             var response = _restClient.Execute(request);
             if ((int)response.StatusCode == 429)
             {
@@ -110,16 +110,16 @@ namespace Pushpay.Client
                 var retrySeconds = GetRetrySeconds(pushpayRetrySeconds);
                 Console.WriteLine($"Hit rate limit. Sleeping for {retrySeconds} seconds");
                 Thread.Sleep(retrySeconds * 1000);
-                return Execute(request, scope);
+                return await Execute(request, scope);
             }
             RateLimitCount = 0;
             return response;
         }
 
         // execute request, retry if rate limited
-        private IRestResponse<PushpayResponseBaseDto> ExecuteList(RestRequest request, string scope)
+        private async Task<IRestResponse<PushpayResponseBaseDto>> ExecuteList(RestRequest request, string scope)
         {
-            AddAuth(request, scope);
+            await AddAuth(request, scope);
             var response = _restClient.Execute<PushpayResponseBaseDto>(request);
             if ((int)response.StatusCode == 429)
             {
@@ -128,15 +128,15 @@ namespace Pushpay.Client
                 var retrySeconds = GetRetrySeconds(pushpayRetrySeconds);
                 Console.WriteLine($"Hit rate limit. Sleeping for {retrySeconds} seconds");
                 Thread.Sleep(retrySeconds * 1000);
-                return ExecuteList(request, scope);
+                return await ExecuteList(request, scope);
             }
             RateLimitCount = 0;
             return response;
         }
 
-        private RestRequest AddAuth(RestRequest request, string scope)
+        private async Task<RestRequest> AddAuth(RestRequest request, string scope)
         {
-            var tokenResponse = _pushpayTokenService.GetOAuthToken(scope).Wait();
+            var tokenResponse = await _pushpayTokenService.GetOAuthToken(scope);
             // remove auth param, if exists
             var authParam = request.Parameters.FindIndex(x => x.Name == "Authorization");
             if (authParam > -1)
@@ -147,7 +147,7 @@ namespace Pushpay.Client
             return request;
         }
 
-        private string CreateAndExecuteRequest(string uriOrResource, Method method, string scope, List<QueryParameter> queryParams = null, bool isList = false, object body = null)
+        private async Task<string> CreateAndExecuteRequest(string uriOrResource, Method method, string scope, List<QueryParameter> queryParams = null, bool isList = false, object body = null)
         {
             var request = new RestRequest(method)
             {
@@ -174,7 +174,7 @@ namespace Pushpay.Client
             // isList here refers to whether the resource will return a list (like all payments) or not (payment) for example
             if (!isList)
             {
-                var response = Execute(request, scope);
+                var response = await Execute(request, scope);
                 if ((int)response.StatusCode == 404 || response.ErrorException != null)
                 {
                     Console.WriteLine(response.ErrorMessage);
@@ -185,7 +185,7 @@ namespace Pushpay.Client
             else
             {
                 // data is possibly multiple pages
-                var response = ExecuteList(request, scope);
+                var response = await ExecuteList(request, scope);
                 if (response.ErrorException != null)
                 {
                     throw new Exception(response.ErrorMessage);
@@ -207,7 +207,7 @@ namespace Pushpay.Client
                             request.Parameters.RemoveAt(pageParam);
                         }
                         request.AddParameter(new Parameter() { Name = "page", Value = currentPage.ToString(), Type = ParameterType.QueryString });
-                        var pageResponse = ExecuteList(request, scope);
+                        var pageResponse = await ExecuteList(request, scope);
                         var pageItems = pageResponse.Data.items;
                         if (pageItems != null)
                         {
@@ -215,6 +215,7 @@ namespace Pushpay.Client
                         }
                         else
                         {
+                            _logger.Error($"No data in response: {request.Resource}");
                             Console.WriteLine($"No data in response: {request.Resource}");
                         }
                     }

@@ -11,6 +11,7 @@ using Moq;
 using Xunit;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using System.Threading.Tasks;
 using Mock;
 
 namespace MinistryPlatform.Test.Pledges
@@ -21,7 +22,7 @@ namespace MinistryPlatform.Test.Pledges
         readonly Mock<IConfigurationWrapper> _configurationWrapper;
         readonly Mock<IMinistryPlatformRestRequestBuilder> _restRequest;
         readonly Mock<IMinistryPlatformRestRequestBuilderFactory> _restRequestBuilder;
-        readonly Mock<IMinistryPlatformRestRequest> _request;
+        readonly Mock<IMinistryPlatformRestRequestAsync> _request;
         readonly Mock<IMapper> _mapper;
 
         private string token = "123abc";
@@ -36,12 +37,12 @@ namespace MinistryPlatform.Test.Pledges
             _configurationWrapper = new Mock<IConfigurationWrapper>(MockBehavior.Strict);
             _restRequest = new Mock<IMinistryPlatformRestRequestBuilder>(MockBehavior.Strict);
             _mapper = new Mock<IMapper>(MockBehavior.Strict);
-            _request = new Mock<IMinistryPlatformRestRequest>(MockBehavior.Strict);
+            _request = new Mock<IMinistryPlatformRestRequestAsync>(MockBehavior.Strict);
 
-            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientTokenAsync("CRDS.Service.Finance")).Returns(Task.FromResult(token));
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
             _fixture = new PledgeRepository(_restRequestBuilder.Object,
                 _apiUserRepository.Object,
@@ -69,18 +70,18 @@ namespace MinistryPlatform.Test.Pledges
             var filter = $"Pledge_Status_ID_Table.[Pledge_Status_ID] IN (1,2)";
             filter += $" AND Donor_ID_Table_Contact_ID_Table.[Contact_ID] = {contactId}";
             filter += $" AND Pledge_Campaign_ID_Table_Pledge_Campaign_Type_ID_Table.[Pledge_Campaign_Type_ID] = 1";
-            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
+            _apiUserRepository.Setup(r => r.GetApiClientTokenAsync("CRDS.Service.Finance")).Returns(Task.FromResult(token));
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.OrderBy("Pledge_Campaign_ID_Table.[Start_Date] DESC")).Returns(_restRequest.Object);
-            _restRequest.Setup(m => m.Build()).Returns(_request.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
 
-            _request.Setup(m => m.Search<MpPledge>()).Returns(MpPledgeMock.CreateList());
+            _request.Setup(m => m.Search<MpPledge>()).Returns(Task.FromResult(MpPledgeMock.CreateList()));
 
             // Act
-            var responseRecurringGift = _fixture.GetActiveAndCompleted(contactId);
+            var responseRecurringGift = _fixture.GetActiveAndCompleted(contactId).Result;
 
             // Assert
             Assert.Equal(3, responseRecurringGift.Count);

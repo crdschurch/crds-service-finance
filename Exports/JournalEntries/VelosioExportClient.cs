@@ -17,7 +17,7 @@ namespace Exports.JournalEntries
     public class VelosioExportClient : IJournalEntryExport
     {
         private readonly IConfigurationWrapper _configurationWrapper;
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public VelosioExportClient(IConfigurationWrapper configurationWrapper)
         {
@@ -26,6 +26,7 @@ namespace Exports.JournalEntries
 
         public async Task<string> HelloWorld()
         {
+            var hw = new VelosioJournalExport.HelloWorldRequest();
             var config = new SendGLBatchSoapClient.EndpointConfiguration();
             var client = new SendGLBatchSoapClient(config, _configurationWrapper);
             var result = await client.HelloWorldAsync();
@@ -62,9 +63,9 @@ namespace Exports.JournalEntries
 
                 _logger.Info($"The result of the velosio export call was: {result.Body.LoadBatchResult}");
             }
-            catch (Exception exc) {
-                Console.WriteLine("Velosio export error result: " + exc);
-                _logger.Error("An exception occurred trying to send batch data", exc);
+            catch (Exception ex) {
+                Console.WriteLine("Velosio export error result: " + ex.Message);
+                _logger.Error(ex, "An exception occurred trying to send batch data");
                 result = null;
             }
 

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Net;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Pushpay.Models;
 using RestSharp;
 using RestSharp.Authenticators;
+using System;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Pushpay.Token
 {
@@ -23,33 +22,28 @@ namespace Pushpay.Token
             _restClient.BaseUrl = authUri;
         }
 
-        public IObservable<OAuth2TokenResponse> GetOAuthToken(string scope = "read")
+        public async Task<OAuth2TokenResponse> GetOAuthToken(string scope = "read")
         {
-            return Observable.Create<OAuth2TokenResponse>(obs =>
+            _restClient.Authenticator = new HttpBasicAuthenticator(clientId, clientSecret);
+            var request = new RestRequest(Method.POST)
             {
-                _restClient.Authenticator = new HttpBasicAuthenticator(clientId, clientSecret);
-                var request = new RestRequest(Method.POST)
-                {
-                    Resource = "token"
-                };
-                request.AddParameter("grant_type", "client_credentials");
-                request.AddParameter("scope", scope);
-                IRestResponse response = _restClient.Execute(request);
+                Resource = "token"
+            };
+            request.AddParameter("grant_type", "client_credentials");
+            request.AddParameter("scope", scope);
 
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var tokenJson = response.Content;
-                    var tokens = JsonConvert.DeserializeObject<OAuth2TokenResponse>(tokenJson);
-                    obs.OnNext(tokens);
-                    obs.OnCompleted();
-                }
-                else
-                {
-                    obs.OnError(new Exception($"Authentication was not successful {response.StatusCode}"));
-                }
-                return Disposable.Empty;
-            });
+            var response = await _restClient.ExecuteTaskAsync<OAuth2TokenResponse>(request);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var tokenJson = response.Content;
+                var tokens = JsonConvert.DeserializeObject<OAuth2TokenResponse>(tokenJson);
+                return tokens;
+            }
+            else
+            {
+                throw new Exception($"Authentication was not successful {response.StatusCode}");
+            }
         }
-
     }
 }

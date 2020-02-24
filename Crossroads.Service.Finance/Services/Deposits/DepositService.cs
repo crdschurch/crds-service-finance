@@ -1,24 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutoMapper;
-using Crossroads.Service.Finance.Models;
+﻿using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Models;
 using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
-using Utilities.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Services
 {
     public class DepositService : IDepositService
     {
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly IDepositRepository _depositRepository;
         private readonly IRecurringGiftRepository _recurringGiftRepository;
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
         private readonly IConfigurationWrapper _configurationWrapper;
-        private readonly IDataLoggingService _dataLoggingService;
 
         private readonly int _depositProcessingOffset;
         private readonly string _pushpayWebEndpoint;
@@ -26,24 +27,22 @@ namespace Crossroads.Service.Finance.Services
         public DepositService(IDepositRepository depositRepository,
                               IMapper mapper,
                               IPushpayService pushpayService,
-                              IConfigurationWrapper configurationWrapper,
-                              IDataLoggingService dataLoggingService)
+                              IConfigurationWrapper configurationWrapper)
         {
             _depositRepository = depositRepository;
             _mapper = mapper;
             _pushpayService = pushpayService;
             _configurationWrapper = configurationWrapper;
-            _dataLoggingService = dataLoggingService;
 
             _depositProcessingOffset = _configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
         }
 
-        public DepositDto BuildDeposit(SettlementEventDto settlementEventDto)
+        public async Task<DepositDto> BuildDeposit(SettlementEventDto settlementEventDto)
         {
             var depositName = settlementEventDto.Name;
             var depositKey = settlementEventDto.Key;
-            var existingDeposits = _depositRepository.GetByName(depositName);
+            var existingDeposits = await _depositRepository.GetByName(depositName);
 
             // append a number to the deposit, based on how many deposits already exist by that name
             // with the datetime and deposit type
@@ -89,33 +88,30 @@ namespace Crossroads.Service.Finance.Services
             return depositDto;
         }
 
-        public DepositDto SaveDeposit(DepositDto depositDto)
+        public async Task<DepositDto> SaveDeposit(DepositDto depositDto)
         {
-            var mpDepositResult = _depositRepository.CreateDeposit(_mapper.Map<MpDeposit>(depositDto));
+            var mpDepositResult = await _depositRepository.CreateDeposit(_mapper.Map<MpDeposit>(depositDto));
             var mappedObject = _mapper.Map<DepositDto>(mpDepositResult);
             return mappedObject;
         }
 
-        public DepositDto GetDepositByProcessorTransferId(string key)
+        public async Task<DepositDto> GetDepositByProcessorTransferId(string key)
         {
-            return _mapper.Map<DepositDto>(_depositRepository.GetDepositByProcessorTransferId(key));
+            return _mapper.Map<DepositDto>(await _depositRepository.GetDepositByProcessorTransferId(key));
         }
 
         // this will pull desposits by a date range and determine which ones we need to create in the system
-        public List<SettlementEventDto> SyncDeposits()
+        public async Task<List<SettlementEventDto>> SyncDeposits()
         {
             // we look back however many days are specified in the mp config setting
             var startDate = DateTime.Now.AddDays(-(_depositProcessingOffset));
             var endDate = DateTime.Now;
 
-            Console.WriteLine($"Checking pushpay for deposits between {startDate} and {endDate}");
+            var depositDtos = await GetDepositsForSync(startDate, endDate);
+            var depositCount = (depositDtos == null || !depositDtos.Any()) ? 0 : depositDtos.Count;
 
-            var logEventEntry = new LogEventEntry(LogEventType.depositSearchDateRange);
-            logEventEntry.Push("startDate", startDate);
-            logEventEntry.Push("endDate", endDate);
-            _dataLoggingService.LogDataEvent(logEventEntry);
-
-            var depositDtos = GetDepositsForSync(startDate, endDate);
+            Console.WriteLine($"Checking pushpay for deposits between {startDate} and {endDate}. Found {depositCount}");
+            _logger.Info($"Checking pushpay for deposits between {startDate} and {endDate}. Found {depositCount}");
 
             if (depositDtos == null || !depositDtos.Any())
             {
@@ -125,14 +121,10 @@ namespace Crossroads.Service.Finance.Services
             return depositDtos;
         }
 
-        public List<SettlementEventDto> GetDepositsForSync(DateTime startDate, DateTime endDate)
+        public async Task<List<SettlementEventDto>> GetDepositsForSync(DateTime startDate, DateTime endDate)
         {
-            var deposits = _pushpayService.GetDepositsByDateRange(startDate, endDate);
+            var deposits = await _pushpayService.GetDepositsByDateRange(startDate, endDate);
             Console.WriteLine($"{deposits.Count} found in pushpay");
-
-            var depositsFoundEntry = new LogEventEntry(LogEventType.incomingPushpayWebhook);
-            depositsFoundEntry.Push("depositsFoundCount", deposits.Count);
-            _dataLoggingService.LogDataEvent(depositsFoundEntry);
 
             if (!deposits.Any())
             {
@@ -142,14 +134,13 @@ namespace Crossroads.Service.Finance.Services
             var transferIds = deposits.Select(r => "'" + r.Key + "'").ToList();
 
             // check to see if any of the deposits we're pulling over have already been deposited
-            var existingDeposits = _depositRepository.GetByTransferIds(transferIds);
-            Console.WriteLine($"{existingDeposits.Count} of these deposits found in MP");
-
-            var alreadyDepositedEntry = new LogEventEntry(LogEventType.depositsAlreadyDeposited);
-            alreadyDepositedEntry.Push("countDepositsAlreadyDeposited", existingDeposits.Count);
-            _dataLoggingService.LogDataEvent(alreadyDepositedEntry);
+            var existingDeposits = await _depositRepository.GetByTransferIds(transferIds);
 
             var existingDepositIds = existingDeposits.Select(r => r.ProcessorTransferId).ToList();
+            var existingDepositList = String.Join(", ", existingDepositIds);
+
+            Console.WriteLine($"These deposits already exist in MP and will be skipped: {existingDepositList}");
+            _logger.Info($"These deposits already exist in MP and will be skipped: {existingDepositList}");
 
             var depositsToProcess = new List<SettlementEventDto>();
 
@@ -157,23 +148,13 @@ namespace Crossroads.Service.Finance.Services
             {
                 if (!existingDepositIds.Contains(deposit.Key))
                 {
-                    Console.WriteLine($"Deposit {deposit.Key} ProcessorTransferId not found in MP, adding to sync list");
-
-                    var newDepositEntry = new LogEventEntry(LogEventType.newDepositToSync);
-                    newDepositEntry.Push("newDeposit", deposit.Key);
-                    _dataLoggingService.LogDataEvent(newDepositEntry);
-
                     depositsToProcess.Add(deposit);
                 }
-                else
-                {
-                    Console.WriteLine($"Deposit {deposit.Key} found in MP, skipping");
-
-                    var previouslySyncedDepositEntry = new LogEventEntry(LogEventType.previouslySyncedDeposit);
-                    previouslySyncedDepositEntry.Push("oldDeposit", deposit.Key);
-                    _dataLoggingService.LogDataEvent(previouslySyncedDepositEntry);
-                }
             }
+
+            var depositsToProcessList = String.Join(", ", depositsToProcess.Select(r => r.Name));
+            Console.WriteLine($"These deposits do not exist in MP and will be created: {depositsToProcessList}");
+            _logger.Info($"These deposits already exist in MP and will be skipped: {depositsToProcessList}");
 
             return depositsToProcess;
         }

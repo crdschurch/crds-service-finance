@@ -37,6 +37,6 @@ namespace MinistryPlatform.Models
         public string ProcessorId { get; set; }
 
         [JsonProperty("Processor_Type_ID")]
-        public int ProcessorTypeId { get; set; }
+        public int? ProcessorTypeId { get; set; }
     }
 }

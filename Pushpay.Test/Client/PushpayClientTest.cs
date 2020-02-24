@@ -1,15 +1,13 @@
-using Xunit;
-using System.Net;
 using Moq;
-using RestSharp;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using Pushpay.Client;
-using Pushpay.Token;
 using Pushpay.Models;
-using System.Reactive.Linq;
+using Pushpay.Token;
+using RestSharp;
 using System;
-using Crossroads.Service.Finance.Models;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Pushpay.Test
 {
@@ -33,9 +31,8 @@ namespace Pushpay.Test
             {
                 AccessToken = "123"
             };
-            _tokenService.Setup(r => r.GetOAuthToken(It.IsAny<string>())).Returns(Observable.Return(token));
+            _tokenService.Setup(r => r.GetOAuthToken(It.IsAny<string>())).Returns(Task.FromResult(token));
         }
-
 
         [Fact]
         public void GetPushpayDonationsTest()
@@ -61,22 +58,24 @@ namespace Pushpay.Test
                     }
                  });
 
-            var result = _fixture.GetDonations("settlement-key-123");
+            var result = _fixture.GetDonations("settlement-key-123").Result;
 
             Assert.Equal(2, result.Count);
         }
 
         [Fact]
-        public void GetPushpayDonationsSettlementDoesntExistTest()
+        public async void GetPushpayDonationsSettlementDoesntExistTest()
         {
             _restClient.Setup(x => x.Execute<PushpayResponseBaseDto>(It.IsAny<IRestRequest>()))
                 .Returns(new RestResponse<PushpayResponseBaseDto>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
-                    ErrorException = new Exception()
+                    ErrorException = new System.Exception()
                 });
 
-            Assert.Throws<Exception>(() => _fixture.GetDonations("settlement-key-123"));
+            var result = await Record.ExceptionAsync(() => _fixture.GetDonations("settlement-key-123"));
+            Assert.NotNull(result);
+            Assert.IsType<Exception>(result);
         }
 
         [Fact]

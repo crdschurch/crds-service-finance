@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -14,25 +15,26 @@ namespace MinistryPlatform.JournalEntries
 {
     public class JournalEntryRepository : MinistryPlatformBase, IJournalEntryRepository
     {
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public JournalEntryRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public List<MpJournalEntry> CreateMpJournalEntries(List<MpJournalEntry> mpJournalEntries)
+        public async Task<List<MpJournalEntry>> CreateMpJournalEntries(List<MpJournalEntry> mpJournalEntries)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
             // TODO: validate that this will create and update - can't remember if the rest api can do that in one step
-            return MpRestBuilder.NewRequestBuilder()
+            var result = MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Create(mpJournalEntries, "cr_Journal_Entries");
+
+            return await result;
         }
 
-        public List<MpJournalEntry> GetUnexportedJournalEntries()
+        public async Task<List<MpJournalEntry>> GetUnexportedJournalEntries()
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -51,27 +53,29 @@ namespace MinistryPlatform.JournalEntries
 
             var filter = "Exported_Date IS NULL";
 
-            return MpRestBuilder.NewRequestBuilder()
+            var result = MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(selectColumns)
                 .WithAuthenticationToken(token)
                 .WithFilter(filter)
-                .Build()
-                .Search<MpJournalEntry>().ToList();
+                .BuildAsync()
+                .Search<MpJournalEntry>();
+
+            return await result;
         }
 
-        public void UpdateJournalEntries(List<MpJournalEntry> mpJournalEntries)
+        public async Task UpdateJournalEntries(List<MpJournalEntry> mpJournalEntries)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
-            MpRestBuilder.NewRequestBuilder()
+            await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Update(mpJournalEntries, "cr_Journal_Entries");
         }
 
-        public List<string> GetCurrentDateBatchIds()
+        public async Task<List<string>> GetCurrentDateBatchIds()
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
 
             var selectColumns = new string[] {
                 "Batch_ID"

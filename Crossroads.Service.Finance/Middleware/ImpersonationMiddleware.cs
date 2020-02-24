@@ -11,6 +11,8 @@ namespace Crossroads.Service.Finance.Middleware
 {
     public class ImpersonationMiddleware
     {
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly RequestDelegate _next;
         private readonly IContactService _contactService;
 
@@ -28,15 +30,17 @@ namespace Crossroads.Service.Finance.Middleware
                 try
                 {
                     var impersonatedUserEmail = context.Request.Headers["ImpersonateUserEmail"];
-                    var userContactId = _contactService.GetContactIdByEmailAddress(impersonatedUserEmail);
+                    var userContactId = await _contactService.GetContactIdByEmailAddress(impersonatedUserEmail);
                     var impersonatedContactId = new KeyValuePair<String, StringValues>("ImpersonatedContactId", userContactId.ToString());
                     context.Request.Headers.Add(impersonatedContactId);
 
-                    Console.WriteLine($"Impersonated user: {impersonatedUserEmail}");             
+                    Console.WriteLine($"Impersonated user: {impersonatedUserEmail}");
+                    _logger.Info($"Impersonated user: {impersonatedUserEmail}");
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine($"Error in ImpersonationMiddleware.Invoke: {ex.Message}");
+                    _logger.Error(ex, $"Error in ImpersonationMiddleware.Invoke: {ex.Message}");
                     throw;
                 }
             }

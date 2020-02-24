@@ -10,7 +10,12 @@ namespace Mock
                 Status = "Success",
                 PaymentMethodType = "ACH",
                 Account = new PushpayAccount {},
-                Payer = new PushpayPayer {}
+                Payer = new PushpayPayer {},
+                Campus = new PushpayCampusDto
+                {
+                    Key = "test",
+                    Name = "test"
+                }
             };
 
         public static PushpayPaymentDto CreateProcessing() =>
@@ -19,7 +24,12 @@ namespace Mock
                 Status = "Processing",
                 PaymentMethodType = "ACH",
                 Account = new PushpayAccount {},
-                Payer = new PushpayPayer {}
+                Payer = new PushpayPayer {},
+                Campus = new PushpayCampusDto
+                {
+                    Key = "test",
+                    Name = "test"
+                }
             };
 
         public static PushpayPaymentDto CreateFailed() =>
@@ -28,7 +38,12 @@ namespace Mock
                 Status = "Failed",
                 PaymentMethodType = "ACH",
                 Account = new PushpayAccount {},
-                Payer = new PushpayPayer {}
+                Payer = new PushpayPayer {},
+                Campus = new PushpayCampusDto
+                {
+                    Key = "test",
+                    Name = "test"
+                }
             };
     }
 }

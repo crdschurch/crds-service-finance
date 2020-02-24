@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -23,20 +24,20 @@ namespace MinistryPlatform.Users
             _authRepo = authenticationRepository;
         }
 
-        public int GetUserByEmailAddress(string emailAddress)
+        public async Task<int> GetUserByEmailAddress(string emailAddress)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Common");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Common");
             var columns = new string[] {
                 "User_ID",
                 "Contact_ID",
                 "User_Email"
             };
             var filter = $"User_Email = '{emailAddress}'";
-            var users = MpRestBuilder.NewRequestBuilder()
+            var users = await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
                 .WithSelectColumns(columns)
                 .WithFilter(filter)
-                .Build()
+                .BuildAsync()
                 .Search<MpUser>();
             if (!users.Any())
             {

@@ -11,12 +11,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace Crossroads.Service.Finance.Services.Exports
 {
-    public class ExportService: IExportService
+    public class ExportService : IExportService
     {
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly IAdjustmentRepository _adjustmentRepository;
         private readonly IAdjustmentsToJournalEntriesService _adjustmentsToJournalEntriesService;
         private readonly IJournalEntryService _journalEntryService;
@@ -29,7 +32,7 @@ namespace Crossroads.Service.Finance.Services.Exports
                              IAdjustmentsToJournalEntriesService adjustmentsToJournalEntriesService,
                              IJournalEntryService journalEntryService,
                              IJournalEntryBatchService batchService,
-                             IJournalEntryRepository journalEntryRepository, 
+                             IJournalEntryRepository journalEntryRepository,
                              IJournalEntryExport journalEntryExport,
                              IMapper mapper)
         {
@@ -42,25 +45,28 @@ namespace Crossroads.Service.Finance.Services.Exports
             _mapper = mapper;
         }
 
-        public void CreateJournalEntries()
+        public async void CreateJournalEntriesAsync()
         {
-            var mpDistributionAdjustments = _adjustmentRepository.GetUnprocessedDistributionAdjustments();
+            var mpDistributionAdjustments = await _adjustmentRepository.GetUnprocessedDistributionAdjustments();
 
-            List<MpJournalEntry> journalEntries = _adjustmentsToJournalEntriesService.Convert(mpDistributionAdjustments);
-            journalEntries = _journalEntryService.AddBatchIdsAndClean(journalEntries);
+            List<MpJournalEntry> journalEntries = await _adjustmentsToJournalEntriesService.Convert(mpDistributionAdjustments);
+            journalEntries = await _journalEntryService.AddBatchIdsAndClean(journalEntries);
 
             // create journal entries
-            List<MpJournalEntry> mpJournalEntries = SaveJournalEntriesToMp(journalEntries);
+            List<MpJournalEntry> mpJournalEntries =  await SaveJournalEntriesToMp(journalEntries);
 
-            MarkDistributionAdjustmentsAsProcessedInMp(mpDistributionAdjustments, mpJournalEntries);
+            var markDistributionAdjustmentsAsProcessedInMpTask =
+                Task.Run((() => MarkDistributionAdjustmentsAsProcessedInMp(mpDistributionAdjustments, mpJournalEntries)));
+
+            await markDistributionAdjustmentsAsProcessedInMpTask;
 
             // update adjustments
             _adjustmentRepository.UpdateAdjustments(mpDistributionAdjustments);
         }
 
-        public string HelloWorld()
+        public async Task<string> HelloWorld()
         {
-            var result = _journalEntryExport.HelloWorld().Result;
+            var result = await _journalEntryExport.HelloWorld();
             return result;
         }
 
@@ -72,9 +78,9 @@ namespace Crossroads.Service.Finance.Services.Exports
         /// Date of export is set to the current date, as this doesn't have anything to do with the original export date. Velosio needs this to be set to the same date
         /// the export is occurring to be able to validate the export.
         /// </summary>
-        public void ExportJournalEntries()
+        public async Task<string> ExportJournalEntries()
         {
-            List<VelosioJournalEntryBatch> velosioJournalEntryStages = CreateBatchesFromJournalEntries(true);
+            List<VelosioJournalEntryBatch> velosioJournalEntryStages = await CreateBatchesFromJournalEntries(true);
 
             // set totals here for validation
             decimal totalDebits = new decimal(0.0);
@@ -91,26 +97,35 @@ namespace Crossroads.Service.Finance.Services.Exports
             }
 
             int transactionCount = batchDataSetElement.Descendants("BatchDataTable").Count();
+            var batchNumber = velosioJournalEntryStages.First().BatchNumber;
 
-            _journalEntryExport.ExportJournalEntryStage(
-                velosioJournalEntryStages.First().BatchNumber,
+            return (await _journalEntryExport.ExportJournalEntryStage(
+                batchNumber,
                 totalDebits,
                 totalCredits,
                 transactionCount,
-                batchDataSetElement);
+                batchDataSetElement)).ToString();
         }
 
-        public string ExportJournalEntriesManually(bool markExported = true)
+        public async Task<string> ExportJournalEntriesManually(bool markExported = true)
         {
-            var velosioJournalEntryStages = CreateBatchesFromJournalEntries(markExported);
-            var serializedData = SerializeJournalEntryStages(velosioJournalEntryStages);
+            var velosioJournalEntryStages = await CreateBatchesFromJournalEntries(markExported);
+
+            var serializeJournalEntryStagesTask =
+                Task.Run(() => SerializeJournalEntryStages(velosioJournalEntryStages));
+
+            var serializedData = await serializeJournalEntryStagesTask;
             return serializedData;
         }
 
-        public List<VelosioJournalEntryBatch> CreateBatchesFromJournalEntries(bool markJournalEntriesAsProcessed = true)
+        public async Task<List<VelosioJournalEntryBatch>> CreateBatchesFromJournalEntries(bool markJournalEntriesAsProcessed = true)
         {
-            List<MpJournalEntry> journalEntries = _journalEntryRepository.GetUnexportedJournalEntries();
-            List<VelosioJournalEntryBatch> batches = _batchService.CreateBatchPerUniqueJournalEntryBatchId(journalEntries);
+            List<MpJournalEntry> journalEntries = await _journalEntryRepository.GetUnexportedJournalEntries();
+
+            var createJournalEntriesTask =
+                Task.Run(() => _batchService.CreateBatchPerUniqueJournalEntryBatchId(journalEntries));
+
+            List<VelosioJournalEntryBatch> batches = await createJournalEntriesTask;
 
             foreach (var journalEntry in journalEntries)
             {
@@ -124,7 +139,7 @@ namespace Crossroads.Service.Finance.Services.Exports
 
             if (markJournalEntriesAsProcessed)
             {
-                _journalEntryRepository.UpdateJournalEntries(journalEntries);
+                await _journalEntryRepository.UpdateJournalEntries(journalEntries);
             }
 
             // Batch numbers need to be the same, or the total won't work
@@ -156,12 +171,12 @@ namespace Crossroads.Service.Finance.Services.Exports
             return stringBuilder.ToString();
         }
 
-        private List<MpJournalEntry> SaveJournalEntriesToMp(List<MpJournalEntry> journalEntries)
+        private async Task<List<MpJournalEntry>> SaveJournalEntriesToMp(List<MpJournalEntry> journalEntries)
         {
             var mpJournalEntries = new List<MpJournalEntry>();
             if (journalEntries.Any())
             {
-                mpJournalEntries = _journalEntryRepository.CreateMpJournalEntries(journalEntries);
+                mpJournalEntries = await _journalEntryRepository.CreateMpJournalEntries(journalEntries);
             }
 
             return mpJournalEntries;
@@ -170,16 +185,19 @@ namespace Crossroads.Service.Finance.Services.Exports
         private static void MarkDistributionAdjustmentsAsProcessedInMp(List<MpDistributionAdjustment> mpDistributionAdjustments,
                                                                List<MpJournalEntry> mpJournalEntries)
         {
-            foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
+            if (mpDistributionAdjustments != null && mpDistributionAdjustments.Any())
             {
-                mpDistributionAdjustment.ProcessedDate = DateTime.Now;
-
-                if (mpJournalEntries.Any())
+                foreach (var mpDistributionAdjustment in mpDistributionAdjustments)
                 {
-                    mpDistributionAdjustment.JournalEntryId =
-                        mpJournalEntries
-                            .FirstOrDefault(r => r.GL_Account_Number == mpDistributionAdjustment.GLAccountNumber)?
-                            .JournalEntryID;
+                    mpDistributionAdjustment.ProcessedDate = DateTime.Now;
+
+                    if (mpJournalEntries.Any())
+                    {
+                        mpDistributionAdjustment.JournalEntryId =
+                            mpJournalEntries
+                                .FirstOrDefault(r => r.GL_Account_Number == mpDistributionAdjustment.GLAccountNumber)?
+                                .JournalEntryID;
+                    }
                 }
             }
         }
