@@ -53,13 +53,8 @@ namespace MinistryPlatform.Repositories
             var deposits = new List<MpDeposit>();
 
             // avoid hitting the 2000 character limit on MP REST API filter
-            while (true)
+            while (transferIds.Count > 0)
             {
-                if (transferIds.Count < 1)
-                {
-                    break;
-                }
-
                 var elementsToRemove = (transferIds.Count > 10) ? 10 : transferIds.Count;
                 var transferIdSet = transferIds.Take(elementsToRemove).ToList();
                 transferIds.RemoveRange(0, elementsToRemove);
