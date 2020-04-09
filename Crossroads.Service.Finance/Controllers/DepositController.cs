@@ -43,7 +43,7 @@ namespace Crossroads.Service.Finance.Controllers
                 }
                 foreach (var deposit in deposits)
                 {
-                    var createDepositTask = new Task(() => _paymentEventService.CreateDeposit(deposit));
+                    var createDepositTask = Task.Run(() => _paymentEventService.CreateDeposit(deposit));
                     await createDepositTask;
                 }
 
