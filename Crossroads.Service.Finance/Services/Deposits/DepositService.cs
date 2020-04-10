@@ -154,7 +154,7 @@ namespace Crossroads.Service.Finance.Services
 
             var depositsToProcessList = String.Join(", ", depositsToProcess.Select(r => r.Name));
             Console.WriteLine($"These deposits do not exist in MP and will be created: {depositsToProcessList}");
-            _logger.Info($"These deposits already exist in MP and will be skipped: {depositsToProcessList}");
+            _logger.Info($"These deposits do not exist in MP and will be created: {depositsToProcessList}");
 
             return depositsToProcess;
         }

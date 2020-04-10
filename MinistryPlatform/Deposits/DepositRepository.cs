@@ -50,14 +50,23 @@ namespace MinistryPlatform.Repositories
         public async Task<List<MpDeposit>> GetByTransferIds(List<string> transferIds)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var deposits = new List<MpDeposit>();
 
-            var filter = $"Processor_Transfer_ID IN (" + string.Join(',', transferIds ) + ")";
+            // avoid hitting the 2000 character limit on MP REST API filter
+            while (transferIds.Count > 0)
+            {
+                var elementsToRemove = (transferIds.Count > 10) ? 10 : transferIds.Count;
+                var transferIdSet = transferIds.Take(elementsToRemove).ToList();
+                transferIds.RemoveRange(0, elementsToRemove);
 
-            var deposits = await MpRestBuilder.NewRequestBuilder()
-                .WithAuthenticationToken(token)
-                .WithFilter(filter)
-                .BuildAsync()
-                .Search<MpDeposit>();
+                var filter = $"Processor_Transfer_ID IN (" + string.Join(',', transferIdSet) + ")";
+
+                deposits.AddRange(await MpRestBuilder.NewRequestBuilder()
+                    .WithAuthenticationToken(token)
+                    .WithFilter(filter)
+                    .BuildAsync()
+                    .Search<MpDeposit>());
+            }
 
             return deposits;
         }
