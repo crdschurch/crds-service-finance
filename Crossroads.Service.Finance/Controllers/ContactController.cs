@@ -1,19 +1,20 @@
-﻿using Crossroads.Web.Common.Security;
-using log4net;
+﻿using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Web.Auth.Controllers;
+using Crossroads.Web.Auth.Models;
+using Crossroads.Web.Common.Auth.Helpers;
+using Crossroads.Web.Common.Security;
+using Crossroads.Web.Common.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Reflection;
-using Crossroads.Service.Finance.Security;
-using Crossroads.Web.Common.Services;
-using Crossroads.Service.Finance.Interfaces;
-using Crossroads.Web.Auth.Controllers;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Controllers
 {
+    [RequiresAuthorization]
     [Route("api/[controller]")]
     public class ContactController : AuthBaseController
     {
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         readonly IContactService _contactService;
 
@@ -26,57 +27,62 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
         [Route("{contactId}")]
-        public IActionResult GetContact(int contactId)
+        public async Task<IActionResult> GetContact(int contactId)
         {
-            return Authorized(authDto =>
+            try
             {
-                try
-                {
-                    return Ok(_contactService.GetContact(contactId));
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error("Error in Contact: " + ex.Message, ex);
-                    return StatusCode(400, ex);
-                }
-            });
+                return Ok(await _contactService.GetContact(contactId));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in ContactController:GetContact for contactId={contactId}: {ex.Message}");
+                _logger.Error(ex, $"Error in ContactController:GetContact for contactId={contactId}: {ex.Message}");
+                return StatusCode(500);
+            }
         }
 
         [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
         [Route("session")]
-        public IActionResult GetContactBySessionId(string sessionId)
+        public async Task<IActionResult> GetContactBySessionId(string sessionId)
         {
-            return Authorized(authDto =>
+            var authDto = (AuthDTO)HttpContext.Items["authDto"];
+
+            try
             {
-                try
-                {
-                    return Ok(_contactService.GetContact(authDto.UserInfo.Mp.ContactId));
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error("Error in Contact: " + ex.Message, ex);
-                    return StatusCode(400, ex);
-                }
-            });
+                return Ok( await _contactService.GetContact(authDto.UserInfo.Mp.ContactId));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in ContactController:GetContactBySessionId for contactId={authDto.UserInfo.Mp.ContactId}: {ex.Message}");
+                _logger.Error(ex, $"Error in ContactController:GetContactBySessionId for contactId={authDto.UserInfo.Mp.ContactId}: {ex.Message}");
+                return StatusCode(500);
+            }
         }
 
         [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
         [Route("{contactId}/address")]
-        public IActionResult GetContactAddress(int contactId)
+        public async Task<IActionResult> GetContactAddress(int contactId)
         {
-            return Authorized(authDto =>
+            try
             {
-                try
-                {
-                    return Ok(_contactService.GetContactAddressByContactId(contactId));
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error("Error in Contact: " + ex.Message, ex);
-                    return StatusCode(400, ex);
-                }
-            });
+                return Ok(await _contactService.GetContactAddressByContactId(contactId));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in ContactController:GetContactAddress for contactId={contactId}: {ex.Message}");
+                _logger.Error(ex, $"Error in ContactController:GetContactAddress for contactId={contactId}: {ex.Message}");
+                return StatusCode(500);
+            }
         }
     }
 }

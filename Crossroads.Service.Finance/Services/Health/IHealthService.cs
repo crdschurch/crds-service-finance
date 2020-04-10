@@ -7,6 +7,6 @@ namespace Crossroads.Service.Finance.Services.Health
 {
     public interface IHealthService
     {
-        bool GetHangfireStatus();
+        Task<bool> GetHangfireStatus();
     }
 }

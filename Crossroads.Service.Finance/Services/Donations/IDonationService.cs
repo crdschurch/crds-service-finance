@@ -2,27 +2,29 @@
 using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IDonationService
     {
         List<DonationDto> SetDonationStatus(List<DonationDto> donations, int batchId);
-        DonationDto Update(DonationDto donation);
-        List<DonationDto> Update(List<DonationDto> donations);
-        DonationDto GetDonationByTransactionCode(string transactionCode);
-        MpDonor CreateDonor(MpDonor donor);
-        MpDonorAccount CreateDonorAccount(MpDonorAccount donor);
+        Task<DonationDto> Update(DonationDto donation);
+        Task<List<DonationDto>> Update(List<DonationDto> donations);
+        Task<DonationDto> GetDonationByTransactionCode(string transactionCode);
+        Task<MpDonor> CreateDonor(MpDonor donor);
+        Task<MpDonorAccount> CreateDonorAccount(MpDonorAccount donor);
+        Task<List<MpDonorAccount>> GetDonorAccounts(int donorId);
         void UpdateDonorAccount(JObject donorAccount);
-        List<RecurringGiftDto> GetRecurringGifts(int contactId);
-        List<RecurringGiftDto> GetRelatedContactRecurringGifts(int userContactId, int relatedContactId);
-        List<PledgeDto> GetPledges(int contactId);
-        List<DonationDetailDto> GetDonations(int contactId);
-        List<DonationDetailDto> GetDonations(string token);
-        List<DonationDetailDto> GetOtherGifts(int contactId);
-        List<DonationDetailDto> GetRelatedContactOtherGifts(int userContactId, int relatedContactId);
-        List<MpPledge> CalculatePledges(int contactId);
-        List<DonationDetailDto> GetRelatedContactDonations(int userContactId, int relatedContactId);
-        List<PledgeDto> GetRelatedContactPledge(int userContactId, int relatedContactId);
+        Task<List<RecurringGiftDto>> GetRecurringGifts(int contactId);
+        Task<List<RecurringGiftDto>> GetRelatedContactRecurringGifts(int userContactId, int relatedContactId);
+        Task<List<PledgeDto>> GetPledges(int contactId);
+        Task<List<DonationDetailDto>> GetDonations(int contactId);
+        Task<List<DonationDetailDto>> GetDonations(string token);
+        Task<List<DonationDetailDto>> GetOtherGifts(int contactId);
+        Task<List<DonationDetailDto>> GetRelatedContactOtherGifts(int userContactId, int relatedContactId);
+        Task<List<MpPledge>> CalculatePledges(int contactId);
+        Task<List<DonationDetailDto>> GetRelatedContactDonations(int userContactId, int relatedContactId);
+        Task<List<PledgeDto>> GetRelatedContactPledge(int userContactId, int relatedContactId);
     }
 }

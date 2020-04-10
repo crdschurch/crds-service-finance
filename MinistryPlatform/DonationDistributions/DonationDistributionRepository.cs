@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -14,16 +15,14 @@ namespace MinistryPlatform.Repositories
     public class DonationDistributionRepository : MinistryPlatformBase, IDonationDistributionRepository
     {
 
-        private readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
         public DonationDistributionRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
         
-        public List<MpDonationDistribution> GetByPledges(List<int> pledgeIds)
+        public async Task<List<MpDonationDistribution>> GetByPledges(List<int> pledgeIds)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
 
             var columns = new string[] {
                 "Pledge_ID_Table.[Pledge_ID]",
@@ -33,17 +32,17 @@ namespace MinistryPlatform.Repositories
 
             var filter = $"Pledge_ID_Table.[Pledge_ID] IN ({string.Join(",", pledgeIds)})";
 
-            return MpRestBuilder.NewRequestBuilder()
+            return (await MpRestBuilder.NewRequestBuilder()
                                 .WithSelectColumns(columns)
                                 .WithAuthenticationToken(token)
                                 .WithFilter(filter)
-                                .Build()
-                                .Search<MpDonationDistribution>().ToList();
+                                .BuildAsync()
+                                .Search<MpDonationDistribution>()).ToList();
         }
 
-        public List<MpDonationDistribution> GetByDonationId(int donationId)
+        public async Task<List<MpDonationDistribution>> GetByDonationId(int donationId)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
 
             var columns = new string[] {
                 "Donation_Distributions.[Donation_Distribution_ID]",
@@ -56,21 +55,21 @@ namespace MinistryPlatform.Repositories
 
             var filter = $"Donation_Distributions.[Donation_ID] = {donationId}";
 
-            return MpRestBuilder.NewRequestBuilder()
+            return (await MpRestBuilder.NewRequestBuilder()
                 .WithSelectColumns(columns)
                 .WithAuthenticationToken(token)
                 .WithFilter(filter)
-                .Build()
-                .Search<MpDonationDistribution>().ToList();
+                .BuildAsync()
+                .Search<MpDonationDistribution>()).ToList();
         }
         
-        public List<MpDonationDistribution> UpdateDonationDistributions(List<MpDonationDistribution> mpDonationDistributions)
+        public async Task<List<MpDonationDistribution>> UpdateDonationDistributions(List<MpDonationDistribution> mpDonationDistributions)
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
 
-            return MpRestBuilder.NewRequestBuilder()
+            return await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Update(mpDonationDistributions);
         }
     }

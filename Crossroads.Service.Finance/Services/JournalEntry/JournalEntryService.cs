@@ -2,11 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using MinistryPlatform.JournalEntries;
 
 namespace Crossroads.Service.Finance.Services.JournalEntry
 {
     public class JournalEntryService : IJournalEntryService
     {
+        private readonly IJournalEntryRepository _journalEntryRepository;
+
+        public JournalEntryService(IJournalEntryRepository journalEntryRepository)
+        {
+            _journalEntryRepository = journalEntryRepository;
+        }
+
         public void AdjustExistingJournalEntry(MpDistributionAdjustment mpDistributionAdjustment, MpJournalEntry journalEntry)
         {
             if ( IsCredit(mpDistributionAdjustment) )
@@ -44,26 +53,74 @@ namespace Crossroads.Service.Finance.Services.JournalEntry
             return mpJournalEntry;
         }
 
-        public MpJournalEntry NetCreditsAndDebits(MpJournalEntry journalEntry)
+        public async Task<List<MpJournalEntry>> AddBatchIdsAndClean(List<MpJournalEntry> journalEntries)
         {
-            if ( IsNetCredit(journalEntry) )
+            var journalEntryTasks = new List<Task>();
+
+            foreach (var journalEntry in journalEntries)
             {
-                journalEntry.CreditAmount -= journalEntry.DebitAmount;
-                journalEntry.DebitAmount = 0;
-            }
-            else if ( IsNetDebit(journalEntry) )
-            {
-                journalEntry.DebitAmount -= journalEntry.CreditAmount;
-                journalEntry.CreditAmount = 0;
+                journalEntryTasks.Add(NetCreditsAndDebits(journalEntry));
             }
 
-            return journalEntry;
+            journalEntries.ForEach(e => NetCreditsAndDebits(e));
+
+            var entries = journalEntries;
+            var removeWashEntriesTask = Task.Run(() => RemoveWashEntries(entries));
+            var washedEntries = await removeWashEntriesTask;
+
+            washedEntries = await AddBatchIdsToJournalEntries(washedEntries);
+            return washedEntries;
+        }
+
+        public Task<MpJournalEntry> NetCreditsAndDebits(MpJournalEntry journalEntry)
+        {
+            var netCreditsAndDebitsTask = Task.Run(() =>
+            {
+                if (IsNetCredit(journalEntry))
+                {
+                    journalEntry.CreditAmount -= journalEntry.DebitAmount;
+                    journalEntry.DebitAmount = 0;
+                }
+                else if (IsNetDebit(journalEntry))
+                {
+                    journalEntry.DebitAmount -= journalEntry.CreditAmount;
+                    journalEntry.CreditAmount = 0;
+                }
+
+                return journalEntry;
+            });
+
+            return netCreditsAndDebitsTask;
         }
 
         public List<MpJournalEntry> RemoveWashEntries(List<MpJournalEntry> journalEntries)
         {
             List<MpJournalEntry> nonRedundantAdjustments = journalEntries.Where(e => e.CreditAmount != e.DebitAmount).ToList<MpJournalEntry>();
             return nonRedundantAdjustments;
+        }
+
+        public async Task<List<MpJournalEntry>> AddBatchIdsToJournalEntries(List<MpJournalEntry> entries)
+        {
+            int batchNumber = 1;
+            var today = DateTime.Now;
+
+            // get highest batch number for the current day here and use when creating next batch ids
+            var batchIds = await _journalEntryRepository.GetCurrentDateBatchIds();
+
+            if (batchIds.Any())
+            {
+                var maxBatchId = batchIds.Max();
+                batchNumber = int.Parse(maxBatchId.Substring(maxBatchId.Length - 3)) + 1;
+            }
+
+            var batchId = $"CRJE{today.Year}{today.Month}{today.Day}{batchNumber.ToString("000")}";
+
+            foreach (MpJournalEntry journalEntry in entries)
+            {
+                journalEntry.BatchID = batchId;
+            }
+
+            return entries;
         }
 
         private static bool IsNetDebit(MpJournalEntry journalEntry)

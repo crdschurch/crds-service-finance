@@ -1,21 +1,21 @@
 using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
-using Crossroads.Service.Finance.Services;
-using MinistryPlatform.Interfaces;
-using Moq;
-using Xunit;
-using Pushpay.Client;
-using Crossroads.Web.Common.Configuration;
-using System;
-using System.Collections.Generic;
 using Crossroads.Service.Finance.Models;
+using Crossroads.Service.Finance.Services;
+using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Congregations;
 using MinistryPlatform.Donors;
-using Pushpay.Models;
+using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
-using Newtonsoft.Json.Linq;
 using Mock;
-using Utilities.Logging;
+using Moq;
+using Newtonsoft.Json.Linq;
+using Pushpay.Client;
+using Pushpay.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Crossroads.Service.Finance.Test.Pushpay
 {
@@ -31,7 +31,6 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         private readonly Mock<IDonorRepository> _donorRepository;
         private readonly Mock<IWebhooksRepository> _webhooksRespository;
         private readonly Mock<IGatewayService> _gatewayService;
-        private readonly Mock<IDataLoggingService> _dataLoggingService;
         private readonly Mock<IDonationDistributionRepository> _donationDistributionRepository;
         private readonly Mock<ICongregationRepository> _congregationRepository;
 
@@ -39,6 +38,8 @@ namespace Crossroads.Service.Finance.Test.Pushpay
 
         public PushpayServiceTest()
         {
+            System.Environment.SetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY", "1234");
+
             _pushpayClient = new Mock<IPushpayClient>();
             _donationService = new Mock<IDonationService>();
             _mapper = new Mock<IMapper>();
@@ -49,14 +50,13 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _donorRepository = new Mock<IDonorRepository>();
             _webhooksRespository = new Mock<IWebhooksRepository>();
             _gatewayService = new Mock<IGatewayService>();
-            _dataLoggingService = new Mock<IDataLoggingService>();
             _donationDistributionRepository = new Mock<IDonationDistributionRepository>();
             _congregationRepository = new Mock<ICongregationRepository>();
 
             _fixture = new PushpayService(_pushpayClient.Object, _donationService.Object, _mapper.Object,
                                           _configurationWrapper.Object, _recurringGiftRepository.Object,
                                           _programRepository.Object, _contactRepository.Object, _donorRepository.Object,
-                                          _webhooksRespository.Object, _gatewayService.Object, _dataLoggingService.Object,
+                                          _webhooksRespository.Object, _gatewayService.Object,
                                           _donationDistributionRepository.Object, _congregationRepository.Object);
         }
 
@@ -65,12 +65,15 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         {
             string transactionCode = "87234354pending";
             var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
-            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateProcessing());
-            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
-            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Mock.MpDonorAccountMock.Create());
-            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Mock.DonationDtoMock.CreateSucceeded("a"));
+            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Task.FromResult(Mock.PushpayPaymentDtoMock.CreateProcessing()));
+            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
+            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
+            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>())).ReturnsAsync(new List<MpDonorAccount>());
+            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
+            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
 
-            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
+            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock).Result;
 
             // is pending
             Assert.Equal(1, result.DonationStatusId);
@@ -79,14 +82,21 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         [Fact]
         public void ShouldUpdateDonationStatusSuccessFromPushpay()
         {
+            System.Environment.SetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY", "1234");
             string transactionCode = "87234354v";
             var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
-            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateSuccess());
-            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
-            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Mock.MpDonorAccountMock.Create());
-            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Mock.DonationDtoMock.CreateSucceeded("a"));
+            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Task.FromResult(Mock.PushpayPaymentDtoMock.CreateSuccess()));
+            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
+            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
+            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>())).ReturnsAsync(new List<MpDonorAccount>());
+            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
+            int? nullableInt = 1;
+            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
-            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
+            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock).Result;
 
             // is success
             Assert.Equal(4, result.DonationStatusId);
@@ -97,12 +107,18 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         {
             string transactionCode = "87234354v";
             var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
-            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Mock.PushpayPaymentDtoMock.CreateFailed());
-            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Mock.DonationDtoMock.CreatePending(transactionCode));
-            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Mock.MpDonorAccountMock.Create());
-            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Mock.DonationDtoMock.CreateSucceeded("a"));
+            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Task.FromResult(Mock.PushpayPaymentDtoMock.CreateFailed()));
+            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
+            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
+            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>())).ReturnsAsync(new List<MpDonorAccount>());
+            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
+            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
+            int? nullableInt = 1;
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
-            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock);
+            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock).Result;
 
             // is failed
             Assert.Equal(3, result.DonationStatusId);
@@ -126,10 +142,15 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             };
 
             _mapper.Setup(m => m.Map<List<SettlementEventDto>>(It.IsAny<List<PushpaySettlementDto>>())).Returns(depositDtos);
-            _pushpayClient.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(pushpayDepositDtos);
+            _pushpayClient.Setup(m => m.GetDepositsByDateRange(startDate, endDate)).Returns(Task.FromResult(pushpayDepositDtos));
+            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
+            int? nullableInt = 1;
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
             // Act
-            var result = _fixture.GetDepositsByDateRange(startDate, endDate);
+            var result = _fixture.GetDepositsByDateRange(startDate, endDate).Result;
 
             // Assert
             Assert.NotNull(result);
@@ -167,7 +188,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     Code = "I'm In"
                 },
                 Links = new PushpayLinksDto(),
-                PaymentMethodType = "ACH"
+                PaymentMethodType = "ACH",
+                Campus = new PushpayCampusDto
+                {
+                    Key = "test",
+                    Name = "test"
+                }
             };
             var mpRecurringGift = new MpRecurringGift()
             {
@@ -178,27 +204,27 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 CongregationId = 1
             };
-            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
+            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(Task.FromResult(pushpayRecurringGift));
             // return null donor
-            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns((int?)null);
+            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns(Task.FromResult((int?)null));
             _donorRepository.Setup(m => m.GetDonorByDonorId(It.IsAny<int>()))
-                              .Returns((MpDonor)null);
+                              .Returns(Task.FromResult((MpDonor)null));
             // don't match
             _contactRepository.Setup(m => m.MatchContact(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                              .Returns((MpDonor)null);
+                              .Returns(Task.FromResult((MpDonor)null));
             _donationService.Setup(m => m.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
-                            .Returns(mockDonorAccount);
+                            .Returns(Task.FromResult(mockDonorAccount));
             _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
-                              .Returns(mockHousehold);
+                              .Returns(Task.FromResult(mockHousehold));
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
-                              .Returns(new MpProgram());
-            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>()));
+                              .Returns(Task.FromResult(new MpProgram()));
+            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>())).Returns(Task.FromResult(new MpRecurringGift()));
                                //.Returns(null);
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto(){ DonorId = 1 });
 
-            var result = _fixture.CreateRecurringGift(webhook);
+            var result = _fixture.CreateRecurringGift(webhook, null).Result;
 
             Assert.Equal(1, result.DonorId);
         }
@@ -239,7 +265,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     Code = "I'm In"
                 },
                 Links = new PushpayLinksDto(),
-                PaymentMethodType = "ACH"
+                PaymentMethodType = "ACH",
+                Campus = new PushpayCampusDto
+                {
+                    Key = "test",
+                    Name = "test"
+                }
             };
             var mpRecurringGift = new MpRecurringGift()
             {
@@ -254,23 +285,29 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 CongregationId = 1
             };
-            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
+            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(Task.FromResult(pushpayRecurringGift));
             // return null donor
-            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns(1234567);
+            int? donorId = 1234567;
+            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns(Task.FromResult(donorId));
             _donorRepository.Setup(m => m.GetDonorByDonorId(It.IsAny<int>()))
-                              .Returns(mpDonor);
+                              .Returns(Task.FromResult(mpDonor));
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
-                              .Returns(mockHousehold);
+                              .Returns(Task.FromResult(mockHousehold));
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
-                              .Returns(new MpProgram());
-            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>()));
+                              .Returns(Task.FromResult(new MpProgram()));
+            _recurringGiftRepository.Setup(m => m.CreateRecurringGift(It.IsAny<MpRecurringGift>())).Returns(Task.FromResult(new MpRecurringGift()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
             _donationService.Setup(m => m.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
-                            .Returns(mockDonorAccount);
+                            .Returns(Task.FromResult(mockDonorAccount));
+            _donationService.Setup(m => m.GetDonorAccounts(It.IsAny<int>()))
+                            .Returns(Task.FromResult(new List<MpDonorAccount>{mockDonorAccount}));
             _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
+            int? nullableInt = 1;
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
-            var result = _fixture.CreateRecurringGift(webhook);
+            var result = _fixture.CreateRecurringGift(webhook, null).Result;
             Assert.Equal(1, result.DonorId);
         }
 
@@ -307,7 +344,12 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     Code = "I'm In"
                 },
                 Links = new PushpayLinksDto(),
-                PaymentMethodType = "ACH"
+                PaymentMethodType = "ACH",
+                Campus = new PushpayCampusDto
+                {
+                    Key = "test",
+                    Name = "test"
+                }
             };
             var mpRecurringGift = new MpRecurringGift()
             {
@@ -322,25 +364,28 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 CongregationId = 1
             };
-            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
+            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(Task.FromResult(pushpayRecurringGift));
             // return null donor
-            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns((int?)null);
+            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns(Task.FromResult((int?)null));
             _donorRepository.Setup(m => m.GetDonorByDonorId(It.IsAny<int>()))
-                .Returns((MpDonor)null);
+                .Returns(Task.FromResult((MpDonor)null));
             // don't match
             _contactRepository.Setup(m => m.MatchContact(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                                  .Returns((MpDonor)null);
+                                  .Returns(Task.FromResult((MpDonor)null));
             _donationService.Setup(m => m.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
-                                .Returns(mockDonorAccount);
+                                .Returns(Task.FromResult(mockDonorAccount));
             _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
-                                  .Returns(mockHousehold);
+                                  .Returns(Task.FromResult(mockHousehold));
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
-                                  .Returns(new MpProgram());
+                                  .Returns(Task.FromResult(new MpProgram()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
+            int? nullableInt = 1;
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
-            var result = _fixture.CreateRecurringGift(webhook);
+            var result = _fixture.CreateRecurringGift(webhook, null).Result;
 
             Assert.Equal(1, result.DonorId);
         }
@@ -394,26 +439,30 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 DonorId = 1
             };
-            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(pushpayRecurringGift);
-            _recurringGiftRepository.Setup(m => m.FindRecurringGiftBySubscriptionId(pushpayRecurringGift.PaymentToken)).Returns((MpRecurringGift)mpRecurringGift);
+            _pushpayClient.Setup(m => m.GetRecurringGift(link)).Returns(Task.FromResult(pushpayRecurringGift));
+            _recurringGiftRepository.Setup(m => m.FindRecurringGiftBySubscriptionId(pushpayRecurringGift.PaymentToken)).Returns(Task.FromResult((MpRecurringGift)mpRecurringGift));
             // return null donor
-            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns(1234567);
+            int? donorId = 1234567;
+            _donorRepository.Setup(m => m.GetDonorIdByProcessorId(It.IsAny<string>())).Returns(Task.FromResult(donorId));
             _donorRepository.Setup(m => m.GetDonorByDonorId(It.IsAny<int>()))
-                .Returns(mpDonor);
+                .Returns(Task.FromResult(mpDonor));
             // don't match
             _contactRepository.Setup(m => m.MatchContact(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                              .Returns((MpDonor)null);
+                              .Returns(Task.FromResult((MpDonor)null));
             _donationService.Setup(m => m.UpdateDonorAccount(It.IsAny<JObject>()));
             _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
             _contactRepository.Setup(m => m.GetHousehold(It.IsAny<int>()))
-                              .Returns(mockHousehold);
+                              .Returns(Task.FromResult(mockHousehold));
             _programRepository.Setup(m => m.GetProgramByName(It.IsAny<string>()))
-                              .Returns(new MpProgram());
+                              .Returns(Task.FromResult(new MpProgram()));
             _recurringGiftRepository.Setup(m => m.UpdateRecurringGift(It.IsAny<JObject>()));
             _mapper.Setup(m => m.Map<RecurringGiftDto>(It.IsAny<MpRecurringGift>()))
                                 .Returns(new RecurringGiftDto() { DonorId = 1 });
+            int? nullableInt = 1;
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
+                .Returns(Task.FromResult(nullableInt));
 
-            var result = _fixture.UpdateRecurringGift(webhook);
+            var result = _fixture.UpdateRecurringGift(webhook, null);
         }
 
 
@@ -466,6 +515,148 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             var expected = "First Name: Dez Last Name: Bryant Phone: (653) 665-9090 Email: dez@cowboys.com ";
             expected += "Address1: Street Address Not Provided Address2:  City, State Zip: ,  83566 Country: USA";
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void ShouldGetSiteConfigFromFields()
+        {
+            // Arrange
+            var pushpayFields = new List<PushpayFieldValueDto>
+            {
+                new PushpayFieldValueDto
+                {
+                    Key = "1234",
+                    Value = "Mason",
+                    Label = "site"
+                }
+            };
+
+            var campusKey = "abcedf123456";
+            int? congregationId = null;
+
+            var mpCongregations = new List<MpCongregation>
+            {
+                new MpCongregation
+                {
+                    CongregationName = "Mason",
+                    CongregationId = 123
+                }
+            };
+
+            _congregationRepository.Setup(m => m.GetCongregationByCongregationName("Mason")).Returns(Task.FromResult(mpCongregations));
+
+            // Act
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+
+            // Assert
+            Assert.Equal(123, siteId);
+        }
+
+        [Fact]
+        public void ShouldGetSiteConfigFromWebhookId()
+        {
+            // Arrange
+            var pushpayFields = new List<PushpayFieldValueDto>
+            {
+                new PushpayFieldValueDto
+                {
+                    Key = "1234",
+                    Value = "Mason",
+                    Label = "site"
+                }
+            };
+
+            var campusKey = "abcedf123456";
+            int? congregationId = 5;
+
+            var mpCongregations = new List<MpCongregation>
+            {
+                new MpCongregation
+                {
+                    CongregationName = "Mason",
+                    CongregationId = 123
+                }
+            };
+
+            _congregationRepository.Setup(m => m.GetCongregationByCongregationName("Mason")).Returns(Task.FromResult(mpCongregations));
+
+            // Act
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+
+            // Assert
+            Assert.Equal(5, siteId);
+        }
+
+        [Fact]
+        public void ShouldGetSiteConfigFromMpConfigValue()
+        {
+            // Arrange
+            var pushpayFields = new List<PushpayFieldValueDto>
+            {
+                new PushpayFieldValueDto
+                {
+                    Key = "1234",
+                    Value = "Mason",
+                    Label = "site"
+                }
+            };
+
+            var campusKey = "abcedf123456";
+            int? congregationId = 5;
+
+            var mpCongregations = new List<MpCongregation>
+            {
+                new MpCongregation
+                {
+                    CongregationName = "Mason",
+                    CongregationId = 123
+                }
+            };
+
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync("CRDS-FINANCE", campusKey, false))
+                .Returns(Task.FromResult(congregationId));
+
+            // Act
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+
+            // Assert
+            Assert.Equal(5, siteId);
+        }
+
+        [Fact]
+        public void ShouldGetSiteConfigDefault()
+        {
+            // Arrange
+            var pushpayFields = new List<PushpayFieldValueDto>
+            {
+                new PushpayFieldValueDto
+                {
+                    Key = "1234",
+                    Value = "Mason",
+                    Label = "site"
+                }
+            };
+
+            var campusKey = "abcedf123456";
+            int? notFoundCongregationId = 0;
+
+            var mpCongregations = new List<MpCongregation>
+            {
+                new MpCongregation
+                {
+                    CongregationName = "Mason",
+                    CongregationId = 123
+                }
+            };
+
+            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync("CRDS-FINANCE", campusKey, false))
+                .Returns(Task.FromResult(notFoundCongregationId));
+
+            // Act
+            var siteId = _fixture.LookupCongregationId(null, campusKey, null).Result;
+
+            // Assert
+            Assert.Equal(5, siteId);
         }
     }
 }

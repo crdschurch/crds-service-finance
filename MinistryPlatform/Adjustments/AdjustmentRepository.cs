@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -16,9 +17,9 @@ namespace MinistryPlatform.Adjustments
         IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public List<MpDistributionAdjustment> GetUnprocessedDistributionAdjustments()
+        public async Task<List<MpDistributionAdjustment>> GetUnprocessedDistributionAdjustments()
         {
-            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            Task<string> tokenTask = ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
             var columns = new string[] {
                 "Distribution_Adjustment_ID",
                 "Journal_Entry_ID",
@@ -33,22 +34,22 @@ namespace MinistryPlatform.Adjustments
             };
 
             var mpAdjustingJournalEntries = MpRestBuilder.NewRequestBuilder()
-                .WithAuthenticationToken(token)
+                .WithAuthenticationToken(await tokenTask)
                 .WithSelectColumns(columns)
                 .WithFilter("Processed_Date IS NULL")
-                .Build()
+                .BuildAsync()
                 .Search<MpDistributionAdjustment>();
 
-            return mpAdjustingJournalEntries;
+            return await mpAdjustingJournalEntries;
         }
 
-        public void UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments)
+        public async void UpdateAdjustments(List<MpDistributionAdjustment> distributionAdjustments)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
-            MpRestBuilder.NewRequestBuilder()
+            await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Update(distributionAdjustments, "cr_Distribution_Adjustments");
         }
     }

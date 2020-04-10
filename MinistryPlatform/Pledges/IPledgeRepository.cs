@@ -1,10 +1,11 @@
 ﻿using MinistryPlatform.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MinistryPlatform.Interfaces
 {
     public interface IPledgeRepository
     {
-        List<MpPledge> GetActiveAndCompleted(int contactId);
+        Task<List<MpPledge>> GetActiveAndCompleted(int contactId);
     }
 }

@@ -1,9 +1,9 @@
-﻿using System;
-using Pushpay.Models;
+﻿using Pushpay.Models;
+using System.Threading.Tasks;
 
 namespace Pushpay.Token
 {
     public interface IPushpayTokenService {
-        IObservable<OAuth2TokenResponse> GetOAuthToken(string scope = "read");
+        Task<OAuth2TokenResponse> GetOAuthToken(string scope = "read");
     }
 }

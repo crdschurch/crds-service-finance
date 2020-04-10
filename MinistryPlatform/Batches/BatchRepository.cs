@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
@@ -16,23 +17,23 @@ namespace MinistryPlatform.Repositories
             IConfigurationWrapper configurationWrapper,
             IMapper mapper) : base(builder, apiUserRepository, configurationWrapper, mapper) { }
 
-        public MpDonationBatch CreateDonationBatch(MpDonationBatch mpDonationBatch)
+        public async Task<MpDonationBatch> CreateDonationBatch(MpDonationBatch mpDonationBatch)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
-            return MpRestBuilder.NewRequestBuilder()
+            return await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Create(mpDonationBatch);
         }
 
-        public void UpdateDonationBatch(MpDonationBatch mpDonationBatch)
+        public async void UpdateDonationBatch(MpDonationBatch mpDonationBatch)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
-            MpRestBuilder.NewRequestBuilder()
+            await MpRestBuilder.NewRequestBuilder()
                 .WithAuthenticationToken(token)
-                .Build()
+                .BuildAsync()
                 .Update(mpDonationBatch);
         }
     }

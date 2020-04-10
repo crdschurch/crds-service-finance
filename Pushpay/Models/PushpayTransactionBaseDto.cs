@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Pushpay.Models.JSONConverter;
 
 namespace Pushpay.Models
 {
@@ -34,10 +35,15 @@ namespace Pushpay.Models
         public PushpayLinksDto Links { get; set; }
 
         [JsonProperty("updatedOn")]
+        [JsonConverter(typeof(JsonDateUtcConverter))]
         public DateTime UpdatedOn { get; set; }
 
         [JsonProperty("fields")]
         public List<PushpayFieldValueDto> PushpayFields { get; set; }
+
+        [JsonProperty("campus")]
+        public PushpayCampusDto Campus { get; set; }
+
     }
 
     public class RecurringGiftAmount
@@ -123,5 +129,14 @@ namespace Pushpay.Models
 
         [JsonProperty("accountType")]
         public string AccountType { get; set; }
+    }
+
+    public class PushpayCampusDto
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("key")]
+        public string Key { get; set; }
     }
 }

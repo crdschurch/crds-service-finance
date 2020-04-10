@@ -2,9 +2,11 @@
 using System.Reactive.Linq;
 using System.Net;
 using System;
+using System.Threading.Tasks;
 using Moq;
 using RestSharp;
 using Newtonsoft.Json;
+using Pushpay.Models;
 using Pushpay.Token;
 
 namespace Pushpay.Test
@@ -31,12 +33,16 @@ namespace Pushpay.Test
             pushpayResponseData.token_type = tokenType;
             pushpayResponseData.expires_in = expiresIn;
             pushpayResponseData.refresh_token = null;
-            _restClient.Setup(x => x.Execute(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<object>
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = JsonConvert.SerializeObject(pushpayResponseData)
-                });
+            var convertedResponse = JsonConvert.SerializeObject(pushpayResponseData);
+
+            IRestResponse<OAuth2TokenResponse> restResponse = new RestResponse<OAuth2TokenResponse>
+            {
+                Content = convertedResponse,
+                StatusCode = HttpStatusCode.OK
+            };
+
+            _restClient.Setup(x => x.ExecuteTaskAsync<OAuth2TokenResponse>(It.IsAny<IRestRequest>()))
+                .Returns(Task.FromResult(restResponse));
         }
 
         [Fact]
@@ -44,7 +50,7 @@ namespace Pushpay.Test
         {
             SetupOauth();
 
-            var result = _fixture.GetOAuthToken().Wait();
+            var result = _fixture.GetOAuthToken().Result;
 
             Assert.Equal(accessToken, result.AccessToken);
             Assert.Equal(tokenType, result.TokenType);
@@ -53,15 +59,21 @@ namespace Pushpay.Test
         }
 
         [Fact]
-        public void GetOAuthTokenTestFailure()
+        public async void GetOAuthTokenTestFailure()
         {
-            _restClient.Setup(x => x.Execute(It.IsAny<IRestRequest>()))
-                .Returns(new RestResponse<object>
-                {
-                    StatusCode = HttpStatusCode.BadRequest
-                });
+            SetupOauth();
 
-            Assert.Throws<Exception>(() => _fixture.GetOAuthToken().Wait());
+            IRestResponse<OAuth2TokenResponse> restResponse = new RestResponse<OAuth2TokenResponse>
+            {
+                StatusCode = HttpStatusCode.NotFound
+            };
+
+            _restClient.Setup(x => x.ExecuteTaskAsync<OAuth2TokenResponse>(It.IsAny<IRestRequest>()))
+                .Returns(Task.FromResult(restResponse));
+
+            var result = await Record.ExceptionAsync(() => _fixture.GetOAuthToken("test"));
+            Assert.NotNull(result);
+            Assert.IsType<Exception>(result);
         }
     }
 }

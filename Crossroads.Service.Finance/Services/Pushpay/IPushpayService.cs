@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Models;
 using Pushpay.Models;
@@ -8,17 +9,18 @@ namespace Crossroads.Service.Finance.Interfaces
 {
     public interface IPushpayService
     {
-        List<PaymentDto> GetDonationsForSettlement(string settlementKey);
-        DonationDto UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry = false);
+        Task<List<PaymentDto>> GetDonationsForSettlement(string settlementKey);
+        Task<DonationDto> UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry = false);
         void UpdateDonationDetails(PushpayWebhook webhook);
-        List<SettlementEventDto> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
-        RecurringGiftDto CreateRecurringGift(PushpayWebhook webhook);
-        RecurringGiftDto UpdateRecurringGift(PushpayWebhook webhook);
-        List<PushpayRecurringGiftDto> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate);
-        MpRecurringGift BuildAndCreateNewRecurringGift(PushpayRecurringGiftDto pushpayRecurringGift);
-        RecurringGiftDto UpdateRecurringGiftForSync(PushpayRecurringGiftDto pushpayRecurringGift, MpRecurringGift mpRecurringGift);
+        Task<List<SettlementEventDto>> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
+        Task<RecurringGiftDto> CreateRecurringGift(PushpayWebhook webhook, int? congregationId);
+        Task<RecurringGiftDto> UpdateRecurringGift(PushpayWebhook webhook, int? congregationId);
+        Task<List<PushpayRecurringGiftDto>> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate);
+        Task<MpRecurringGift> BuildAndCreateNewRecurringGift(PushpayRecurringGiftDto pushpayRecurringGift, int? congregationId);
+        Task<RecurringGiftDto> UpdateRecurringGiftForSync(PushpayRecurringGiftDto pushpayRecurringGift, MpRecurringGift mpRecurringGift);
         string GetRecurringGiftNotes(PushpayRecurringGiftDto pushpayRecurringGift);
         string FormatPhoneNumber(string phone);
         void SaveWebhookData(PushpayWebhook pushpayWebhook);
+        Task<int> LookupCongregationId(List<PushpayFieldValueDto> pushpayFields, string campusKey, int? congregationId);
     }
 }
