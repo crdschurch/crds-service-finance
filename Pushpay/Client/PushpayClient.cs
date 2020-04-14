@@ -35,10 +35,10 @@ namespace Pushpay.Client
             _restClient.BaseUrl = apiUri;
         }
 
-        public async Task<List<PushpayPaymentDto>> GetDonations(string settlementKey)
+        public List<PushpayPaymentDto> GetDonations(string settlementKey)
         {
             var resource = $"settlement/{settlementKey}/payments";
-            var data = await CreateAndExecuteRequest(resource, Method.GET, donationsScope, null, true);
+            var data = CreateAndExecuteRequest(resource, Method.GET, donationsScope, null, true).Result;
             return JsonConvert.DeserializeObject<List<PushpayPaymentDto>>(data);
         }
 
