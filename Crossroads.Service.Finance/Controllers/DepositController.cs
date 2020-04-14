@@ -1,6 +1,7 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Controllers
@@ -43,12 +44,12 @@ namespace Crossroads.Service.Finance.Controllers
                 }
                 foreach (var deposit in deposits)
                 {
-                    var createDepositTask = Task.Run(() => _paymentEventService.CreateDeposit(deposit));
-                    await createDepositTask;
+                    _paymentEventService.CreateDeposit(deposit);
+                    Thread.Sleep(5000);
                 }
 
-                Console.WriteLine($"SyncSettlements created {deposits.Count} deposits");
-                _logger.Info($"SyncSettlements created {deposits.Count} deposits");
+                Console.WriteLine($"SyncSettlements processed {deposits.Count} deposits");
+                _logger.Info($"SyncSettlements processed {deposits.Count} deposits");
 
                 return Ok(new {created = deposits.Count});
             }
