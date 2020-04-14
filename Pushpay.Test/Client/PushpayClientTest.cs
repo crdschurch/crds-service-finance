@@ -58,13 +58,13 @@ namespace Pushpay.Test
                     }
                  });
 
-            var result = _fixture.GetDonations("settlement-key-123").Result;
+            var result = _fixture.GetDonations("settlement-key-123");
 
             Assert.Equal(2, result.Count);
         }
 
         [Fact]
-        public async void GetPushpayDonationsSettlementDoesntExistTest()
+        public void GetPushpayDonationsSettlementDoesntExistTest()
         {
             _restClient.Setup(x => x.Execute<PushpayResponseBaseDto>(It.IsAny<IRestRequest>()))
                 .Returns(new RestResponse<PushpayResponseBaseDto>()
@@ -73,9 +73,9 @@ namespace Pushpay.Test
                     ErrorException = new System.Exception()
                 });
 
-            var result = await Record.ExceptionAsync(() => _fixture.GetDonations("settlement-key-123"));
+            var result = Record.Exception(() => _fixture.GetDonations("settlement-key-123"));
             Assert.NotNull(result);
-            Assert.IsType<Exception>(result);
+            Assert.IsType<AggregateException>(result);
         }
 
         [Fact]

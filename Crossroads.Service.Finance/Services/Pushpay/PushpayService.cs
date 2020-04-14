@@ -73,9 +73,9 @@ namespace Crossroads.Service.Finance.Services
             _mpNotSiteSpecificCongregationId = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "NotSiteSpecific") ?? 5;
         }
 
-        public async Task<List<PaymentDto>> GetDonationsForSettlement(string settlementKey)
+        public List<PaymentDto> GetDonationsForSettlement(string settlementKey)
         {
-            var result = await _pushpayClient.GetDonations(settlementKey);
+            var result = _pushpayClient.GetDonations(settlementKey);
             return _mapper.Map<List<PaymentDto>>(result);
         }
 
