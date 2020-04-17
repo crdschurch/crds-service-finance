@@ -28,6 +28,12 @@ using Newtonsoft.Json;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
+using System.Threading.Tasks;
+using Crossroads.Service.Finance.Services.DbClients;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Fluent;
+using MongoDB.Driver;
+using ProcessLogging.Transfer;
 
 namespace Crossroads.Service.Finance
 {
@@ -124,6 +130,10 @@ namespace Crossroads.Service.Finance
 
             // Exports Layer
             services.AddSingleton<IJournalEntryExport, VelosioExportClient>();
+
+            // Process Logging Layer
+            services.AddSingleton<ITransferData, CosmosDbTransfer>();
+            services.AddSingleton<ICosmosDbService>(InitializeProcessLoggingDbService());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -163,5 +173,13 @@ namespace Crossroads.Service.Finance
             //     c.RoutePrefix = string.Empty;
             // });
         }
+
+        public ICosmosDbService InitializeProcessLoggingDbService()
+        {
+            var mongoClient = new MongoClient(Environment.GetEnvironmentVariable("NO_SQL_CONNECTION_STRING"));
+            var cosmosDbService = new CosmosDbService(mongoClient, "test name");
+            return cosmosDbService;
+        }
+
     }
 }

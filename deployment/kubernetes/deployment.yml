@@ -46,6 +46,8 @@ spec:
           env: 
             - name: APP_LOG_ROOT
               value: $APP_LOG_ROOT
+            - name: API_CLIENT_KEY
+              value: $API_CLIENT_KEY
             - name: ASPNETCORE_ENVIRONMENT
               value: $ASPNETCORE_ENVIRONMENT
             - name: AUTH_SERVICE_BASE_URL
@@ -64,6 +66,8 @@ spec:
               value: $MP_OAUTH_BASE_URL
             - name: MP_REST_API_ENDPOINT
               value: $MP_REST_API_ENDPOINT
+            - name: NO_SQL_CONNECTION_STRING
+              value: $NO_SQL_CONNECTION_STRING
             - name: PUSHPAY_API_ENDPOINT
               value: $PUSHPAY_API_ENDPOINT
             - name: PUSHPAY_AUTH_ENDPOINT
