@@ -3,6 +3,9 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Crossroads.Service.Finance.Services.Health;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using ProcessLogging.Transfer;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -12,10 +15,12 @@ namespace Crossroads.Service.Finance.Controllers
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         private IHealthService _healthService;
+        private readonly ITransferData _transferData;
 
-        public HealthController(IHealthService healthService)
+        public HealthController(IHealthService healthService, ITransferData transferData)
         {
             _healthService = healthService;
+            _transferData = transferData;
         }
 
         [HttpGet]
@@ -39,6 +44,26 @@ namespace Crossroads.Service.Finance.Controllers
             }
 
             return StatusCode(200, "OK");
+        }
+
+        [HttpGet]
+        [Route("test-cosmos-connection")]
+        public async Task<IActionResult> TestCosmosConnection([FromHeader] string clientKey)
+        {
+            if (clientKey != Environment.GetEnvironmentVariable("API_CLIENT_KEY"))
+            {
+                return StatusCode(401);
+            }
+
+            try
+            {
+                var result = _transferData.DisplayDatabaseNames().Result;
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
