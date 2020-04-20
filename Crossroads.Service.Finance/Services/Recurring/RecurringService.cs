@@ -5,6 +5,7 @@ using MinistryPlatform.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Services.Recurring
@@ -50,8 +51,10 @@ namespace Crossroads.Service.Finance.Services.Recurring
                 .Select(r => r.PaymentToken).ToList();
             while (pushpayRecurringGiftIds.Any())
             {
+                Thread.Sleep(500);
+
                 // if the recurring gift does not exist in MP, pull the data from Pushpay and create it
-                var range = Math.Min(pushpayRecurringGiftIds.Count, 25);
+                var range = Math.Min(pushpayRecurringGiftIds.Count, 1);
 
                 var pushpayGiftIdsToSync = pushpayRecurringGiftIds.Take(range).ToList();
                 pushpayRecurringGiftIds.RemoveRange(0, range);
