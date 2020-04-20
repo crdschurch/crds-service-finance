@@ -46,6 +46,13 @@ namespace Crossroads.Service.Finance.Services
         private const int NotSiteSpecificCongregationId = 5;
         private readonly string CongregationFieldKey = Environment.GetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY");
 
+        private Dictionary<string, int> _recurringGiftStatuses = new Dictionary<string, int>
+        {
+            { "Active", 1 },
+            { "Paused", 2 },
+            { "Cancelled", 3 }
+        };
+
         public PushpayService(IPushpayClient pushpayClient, IDonationService donationService, IMapper mapper,
                               IConfigurationWrapper configurationWrapper, IRecurringGiftRepository recurringGiftRepository,
                               IProgramRepository programRepository, IContactRepository contactRepository, IDonorRepository donorRepository,
@@ -80,11 +87,11 @@ namespace Crossroads.Service.Finance.Services
         }
 
         // called from webhook controller
-        public async void UpdateDonationDetails(PushpayWebhook webhook)
+        public void UpdateDonationDetails(PushpayWebhook webhook)
         {
             // try to update details, if it fails, it will schedule to rerun
             //  via hangfire in 1 minute
-            await UpdateDonationDetailsFromPushpay(webhook, true);
+            var result = UpdateDonationDetailsFromPushpay(webhook, true).Result;
         }
 
         public void AddUpdateDonationDetailsJob(PushpayWebhook webhook)
@@ -100,7 +107,7 @@ namespace Crossroads.Service.Finance.Services
         public async Task<DonationDto> UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false)
         {
             try {
-                var pushpayPayment = await _pushpayClient.GetPayment(webhook);
+                var pushpayPayment = _pushpayClient.GetPayment(webhook).Result;
 
                 // PushPay creates the donation a variable amount of time after the webhook comes in so it still may not be available
                 var donation = await _donationService.GetDonationByTransactionCode("PP-" + pushpayPayment.TransactionId);
@@ -370,7 +377,7 @@ namespace Crossroads.Service.Finance.Services
                 new JProperty("Congregation_ID", mpRecurringGift.CongregationId)
             );
 
-            if (mpRecurringGift.Status != updatedPushpayRecurringGift.Status)
+            if (mpRecurringGift.RecurringGiftStatusId != _recurringGiftStatuses[updatedPushpayRecurringGift.Status])
             {
                 updateGift.Add(new JProperty("Status_Changed_Date", System.DateTime.Now));
             }
