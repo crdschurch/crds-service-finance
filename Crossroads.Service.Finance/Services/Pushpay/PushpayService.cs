@@ -99,14 +99,32 @@ namespace Crossroads.Service.Finance.Services
             // put some randomness into scheduling time for next job so we dont hit MP all at the same time
             var randomMinutes = new Random().NextDouble(); // decimal between and 1
             var jobMinutes = _mpPushpayRecurringWebhookMinutes + randomMinutes;
-            BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true), TimeSpan.FromMinutes(jobMinutes));
+            BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true, true), TimeSpan.FromMinutes(jobMinutes));
+        }
+
+        public void AddUpdateDonationDetailsJobLongRetry(PushpayWebhook webhook)
+        {
+            if ((DateTime.UtcNow - webhook.IncomingTimeUtc).Value.Days > 7)
+            {
+                _logger.Error($"Donation not created in MP for webhook {webhook.Events[0].Links.Payment} after 7 days. Giving up.");
+                Console.WriteLine($"Donation not created in MP for webhook {webhook.Events[0].Links.Payment} after 7 days. Giving up.");
+            }
+
+            // schedule the job to be rerun several hours out
+            var jobHours = new Random().Next(12, 18);
+            var jobMinutes = new Random().Next(0, 59);
+            BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true, true), new TimeSpan(0, jobHours, jobMinutes, 0));
+
+            _logger.Info($"Getting details for webhook {webhook.Events[0].Links.Payment} on long retry.");
+            Console.WriteLine($"Getting details for webhook {webhook.Events[0].Links.Payment} on long retry.");
         }
 
         // if this fails, it will schedule it to be re-run in 60 seconds,
         //  after 15 minutes of trying it'll give up
-        public async Task<DonationDto> UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false)
+        public async Task<DonationDto> UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false, bool longRetry = false)
         {
-            try {
+            try 
+            {
                 var pushpayPayment = _pushpayClient.GetPayment(webhook).Result;
 
                 // PushPay creates the donation a variable amount of time after the webhook comes in so it still may not be available
@@ -122,22 +140,23 @@ namespace Crossroads.Service.Finance.Services
                 // add Hangfire task to schedule retry on getting MP donation
                 if (donation == null)
                 {
-                    // donation not created by pushpay yet
+                    // donation not created by pushpay yet - run a short or long retry
                     var now = DateTime.UtcNow;
                     var webhookTime = webhook.IncomingTimeUtc;
 
                     // if it's been less than ten minutes, try again in a minute
-                    if ((now - webhookTime).Value.TotalMinutes < MaxRetryMinutes && retry)
+                    if ((now - webhookTime).Value.TotalMinutes < MaxRetryMinutes && retry && longRetry == false)
                     {
                         // requeue webhook
                         AddUpdateDonationDetailsJob(webhook);
                         return null;
                     }
-                    // it's been more than 15 minutes, let's chalk it up as PushPay ain't going to create it and call it a day
+                    // it's been more than 15 minutes, put it on a long retry cycle for a week
                     else
                     {
-                        _logger.Error($"Payment: {webhook.Events[0].Links.Payment} not found in MP after 15 minutes of trying. Giving up.");
-                        Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not found in MP after 15 minutes of trying. Giving up.");
+                        _logger.Info($"Payment: {webhook.Events[0].Links.Payment} not created in MP. Running long retry.");
+                        Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not created in MP. Running long retry.");
+                        AddUpdateDonationDetailsJobLongRetry(webhook);
                         return null;
                     }
                 }
@@ -230,8 +249,8 @@ namespace Crossroads.Service.Finance.Services
                 await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
                 return donation;
             } 
-            catch (Exception ex) {
-
+            catch (Exception ex) 
+            {
                 _logger.Error(ex, $"Exception: {webhook?.Events[0]?.Links?.Payment} Message: {ex.Message}");
                 Console.WriteLine($"Exception: {webhook?.Events[0]?.Links?.Payment} Message: {ex.Message}");
                 return null;
