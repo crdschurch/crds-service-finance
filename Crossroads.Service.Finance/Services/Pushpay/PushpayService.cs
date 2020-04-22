@@ -91,37 +91,12 @@ namespace Crossroads.Service.Finance.Services
         {
             // try to update details, if it fails, it will schedule to rerun
             //  via hangfire in 1 minute
-            var result = UpdateDonationDetailsFromPushpay(webhook, true).Result;
-        }
-
-        public void AddUpdateDonationDetailsJob(PushpayWebhook webhook)
-        {
-            // put some randomness into scheduling time for next job so we dont hit MP all at the same time
-            var randomMinutes = new Random().NextDouble(); // decimal between and 1
-            var jobMinutes = _mpPushpayRecurringWebhookMinutes + randomMinutes;
-            BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true, true), TimeSpan.FromMinutes(jobMinutes));
-        }
-
-        public void AddUpdateDonationDetailsJobLongRetry(PushpayWebhook webhook)
-        {
-            if ((DateTime.UtcNow - webhook.IncomingTimeUtc).Value.Days > 7)
-            {
-                _logger.Error($"Donation not created in MP for webhook {webhook.Events[0].Links.Payment} after 7 days. Giving up.");
-                Console.WriteLine($"Donation not created in MP for webhook {webhook.Events[0].Links.Payment} after 7 days. Giving up.");
-            }
-
-            // schedule the job to be rerun several hours out
-            var jobHours = new Random().Next(12, 18);
-            var jobMinutes = new Random().Next(0, 59);
-            BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook, true, true), new TimeSpan(0, jobHours, jobMinutes, 0));
-
-            _logger.Info($"Getting details for webhook {webhook.Events[0].Links.Payment} on long retry.");
-            Console.WriteLine($"Getting details for webhook {webhook.Events[0].Links.Payment} on long retry.");
+            var result = UpdateDonationDetailsFromPushpay(webhook).Result;
         }
 
         // if this fails, it will schedule it to be re-run in 60 seconds,
         //  after 15 minutes of trying it'll give up
-        public async Task<DonationDto> UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry=false, bool longRetry = false)
+        public async Task<DonationDto> UpdateDonationDetailsFromPushpay(PushpayWebhook webhook)
         {
             try 
             {
@@ -140,25 +115,8 @@ namespace Crossroads.Service.Finance.Services
                 // add Hangfire task to schedule retry on getting MP donation
                 if (donation == null)
                 {
-                    // donation not created by pushpay yet - run a short or long retry
-                    var now = DateTime.UtcNow;
-                    var webhookTime = webhook.IncomingTimeUtc;
-
-                    // if it's been less than ten minutes, try again in a minute
-                    if ((now - webhookTime).Value.TotalMinutes < MaxRetryMinutes && retry && longRetry == false)
-                    {
-                        // requeue webhook
-                        AddUpdateDonationDetailsJob(webhook);
-                        return null;
-                    }
-                    // it's been more than 15 minutes, put it on a long retry cycle for a week
-                    else
-                    {
-                        _logger.Info($"Payment: {webhook.Events[0].Links.Payment} not created in MP. Running long retry.");
-                        Console.WriteLine($"Payment: {webhook.Events[0].Links.Payment} not created in MP. Running long retry.");
-                        AddUpdateDonationDetailsJobLongRetry(webhook);
-                        return null;
-                    }
+                    HandleMissingMpDonation(webhook);
+                    return null;
                 }
 
                 // add payment token so that we can identify easier via api
@@ -254,6 +212,38 @@ namespace Crossroads.Service.Finance.Services
                 _logger.Error(ex, $"Exception: {webhook?.Events[0]?.Links?.Payment} Message: {ex.Message}");
                 Console.WriteLine($"Exception: {webhook?.Events[0]?.Links?.Payment} Message: {ex.Message}");
                 return null;
+            }
+        }
+
+        public void HandleMissingMpDonation(PushpayWebhook webhook)
+        {
+            // donation not created by pushpay yet - run a short or long retry
+            var now = DateTime.UtcNow;
+            var webhookTime = webhook.IncomingTimeUtc;
+
+            // if it's been less than ten minutes, try again in a minute
+            if ((now - webhookTime).Value.TotalMinutes < MaxRetryMinutes)
+            {
+                // requeue webhook for short retry
+                var randomMinutes = new Random().NextDouble(); // decimal between and 1
+                var jobMinutes = _mpPushpayRecurringWebhookMinutes + randomMinutes;
+                BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook), TimeSpan.FromMinutes(jobMinutes));
+            }
+            // it's been more than 15 minutes, put it on a long retry cycle for a week
+            else if ((now - webhookTime).Value.Days <= 7 && (now - webhookTime).Value.TotalMinutes >= MaxRetryMinutes)
+            {
+                // schedule the job to be rerun several hours out
+                var jobHours = new Random().Next(12, 18);
+                var jobMinutes = new Random().Next(0, 59);
+                BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook), new TimeSpan(0, jobHours, jobMinutes, 0));
+                
+                _logger.Info($"Getting details for webhook {webhook.Events[0].Links.Payment} on long retry.");
+                Console.WriteLine($"Getting details for webhook {webhook.Events[0].Links.Payment} on long retry.");
+            }
+            else if ((now - webhookTime).Value.Days > 7)
+            {
+                _logger.Error($"Donation not created in MP for webhook {webhook.Events[0].Links.Payment} after 7 days. Giving up.");
+                Console.WriteLine($"Donation not created in MP for webhook {webhook.Events[0].Links.Payment} after 7 days. Giving up.");
             }
         }
 
