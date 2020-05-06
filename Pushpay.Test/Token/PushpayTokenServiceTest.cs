@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Moq;
 using RestSharp;
 using Newtonsoft.Json;
+using Pushpay.Cache;
 using Pushpay.Models;
 using Pushpay.Token;
 
@@ -13,6 +14,7 @@ namespace Pushpay.Test
 {
     public class PushpayTokenServiceTest
     {
+        private readonly Mock<ICacheService> _cacheService;
         private readonly Mock<IRestClient> _restClient;
         private readonly PushpayTokenService _fixture;
         const string accessToken = "ryJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwdXNocGV5IiwiYXVkIjoicHVzaHBheS1zYW5kYm94IiwibmJmIjoxNTEyNjgwMzgzLCJleAHiOjE1MTI2ODM5ODMsImNsaWVudF9pZCI6ImNyb3Nzcm9hZHMtaW5nYWdlLWRldi1jbGllbnQiLCJzY29wZSI6WyJyZWFkIiwiY3JlYXRlX2FudGljaXBhdGVkX3BheW1lbnQiXSwibWVyY2hhbnRzIjoiNzkwMzg4NCA3OTAyNjQ1In0.ffD4AaY-4Zd-o2nOG2OIcgwq327jSQPnry4kCKFql88";
@@ -21,9 +23,10 @@ namespace Pushpay.Test
 
         public PushpayTokenServiceTest()
         {
+            _cacheService = new Mock<ICacheService>();
             _restClient = new Mock<IRestClient>();
 
-            _fixture = new PushpayTokenService(_restClient.Object);
+            _fixture = new PushpayTokenService(_cacheService.Object, _restClient.Object);
         }
 
         private void SetupOauth()
@@ -74,6 +77,53 @@ namespace Pushpay.Test
             var result = await Record.ExceptionAsync(() => _fixture.GetOAuthToken("test"));
             Assert.NotNull(result);
             Assert.IsType<Exception>(result);
+        }
+
+        [Fact]
+        public async void GetTokenWithExpiredCache()
+        {
+            // arrange
+            SetupOauth();
+
+            IRestResponse<OAuth2TokenResponse> restResponse = new RestResponse<OAuth2TokenResponse>
+            {
+                StatusCode = HttpStatusCode.OK
+            };
+
+            var tokenString =
+                "{\"access_token\":\"abc123def456\",\"token_type\":\"Bearer\",\"expires_in\":3600,\"refresh_token\":null}";
+
+            _cacheService.Setup(r => r.Get(It.IsAny<string>())).Returns<string>(r => tokenString);
+
+            _restClient.Setup(x => x.ExecuteTaskAsync<OAuth2TokenResponse>(It.IsAny<IRestRequest>()))
+                .Returns(Task.FromResult(restResponse));
+
+
+            // Act
+            var result = _fixture.GetOAuthToken("test").Result;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<OAuth2TokenResponse>(result);
+        }
+
+        [Fact]
+        public async void GetTokenWithUnexpiredCache()
+        {
+            // arrange
+            SetupOauth();
+
+            var tokenString =
+                "{\"access_token\":\"abc123def456\",\"token_type\":\"Bearer\",\"expires_in\":3600,\"refresh_token\":null}";
+
+            _cacheService.Setup(r => r.Get(It.IsAny<string>())).Returns<string>(r => tokenString);
+
+            // Act
+            var result = _fixture.GetOAuthToken().Result;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<OAuth2TokenResponse>(result);
         }
     }
 }
