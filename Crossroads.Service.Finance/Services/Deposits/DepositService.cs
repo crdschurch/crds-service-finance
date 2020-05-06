@@ -76,7 +76,7 @@ namespace Crossroads.Service.Finance.Services
                 // Account number must be non-null, and non-empty; using a single space to fulfill this requirement
                 AccountNumber = " ",
                 BatchCount = 1,
-                DepositDateTime = DateTime.Now,
+                DepositDateTime = DateTime.Parse(estDepositDate),
                 DepositName = depositName,
                 DepositTotalAmount = Decimal.Parse(settlementEventDto.TotalAmount.Amount),
                 DepositAmount = Decimal.Parse(settlementEventDto.TotalAmount.Amount),
