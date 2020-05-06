@@ -34,6 +34,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using MongoDB.Driver;
 using ProcessLogging.Transfer;
+using Pushpay.Cache;
 
 namespace Crossroads.Service.Finance
 {
@@ -134,6 +135,11 @@ namespace Crossroads.Service.Finance
             // Process Logging Layer
             services.AddSingleton<ITransferData, CosmosDbTransfer>();
             services.AddSingleton<ICosmosDbService>(InitializeProcessLoggingDbService());
+
+            // Add support for caching
+            services.AddSingleton<ICacheService, CacheService>();
+            services.AddDistributedMemoryCache();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
