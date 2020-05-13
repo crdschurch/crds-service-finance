@@ -7,7 +7,7 @@ namespace ProcessLogging.Models
     public class ProcessLogMessage
     {
         //messageKey(defined in constants, not free-form),
-        public ProcessLogConstants.MessageType MessageType { get; set; }
+        public string MessageType { get; set; }
 
         //messageVersion(semantically versioned),
         public string MessageVersion { get; set; }
@@ -22,7 +22,7 @@ namespace ProcessLogging.Models
         {
             MessageTime = DateTime.Now;
             MessageVersion = ProcessLogConstants.GetMessageVersion(messageType);
-            MessageType = messageType;
+            MessageType = messageType.ToString();
         }
     }
 }
