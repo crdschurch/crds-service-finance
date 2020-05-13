@@ -15,6 +15,7 @@ using Pushpay.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ProcessLogging.Transfer;
 using Xunit;
 
 namespace Crossroads.Service.Finance.Test.Pushpay
@@ -33,6 +34,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         private readonly Mock<IGatewayService> _gatewayService;
         private readonly Mock<IDonationDistributionRepository> _donationDistributionRepository;
         private readonly Mock<ICongregationRepository> _congregationRepository;
+        private readonly Mock<IProcessLogger> _transferData;
 
         private readonly IPushpayService _fixture;
 
@@ -52,12 +54,14 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _gatewayService = new Mock<IGatewayService>();
             _donationDistributionRepository = new Mock<IDonationDistributionRepository>();
             _congregationRepository = new Mock<ICongregationRepository>();
+            _transferData = new Mock<IProcessLogger>();
 
             _fixture = new PushpayService(_pushpayClient.Object, _donationService.Object, _mapper.Object,
                                           _configurationWrapper.Object, _recurringGiftRepository.Object,
                                           _programRepository.Object, _contactRepository.Object, _donorRepository.Object,
                                           _webhooksRespository.Object, _gatewayService.Object,
-                                          _donationDistributionRepository.Object, _congregationRepository.Object);
+                                          _donationDistributionRepository.Object, _congregationRepository.Object,
+                                          _transferData.Object);
         }
 
         [Fact]

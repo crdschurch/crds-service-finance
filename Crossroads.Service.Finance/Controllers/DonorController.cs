@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ProcessLogging.Models;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -146,10 +147,7 @@ namespace Crossroads.Service.Finance.Controllers
         public async Task<IActionResult> GetDonationHistory(int contactId)
         {
             var authDto = (AuthDTO)HttpContext.Items["authDto"];
-
             var userContactId = authDto.UserInfo.Mp.ContactId;
-
-            _logger.Info(("Getting donations"));
 
             try 
             { 

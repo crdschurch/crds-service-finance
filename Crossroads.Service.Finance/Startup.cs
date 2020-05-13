@@ -35,12 +35,13 @@ using Microsoft.Azure.Cosmos.Fluent;
 using MongoDB.Driver;
 using ProcessLogging.Transfer;
 using Pushpay.Cache;
+using Microsoft.Extensions.Hosting;
 
 namespace Crossroads.Service.Finance
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -133,8 +134,8 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IJournalEntryExport, VelosioExportClient>();
 
             // Process Logging Layer
-            services.AddSingleton<ITransferData, CosmosDbTransfer>();
-            services.AddSingleton<ICosmosDbService>(InitializeProcessLoggingDbService());
+            services.AddSingleton<IProcessLogger, NoSqlProcessLogger>();
+            services.AddSingleton<INoSqlDbService>(InitializeProcessLoggingDbService());
 
             // Add support for caching
             services.AddSingleton<ICacheService, CacheService>();
@@ -143,7 +144,7 @@ namespace Crossroads.Service.Finance
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -180,12 +181,11 @@ namespace Crossroads.Service.Finance
             // });
         }
 
-        public ICosmosDbService InitializeProcessLoggingDbService()
+        public INoSqlDbService InitializeProcessLoggingDbService()
         {
             var mongoClient = new MongoClient(Environment.GetEnvironmentVariable("NO_SQL_CONNECTION_STRING"));
-            var cosmosDbService = new CosmosDbService(mongoClient, "test name");
+            var cosmosDbService = new NoSqlDbService(mongoClient);
             return cosmosDbService;
         }
-
     }
 }
