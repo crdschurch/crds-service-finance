@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using ProcessLogging.Models;
 
 namespace ProcessLogging.Transfer
 {
-    public interface ITransferData
+    public interface IProcessLogger
     {
-        // TODO: Test method, remove at later date
-        Task<List<string>> DisplayDatabaseNames();
+        void SaveProcessLogMessage(ProcessLogMessage processLogMessage);
     }
 }

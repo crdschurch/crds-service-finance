@@ -10,6 +10,7 @@ using Pushpay.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ProcessLogging.Transfer;
 using Xunit;
 
 namespace Crossroads.Service.Finance.Test.Recurring
@@ -21,6 +22,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
         private readonly Mock<IPushpayService> _pushpayService;
         private readonly Mock<IConfigurationWrapper> _configWrapper;
         private readonly Mock<IRecurringGiftRepository> _recurringGiftRepository;
+        private readonly Mock<IProcessLogger> _processLogger;
 
         private readonly IRecurringService _fixture;
 
@@ -31,9 +33,10 @@ namespace Crossroads.Service.Finance.Test.Recurring
             _pushpayService = new Mock<IPushpayService>();
             _configWrapper = new Mock<IConfigurationWrapper>();
             _recurringGiftRepository = new Mock<IRecurringGiftRepository>();
+            _processLogger = new Mock<IProcessLogger>();
 
             _fixture = new RecurringService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object,
-                _recurringGiftRepository.Object);
+                _recurringGiftRepository.Object, _processLogger.Object);
         }
 
         [Fact]

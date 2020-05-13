@@ -3,8 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Runtime;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.VisualBasic;
+using ProcessLogging.Models;
+using ProcessLogging.Transfer;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -13,10 +17,12 @@ namespace Crossroads.Service.Finance.Controllers
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IExportService _exportService;
+        private readonly IProcessLogger _processLogger;
 
-        public ExportController(IExportService exportService)
+        public ExportController(IExportService exportService, IProcessLogger processLogger)
         {
             _exportService = exportService;
+            _processLogger = processLogger;
         }
 
         [HttpPost]
@@ -27,8 +33,14 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                _logger.Info("Running adjust journal entries job...");
+                var creatingJournalEntriesMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.createJournalEntries)
+                {
+                    MessageData = "Creating journal entries"
+                };
+                _processLogger.SaveProcessLogMessage(creatingJournalEntriesMessage);
+
                 _exportService.CreateJournalEntriesAsync();
+
                 return Ok();
             }
             catch (Exception ex)
@@ -47,7 +59,6 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                _logger.Info("Running hello world...");
                 await _exportService.HelloWorld();
                 return Ok();
             }
@@ -67,7 +78,12 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                _logger.Info("Running export...");
+                var runningExportMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.exportJournalEntries)
+                {
+                    MessageData = "Exporting journal entries programatically"
+                };
+                _processLogger.SaveProcessLogMessage(runningExportMessage);
+
                 _exportService.ExportJournalEntries();
                 return Ok();
             }
@@ -93,8 +109,13 @@ namespace Crossroads.Service.Finance.Controllers
 
             try
             {
-                _logger.Info("Running export...");
-                 var resultTask = _exportService.ExportJournalEntriesManually(update);
+                var manualJournalEntryExportMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.manualJournalEntryExport)
+                {
+                    MessageData = "Exporting journal entries manually"
+                };
+                _processLogger.SaveProcessLogMessage(manualJournalEntryExportMessage);
+
+                var resultTask = _exportService.ExportJournalEntriesManually(update);
                  result = resultTask.Result;
                  return Ok(result);
             }

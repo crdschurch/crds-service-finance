@@ -15,12 +15,12 @@ namespace Crossroads.Service.Finance.Controllers
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         private IHealthService _healthService;
-        private readonly ITransferData _transferData;
+        private readonly IProcessLogger _processLogger;
 
-        public HealthController(IHealthService healthService, ITransferData transferData)
+        public HealthController(IHealthService healthService, IProcessLogger processLogger)
         {
             _healthService = healthService;
-            _transferData = transferData;
+            _processLogger = processLogger;
         }
 
         [HttpGet]
@@ -44,26 +44,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
 
             return StatusCode(200, "OK");
-        }
-
-        [HttpGet]
-        [Route("test-cosmos-connection")]
-        public async Task<IActionResult> TestCosmosConnection([FromHeader] string clientKey)
-        {
-            if (clientKey != Environment.GetEnvironmentVariable("API_CLIENT_KEY"))
-            {
-                return StatusCode(401);
-            }
-
-            try
-            {
-                var result = _transferData.DisplayDatabaseNames().Result;
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
         }
     }
 }
