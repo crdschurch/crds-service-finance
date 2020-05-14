@@ -124,7 +124,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
             var recurringGiftsCreatedOrUpdatedMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.recurringGiftsCreatedOrUpdated)
             {
-                MessageData = $"{numUpdates} Recurring gifts synced from Pushpay: {string.Join(", ", giftIdsSynced)}"
+                MessageData = $"{giftIdsSynced.Count} recurring gifts synced from Pushpay: {string.Join(", ", giftIdsSynced)}"
             };
             _processLogger.SaveProcessLogMessage(recurringGiftsCreatedOrUpdatedMessage);
 
