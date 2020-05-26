@@ -3,6 +3,9 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Crossroads.Service.Finance.Services.Health;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using ProcessLogging.Transfer;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -12,10 +15,12 @@ namespace Crossroads.Service.Finance.Controllers
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         private IHealthService _healthService;
+        private readonly IProcessLogger _processLogger;
 
-        public HealthController(IHealthService healthService)
+        public HealthController(IHealthService healthService, IProcessLogger processLogger)
         {
             _healthService = healthService;
+            _processLogger = processLogger;
         }
 
         [HttpGet]
