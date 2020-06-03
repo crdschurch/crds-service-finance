@@ -550,7 +550,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _congregationRepository.Setup(m => m.GetCongregationByCongregationName("Mason")).Returns(Task.FromResult(mpCongregations));
 
             // Act
-            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey).Result;
 
             // Assert
             Assert.Equal(123, siteId);
@@ -585,7 +585,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _congregationRepository.Setup(m => m.GetCongregationByCongregationName("Mason")).Returns(Task.FromResult(mpCongregations));
 
             // Act
-            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey).Result;
 
             // Assert
             Assert.Equal(5, siteId);
@@ -621,7 +621,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 .Returns(Task.FromResult(congregationId));
 
             // Act
-            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey).Result;
 
             // Assert
             Assert.Equal(5, siteId);
@@ -657,10 +657,32 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 .Returns(Task.FromResult(notFoundCongregationId));
 
             // Act
-            var siteId = _fixture.LookupCongregationId(null, campusKey, null).Result;
+            var siteId = _fixture.LookupCongregationId(null, campusKey).Result;
 
             // Assert
             Assert.Equal(5, siteId);
+        }
+
+
+        [Fact]
+        public void ShouldGetDonationsForPolling()
+        {
+            // Arrange
+            var pushpayDtos = PushpayPaymentDtoMock.CreateProcessingList();
+            var paymentDtos = PaymentDtoMock.CreateList();
+
+            _pushpayClient.Setup(r => r.GetPolledDonations(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(Task.FromResult(pushpayDtos));
+
+            //_donationService.Setup(r => r.)
+
+            //_donationService.Setup(r => r.Update(paymentDtos));
+
+            // Act
+            _fixture.PollDonations();
+
+            // Assert
+            _pushpayClient.VerifyAll();
         }
     }
 }

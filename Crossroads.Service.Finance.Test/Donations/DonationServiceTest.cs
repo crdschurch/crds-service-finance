@@ -268,5 +268,39 @@ namespace Crossroads.Service.Finance.Test.Donations
             // Assert
             Assert.Contains(mpDonorAccount, results);
         }
+
+        [Fact]
+        public void ShouldGetDonationsByTransactionCodes()
+        {
+            // Arrange
+            var transactionCode = "111aaa222bbb";
+
+            var transactionCodes = new List<string>
+            {
+                "111aaa222bbb",
+                "333ccc444ddd"
+            };
+
+            var mpDonationList = new List<MpDonation>
+            {
+                new MpDonation()
+            };
+
+            var donationList = new List<DonationDto>
+            {
+                new DonationDto()
+            };
+
+            _mapper.Setup(m => m.Map<List<MpDonation>>(It.IsAny<List<DonationDto>>())).Returns(mpDonationList);
+            _mapper.Setup(m => m.Map<List<DonationDto>>(It.IsAny<List<MpDonation>>())).Returns(donationList);
+
+            _donationRepository.Setup(m => m.GetDonationsByTransactionIds(It.IsAny<List<string>>())).Returns(Task.FromResult(mpDonationList));
+
+            // Act
+            var result = _fixture.GetDonationsByTransactionCodes(transactionCodes);
+
+            // Assert
+            Assert.NotNull(result);
+        }
     }
 }
