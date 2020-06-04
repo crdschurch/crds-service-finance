@@ -13,12 +13,18 @@ namespace ProcessLogging.Models
             donationUpdatedWebhhook,
             recurringGiftCreatedWebhook,
             recurringGiftUpdatedWebhook,
+            
+            // Jobs
+            jobStarting,
+            jobDone,
+            jobErrored,
 
             // Donations 
             gettingDonationDetails,
             refundedDonation,
             donationUpdated,
             donationNoSelectedSite,
+            noNewDonationDetails,
 
             // Recurring Gifts 
             recurringGiftNoSelectedSiteUpdate,
@@ -65,11 +71,17 @@ namespace ProcessLogging.Models
             {"recurringGiftCreatedWebhook", "1.0.0"},
             {"recurringGiftUpdatedWebhook", "1.0.0"},
 
+            // Jobs 
+            {"jobStarting", "1.0.0"},
+            {"jobDone", "1.0.0"},
+            {"jobErrored", "1.0.0"},
+            
             // Donations
             {"gettingDonationDetails", "1.0.0"},
             {"refundedDonation", "1.0.0"},
             {"donationUpdated", "1.0.0"},
             {"donationNoSelectedSite", "1.0.0"},
+            {"noNewDonationDetails", "1.0.0"},
 
             // Recurring Gifts
             {"recurringGiftNoSelectedSiteUpdate", "1.0.0"},
