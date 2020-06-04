@@ -19,15 +19,12 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         /// <summary>
-        ///    Sync settlements from pushpay into MP
+        ///    Polls for new payments roughly every five minutes
         /// </summary>
-        /// <remarks>
-        ///    Called via a SyncPushpaySettlements windows scheduled task at 1pm every day
-        /// </remarks>
         [HttpPost("donations")]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> PollDonations([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> PollDonations()
         {
             try
             {
@@ -36,8 +33,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"Error RecurringController.SyncRecurringGifts: {ex.Message}");
-                //_logger.Error(ex, $"Error in RecurringController.SyncRecurringGifts: {ex.Message}");
                 return StatusCode(500);
             }
         }
