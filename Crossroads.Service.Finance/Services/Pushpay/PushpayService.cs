@@ -791,7 +791,7 @@ namespace Crossroads.Service.Finance.Services
             return lookupCongregationId;
         }
 
-        public async void PollDonations()
+        public async Task PollDonations()
         {
             // TODO: consider if using .NET reactive would make sense, particularly with getting
             // each page of data
