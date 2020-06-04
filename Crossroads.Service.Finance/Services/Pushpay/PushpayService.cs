@@ -868,13 +868,6 @@ namespace Crossroads.Service.Finance.Services
                 {
                     // Set payment type for refunds
                     var refund = await _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
-
-                    //var refundedDonationMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.refundedDonation)
-                    //{
-                    //    MessageData = $"Donation refunded for {refund.TransactionCode}."
-                    //};
-                    //_processLogger.SaveProcessLogMessage(refundedDonationMessage);
-
                     donation.PaymentTypeId = refund.PaymentTypeId;
                 }
 
@@ -887,36 +880,22 @@ namespace Crossroads.Service.Finance.Services
                 // webhook if possible so we don't have to mess with name matching
                 int? congregationId = await LookupCongregationId(pushpayPayment.PushpayFields, pushpayPayment.Campus.Key);
 
-                // if neither source of congregation id is available, log it and move on - set to note site specific?
-                if (congregationId == null)
+                // set congregation
+                if (congregationId != null)
                 {
-                    //_logger.Info($"No selected site for donation {"PP-" + pushpayPayment.TransactionId}");
-                    //Console.WriteLine($"No selected site for donation {"PP-" + pushpayPayment.TransactionId}");
+                    var donationDistributions = await _donationDistributionRepository.GetByDonationId(donation.DonationId);
 
-                    //var noSelectedSiteMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.donationNoSelectedSite)
-                    //{
-                    //    MessageData = $"No selected site for donation {"PP-" + pushpayPayment.TransactionId}"
-                    //};
-                    //_processLogger.SaveProcessLogMessage(noSelectedSiteMessage);
+                    foreach (var donationDistribution in donationDistributions)
+                    {
+                        donationDistribution.CongregationId = congregationId;
+                        donationDistribution.HCDonorCongregationId = congregationId;
+                    }
 
-                    //return donation;
+                    await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
                 }
-
-                var donationDistributions = await _donationDistributionRepository.GetByDonationId(donation.DonationId);
-
-                foreach (var donationDistribution in donationDistributions)
-                {
-                    donationDistribution.CongregationId = congregationId;
-                    donationDistribution.HCDonorCongregationId = congregationId;
-                }
-
-                // TODO: uncomment once things look good
-                await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
-                // return donation;
             }
 
             // 4. Save donations as a batch back to MP
-            // TODO: uncomment once things look good
             await _donationService.Update(donations);
 
             // 5. Log status to process logger stack

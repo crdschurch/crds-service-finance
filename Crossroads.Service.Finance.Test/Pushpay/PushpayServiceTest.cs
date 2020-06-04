@@ -557,41 +557,6 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         }
 
         [Fact]
-        public void ShouldGetSiteConfigFromWebhookId()
-        {
-            // Arrange
-            var pushpayFields = new List<PushpayFieldValueDto>
-            {
-                new PushpayFieldValueDto
-                {
-                    Key = "1234",
-                    Value = "Mason",
-                    Label = "site"
-                }
-            };
-
-            var campusKey = "abcedf123456";
-            int? congregationId = 5;
-
-            var mpCongregations = new List<MpCongregation>
-            {
-                new MpCongregation
-                {
-                    CongregationName = "Mason",
-                    CongregationId = 123
-                }
-            };
-
-            _congregationRepository.Setup(m => m.GetCongregationByCongregationName("Mason")).Returns(Task.FromResult(mpCongregations));
-
-            // Act
-            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey).Result;
-
-            // Assert
-            Assert.Equal(5, siteId);
-        }
-
-        [Fact]
         public void ShouldGetSiteConfigFromMpConfigValue()
         {
             // Arrange
@@ -616,6 +581,9 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                     CongregationId = 123
                 }
             };
+
+            _congregationRepository.Setup(r => r.GetCongregationByCongregationName(It.IsAny<string>()))
+                .Returns(Task.FromResult(new List<MpCongregation>()));
 
             _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync("CRDS-FINANCE", campusKey, false))
                 .Returns(Task.FromResult(congregationId));
@@ -674,9 +642,41 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _pushpayClient.Setup(r => r.GetPolledDonations(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .Returns(Task.FromResult(pushpayDtos));
 
-            //_donationService.Setup(r => r.)
+            _donationService.Setup(r => r.GetDonationsByTransactionCodes(It.IsAny<List<string>>()))
+                .Returns(Task.FromResult(new List<DonationDto>()));
 
-            //_donationService.Setup(r => r.Update(paymentDtos));
+            _recurringGiftRepository.Setup(r => r.FindRecurringGiftBySubscriptionId(It.IsAny<string>()))
+                .Returns(Task.FromResult(new MpRecurringGift()));
+
+            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonorAccount>()));
+
+            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
+                .Returns(Task.FromResult(new MpDonorAccount()));
+
+            _congregationRepository.Setup(r => r.GetCongregationByCongregationName(It.IsAny<string>()))
+                .Returns(Task.FromResult(new List<MpCongregation>()));
+
+            int? configValue = 1;
+
+            _configurationWrapper.Setup(r => r.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<bool>())).Returns(Task.FromResult(configValue));
+
+            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>()))
+                .Returns(Task.FromResult(new DonationDto()));
+
+            _donationDistributionRepository.Setup(r => r.GetByDonationId(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
+
+            _donationDistributionRepository
+                .Setup(r => r.UpdateDonationDistributions(It.IsAny<List<MpDonationDistribution>>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
+
+            _donationService.Setup(r => r.Update(It.IsAny<List<DonationDto>>()))
+                .Returns(Task.FromResult(new List<DonationDto>()));
+
+            _donationService.Setup(r => r.Update(It.IsAny<List<DonationDto>>()))
+                .Returns(Task.FromResult(new List<DonationDto>()));
 
             // Act
             _fixture.PollDonations();
