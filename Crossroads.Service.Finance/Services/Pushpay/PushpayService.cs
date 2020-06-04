@@ -50,6 +50,12 @@ namespace Crossroads.Service.Finance.Services
         private const int NotSiteSpecificCongregationId = 5;
         private readonly string CongregationFieldKey = Environment.GetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY");
 
+        private const int DonationStatusDeclined = 3;
+        private const int DonationStatusDeposited = 2;
+        private const int DonationStatusOffset = 6;
+        private const int DonationStatusPending = 1;
+        private const int DonationStatusSucceeded = 4;
+
         private Dictionary<string, int> _recurringGiftStatuses = new Dictionary<string, int>
         {
             { "Active", 1 },
@@ -233,7 +239,7 @@ namespace Crossroads.Service.Finance.Services
                 // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
                 // (this is a different business rule from soft credit donations) - default to using the id from the
                 // webhook if possible so we don't have to mess with name matching
-                int? congregationId = await LookupCongregationId(pushpayPayment.PushpayFields, pushpayPayment.Campus.Key, webhook.CongregationId);
+                int? congregationId = await LookupCongregationId(pushpayPayment.PushpayFields, pushpayPayment.Campus.Key);
 
                 // if neither source of congregation id is available, log it and move on
                 if (congregationId == null)
@@ -312,7 +318,7 @@ namespace Crossroads.Service.Finance.Services
             var updatedPushpayRecurringGift = await _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
             var existingMpRecurringGift = await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(updatedPushpayRecurringGift.PaymentToken);
 
-            congregationId = await LookupCongregationId(updatedPushpayRecurringGift.PushpayFields, updatedPushpayRecurringGift.Campus.Key, congregationId);
+            congregationId = await LookupCongregationId(updatedPushpayRecurringGift.PushpayFields, updatedPushpayRecurringGift.Campus.Key);
 
             if (congregationId == NotSiteSpecificCongregationId)
             { 
@@ -353,7 +359,7 @@ namespace Crossroads.Service.Finance.Services
         public async Task<RecurringGiftDto> UpdateRecurringGiftForSync(PushpayRecurringGiftDto pushpayRecurringGift,
             MpRecurringGift mpRecurringGift)
         {
-            var congregationId = await LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key, null);
+            var congregationId = await LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key);
 
             if (congregationId == NotSiteSpecificCongregationId)
             {
@@ -455,7 +461,7 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.DonorId = mpDonor.DonorId.Value;
             mpRecurringGift.DonorAccountId = mpDonor.DonorAccountId.Value;
 
-            congregationId = await LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key, congregationId);
+            congregationId = await LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key);
 
             if (congregationId == NotSiteSpecificCongregationId)
             {
@@ -754,19 +760,16 @@ namespace Crossroads.Service.Finance.Services
             }
         }
 
-        public async Task<int> LookupCongregationId(List<PushpayFieldValueDto> pushpayFields, string campusKey, int? congregationId)
+        public async Task<int> LookupCongregationId(List<PushpayFieldValueDto> pushpayFields, string campusKey)
         {
-            if (congregationId != null && congregationId != 0)
-            {
-                return congregationId.GetValueOrDefault();
-            }
 
             var lookupCongregationId = 0;
 
-            // only look up on the name if we didn't get this from the webhook
-            if ((congregationId == null || congregationId == 0) && (pushpayFields != null && pushpayFields.Any(r => r.Key == CongregationFieldKey)))
+            if (pushpayFields != null && pushpayFields.Any(r => r.Key == CongregationFieldKey))
             {
                 var congregationName = TranslateCongregation.Translate(pushpayFields.First(r => r.Key == CongregationFieldKey).Value);
+
+                // TODO: consider caching these values on application startup
                 var congregations = await _congregationRepository.GetCongregationByCongregationName(congregationName);
 
                 if (congregations.Any())
@@ -786,6 +789,116 @@ namespace Crossroads.Service.Finance.Services
             }
 
             return lookupCongregationId;
+        }
+
+        public async void PollDonations()
+        {
+            // TODO: consider if using .NET reactive would make sense, particularly with getting
+            // each page of data
+
+            // 1. Get donations from Pushpay Client - time figures need to be dynamic at some point
+            var pushpayPaymentDtos = await _pushpayClient.GetPolledDonations(DateTime.Now.AddMinutes(-60), DateTime.Now);
+
+            if (!pushpayPaymentDtos.Any())
+            {
+                return;
+            }
+
+            // 2. Pull donations from MP (we assume that donations pulled from Pushpay already exist in MP - need to test)
+            var transactionCodes = pushpayPaymentDtos.Select(r => $"'PP-{r.TransactionId}'").ToList();
+            var donations = await _donationService.GetDonationsByTransactionCodes(transactionCodes);
+
+            // 3. Process donation changes
+            foreach (var donation in donations)
+            {
+                var pushpayPayment =
+                    pushpayPaymentDtos.First(r => "PP-" + r.TransactionId == donation.TransactionCode);
+
+                // add payment token so that we can identify easier via api
+                if (pushpayPayment.PaymentToken != null)
+                {
+                    donation.SubscriptionCode = pushpayPayment.PaymentToken;
+                }
+
+                // if donation from a recurring gift, let's put that on donation
+                if (pushpayPayment.RecurringPaymentToken != null)
+                {
+                    donation.IsRecurringGift = true;
+
+                    var mpRecurringGift =
+                        await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPayment
+                            .RecurringPaymentToken);
+
+                    if (mpRecurringGift == null)
+                    {
+                        _logger.Error(
+                            $"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
+                        Console.WriteLine(
+                            $"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
+                    }
+                    else
+                    {
+                        donation.RecurringGiftId = mpRecurringGift.RecurringGiftId;
+                    }
+                }
+
+                // if it doesn't exist, attach a donor account so we have access to payment details
+                if (donation.DonorAccountId == null)
+                {
+                    var mpDonorAccount = await GetOrCreateDonorAccount(pushpayPayment, donation.DonorId);
+                    donation.DonorAccountId = mpDonorAccount.DonorAccountId;
+                }
+
+                if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
+                {
+                    donation.DonationStatusId = _mpDonationStatusPending;
+                }
+                // only flip if not deposited
+                else if (pushpayPayment.IsStatusSuccess && donation.BatchId == null)
+                {
+                    donation.DonationStatusId = _mpDonationStatusSucceeded;
+                }
+                else if (pushpayPayment.IsStatusFailed)
+                {
+                    donation.DonationStatusId = _mpDonationStatusDeclined;
+                }
+
+                // check if refund
+                if (pushpayPayment.RefundFor != null)
+                {
+                    // Set payment type for refunds
+                    var refund = await _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
+                    donation.PaymentTypeId = refund.PaymentTypeId;
+                }
+
+                donation.DonationStatusDate = DateTime.Now;
+
+                //var updatedDonation = await _donationService.Update(donation);
+
+                // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
+                // (this is a different business rule from soft credit donations) - default to using the id from the
+                // webhook if possible so we don't have to mess with name matching
+                int? congregationId = await LookupCongregationId(pushpayPayment.PushpayFields, pushpayPayment.Campus.Key);
+
+                // set congregation
+                if (congregationId != null)
+                {
+                    var donationDistributions = await _donationDistributionRepository.GetByDonationId(donation.DonationId);
+
+                    foreach (var donationDistribution in donationDistributions)
+                    {
+                        donationDistribution.CongregationId = congregationId;
+                        donationDistribution.HCDonorCongregationId = congregationId;
+                    }
+
+                    await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
+                }
+            }
+
+            // 4. Save donations as a batch back to MP
+            await _donationService.Update(donations);
+
+            // 5. Log status to process logger stack
         }
     }
 }

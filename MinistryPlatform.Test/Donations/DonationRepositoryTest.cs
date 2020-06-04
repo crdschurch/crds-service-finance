@@ -364,5 +364,43 @@ namespace MinistryPlatform.Test.Donations
             // Assert
             Assert.Contains(mpDonorAccount, results);
         }
+
+        [Fact]
+        public void ShouldGetDonationsByTransactionIdList()
+        {
+            // Arrange
+            var transactionCodes = new List<string>
+            {
+                "abc123def456",
+                "ghi789jkl012"
+            };
+
+            var selectColumns = new string[] {
+                "Donations.[Donation_ID]",
+                "Donor_ID_Table_Contact_ID_Table.[Contact_ID]",
+                "Donations.[Donation_Amount]",
+                "Donation_Status_ID_Table.[Donation_Status_ID]",
+                "Donations.[Donation_Status_Date]",
+                "Batch_ID_Table.[Batch_ID]",
+                "Donations.[Transaction_Code]"
+            };
+
+            var filter = $"Transaction_Code IN ({string.Join(",", transactionCodes)})";
+
+            _apiUserRepository.Setup(r => r.GetApiClientToken("CRDS.Service.Finance")).Returns(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithSelectColumns(selectColumns)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpDonation>()).Returns(Task.FromResult(MpDonationsMock.CreateList()));
+
+            // Act
+            var results = _fixture.GetDonationsByTransactionIds(transactionCodes).Result;
+
+            // Assert
+            Assert.NotNull(results);
+        }
     }
 }
