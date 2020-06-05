@@ -791,24 +791,40 @@ namespace Crossroads.Service.Finance.Services
             return lookupCongregationId;
         }
 
-        public async void PollDonations()
+        public async Task PollDonations()
         {
             // TODO: consider if using .NET reactive would make sense, particularly with getting
             // each page of data
 
             // 1. Get donations from Pushpay Client - time figures need to be dynamic at some point
+           _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.gettingDonationDetails)
+           {
+               MessageData = "Getting the latest donations from PushPay"
+           }); 
             var pushpayPaymentDtos = await _pushpayClient.GetPolledDonations(DateTime.Now.AddMinutes(-60), DateTime.Now);
 
             if (!pushpayPaymentDtos.Any())
             {
+                _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.noNewDonationDetails)
+                {
+                    MessageData = "Could not find any new donation."
+                });
                 return;
             }
-
+            
             // 2. Pull donations from MP (we assume that donations pulled from Pushpay already exist in MP - need to test)
+            _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.gettingDonationDetails)
+            {
+               MessageData = "Getting donation in MP that match the new ones from PushPay."
+            });
             var transactionCodes = pushpayPaymentDtos.Select(r => $"'PP-{r.TransactionId}'").ToList();
             var donations = await _donationService.GetDonationsByTransactionCodes(transactionCodes);
 
             // 3. Process donation changes
+            _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.donationUpdated)
+            {
+               MessageData = "Updating donations in mp from the data in PushPay."
+            });
             foreach (var donation in donations)
             {
                 var pushpayPayment =
@@ -831,6 +847,9 @@ namespace Crossroads.Service.Finance.Services
 
                     if (mpRecurringGift == null)
                     {
+                        _processLogger.SaveProcessLogMessage( new ProcessLogMessage(ProcessLogConstants.MessageType.donationUpdated){ 
+                            MessageData = $"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation"
+                        });
                         _logger.Error(
                             $"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
                         Console.WriteLine(
@@ -899,6 +918,9 @@ namespace Crossroads.Service.Finance.Services
             await _donationService.Update(donations);
 
             // 5. Log status to process logger stack
+            _processLogger.SaveProcessLogMessage( new ProcessLogMessage(ProcessLogConstants.MessageType.donationUpdated){ 
+                MessageData = "Done updating donations."
+            });
         }
     }
 }
