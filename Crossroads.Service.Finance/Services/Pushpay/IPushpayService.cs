@@ -10,8 +10,6 @@ namespace Crossroads.Service.Finance.Interfaces
     public interface IPushpayService
     {
         List<PaymentDto> GetDonationsForSettlement(string settlementKey);
-        Task<DonationDto> UpdateDonationDetailsFromPushpay(PushpayWebhook webhook, bool retry = false);
-        void UpdateDonationDetails(PushpayWebhook webhook);
         Task<List<SettlementEventDto>> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
         Task<RecurringGiftDto> CreateRecurringGift(PushpayWebhook webhook, int? congregationId);
         Task<RecurringGiftDto> UpdateRecurringGift(PushpayWebhook webhook, int? congregationId);
