@@ -10,7 +10,7 @@ namespace Crossroads.Service.Finance.Controllers
 
         [HttpGet]
         [Route("status")]
-        public async Task<IActionResult> GetHealth(int contactId)
+        public IActionResult GetHealth()
         {
             return StatusCode(200, "OK");
         }
