@@ -22,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcessLogging", "ProcessLo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcessLogging.Test", "ProcessLogging.Test\ProcessLogging.Test.csproj", "{CE33EA18-6505-4412-A1E7-E57EFB803360}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crossroads.Functions.Finance", "Crossroads.Functions.Finance\Crossroads.Functions.Finance.csproj", "{528970A6-92A1-4944-BA13-A2CDED70066E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crossroads.Functions.Finance", "Crossroads.Functions.Finance\Crossroads.Functions.Finance.csproj", "{528970A6-92A1-4944-BA13-A2CDED70066E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,7 +113,6 @@ Global
 		{CE33EA18-6505-4412-A1E7-E57EFB803360}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE33EA18-6505-4412-A1E7-E57EFB803360}.Release|Any CPU.Build.0 = Release|Any CPU
 		{528970A6-92A1-4944-BA13-A2CDED70066E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{528970A6-92A1-4944-BA13-A2CDED70066E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{528970A6-92A1-4944-BA13-A2CDED70066E}.Demo|Any CPU.ActiveCfg = Debug|Any CPU
 		{528970A6-92A1-4944-BA13-A2CDED70066E}.Demo|Any CPU.Build.0 = Debug|Any CPU
 		{528970A6-92A1-4944-BA13-A2CDED70066E}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
