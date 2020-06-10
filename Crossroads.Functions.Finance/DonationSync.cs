@@ -51,7 +51,7 @@ namespace Crossroads.Functions.Finance
             string endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_URL");
             HttpClient httpClient = new HttpClient();
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, endpointUrl);
-            httpRequestMessage.Content = new StringContent("{\"lastSuccessfulRunTime\":\"" + lastSuccessfulRunTime + "\"",
+            httpRequestMessage.Content = new StringContent("{\"lastSuccessfulRunTime\":\"" + lastSuccessfulRunTime + "\"}",
                 Encoding.UTF8,
                 "application/json");
             HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
