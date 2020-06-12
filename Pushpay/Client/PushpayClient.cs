@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Serialization;
 
 namespace Pushpay.Client
 {
@@ -95,8 +96,26 @@ namespace Pushpay.Client
                     new QueryParameter("status", "cancelled"),
                     new QueryParameter("pageSize", "100")
                 };
+
                 var data = await CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true);
-                var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
+
+                if (data == null)
+                {
+                    _logger.Error("Null data in GetNewAndUpdatedRecurringGiftsByDateRange");
+                    Console.WriteLine("Null data in GetNewAndUpdatedRecurringGiftsByDateRange");
+                }
+
+                var settings = new JsonSerializerSettings
+                {
+                    Error = delegate (object sender, ErrorEventArgs args)
+                    {
+                        _logger.Error($"Error in deserializing recurring gift: {args.ErrorContext.Error.Message}");
+                        Console.WriteLine(args.ErrorContext.Error.Message);
+                        args.ErrorContext.Handled = true;
+                    }};
+
+                var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data, settings);
+
                 return recurringGifts;
             }
             catch (Exception e)
