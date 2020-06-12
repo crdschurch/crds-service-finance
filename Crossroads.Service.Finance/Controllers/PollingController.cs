@@ -42,7 +42,7 @@ namespace Crossroads.Service.Finance.Controllers
                 {
                     MessageData = "Finished getting updates for donations from PushPay."
                 });
-                return Ok();
+                return NoContent();
             }
             catch (Exception ex)
             {
