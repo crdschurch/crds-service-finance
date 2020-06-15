@@ -78,7 +78,7 @@ namespace Pushpay.Client
             return pushpayRetrySeconds + backoffSeconds + randomSeconds;
         }
 
-        public async Task<List<PushpayRecurringGiftDto>> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
+        public List<PushpayRecurringGiftDto> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
         {
             var exceptionMessage = string.Empty;
 
@@ -99,7 +99,7 @@ namespace Pushpay.Client
                     new QueryParameter("pageSize", "100")
                 };
 
-                var data = await CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true);
+                var data = CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true).Result;
 
                 if (data == null)
                 {
