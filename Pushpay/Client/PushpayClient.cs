@@ -80,6 +80,8 @@ namespace Pushpay.Client
 
         public async Task<List<PushpayRecurringGiftDto>> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
         {
+            var exceptionMessage = string.Empty;
+
             try
             {
                 var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
@@ -109,21 +111,31 @@ namespace Pushpay.Client
                 {
                     Error = delegate (object sender, ErrorEventArgs args)
                     {
-                        _logger.Error($"Error in deserializing recurring gift: {args.ErrorContext.Error.Message}");
+                        _logger.Error($"Error in deserializing recurring gifts: {args.ErrorContext.Error.Message}");
                         Console.WriteLine(args.ErrorContext.Error.Message);
                         args.ErrorContext.Handled = true;
                     }};
 
-                var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data, settings);
-
-                return recurringGifts;
+                try
+                {
+                    var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data, settings);
+                    return recurringGifts;
+                }
+                catch (Exception ex)
+                {
+                    exceptionMessage = ex.Message;
+                    _logger.Error($"Error in deserializing recurring gifts: {ex.Message}, ex");
+                    Console.WriteLine(ex.Message);
+                }
             }
             catch (Exception e)
             {
                 _logger.Error($"Error in GetNewAndUpdatedRecurringGiftsByDateRange: {e.Message}", e.ToString());
                 Console.WriteLine(e);
-                return null;
+                throw new Exception(e.Message);
             }
+
+            throw new Exception(exceptionMessage);
         }
 
         // execute request, retry if rate limited
