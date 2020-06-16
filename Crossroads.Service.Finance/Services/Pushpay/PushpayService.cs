@@ -3,25 +3,20 @@ using Crossroads.Service.Finance.Helpers;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Web.Common.Configuration;
-using Hangfire;
-using log4net;
 using MinistryPlatform.Congregations;
 using MinistryPlatform.Donors;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ProcessLogging.Models;
+using ProcessLogging.Transfer;
 using Pushpay.Client;
 using Pushpay.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ProcessLogging.Models;
-using ProcessLogging.Transfer;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -91,193 +86,6 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<List<PaymentDto>>(result);
         }
 
-        // called from webhook controller
-        public void UpdateDonationDetails(PushpayWebhook webhook)
-        {
-            // try to update details, if it fails, it will schedule to rerun
-            //  via hangfire in 1 minute
-            var result = UpdateDonationDetailsFromPushpay(webhook).Result;
-        }
-
-        // if this fails, it will schedule it to be re-run in 60 seconds,
-        //  after 15 minutes of trying it'll give up
-        public async Task<DonationDto> UpdateDonationDetailsFromPushpay(PushpayWebhook webhook)
-        {
-            try 
-            {
-                var pushpayPayment = _pushpayClient.GetPayment(webhook).Result;
-
-                // PushPay creates the donation a variable amount of time after the webhook comes in so it still may not be available
-                var donation = await _donationService.GetDonationByTransactionCode("PP-" + pushpayPayment.TransactionId);
-
-                // TODO: Consider removing this logging at some point if logs get too bloated
-                // validate if we actually received the webhook for a donation
-                var mpDonationExistence = (donation != null) ? "Donation exists in MP" : "Donation does not exist in MP";
-
-                //_logger.Info($"Getting donation details for {"PP-" + pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
-                //Console.WriteLine($"Getting donation details for {"PP-" + pushpayPayment.TransactionId} due to incoming webhook. {mpDonationExistence}.");
-
-                var gettingDonationDetailsMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.gettingDonationDetails)
-                {
-                    MessageData = $"Getting donation details for {"PP-" + pushpayPayment.TransactionId} from PP for {pushpayPayment.PaymentToken}. " +
-                                  $"{mpDonationExistence}."
-                };
-                _processLogger.SaveProcessLogMessage(gettingDonationDetailsMessage);
-
-                // add Hangfire task to schedule retry on getting MP donation
-                if (donation == null)
-                {
-                    HandleMissingMpDonation(webhook);
-                    return null;
-                }
-
-                // add payment token so that we can identify easier via api
-                if (pushpayPayment.PaymentToken != null)
-                {
-                    donation.SubscriptionCode = pushpayPayment.PaymentToken;
-                }
-                // if donation from a recurring gift, let's put that on donation
-                if (pushpayPayment.RecurringPaymentToken != null)
-                {
-                    donation.IsRecurringGift = true;
-
-                    var mpRecurringGift =
-                        await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPayment
-                            .RecurringPaymentToken);
-
-                    if (mpRecurringGift == null)
-                    {
-                        _logger.Error(
-                            $"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
-                        Console.WriteLine(
-                            $"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
-                    }
-                    else
-                    {
-                        donation.RecurringGiftId = mpRecurringGift.RecurringGiftId;
-                    }
-                }
-
-                // if it doesn't exist, attach a donor account so we have access to payment details
-                if (donation.DonorAccountId == null)
-                {
-                    var mpDonorAccount = await GetOrCreateDonorAccount(pushpayPayment, donation.DonorId);
-                    donation.DonorAccountId = mpDonorAccount.DonorAccountId;   
-                }
-
-                if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
-                {
-                    donation.DonationStatusId = _mpDonationStatusPending;
-                }
-                // only flip if not deposited
-                else if (pushpayPayment.IsStatusSuccess && donation.BatchId == null)
-                {
-                    donation.DonationStatusId = _mpDonationStatusSucceeded;
-                }
-                else if (pushpayPayment.IsStatusFailed)
-                {
-                    donation.DonationStatusId = _mpDonationStatusDeclined;
-                }
-
-                // check if refund
-                if (pushpayPayment.RefundFor != null)
-                {
-                    // Set payment type for refunds
-                    var refund = await _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
-                    //_logger.Info($"Refunding Transaction Id: {refund.TransactionCode}");
-                    //Console.WriteLine($"Refunding Transaction Id: {refund.TransactionCode}");
-
-                    var refundedDonationMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.refundedDonation)
-                    {
-                        MessageData = $"Donation refunded for {refund.TransactionCode}."
-                    };
-                    _processLogger.SaveProcessLogMessage(refundedDonationMessage);
-
-                    donation.PaymentTypeId = refund.PaymentTypeId;
-                }
-                donation.DonationStatusDate = DateTime.Now;
-                var updatedDonation = await _donationService.Update(donation);
-
-                //_logger.Info($"Donation updated: {updatedDonation.TransactionCode} -> {webhook.Events[0].Links.Payment}");
-                //Console.WriteLine($"Donation updated: {updatedDonation.TransactionCode} -> {webhook.Events[0].Links.Payment}");
-
-                var donationUpdatedMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.donationUpdated)
-                {
-                    MessageData = $"Donation updated for {pushpayPayment.PaymentToken}. Status is {donation.DonationStatusId}"
-                };
-                _processLogger.SaveProcessLogMessage(donationUpdatedMessage);
-
-                // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
-                // (this is a different business rule from soft credit donations) - default to using the id from the
-                // webhook if possible so we don't have to mess with name matching
-                int? congregationId = await LookupCongregationId(pushpayPayment.PushpayFields, pushpayPayment.Campus.Key, webhook.CongregationId);
-
-                // if neither source of congregation id is available, log it and move on
-                if (congregationId == null)
-                {
-                    //_logger.Info($"No selected site for donation {"PP-" + pushpayPayment.TransactionId}");
-                    //Console.WriteLine($"No selected site for donation {"PP-" + pushpayPayment.TransactionId}");
-
-                    var noSelectedSiteMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.donationNoSelectedSite)
-                    {
-                        MessageData = $"No selected site for donation {"PP-" + pushpayPayment.TransactionId}"
-                    };
-                    _processLogger.SaveProcessLogMessage(noSelectedSiteMessage);
-
-                    return donation;
-                }
-
-                var donationDistributions = await _donationDistributionRepository.GetByDonationId(donation.DonationId);
-
-                foreach (var donationDistribution in donationDistributions)
-                {
-                    donationDistribution.CongregationId = congregationId;
-                    donationDistribution.HCDonorCongregationId = congregationId;
-                }
-
-                await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
-                return donation;
-            } 
-            catch (Exception ex) 
-            {
-                _logger.Error(ex, $"Exception: {webhook?.Events[0]?.Links?.Payment} Message: {ex.Message}");
-                Console.WriteLine($"Exception: {webhook?.Events[0]?.Links?.Payment} Message: {ex.Message}");
-                return null;
-            }
-        }
-
-        public void HandleMissingMpDonation(PushpayWebhook webhook)
-        {
-            // donation not created by pushpay yet - run a short or long retry
-            var now = DateTime.UtcNow;
-            var webhookTime = webhook.IncomingTimeUtc;
-
-            // if it's been less than ten minutes, try again in a minute
-            if ((now - webhookTime).Value.TotalMinutes < MaxRetryMinutes)
-            {
-                // requeue webhook for short retry
-                var randomMinutes = new Random().NextDouble(); // decimal between and 1
-                var jobMinutes = _mpPushpayRecurringWebhookMinutes + randomMinutes;
-                BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook), TimeSpan.FromMinutes(jobMinutes));
-            }
-            // it's been more than 15 minutes, put it on a long retry cycle for a week
-            else if ((now - webhookTime).Value.Days <= 7 && (now - webhookTime).Value.TotalMinutes >= MaxRetryMinutes)
-            {
-                // schedule the job to be rerun several hours out
-                var jobHours = new Random().Next(12, 18);
-                var jobMinutes = new Random().Next(0, 59);
-                BackgroundJob.Schedule(() => UpdateDonationDetailsFromPushpay(webhook), new TimeSpan(0, jobHours, jobMinutes, 0));
-                
-                _logger.Info($"Getting details for webhook {webhook.Events[0].Links.Payment} on long retry.");
-                Console.WriteLine($"Getting details for webhook {webhook.Events[0].Links.Payment} on long retry.");
-            }
-            else if ((now - webhookTime).Value.Days > 7)
-            {
-                _logger.Error($"Donation not created in MP for webhook {webhook.Events[0].Links.Payment} after 7 days. Giving up.");
-                Console.WriteLine($"Donation not created in MP for webhook {webhook.Events[0].Links.Payment} after 7 days. Giving up.");
-            }
-        }
-
         public async Task<List<SettlementEventDto>> GetDepositsByDateRange(DateTime startDate, DateTime endDate)
         {
             var result = await _pushpayClient.GetDepositsByDateRange(startDate, endDate);
@@ -321,7 +129,7 @@ namespace Crossroads.Service.Finance.Services
             var updatedPushpayRecurringGift = await _pushpayClient.GetRecurringGift(webhook.Events[0].Links.RecurringPayment);
             var existingMpRecurringGift = await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(updatedPushpayRecurringGift.PaymentToken);
 
-            congregationId = await LookupCongregationId(updatedPushpayRecurringGift.PushpayFields, updatedPushpayRecurringGift.Campus.Key, congregationId);
+            congregationId = await LookupCongregationId(updatedPushpayRecurringGift.PushpayFields, updatedPushpayRecurringGift.Campus.Key);
 
             if (congregationId == NotSiteSpecificCongregationId)
             { 
@@ -362,7 +170,7 @@ namespace Crossroads.Service.Finance.Services
         public async Task<RecurringGiftDto> UpdateRecurringGiftForSync(PushpayRecurringGiftDto pushpayRecurringGift,
             MpRecurringGift mpRecurringGift)
         {
-            var congregationId = await LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key, null);
+            var congregationId = await LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key);
 
             if (congregationId == NotSiteSpecificCongregationId)
             {
@@ -464,7 +272,7 @@ namespace Crossroads.Service.Finance.Services
             mpRecurringGift.DonorId = mpDonor.DonorId.Value;
             mpRecurringGift.DonorAccountId = mpDonor.DonorAccountId.Value;
 
-            congregationId = await LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key, congregationId);
+            congregationId = await LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key);
 
             if (congregationId == NotSiteSpecificCongregationId)
             {
@@ -763,19 +571,16 @@ namespace Crossroads.Service.Finance.Services
             }
         }
 
-        public async Task<int> LookupCongregationId(List<PushpayFieldValueDto> pushpayFields, string campusKey, int? congregationId)
+        public async Task<int> LookupCongregationId(List<PushpayFieldValueDto> pushpayFields, string campusKey)
         {
-            if (congregationId != null && congregationId != 0)
-            {
-                return congregationId.GetValueOrDefault();
-            }
 
             var lookupCongregationId = 0;
 
-            // only look up on the name if we didn't get this from the webhook
-            if ((congregationId == null || congregationId == 0) && (pushpayFields != null && pushpayFields.Any(r => r.Key == CongregationFieldKey)))
+            if (pushpayFields != null && pushpayFields.Any(r => r.Key == CongregationFieldKey))
             {
                 var congregationName = TranslateCongregation.Translate(pushpayFields.First(r => r.Key == CongregationFieldKey).Value);
+
+                // TODO: consider caching these values on application startup
                 var congregations = await _congregationRepository.GetCongregationByCongregationName(congregationName);
 
                 if (congregations.Any())
@@ -795,6 +600,138 @@ namespace Crossroads.Service.Finance.Services
             }
 
             return lookupCongregationId;
+        }
+
+        public async Task PollDonations()
+        {
+            // TODO: consider if using .NET reactive would make sense, particularly with getting
+            // each page of data
+
+            // 1. Get donations from Pushpay Client - time figures need to be dynamic at some point
+           _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.gettingDonationDetails)
+           {
+               MessageData = "Getting the latest donations from PushPay"
+           }); 
+            var pushpayPaymentDtos = await _pushpayClient.GetPolledDonations(DateTime.Now.AddMinutes(-60), DateTime.Now);
+
+            if (!pushpayPaymentDtos.Any())
+            {
+                _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.noNewDonationDetails)
+                {
+                    MessageData = "Could not find any new donation."
+                });
+                return;
+            }
+            
+            // 2. Pull donations from MP (we assume that donations pulled from Pushpay already exist in MP - need to test)
+            _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.gettingDonationDetails)
+            {
+               MessageData = "Getting donation in MP that match the new ones from PushPay."
+            });
+            var transactionCodes = pushpayPaymentDtos.Select(r => $"'PP-{r.TransactionId}'").ToList();
+            var donations = await _donationService.GetDonationsByTransactionCodes(transactionCodes);
+
+            // 3. Process donation changes
+            _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.donationUpdated)
+            {
+               MessageData = "Updating donations in mp from the data in PushPay."
+            });
+            foreach (var donation in donations)
+            {
+                var pushpayPayment =
+                    pushpayPaymentDtos.First(r => "PP-" + r.TransactionId == donation.TransactionCode);
+
+                // add payment token so that we can identify easier via api
+                if (pushpayPayment.PaymentToken != null)
+                {
+                    donation.SubscriptionCode = pushpayPayment.PaymentToken;
+                }
+
+                // if donation from a recurring gift, let's put that on donation
+                if (pushpayPayment.RecurringPaymentToken != null)
+                {
+                    donation.IsRecurringGift = true;
+
+                    var mpRecurringGift =
+                        await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPayment
+                            .RecurringPaymentToken);
+
+                    if (mpRecurringGift == null)
+                    {
+                        _processLogger.SaveProcessLogMessage( new ProcessLogMessage(ProcessLogConstants.MessageType.donationUpdated){ 
+                            MessageData = $"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation"
+                        });
+                        _logger.Error(
+                            $"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
+                        Console.WriteLine(
+                            $"No recurring gift found by subscription id {pushpayPayment.RecurringPaymentToken} when trying to attach it to donation");
+                    }
+                    else
+                    {
+                        donation.RecurringGiftId = mpRecurringGift.RecurringGiftId;
+                    }
+                }
+
+                // if it doesn't exist, attach a donor account so we have access to payment details
+                if (donation.DonorAccountId == null)
+                {
+                    var mpDonorAccount = await GetOrCreateDonorAccount(pushpayPayment, donation.DonorId);
+                    donation.DonorAccountId = mpDonorAccount.DonorAccountId;
+                }
+
+                if (pushpayPayment.IsStatusNew || pushpayPayment.IsStatusProcessing)
+                {
+                    donation.DonationStatusId = _mpDonationStatusPending;
+                }
+                // only flip if not deposited
+                else if (pushpayPayment.IsStatusSuccess && donation.BatchId == null)
+                {
+                    donation.DonationStatusId = _mpDonationStatusSucceeded;
+                }
+                else if (pushpayPayment.IsStatusFailed)
+                {
+                    donation.DonationStatusId = _mpDonationStatusDeclined;
+                }
+
+                // check if refund
+                if (pushpayPayment.RefundFor != null)
+                {
+                    // Set payment type for refunds
+                    var refund = await _donationService.GetDonationByTransactionCode(pushpayPayment.RefundFor.TransactionId);
+                    donation.PaymentTypeId = refund.PaymentTypeId;
+                }
+
+                donation.DonationStatusDate = DateTime.Now;
+
+                //var updatedDonation = await _donationService.Update(donation);
+
+                // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
+                // (this is a different business rule from soft credit donations) - default to using the id from the
+                // webhook if possible so we don't have to mess with name matching
+                int? congregationId = await LookupCongregationId(pushpayPayment.PushpayFields, pushpayPayment.Campus.Key);
+
+                // set congregation
+                if (congregationId != null)
+                {
+                    var donationDistributions = await _donationDistributionRepository.GetByDonationId(donation.DonationId);
+
+                    foreach (var donationDistribution in donationDistributions)
+                    {
+                        donationDistribution.CongregationId = congregationId;
+                        donationDistribution.HCDonorCongregationId = congregationId;
+                    }
+
+                    await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
+                }
+            }
+
+            // 4. Save donations as a batch back to MP
+            await _donationService.Update(donations);
+
+            // 5. Log status to process logger stack
+            _processLogger.SaveProcessLogMessage( new ProcessLogMessage(ProcessLogConstants.MessageType.donationUpdated){ 
+                MessageData = "Done updating donations."
+            });
         }
     }
 }

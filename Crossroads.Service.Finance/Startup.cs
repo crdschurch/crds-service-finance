@@ -4,19 +4,19 @@ using Crossroads.Microservice.Settings;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Middleware;
 using Crossroads.Service.Finance.Services;
+using Crossroads.Service.Finance.Services.DbClients;
 using Crossroads.Service.Finance.Services.Exports;
-using Crossroads.Service.Finance.Services.Health;
 using Crossroads.Service.Finance.Services.JournalEntry;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Crossroads.Service.Finance.Services.Recurring;
 using Crossroads.Web.Common.Configuration;
 using Exports.JournalEntries;
-using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using MinistryPlatform.Adjustments;
 using MinistryPlatform.Congregations;
 using MinistryPlatform.Donors;
@@ -24,18 +24,13 @@ using MinistryPlatform.Interfaces;
 using MinistryPlatform.JournalEntries;
 using MinistryPlatform.Repositories;
 using MinistryPlatform.Users;
+using MongoDB.Driver;
 using Newtonsoft.Json;
+using ProcessLogging.Transfer;
+using Pushpay.Cache;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
-using System.Threading.Tasks;
-using Crossroads.Service.Finance.Services.DbClients;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
-using MongoDB.Driver;
-using ProcessLogging.Transfer;
-using Pushpay.Cache;
-using Microsoft.Extensions.Hosting;
 
 namespace Crossroads.Service.Finance
 {
@@ -54,8 +49,6 @@ namespace Crossroads.Service.Finance
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var hangfireConnectionString = Environment.GetEnvironmentVariable("HANGFIRE_URL");
-            services.AddHangfire(config => config.UseSqlServerStorage(hangfireConnectionString));
             services.AddMvc();
             services.AddAutoMapper();
             services.AddDistributedMemoryCache();
@@ -110,7 +103,6 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IPushpayClient, PushpayClient>();
             services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
             services.AddSingleton<IRecurringService, RecurringService>();
-            services.AddSingleton<IHealthService, HealthService>();
             services.AddSingleton<IExportService, ExportService>();
 
             // Repo Layer
@@ -150,7 +142,6 @@ namespace Crossroads.Service.Finance
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseHangfireServer();
 
             app.UseCors(builder => builder
                 .AllowAnyOrigin()

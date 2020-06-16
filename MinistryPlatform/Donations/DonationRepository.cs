@@ -350,5 +350,19 @@ namespace MinistryPlatform.Repositories
                 .BuildAsync()
                 .Search<MpDonationDetail>()).ToList();
         }
+
+        public async Task<List<MpDonation>> GetDonationsByTransactionIds(List<string> transactionCodes)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var filter = $"Transaction_Code IN ({string.Join(",", transactionCodes)})";
+
+            return (await MpRestBuilder.NewRequestBuilder()
+                //.WithSelectColumns(columns)
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .BuildAsync()
+                .Search<MpDonation>()).ToList();
+        }
     }
 }

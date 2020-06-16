@@ -65,70 +65,6 @@ namespace Crossroads.Service.Finance.Test.Pushpay
         }
 
         [Fact]
-        public void ShouldUpdateDonationStatusPendingFromPushpay()
-        {
-            string transactionCode = "87234354pending";
-            var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
-            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Task.FromResult(Mock.PushpayPaymentDtoMock.CreateProcessing()));
-            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
-            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
-            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>())).ReturnsAsync(new List<MpDonorAccount>());
-            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
-            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
-                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
-
-            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock).Result;
-
-            // is pending
-            Assert.Equal(1, result.DonationStatusId);
-        }
-
-        [Fact]
-        public void ShouldUpdateDonationStatusSuccessFromPushpay()
-        {
-            System.Environment.SetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY", "1234");
-            string transactionCode = "87234354v";
-            var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
-            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Task.FromResult(Mock.PushpayPaymentDtoMock.CreateSuccess()));
-            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
-            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
-            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>())).ReturnsAsync(new List<MpDonorAccount>());
-            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
-            int? nullableInt = 1;
-            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
-                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
-            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
-                .Returns(Task.FromResult(nullableInt));
-
-            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock).Result;
-
-            // is success
-            Assert.Equal(4, result.DonationStatusId);
-        }
-
-        [Fact]
-        public void ShouldUpdateDonationStatusDeclinedFromPushpay()
-        {
-            string transactionCode = "87234354v";
-            var webhookMock = Mock.PushpayStatusChangeRequestMock.Create();
-            _pushpayClient.Setup(r => r.GetPayment(webhookMock)).Returns(Task.FromResult(Mock.PushpayPaymentDtoMock.CreateFailed()));
-            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreatePending(transactionCode)));
-            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>())).Returns(Task.FromResult(Mock.MpDonorAccountMock.Create()));
-            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>())).ReturnsAsync(new List<MpDonorAccount>());
-            _donationService.Setup(r => r.Update(It.IsAny<DonationDto>())).Returns(Task.FromResult(Mock.DonationDtoMock.CreateSucceeded("a")));
-            _donationDistributionRepository.Setup(m => m.GetByDonationId(It.IsAny<int>()))
-                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
-            int? nullableInt = 1;
-            _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(), false))
-                .Returns(Task.FromResult(nullableInt));
-
-            var result = _fixture.UpdateDonationDetailsFromPushpay(webhookMock).Result;
-
-            // is failed
-            Assert.Equal(3, result.DonationStatusId);
-        }
-
-        [Fact]
         public void ShouldGetDepositsByDateRange()
         {
             // Arrange
@@ -550,45 +486,10 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             _congregationRepository.Setup(m => m.GetCongregationByCongregationName("Mason")).Returns(Task.FromResult(mpCongregations));
 
             // Act
-            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey).Result;
 
             // Assert
             Assert.Equal(123, siteId);
-        }
-
-        [Fact]
-        public void ShouldGetSiteConfigFromWebhookId()
-        {
-            // Arrange
-            var pushpayFields = new List<PushpayFieldValueDto>
-            {
-                new PushpayFieldValueDto
-                {
-                    Key = "1234",
-                    Value = "Mason",
-                    Label = "site"
-                }
-            };
-
-            var campusKey = "abcedf123456";
-            int? congregationId = 5;
-
-            var mpCongregations = new List<MpCongregation>
-            {
-                new MpCongregation
-                {
-                    CongregationName = "Mason",
-                    CongregationId = 123
-                }
-            };
-
-            _congregationRepository.Setup(m => m.GetCongregationByCongregationName("Mason")).Returns(Task.FromResult(mpCongregations));
-
-            // Act
-            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
-
-            // Assert
-            Assert.Equal(5, siteId);
         }
 
         [Fact]
@@ -617,11 +518,14 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 }
             };
 
+            _congregationRepository.Setup(r => r.GetCongregationByCongregationName(It.IsAny<string>()))
+                .Returns(Task.FromResult(new List<MpCongregation>()));
+
             _configurationWrapper.Setup(m => m.GetMpConfigIntValueAsync("CRDS-FINANCE", campusKey, false))
                 .Returns(Task.FromResult(congregationId));
 
             // Act
-            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey, congregationId).Result;
+            var siteId = _fixture.LookupCongregationId(pushpayFields, campusKey).Result;
 
             // Assert
             Assert.Equal(5, siteId);
@@ -657,10 +561,64 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 .Returns(Task.FromResult(notFoundCongregationId));
 
             // Act
-            var siteId = _fixture.LookupCongregationId(null, campusKey, null).Result;
+            var siteId = _fixture.LookupCongregationId(null, campusKey).Result;
 
             // Assert
             Assert.Equal(5, siteId);
+        }
+
+
+        [Fact]
+        public void ShouldGetDonationsForPolling()
+        {
+            // Arrange
+            var pushpayDtos = PushpayPaymentDtoMock.CreateProcessingList();
+            var paymentDtos = PaymentDtoMock.CreateList();
+
+            _pushpayClient.Setup(r => r.GetPolledDonations(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(Task.FromResult(pushpayDtos));
+
+            _donationService.Setup(r => r.GetDonationsByTransactionCodes(It.IsAny<List<string>>()))
+                .Returns(Task.FromResult(new List<DonationDto>()));
+
+            _recurringGiftRepository.Setup(r => r.FindRecurringGiftBySubscriptionId(It.IsAny<string>()))
+                .Returns(Task.FromResult(new MpRecurringGift()));
+
+            _donationService.Setup(r => r.GetDonorAccounts(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonorAccount>()));
+
+            _donationService.Setup(r => r.CreateDonorAccount(It.IsAny<MpDonorAccount>()))
+                .Returns(Task.FromResult(new MpDonorAccount()));
+
+            _congregationRepository.Setup(r => r.GetCongregationByCongregationName(It.IsAny<string>()))
+                .Returns(Task.FromResult(new List<MpCongregation>()));
+
+            int? configValue = 1;
+
+            _configurationWrapper.Setup(r => r.GetMpConfigIntValueAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<bool>())).Returns(Task.FromResult(configValue));
+
+            _donationService.Setup(r => r.GetDonationByTransactionCode(It.IsAny<string>()))
+                .Returns(Task.FromResult(new DonationDto()));
+
+            _donationDistributionRepository.Setup(r => r.GetByDonationId(It.IsAny<int>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
+
+            _donationDistributionRepository
+                .Setup(r => r.UpdateDonationDistributions(It.IsAny<List<MpDonationDistribution>>()))
+                .Returns(Task.FromResult(new List<MpDonationDistribution>()));
+
+            _donationService.Setup(r => r.Update(It.IsAny<List<DonationDto>>()))
+                .Returns(Task.FromResult(new List<DonationDto>()));
+
+            _donationService.Setup(r => r.Update(It.IsAny<List<DonationDto>>()))
+                .Returns(Task.FromResult(new List<DonationDto>()));
+
+            // Act
+            _fixture.PollDonations();
+
+            // Assert
+            _pushpayClient.VerifyAll();
         }
     }
 }
