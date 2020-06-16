@@ -44,13 +44,6 @@ namespace Crossroads.Service.Finance.Controllers
 
                 switch (pushpayEvent.EventType)
                 {
-                    case "payment_created":
-                    case "payment_status_changed":
-                        // add incoming timestamp so that we can reprocess job for a
-                        //   certain amount of time
-                        pushpayWebhook.IncomingTimeUtc = DateTime.UtcNow;
-                        _pushpayService.UpdateDonationDetails(pushpayWebhook);
-                        return Ok();
                     case "recurring_payment_changed":
                         var updatedGift = _pushpayService.UpdateRecurringGift(pushpayWebhook, congregationId);
                         return StatusCode(200);

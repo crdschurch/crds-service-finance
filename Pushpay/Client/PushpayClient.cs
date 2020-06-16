@@ -138,6 +138,24 @@ namespace Pushpay.Client
             throw new Exception(exceptionMessage);
         }
 
+        public async Task<List<PushpayPaymentDto>> GetPolledDonations(DateTime startTime, DateTime endTime)
+        {
+            var modStartDate = startTime.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            var modEndDate = endTime.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            var merchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
+
+            var resource = $"merchant/{merchantKey}/payments";
+            List<QueryParameter> queryParams = new List<QueryParameter>()
+            {
+                new QueryParameter("updatedFrom", modStartDate),
+                new QueryParameter("updatedTo", modEndDate),
+                new QueryParameter("pageSize", "100")
+            };
+            var data = await CreateAndExecuteRequest(resource, Method.GET, donationsScope, queryParams, true);
+            var payments = JsonConvert.DeserializeObject<List<PushpayPaymentDto>>(data);
+            return payments;
+        }
+
         // execute request, retry if rate limited
         private async Task<IRestResponse> Execute(RestRequest request, string scope)
         {
