@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Serialization;
 
 namespace Pushpay.Client
 {
@@ -77,25 +78,64 @@ namespace Pushpay.Client
             return pushpayRetrySeconds + backoffSeconds + randomSeconds;
         }
 
-        public async Task<List<PushpayRecurringGiftDto>> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
+        public List<PushpayRecurringGiftDto> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
         {
-            var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
-            var modEndDate = endDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
-            var merchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
+            var exceptionMessage = string.Empty;
 
-            var resource = $"merchant/{merchantKey}/recurringpayments";
-            List<QueryParameter> queryParams = new List<QueryParameter>()
+            try
             {
-                new QueryParameter("updatedFrom", modStartDate),
-                new QueryParameter("updatedTo", modEndDate),
-                new QueryParameter("status", "active"),
-                new QueryParameter("status", "paused"),
-                new QueryParameter("status", "cancelled"),
-                new QueryParameter("pageSize", "100")
-            };
-            var data = await CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true);
-            var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
-            return recurringGifts;
+                var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+                var modEndDate = endDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+                var merchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
+
+                var resource = $"merchant/{merchantKey}/recurringpayments";
+                List<QueryParameter> queryParams = new List<QueryParameter>()
+                {
+                    new QueryParameter("updatedFrom", modStartDate),
+                    new QueryParameter("updatedTo", modEndDate),
+                    new QueryParameter("status", "active"),
+                    new QueryParameter("status", "paused"),
+                    new QueryParameter("status", "cancelled"),
+                    new QueryParameter("pageSize", "100")
+                };
+
+                var data = CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true).Result;
+
+                if (data == null)
+                {
+                    _logger.Error("Null data in GetNewAndUpdatedRecurringGiftsByDateRange");
+                    Console.WriteLine("Null data in GetNewAndUpdatedRecurringGiftsByDateRange");
+                }
+
+                var settings = new JsonSerializerSettings
+                {
+                    Error = delegate (object sender, ErrorEventArgs args)
+                    {
+                        _logger.Error($"Error in deserializing recurring gifts: {args.ErrorContext.Error.Message}");
+                        Console.WriteLine(args.ErrorContext.Error.Message);
+                        args.ErrorContext.Handled = true;
+                    }};
+
+                try
+                {
+                    var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data, settings);
+                    return recurringGifts;
+                }
+                catch (Exception ex)
+                {
+                    exceptionMessage = ex.Message;
+                    _logger.Error($"Error in deserializing recurring gifts: {ex.Message}, ex");
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"Error in GetNewAndUpdatedRecurringGiftsByDateRange: {e.Message}", e.ToString());
+                Console.WriteLine(e);
+                throw new Exception(e.Message);
+            }
+
+            throw new Exception(exceptionMessage);
         }
 
         public async Task<List<PushpayPaymentDto>> GetPolledDonations(DateTime startTime, DateTime endTime)
