@@ -5,6 +5,7 @@ using MinistryPlatform.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using System.Threading;
 using System.Threading.Tasks;
 using ProcessLogging.Models;
@@ -47,7 +48,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
             Console.WriteLine($"Starting SyncRecurringGifts at {DateTime.Now:G}");
 
             // get new and updated recurring gifts.
-            var pushpayRecurringGifts = await _pushpayService.GetRecurringGiftsByDateRange(start, end);
+            var pushpayRecurringGifts = _pushpayService.GetRecurringGiftsByDateRange(start, end);
 
             Console.WriteLine($"Syncing {pushpayRecurringGifts.Count} gifts from pushpay");
 

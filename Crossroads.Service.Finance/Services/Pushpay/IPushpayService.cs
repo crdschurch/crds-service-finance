@@ -13,7 +13,7 @@ namespace Crossroads.Service.Finance.Interfaces
         Task<List<SettlementEventDto>> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
         Task<RecurringGiftDto> CreateRecurringGift(PushpayWebhook webhook, int? congregationId);
         Task<RecurringGiftDto> UpdateRecurringGift(PushpayWebhook webhook, int? congregationId);
-        Task<List<PushpayRecurringGiftDto>> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate);
+        List<PushpayRecurringGiftDto> GetRecurringGiftsByDateRange(DateTime startDate, DateTime endDate);
         Task<MpRecurringGift> BuildAndCreateNewRecurringGift(PushpayRecurringGiftDto pushpayRecurringGift, int? congregationId);
         Task<RecurringGiftDto> UpdateRecurringGiftForSync(PushpayRecurringGiftDto pushpayRecurringGift, MpRecurringGift mpRecurringGift);
         string GetRecurringGiftNotes(PushpayRecurringGiftDto pushpayRecurringGift);
