@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace Pushpay.Client
@@ -116,17 +117,26 @@ namespace Pushpay.Client
                         args.ErrorContext.Handled = true;
                     }};
 
-                try
+
+                var newData = JArray.Parse(data);
+
+                var recurringGifts = new List<PushpayRecurringGiftDto>();
+
+                foreach (var item in newData)
                 {
-                    var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data, settings);
-                    return recurringGifts;
+                    try
+                    {
+                        var gift = JsonConvert.DeserializeObject<PushpayRecurringGiftDto>(item.ToString());
+                        recurringGifts.Add(gift);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error($"Could not parse recurring gift: {e.Message}, {item.ToString()}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    exceptionMessage = ex.Message;
-                    _logger.Error($"Error in deserializing recurring gifts: {ex.Message}, ex");
-                    Console.WriteLine(ex.Message);
-                }
+
+                return recurringGifts;
+
             }
             catch (Exception e)
             {
@@ -136,6 +146,24 @@ namespace Pushpay.Client
             }
 
             throw new Exception(exceptionMessage);
+        }
+
+        private static object ToObject(JToken token)
+        {
+            switch (token.Type)
+            {
+                case JTokenType.Object:
+                    return token.Children<JProperty>()
+                        .ToDictionary(prop => prop.Name,
+                            prop => ToObject(prop.Value),
+                            StringComparer.OrdinalIgnoreCase);
+
+                case JTokenType.Array:
+                    return token.Select(ToObject).ToList();
+
+                default:
+                    return ((JValue)token).Value;
+            }
         }
 
         public async Task<List<PushpayPaymentDto>> GetPolledDonations(DateTime startTime, DateTime endTime)
