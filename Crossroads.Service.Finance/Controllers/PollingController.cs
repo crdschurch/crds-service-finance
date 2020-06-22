@@ -30,7 +30,7 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpPost("donations")]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> PollDonations(string lastSuccessfulRunTime)
+        public async Task<IActionResult> PollDonations()
         {
             try
             {
