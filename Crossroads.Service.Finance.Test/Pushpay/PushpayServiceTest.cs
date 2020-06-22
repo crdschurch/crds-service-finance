@@ -574,6 +574,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             // Arrange
             var pushpayDtos = PushpayPaymentDtoMock.CreateProcessingList();
             var paymentDtos = PaymentDtoMock.CreateList();
+            var time = new DateTime(2020, 06, 22, 12, 23, 00).ToString();
 
             _pushpayClient.Setup(r => r.GetPolledDonations(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .Returns(Task.FromResult(pushpayDtos));
@@ -615,7 +616,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
                 .Returns(Task.FromResult(new List<DonationDto>()));
 
             // Act
-            _fixture.PollDonations();
+            _fixture.PollDonations(time);
 
             // Assert
             _pushpayClient.VerifyAll();
