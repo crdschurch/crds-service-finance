@@ -58,13 +58,13 @@ namespace Pushpay.Test
                     }
                  });
 
-            var result = _fixture.GetDonations("settlement-key-123").Result;
+            var result = _fixture.GetDonations("settlement-key-123");
 
             Assert.Equal(2, result.Count);
         }
 
         [Fact]
-        public async void GetPushpayDonationsSettlementDoesntExistTest()
+        public void GetPushpayDonationsSettlementDoesntExistTest()
         {
             _restClient.Setup(x => x.Execute<PushpayResponseBaseDto>(It.IsAny<IRestRequest>()))
                 .Returns(new RestResponse<PushpayResponseBaseDto>()
@@ -73,9 +73,9 @@ namespace Pushpay.Test
                     ErrorException = new System.Exception()
                 });
 
-            var result = await Record.ExceptionAsync(() => _fixture.GetDonations("settlement-key-123"));
+            var result = Record.Exception(() => _fixture.GetDonations("settlement-key-123"));
             Assert.NotNull(result);
-            Assert.IsType<Exception>(result);
+            Assert.IsType<AggregateException>(result);
         }
 
         [Fact]
@@ -140,6 +140,43 @@ namespace Pushpay.Test
                 });
 
             var result = _fixture.GetRecurringGift("https://resource.com");
+
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void ShouldGetPolledDonations()
+        {
+            // Arrange
+            var startDateTime = new DateTime(2020, 05, 29, 12, 30, 00);
+            var endDateTime = new DateTime(2020, 05, 29, 12, 35, 00);
+
+            var items = new List<object>();
+            var item = new
+            {
+                Status = "pending"
+            };
+            items.Add(item);
+            items.Add(item);
+
+            _restClient.Setup(x => x.Execute<PushpayResponseBaseDto>(It.IsAny<IRestRequest>()))
+                .Returns(new RestResponse<PushpayResponseBaseDto>()
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Data = new PushpayResponseBaseDto()
+                    {
+                        Page = 1,
+                        PageSize = 25,
+                        TotalPages = 1,
+                        items = items
+                    }
+                });
+
+            // Act
+            var result = _fixture.GetPolledDonations(startDateTime, endDateTime).Result;
+
+            // Assert
+            Assert.NotNull(result);
         }
     }
 }

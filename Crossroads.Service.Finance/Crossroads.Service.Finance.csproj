@@ -16,14 +16,14 @@
     <PackageReference Include="Crossroads.Microservice.Logging" Version="0.0.4" />
     <PackageReference Include="Crossroads.Microservice.Settings" Version="0.0.11" />
     <PackageReference Include="CsvHelper" Version="12.1.2" />
-    <PackageReference Include="HangFire" Version="1.7.9" />
-    <PackageReference Include="HangFire.SqlServer" Version="1.7.9" />
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.10.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="RestSharp" Version="106.6.10" />
     <PackageReference Include="System.Interactive.Async" Version="4.0.0" />
+    <PackageReference Include="System.Private.ServiceModel" Version="4.7.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.5.0" />
     <PackageReference Include="Crossroads.Web.Common" Version="2.1.2" />
@@ -67,6 +67,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Exports\Exports.csproj" />
     <ProjectReference Include="..\MinistryPlatform\MinistryPlatform.csproj" />
+    <ProjectReference Include="..\ProcessLogging\ProcessLogging.csproj" />
     <ProjectReference Include="..\Pushpay\Pushpay.csproj" />
   </ItemGroup>
   <ItemGroup>

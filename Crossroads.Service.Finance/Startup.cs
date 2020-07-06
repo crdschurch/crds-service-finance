@@ -4,19 +4,19 @@ using Crossroads.Microservice.Settings;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Middleware;
 using Crossroads.Service.Finance.Services;
+using Crossroads.Service.Finance.Services.DbClients;
 using Crossroads.Service.Finance.Services.Exports;
-using Crossroads.Service.Finance.Services.Health;
 using Crossroads.Service.Finance.Services.JournalEntry;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Crossroads.Service.Finance.Services.Recurring;
 using Crossroads.Web.Common.Configuration;
 using Exports.JournalEntries;
-using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using MinistryPlatform.Adjustments;
 using MinistryPlatform.Congregations;
 using MinistryPlatform.Donors;
@@ -24,7 +24,10 @@ using MinistryPlatform.Interfaces;
 using MinistryPlatform.JournalEntries;
 using MinistryPlatform.Repositories;
 using MinistryPlatform.Users;
+using MongoDB.Driver;
 using Newtonsoft.Json;
+using ProcessLogging.Transfer;
+using Pushpay.Cache;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
@@ -33,7 +36,7 @@ namespace Crossroads.Service.Finance
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -46,8 +49,6 @@ namespace Crossroads.Service.Finance
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var hangfireConnectionString = Environment.GetEnvironmentVariable("HANGFIRE_URL");
-            services.AddHangfire(config => config.UseSqlServerStorage(hangfireConnectionString));
             services.AddMvc();
             services.AddAutoMapper();
             services.AddDistributedMemoryCache();
@@ -102,7 +103,6 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IPushpayClient, PushpayClient>();
             services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
             services.AddSingleton<IRecurringService, RecurringService>();
-            services.AddSingleton<IHealthService, HealthService>();
             services.AddSingleton<IExportService, ExportService>();
 
             // Repo Layer
@@ -124,16 +124,24 @@ namespace Crossroads.Service.Finance
 
             // Exports Layer
             services.AddSingleton<IJournalEntryExport, VelosioExportClient>();
+
+            // Process Logging Layer
+            services.AddSingleton<IProcessLogger, NoSqlProcessLogger>();
+            services.AddSingleton<INoSqlDbService>(InitializeProcessLoggingDbService());
+
+            // Add support for caching
+            services.AddSingleton<ICacheService, CacheService>();
+            services.AddDistributedMemoryCache();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseHangfireServer();
 
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
@@ -162,6 +170,13 @@ namespace Crossroads.Service.Finance
             //     c.DocExpansion(DocExpansion.None);
             //     c.RoutePrefix = string.Empty;
             // });
+        }
+
+        public INoSqlDbService InitializeProcessLoggingDbService()
+        {
+            var mongoClient = new MongoClient(Environment.GetEnvironmentVariable("NO_SQL_CONNECTION_STRING"));
+            var cosmosDbService = new NoSqlDbService(mongoClient);
+            return cosmosDbService;
         }
     }
 }

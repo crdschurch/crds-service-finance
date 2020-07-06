@@ -26,5 +26,6 @@ namespace Crossroads.Service.Finance.Interfaces
         Task<List<MpPledge>> CalculatePledges(int contactId);
         Task<List<DonationDetailDto>> GetRelatedContactDonations(int userContactId, int relatedContactId);
         Task<List<PledgeDto>> GetRelatedContactPledge(int userContactId, int relatedContactId);
+        Task<List<DonationDto>> GetDonationsByTransactionCodes(List<string> transactionIds);
     }
 }

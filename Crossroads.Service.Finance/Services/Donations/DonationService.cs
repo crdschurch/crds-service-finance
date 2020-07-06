@@ -259,5 +259,11 @@ namespace Crossroads.Service.Finance.Services
             }
             throw new Exception($"Contact {userContactId} does not have access to view giving history for contact {relatedContactId}");
         }
+
+        public async Task<List<DonationDto>> GetDonationsByTransactionCodes(List<string> transactionIds)
+        {
+            var mpDonations = await _mpDonationRepository.GetDonationsByTransactionIds(transactionIds);
+            return _mapper.Map<List<DonationDto>>(mpDonations);
+        }
     }
 }

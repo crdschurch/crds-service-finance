@@ -2,6 +2,8 @@
 using Crossroads.Service.Finance.Models;
 using System;
 using System.Threading.Tasks;
+using ProcessLogging.Models;
+using ProcessLogging.Transfer;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -13,72 +15,110 @@ namespace Crossroads.Service.Finance.Services
         private readonly IDepositService _depositService;
         private readonly IDonationService _donationService;
         private readonly IPushpayService _pushpayService;
+        private readonly IProcessLogger _processLogger;
 
         // This value is used when creating the batch name for exporting to GP.  It must be 15 characters or less.
         private const string BatchNameDateFormat = @"\M\PyyMMddHHmmss";
         private readonly string PushpayMerchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
 
         public PaymentEventService(IBatchService batchService, IDepositService depositService, IDonationService donationService,
-            IPushpayService pushpayService)
+            IPushpayService pushpayService, IProcessLogger processLogger)
         {
             _batchService = batchService;
             _depositService = depositService;
             _donationService = donationService;
             _pushpayService = pushpayService;
+            _processLogger = processLogger;
         }
 
-        public async void CreateDeposit(SettlementEventDto settlementEventDto)
+        public void CreateDeposit(SettlementEventDto settlementEventDto)
         {
-            Console.WriteLine($"Creating deposit: {settlementEventDto.Key}");
-            _logger.Info($"Creating deposit: {settlementEventDto.Key}");
+            //Console.WriteLine($"Creating deposit: {settlementEventDto.Key}");
+            //_logger.Info($"Creating deposit: {settlementEventDto.Key}");
+
+            var creatingDepositMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.creatingDeposit)
+            {
+                MessageData = $"Creating deposit for {settlementEventDto.Key}"
+            };
+            _processLogger.SaveProcessLogMessage(creatingDepositMessage);
 
             // 1. Check to see if the deposit has already been created.  If we do throw an exception.
-            var existingDeposit = await _depositService.GetDepositByProcessorTransferId(settlementEventDto.Key);
+            var existingDeposit = _depositService.GetDepositByProcessorTransferId(settlementEventDto.Key).Result;
             if (existingDeposit != null)
             {
-                Console.WriteLine($"Deposit already exists for settlement: {settlementEventDto.Key}");
-                _logger.Info($"Deposit already exists for settlement: {settlementEventDto.Key}");
+                //Console.WriteLine($"Deposit already exists for settlement: {settlementEventDto.Key}");
+                //_logger.Info($"Deposit already exists for settlement: {settlementEventDto.Key}");
+
+                var processLogMessageDepositExists = new ProcessLogMessage(ProcessLogConstants.MessageType.depositAlreadyExists)
+                {
+                    MessageData = $"Deposit already exists for {settlementEventDto.Key}. Skipping settlement."
+                };
+                _processLogger.SaveProcessLogMessage(processLogMessageDepositExists);
+
                 return;
             }
 
             // 2. Get all payments associated with a settlement from Pushpay's API. Throw an exception
             // if none are found.
-            var settlementPayments = await _pushpayService.GetDonationsForSettlement(settlementEventDto.Key);
+            var settlementPayments = _pushpayService.GetDonationsForSettlement(settlementEventDto.Key);
             Console.WriteLine($"Settlement {settlementEventDto.Key} contains {settlementPayments.Count} ({settlementPayments}) donations from pushpay");
 
             if (settlementPayments.Count <= 0)
             {
-                Console.WriteLine($"No charges found for settlement: {settlementEventDto.Key}");
-                _logger.Info($"No charges found for settlement: {settlementEventDto.Key}");
+                //Console.WriteLine($"No charges found for settlement: {settlementEventDto.Key}");
+                //_logger.Info($"No charges found for settlement: {settlementEventDto.Key}");
+
+                var processLogMessageNoChargesFound = new ProcessLogMessage(ProcessLogConstants.MessageType.noChargesForSettlement)
+                {
+                    MessageData = $"No charges found for {settlementEventDto.Key}. Skipping settlement."
+                };
+                _processLogger.SaveProcessLogMessage(processLogMessageNoChargesFound);
+
                 return;
             }
 
             // 3. Create and Save the Batch to MP.
-            var donationBatch = await _batchService.BuildDonationBatch(settlementPayments, settlementEventDto.Name,
-                DateTime.Now, settlementEventDto.Key);
-            var savedDonationBatch = await _batchService.SaveDonationBatch(donationBatch);
+            var donationBatch = _batchService.BuildDonationBatch(settlementPayments, settlementEventDto.Name,
+                DateTime.Now, settlementEventDto.Key).Result;
+            var savedDonationBatch = _batchService.SaveDonationBatch(donationBatch).Result;
             donationBatch.Id = savedDonationBatch.Id;
 
-            _logger.Info($"Batch created: {savedDonationBatch.Id}");
-            Console.WriteLine($"Batch created: {savedDonationBatch.Id}");
+            //_logger.Info($"Batch created: {savedDonationBatch.Id}");
+            //Console.WriteLine($"Batch created: {savedDonationBatch.Id}");
+
+            var batchCreatedMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.batchCreated)
+            {
+                MessageData = $"Batch {savedDonationBatch.Id} created for settlement {settlementEventDto.Key}."
+            };
+            _processLogger.SaveProcessLogMessage(batchCreatedMessage);
 
             // 4. Update all the donations to have a status of deposited and to be part of the new batch.
-            var updateDonationsTask = Task.Run((() =>
-                _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id)));
-            var updateDonations = await updateDonationsTask;
-            await _donationService.Update(updateDonations);
+            var updateDonations = _donationService.SetDonationStatus(donationBatch.Donations, donationBatch.Id);
+            _donationService.Update(updateDonations);
 
-            _logger.Info($"Updated donations for batch: {donationBatch.Id}");
-            Console.WriteLine($"Updated donations for batch: {donationBatch.Id}");
+            //_logger.Info($"Updated donations for batch: {donationBatch.Id}");
+            //Console.WriteLine($"Updated donations for batch: {donationBatch.Id}");
+
+            var batchDonationsUpdatedMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.batchDonationsUpdated)
+            {
+                MessageData = $"{updateDonations.Count} donations updated for batch {donationBatch.Id}."
+            };
+            _processLogger.SaveProcessLogMessage(batchDonationsUpdatedMessage);
 
             // 5. Create Deposit with the associated batch (should be one batch for one deposit)
-            var deposit = await _depositService.BuildDeposit(settlementEventDto);
-            deposit = await _depositService.SaveDeposit(deposit);
+            var deposit = _depositService.BuildDeposit(settlementEventDto).Result;
+            deposit = _depositService.SaveDeposit(deposit).Result;
 
-            _logger.Info($"Deposit created: {deposit.Id}");
-            Console.WriteLine($"Deposit created: {deposit.Id}");
+            //_logger.Info($"Deposit created: {deposit.Id}");
+            //Console.WriteLine($"Deposit created: {deposit.Id}");
 
-            // 6. Update batch with deposit id and name and resave
+            var depositCreatedMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.depositCreated)
+            {
+                MessageData = $"Deposit {deposit.Id} created for settlement {settlementEventDto.Key}."
+            };
+            _processLogger.SaveProcessLogMessage(depositCreatedMessage);
+
+            // 6. Update batch with deposit id and name and re-save
             donationBatch.DepositId = deposit.Id;
             donationBatch.BatchName = deposit.DepositName + "D";
             _batchService.UpdateDonationBatch(donationBatch);

@@ -10,6 +10,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace Pushpay.Client
 {
@@ -35,10 +37,10 @@ namespace Pushpay.Client
             _restClient.BaseUrl = apiUri;
         }
 
-        public async Task<List<PushpayPaymentDto>> GetDonations(string settlementKey)
+        public List<PushpayPaymentDto> GetDonations(string settlementKey)
         {
             var resource = $"settlement/{settlementKey}/payments";
-            var data = await CreateAndExecuteRequest(resource, Method.GET, donationsScope, null, true);
+            var data = CreateAndExecuteRequest(resource, Method.GET, donationsScope, null, true).Result;
             return JsonConvert.DeserializeObject<List<PushpayPaymentDto>>(data);
         }
 
@@ -77,25 +79,109 @@ namespace Pushpay.Client
             return pushpayRetrySeconds + backoffSeconds + randomSeconds;
         }
 
-        public async Task<List<PushpayRecurringGiftDto>> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
+        public List<PushpayRecurringGiftDto> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate)
         {
-            var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
-            var modEndDate = endDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            var exceptionMessage = string.Empty;
+
+            try
+            {
+                var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+                var modEndDate = endDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+                var merchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
+
+                var resource = $"merchant/{merchantKey}/recurringpayments";
+                List<QueryParameter> queryParams = new List<QueryParameter>()
+                {
+                    new QueryParameter("updatedFrom", modStartDate),
+                    new QueryParameter("updatedTo", modEndDate),
+                    new QueryParameter("status", "active"),
+                    new QueryParameter("status", "paused"),
+                    new QueryParameter("status", "cancelled"),
+                    new QueryParameter("pageSize", "100")
+                };
+
+                var data = CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true).Result;
+
+                if (data == null)
+                {
+                    _logger.Error("Null data in GetNewAndUpdatedRecurringGiftsByDateRange");
+                    Console.WriteLine("Null data in GetNewAndUpdatedRecurringGiftsByDateRange");
+                }
+
+                var settings = new JsonSerializerSettings
+                {
+                    Error = delegate (object sender, ErrorEventArgs args)
+                    {
+                        _logger.Error($"Error in deserializing recurring gifts: {args.ErrorContext.Error.Message}");
+                        Console.WriteLine(args.ErrorContext.Error.Message);
+                        args.ErrorContext.Handled = true;
+                    }};
+
+
+                var newData = JArray.Parse(data);
+
+                var recurringGifts = new List<PushpayRecurringGiftDto>();
+
+                foreach (var item in newData)
+                {
+                    try
+                    {
+                        var gift = JsonConvert.DeserializeObject<PushpayRecurringGiftDto>(item.ToString());
+                        recurringGifts.Add(gift);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error($"Could not parse recurring gift: {e.Message}, {item.ToString()}");
+                    }
+                }
+
+                return recurringGifts;
+
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"Error in GetNewAndUpdatedRecurringGiftsByDateRange: {e.Message}", e.ToString());
+                Console.WriteLine(e);
+                throw new Exception(e.Message);
+            }
+
+            throw new Exception(exceptionMessage);
+        }
+
+        private static object ToObject(JToken token)
+        {
+            switch (token.Type)
+            {
+                case JTokenType.Object:
+                    return token.Children<JProperty>()
+                        .ToDictionary(prop => prop.Name,
+                            prop => ToObject(prop.Value),
+                            StringComparer.OrdinalIgnoreCase);
+
+                case JTokenType.Array:
+                    return token.Select(ToObject).ToList();
+
+                default:
+                    return ((JValue)token).Value;
+            }
+        }
+
+        public async Task<List<PushpayPaymentDto>> GetPolledDonations(DateTime startTime, DateTime endTime)
+        {
+            var modStartDate = startTime.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            var modEndDate = endTime.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
             var merchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
 
-            var resource = $"merchant/{merchantKey}/recurringpayments";
+            var resource = $"merchant/{merchantKey}/payments";
             List<QueryParameter> queryParams = new List<QueryParameter>()
             {
                 new QueryParameter("updatedFrom", modStartDate),
                 new QueryParameter("updatedTo", modEndDate),
-                new QueryParameter("status", "active"),
-                new QueryParameter("status", "paused"),
-                new QueryParameter("status", "cancelled"),
                 new QueryParameter("pageSize", "100")
             };
-            var data = await CreateAndExecuteRequest(resource, Method.GET, recurringGiftsScope, queryParams, true);
-            var recurringGifts = JsonConvert.DeserializeObject<List<PushpayRecurringGiftDto>>(data);
-            return recurringGifts;
+            var data = await CreateAndExecuteRequest(resource, Method.GET, donationsScope, queryParams, true);
+            var payments = JsonConvert.DeserializeObject<List<PushpayPaymentDto>>(data);
+            return payments;
         }
 
         // execute request, retry if rate limited
