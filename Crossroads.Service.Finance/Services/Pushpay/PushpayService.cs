@@ -602,24 +602,26 @@ namespace Crossroads.Service.Finance.Services
             return lookupCongregationId;
         }
 
-        public async Task PollDonations()
+        public async Task PollDonations(string lastSuccessfulRunTime)
         {
             // TODO: consider if using .NET reactive would make sense, particularly with getting
             // each page of data
+            var startTime = DateTime.Parse(lastSuccessfulRunTime).AddMinutes(-2);
 
             // 1. Get donations from Pushpay Client - time figures need to be dynamic at some point
            _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.gettingDonationDetails)
            {
                MessageData = "Getting the latest donations from PushPay"
            }); 
-            var pushpayPaymentDtos = await _pushpayClient.GetPolledDonations(DateTime.Now.AddMinutes(-60), DateTime.Now);
+            var pushpayPaymentDtos = await _pushpayClient.GetPolledDonations(startTime, DateTime.Now);
 
             if (!pushpayPaymentDtos.Any())
             {
                 _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.noNewDonationDetails)
                 {
-                    MessageData = "Could not find any new donation."
+                    MessageData = "Could not find any new donations."
                 });
+
                 return;
             }
             

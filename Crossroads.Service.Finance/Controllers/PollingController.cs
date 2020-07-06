@@ -1,10 +1,11 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
-using Crossroads.Service.Finance.Services.Recurring;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using ProcessLogging.Models;
 using ProcessLogging.Transfer;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -33,16 +34,23 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.jobStarting)
+                using (var reader = new StreamReader(Request.Body))
                 {
-                    MessageData = "Starting getting donation updates from PushPay."
-                });
-                await _pushpayService.PollDonations();
-                _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.jobDone)
-                {
-                    MessageData = "Finished getting updates for donations from PushPay."
-                });
-                return NoContent();
+                    var body = await reader.ReadToEndAsync();
+
+                    var timeString = JObject.Parse(body)["lastSuccessfulRunTime"].ToString();
+
+                    _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.jobStarting)
+                    {
+                        MessageData = "Starting getting donation updates from PushPay."
+                    });
+                    await _pushpayService.PollDonations(timeString);
+                    _processLogger.SaveProcessLogMessage(new ProcessLogMessage(ProcessLogConstants.MessageType.jobDone)
+                    {
+                        MessageData = "Finished getting updates for donations from PushPay."
+                    });
+                    return NoContent();
+                }
             }
             catch (Exception ex)
             {
