@@ -15,7 +15,7 @@ namespace Crossroads.Functions.Finance
     public static class DonationSync
     {
         [FunctionName("DonationSync")]
-        public static async void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
+        public static async Task Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"DonationSync timer trigger function executed at: {DateTime.Now}");
 
@@ -24,7 +24,7 @@ namespace Crossroads.Functions.Finance
             log.LogDebug($"Last Successful Runtime: {lastSuccessfulRunTime}");
             var httpStatusCode = await RunDonationEndpointAsync(lastSuccessfulRunTime.ToString(), log);
             log.LogInformation($"HTTP Status Code: {httpStatusCode}");
-            UpdateLogAsync(currentRunTime, httpStatusCode);
+            await UpdateLogAsync(currentRunTime, httpStatusCode);
 
             log.LogInformation($"DonationSync returned a {httpStatusCode} response");
         }
@@ -60,7 +60,7 @@ namespace Crossroads.Functions.Finance
             return httpResponseMessage.StatusCode;
         }
 
-        private static async void UpdateLogAsync(DateTime currentRunTime, HttpStatusCode httpStatusCode)
+        private static async Task UpdateLogAsync(DateTime currentRunTime, HttpStatusCode httpStatusCode)
         {
             CloudTable donationSyncLogTable = await GetTableReference();
             string logStatus = httpStatusCode == HttpStatusCode.NoContent ? "Success" : "Failed";
