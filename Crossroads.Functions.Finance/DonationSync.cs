@@ -22,7 +22,7 @@ namespace Crossroads.Functions.Finance
             var currentRunTime = DateTime.Now;
             var lastSuccessfulRunTime = await GetLastSuccessfulRunTimeAsync();
             log.LogDebug($"Last Successful Runtime: {lastSuccessfulRunTime}");
-            var httpStatusCode = await RunDonationEndpointAsync(lastSuccessfulRunTime.ToString(), log);
+            var httpStatusCode = await RunDonationEndpointAsync(lastSuccessfulRunTime.ToUniversalTime().ToString("u"), log);
             log.LogInformation($"HTTP Status Code: {httpStatusCode}");
             await UpdateLogAsync(currentRunTime, httpStatusCode);
 
