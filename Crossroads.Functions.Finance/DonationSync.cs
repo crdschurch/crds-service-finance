@@ -32,7 +32,7 @@ namespace Crossroads.Functions.Finance
             CloudTable donationSyncLogTable = await GetTableReference();
 
             var filterCondition = TableQuery.GenerateFilterCondition("LogStatus", QueryComparisons.Equal, "Success");
-            var query = new TableQuery<DonationSyncLog>().Where(filterCondition);
+            var query = new TableQuery<DonationSyncLog>().OrderByDesc("LogTimeStamp").Where(filterCondition);
             
             TableQuerySegment<DonationSyncLog> results = await donationSyncLogTable.ExecuteQuerySegmentedAsync(query, null); // used to be ExecuteQuery / ExecuteQueryAsync
 
