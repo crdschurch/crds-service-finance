@@ -1,7 +1,6 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.Azure.Cosmos.Table;
 using System;
 using System.Linq;
 using System.Net;
@@ -14,16 +13,16 @@ namespace Crossroads.Functions.Finance
     public static class DonationSync
     {
         [FunctionName("DonationSync")]
-        public static async void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
+        public static async Task Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"DonationSync timer trigger function executed at: {DateTime.Now}");
 
             var currentRunTime = DateTime.Now;
             var lastSuccessfulRunTime = await GetLastSuccessfulRunTimeAsync();
             log.LogDebug($"Last Successful Runtime: {lastSuccessfulRunTime}");
-            var httpStatusCode = await RunDonationEndpointAsync(lastSuccessfulRunTime.ToString(), log);
+            var httpStatusCode = await RunDonationEndpointAsync(lastSuccessfulRunTime.ToUniversalTime().ToString("u"), log);
             log.LogInformation($"HTTP Status Code: {httpStatusCode}");
-            UpdateLogAsync(currentRunTime, httpStatusCode);
+            await UpdateLogAsync(currentRunTime, httpStatusCode);
 
             log.LogInformation($"DonationSync returned a {httpStatusCode} response");
         }
@@ -33,15 +32,12 @@ namespace Crossroads.Functions.Finance
             CloudTable donationSyncLogTable = await GetTableReference();
 
             var filterCondition = TableQuery.GenerateFilterCondition("LogStatus", QueryComparisons.Equal, "Success");
-            var query = new TableQuery<DonationSyncLog>().Where(filterCondition);
+            var query = new TableQuery<DonationSyncLog>().OrderByDesc("LogTimeStamp").Where(filterCondition);
+            
             TableQuerySegment<DonationSyncLog> results = await donationSyncLogTable.ExecuteQuerySegmentedAsync(query, null); // used to be ExecuteQuery / ExecuteQueryAsync
 
-            DateTime lastSuccessfulRuntime = DateTime.Now.AddMinutes(-60);
-            if (results.Count() > 0)
-            {
-                results.OrderByDescending(l => l.LogTimestamp);
-                lastSuccessfulRuntime = results.Results[0].LogTimestamp;
-            }
+            DateTime lastSuccessfulRuntime = !results.Any() ? DateTime.Now.AddMinutes(-60): 
+                results.OrderByDescending(l => l.LogTimestamp).ToList()[0].LogTimestamp;
             return lastSuccessfulRuntime;
         }
 
@@ -58,7 +54,7 @@ namespace Crossroads.Functions.Finance
             return httpResponseMessage.StatusCode;
         }
 
-        private static async void UpdateLogAsync(DateTime currentRunTime, HttpStatusCode httpStatusCode)
+        private static async Task UpdateLogAsync(DateTime currentRunTime, HttpStatusCode httpStatusCode)
         {
             CloudTable donationSyncLogTable = await GetTableReference();
             string logStatus = httpStatusCode == HttpStatusCode.NoContent ? "Success" : "Failed";
