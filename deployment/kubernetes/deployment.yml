@@ -1,10 +1,13 @@
-﻿apiVersion: extensions/v1beta1 
+﻿apiVersion: apps/v1
 kind: Deployment 
 metadata: 
   name: crds-finance
   namespace: api
 spec: 
   replicas: 2
+  selector:
+    matchLabels:
+      app: crds-finance
   strategy: 
     type: RollingUpdate 
     rollingUpdate: 
