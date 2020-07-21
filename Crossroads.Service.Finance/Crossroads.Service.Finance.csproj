@@ -23,6 +23,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="RestSharp" Version="106.6.10" />
     <PackageReference Include="System.Interactive.Async" Version="4.0.0" />
+    <PackageReference Include="System.IO.Pipelines" Version="4.7.2" />
     <PackageReference Include="System.Private.ServiceModel" Version="4.7.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.5.0" />

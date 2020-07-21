@@ -20,6 +20,6 @@ namespace Crossroads.Service.Finance.Interfaces
         string FormatPhoneNumber(string phone);
         void SaveWebhookData(PushpayWebhook pushpayWebhook);
         Task<int> LookupCongregationId(List<PushpayFieldValueDto> pushpayFields, string campusKey);
-        Task PollDonations();
+        Task PollDonations(string lastSuccessfulRunTime);
     }
 }
