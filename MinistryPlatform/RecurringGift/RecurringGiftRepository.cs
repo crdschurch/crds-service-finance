@@ -16,6 +16,7 @@ namespace MinistryPlatform.Repositories
 {
     public class RecurringGiftRepository : MinistryPlatformBase, IRecurringGiftRepository
     {
+	    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public RecurringGiftRepository(IMinistryPlatformRestRequestBuilderFactory builder,
             IApiUserRepository apiUserRepository,
@@ -36,7 +37,8 @@ namespace MinistryPlatform.Repositories
 
             if (!gifts.Any())
             {
-                throw new Exception($"Recurring Gift does not exist for subscription id: {subscriptionId}");
+	            _logger.Error($"Recurring Gift does not exist for subscription id: {subscriptionId}");
+                return null;
             }
 
             return gifts.First();
