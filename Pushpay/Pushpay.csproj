@@ -10,7 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="RestSharp" Version="106.6.0" />
+    <PackageReference Include="RestSharp" Version="106.6.10" />
     <PackageReference Include="System.Interactive.Async" Version="4.0.0" />
     <PackageReference Include="System.Reactive" Version="3.1.1" />
     <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
@@ -21,5 +21,8 @@
   <ItemGroup>
     <Compile Remove="Models\PushpayAnticipatedFundDto.cs" />
     <Compile Remove="Models\PushpayPaymentsDto.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MinistryPlatform\MinistryPlatform.csproj" />
   </ItemGroup>
 </Project>

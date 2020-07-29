@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
-using log4net;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MinistryPlatform.Repositories
 {
@@ -98,7 +95,7 @@ namespace MinistryPlatform.Repositories
             return gifts;
         }
 
-	    public Task<List<MpRecurringGift>> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds)
+        public Task<List<MpRecurringGift>> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds)
         {
             var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
 
@@ -110,6 +107,21 @@ namespace MinistryPlatform.Repositories
                 .Search<MpRecurringGift>();
 
             return gifts;
+        }
+
+        public void CreateRawPushpayRecurrentGiftSchedule(string rawRecurringGiftSchedule)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var parameters = new Dictionary<string, object>
+            {
+                {"@RawJson", rawRecurringGiftSchedule}
+            };
+
+            MpRestBuilder.NewRequestBuilder()
+                            .WithAuthenticationToken(token)
+                            .Build()
+                            .ExecuteStoredProc("api_crds_Insert_PushpayRecurringSchedulesRawJson", parameters);
         }
     }
 }

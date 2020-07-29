@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using MinistryPlatform.Interfaces;
 
 namespace Pushpay.Client
 {
@@ -23,6 +24,7 @@ namespace Pushpay.Client
         private readonly string donationsScope = "read merchant:view_payments";
         private readonly string recurringGiftsScope = "merchant:view_recurring_payments";
         private readonly IPushpayTokenService _pushpayTokenService;
+        private readonly IRecurringGiftRepository _recurringGiftRepository;
         private readonly IRestClient _restClient;
         private const int RequestsPerSecond = 10;
         private const int RequestsPerMinute = 60;
@@ -30,9 +32,10 @@ namespace Pushpay.Client
         //  and potential for multiple threads to interact with this
         private int RateLimitCount = 0;
 
-        public PushpayClient(IPushpayTokenService pushpayTokenService, IRestClient restClient = null)
+        public PushpayClient(IPushpayTokenService pushpayTokenService, IRecurringGiftRepository recurringGiftRepository, IRestClient restClient = null)
         {
             _pushpayTokenService = pushpayTokenService;
+            _recurringGiftRepository = recurringGiftRepository;
             _restClient = restClient ?? new RestClient();
             _restClient.BaseUrl = apiUri;
         }
@@ -131,6 +134,9 @@ namespace Pushpay.Client
                     }
                     catch (Exception e)
                     {
+                        //TODO: This is a temporary usage of CreateRawPushpayRecurrentGiftSchedule
+                        //TODO: When refactoring this process, we will log all raw recurring data, then process from the raw data.
+                        _recurringGiftRepository.CreateRawPushpayRecurrentGiftSchedule(item.ToString());
                         _logger.Error($"Could not parse recurring gift: {e.Message}, {item.ToString()}");
                     }
                 }
