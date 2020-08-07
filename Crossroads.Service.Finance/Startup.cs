@@ -100,6 +100,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IDepositService, DepositService>();
             services.AddSingleton<IPaymentEventService, PaymentEventService>();
             services.AddSingleton<IPushpayService, PushpayService>();
+            services.AddSingleton<INewPushpayService, NewPushpayService>();
             services.AddSingleton<IPushpayClient, PushpayClient>();
             services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
             services.AddSingleton<IRecurringService, RecurringService>();
