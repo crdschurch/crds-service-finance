@@ -2,6 +2,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Cosmos.Table;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -25,6 +26,9 @@ namespace Crossroads.Functions.Finance
             await UpdateLogAsync(currentRunTime, httpStatusCode);
 
             log.LogInformation($"DonationSync returned a {httpStatusCode} response");
+
+            var deletedRecordCount = await ClearOldEntries(httpStatusCode, lastSuccessfulRunTime);
+            log.LogInformation($"Deleted {deletedRecordCount} records out of DonationSyncLog.");
         }
 
         private static async Task<DateTime> GetLastSuccessfulRunTimeAsync()
@@ -69,6 +73,32 @@ namespace Crossroads.Functions.Finance
             var donationSyncLogTable = tableClient.GetTableReference("DonationSyncLog");
             await donationSyncLogTable.CreateIfNotExistsAsync();
             return donationSyncLogTable;
+        }
+
+        private static async Task<int> ClearOldEntries(HttpStatusCode httpStatusCode, DateTime lastSuccessful)
+        {
+            TableContinuationToken continuationToken = null;
+            TableQuerySegment<DonationSyncLog> results;
+            var deleteTasks = new List<Task>();
+            var deleteDate = DateTime.Now.AddDays(-5);
+            deleteDate = httpStatusCode != HttpStatusCode.NoContent && deleteDate > lastSuccessful
+                ? lastSuccessful.AddHours(-1)
+                : deleteDate;
+
+            var filter = TableQuery.GenerateFilterConditionForDate("LogTimestamp", QueryComparisons.LessThan, deleteDate);
+            var donationSyncLogTable = await GetTableReference();
+            var query = new TableQuery<DonationSyncLog>().Where(filter);
+
+            do
+            {
+                results = await donationSyncLogTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+                continuationToken = results.ContinuationToken;
+                deleteTasks.AddRange(results.Results.Select(TableOperation.Delete)
+                    .Select(deleteOperation => donationSyncLogTable.ExecuteAsync(deleteOperation)));
+            } while (results.ContinuationToken != null);
+
+            Task.WaitAll(deleteTasks.ToArray());
+            return deleteTasks.Count;
         }
     }
 }
