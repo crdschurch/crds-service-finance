@@ -172,7 +172,7 @@ namespace MinistryPlatform.Test.Donations
                 }
             };
             var filter = $"IsProcessed = '{false}'";
-            var orderBy = "TimeCreated";
+            var orderBy = "TimeCreated DESC";
             _apiUserRepository.Setup(r => r.GetApiClientTokenAsync("CRDS.Service.Finance")).ReturnsAsync(token);
             _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
             _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
