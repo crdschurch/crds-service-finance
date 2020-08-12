@@ -1,10 +1,11 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
 using MinistryPlatform.Interfaces;
 using NLog;
-using ProcessLogging.Transfer;
 using Pushpay.Client;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -30,6 +31,16 @@ namespace Crossroads.Service.Finance.Services
                 _recurringGiftRepository.CreateRawPushpayRecurrentGiftSchedule(recurringGift);
             }
             _logger.Info($"PullRecurringGiftsAsync is complete.  Start Date: {startDate}, End Date: {endDate}");
+        }
+
+        // TODO: Make the argument be of PushPayTransactionBaseDTO if external links gets moved there.
+        public int? ParseFundIdFromExternalLinks(PushpayRecurringGiftDto schedule)
+        {
+            if (!schedule.ExternalLinks.Any()) return null;
+            var externalLink = schedule.ExternalLinks
+                .FirstOrDefault(e => e.Relationship.ToLower() == "fund_id");
+            return externalLink?.Value;
+
         }
     }
 }

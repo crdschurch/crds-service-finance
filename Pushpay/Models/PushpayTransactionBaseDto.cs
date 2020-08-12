@@ -139,4 +139,25 @@ namespace Pushpay.Models
         [JsonProperty("key")]
         public string Key { get; set; }
     }
+
+    public class ExternalLinks
+    {
+        [JsonProperty("application")] 
+        public ExternalApplication Application { get; set; }
+        
+        [JsonProperty("relationship")] 
+        public string Relationship { get; set; }
+        
+        [JsonProperty("value")] 
+        public int? Value { get; set; }
+    }
+
+    public class ExternalApplication
+    {
+        [JsonProperty("name")] 
+        public string Name { get; set; }
+
+        [JsonProperty("type")] 
+        public string Type { get; set; }
+    }
 }

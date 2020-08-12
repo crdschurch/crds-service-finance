@@ -157,5 +157,67 @@ namespace MinistryPlatform.Test.Donations
             // Assert
             Assert.Equal(subscriptionId, result[0].SubscriptionId);
         }
+
+        [Fact]
+        public async Task GetUnprocessedRecurringShcedules()
+        {
+            var listOfRawRecurringSchedule = new List<MpRawPushPayRecurringSchedules>
+            {
+                new MpRawPushPayRecurringSchedules
+                {
+                    RecurringGiftScheduleId =  123,
+                    IsProcessed = true,
+                    RawJson = "{test: test}",
+                    TimeCreated = DateTime.Now,
+                }
+            };
+            var filter = $"IsProcessed = '{false}'";
+            var orderBy = "TimeCreated DESC";
+            _apiUserRepository.Setup(r => r.GetApiClientTokenAsync("CRDS.Service.Finance")).ReturnsAsync(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.OrderBy(orderBy)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithFilter(filter)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
+
+            _request.Setup(m => m.Search<MpRawPushPayRecurringSchedules>()).ReturnsAsync(listOfRawRecurringSchedule);
+
+            // Act
+            var result = await _fixture.GetUnprocessedRecurringGifts();
+
+            // Assert
+            Assert.Equal(listOfRawRecurringSchedule[0].RecurringGiftScheduleId, result[0].RecurringGiftScheduleId);
+        }
+        
+        [Fact]
+        public async Task FlipIsProcessedToTrueTest()
+        {
+            var schedule = new MpRawPushPayRecurringSchedules
+            {
+                RecurringGiftScheduleId = 123,
+                IsProcessed = false,
+                RawJson = "{test: test}",
+                TimeCreated = DateTime.Now,
+            };
+            const string storedProc = "api_crds_Set_Recurring_JSON_To_Processed";
+            var parameters = new Dictionary<string, object>
+            {
+                {"@RecurringGiftScheduleId", schedule.RecurringGiftScheduleId}
+            };
+            
+            _apiUserRepository.Setup(r => r.GetApiClientTokenAsync("CRDS.Service.Finance")).ReturnsAsync(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
+
+            _request.Setup(m => m.ExecuteStoredProc(storedProc, parameters)).Verifiable();
+
+            // Act
+            await _fixture.FlipIsProcessedToTrue(schedule);
+
+            // Assert
+            _request.Verify(m => m.ExecuteStoredProc(storedProc, parameters), Times.Once);
+            
+        }
     }
 }
