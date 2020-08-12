@@ -28,6 +28,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
         private readonly Mock<IDonationService> _donationService;
         private readonly Mock<IProgramRepository> _programRepository;
         private readonly Mock<IDonorService> _donorService;
+        private readonly Mock<IGatewayService> _gatewayService;
 
         private readonly IRecurringService _fixture;
 
@@ -43,9 +44,10 @@ namespace Crossroads.Service.Finance.Test.Recurring
             _donationService = new Mock<IDonationService>();
             _programRepository = new Mock<IProgramRepository>();
             _donorService = new Mock<IDonorService>();
+            _gatewayService = new Mock<IGatewayService>();
 
             _fixture = new RecurringService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _newPushpayService.Object, _configWrapper.Object,
-               _donationService.Object, _donorService.Object, _recurringGiftRepository.Object, _programRepository.Object, _processLogger.Object);
+               _donationService.Object, _donorService.Object, _recurringGiftRepository.Object, _programRepository.Object, _gatewayService.Object, _processLogger.Object);
         }
 
         [Fact]

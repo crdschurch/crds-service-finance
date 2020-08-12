@@ -30,6 +30,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
         private readonly IProcessLogger _processLogger;
         private readonly IProgramRepository _programRepository;
         private readonly IDonorService _donorService;
+        private readonly IGatewayService _gatewayService;
 
         private const int PausedRecurringGiftStatus = 2;
         private readonly int _mpNotSiteSpecificCongregationId;
@@ -43,6 +44,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
             IDonorService donorService,
             IRecurringGiftRepository recurringGiftRepository,
             IProgramRepository programRepository,
+            IGatewayService gatewayService,
             IProcessLogger processLogger)
         {
             _pushpayService = pushpayService;
@@ -50,6 +52,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
             _configurationWrapper = configurationWrapper;
             _donationService = donationService;
             _donorService = donorService;
+            _gatewayService = gatewayService;
             _recurringGiftRepository = recurringGiftRepository;
             _programRepository = programRepository;
             _processLogger = processLogger;
@@ -199,9 +202,16 @@ namespace Crossroads.Service.Finance.Services.Recurring
                     }
                     else
                     {
-                        // TODO: Call new stripe cancellation service method when refactor into its own service
                         var recurringSchedule = await BuildRecurringScheduleFromPushPayData(pushPayScheduleDto);
                         await _recurringGiftRepository.CreateRecurringGift(recurringSchedule);
+                        
+                        // STRIPE CANCELLATION - this can be removed after there are no more Stripe recurring gifts
+                        // This cancels a Stripe gift if a subscription id was uploaded to Pushpay (i.e. through pushpay migration tool)
+                        if (pushPayScheduleDto.Notes != null && pushPayScheduleDto.Notes.Trim()
+                            .StartsWith("sub_", StringComparison.Ordinal))
+                        {
+                            _gatewayService.CancelStripeRecurringGift(pushPayScheduleDto.Notes.Trim());
+                        }
                         
                     }
                     await _recurringGiftRepository.FlipIsProcessedToTrue(schedule);
