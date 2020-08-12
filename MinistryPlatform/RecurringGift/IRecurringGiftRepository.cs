@@ -13,5 +13,8 @@ namespace MinistryPlatform.Interfaces
         Task<List<MpRecurringGift>> FindRecurringGiftsByDonorId(int donorId);
         Task<List<MpRecurringGift>> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds);
         void CreateRawPushpayRecurrentGiftSchedule(string rawRecurringGiftSchedule);
+        Task<MpRecurringGift> LookForRecurringGiftBySubscriptionId(string subscriptionId);
+        Task<List<MpRawPushPayRecurringSchedules>> GetUnprocessedRecurringGifts(int? lastSyncIndex = null);
+        Task FlipIsProcessedToTrue(MpRawPushPayRecurringSchedules schedule);
     }
 }

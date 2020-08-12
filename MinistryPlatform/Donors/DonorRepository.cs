@@ -25,6 +25,15 @@ namespace MinistryPlatform.Donors
         {
             _authRepo = authenticationRepository;
         }
+        
+        public async Task<MpDonor> CreateDonor(MpDonor donor)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+            return await MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .BuildAsync()
+                .Create(donor);
+        }
 
         public async Task<int?> GetDonorIdByProcessorId(string processorId)
         {
