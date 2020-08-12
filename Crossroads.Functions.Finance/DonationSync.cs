@@ -1,6 +1,7 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -31,7 +32,7 @@ namespace Crossroads.Functions.Finance
 
         private static async Task<HttpStatusCode> RunDonationEndpointAsync(string lastSuccessfulRunTime, ILogger log)
         {
-            string endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_URL");
+            string endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_URL") + "polling/donations";
             HttpClient httpClient = new HttpClient();
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, endpointUrl);
             httpRequestMessage.Content = new StringContent("{\"lastSuccessfulRunTime\":\"" + lastSuccessfulRunTime + "\"}",
