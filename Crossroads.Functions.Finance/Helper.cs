@@ -9,11 +9,13 @@ namespace Crossroads.Functions.Finance
 {
     public class Helper
     {
-        private readonly string tableName;
+        private readonly string _tableName;
+        private readonly HttpStatusCode _successCode;
 
-        public Helper(string tableName)
+        public Helper(string tableName, HttpStatusCode successCode)
         {
-            this.tableName = tableName;
+            _tableName = tableName;
+            _successCode = successCode;
         }
         
         public async Task<int> ClearOldEntries(HttpStatusCode httpStatusCode, DateTime lastSuccessful)
@@ -22,7 +24,7 @@ namespace Crossroads.Functions.Finance
             TableQuerySegment<SyncLog> results;
             var deleteTasks = new List<Task>();
             var deleteDate = DateTime.Now.AddDays(-5);
-            deleteDate = httpStatusCode != HttpStatusCode.NoContent && deleteDate > lastSuccessful
+            deleteDate = httpStatusCode != _successCode && deleteDate > lastSuccessful
                 ? lastSuccessful.AddHours(-1)
                 : deleteDate;
 
@@ -60,7 +62,7 @@ namespace Crossroads.Functions.Finance
         {
             var storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("TABLE_STORAGE_CONNECTION"));
             var tableClient = storageAccount.CreateCloudTableClient();
-            var donationSyncLogTable = tableClient.GetTableReference(tableName);
+            var donationSyncLogTable = tableClient.GetTableReference(_tableName);
             await donationSyncLogTable.CreateIfNotExistsAsync();
             return donationSyncLogTable;
         }
@@ -68,7 +70,7 @@ namespace Crossroads.Functions.Finance
         public async Task UpdateLogAsync(DateTime currentRunTime, HttpStatusCode httpStatusCode)
         {
             CloudTable donationSyncLogTable = await GetTableReference();
-            string logStatus = httpStatusCode == HttpStatusCode.NoContent ? "Success" : "Failed";
+            string logStatus = httpStatusCode == _successCode ? "Success" : "Failed";
             var insertOperation = TableOperation.Insert(new SyncLog(currentRunTime, logStatus));
             await donationSyncLogTable.ExecuteAsync(insertOperation);
         }

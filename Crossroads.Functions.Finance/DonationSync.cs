@@ -14,7 +14,7 @@ namespace Crossroads.Functions.Finance
         public static async Task Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"DonationSync timer trigger function executed at: {DateTime.Now}");
-            var helper = new Helper("DonationSyncLog");
+            var helper = new Helper("DonationSyncLog", HttpStatusCode.NoContent);
 
             var currentRunTime = DateTime.Now;
             var lastSuccessfulRunTime = await helper.GetLastSuccessfulRunTimeAsync();

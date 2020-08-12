@@ -15,7 +15,7 @@ namespace Crossroads.Functions.Finance
         {
             var tableName = "RecurringScheduleSyncLog";
             log.LogInformation($"RecurringScheduleSync timer trigger function executed at: {DateTime.Now}");
-            var helper = new Helper(tableName);
+            var helper = new Helper(tableName, HttpStatusCode.OK);
 
             var currentRunTime = DateTime.Now;
             var lastSuccessfulRunTime = await helper.GetLastSuccessfulRunTimeAsync();
