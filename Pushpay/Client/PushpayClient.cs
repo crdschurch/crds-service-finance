@@ -423,5 +423,40 @@ namespace Pushpay.Client
 
             return recurringGifts;
         }
+
+        public async Task<List<string>> GetPolledDonationsJson(DateTime startTime, DateTime endTime)
+        {
+	        var modStartDate = startTime.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+	        var modEndDate = endTime.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+	        var merchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
+
+	        var resource = $"merchant/{merchantKey}/payments";
+	        List<QueryParameter> queryParams = new List<QueryParameter>()
+	        {
+		        new QueryParameter("updatedFrom", modStartDate),
+		        new QueryParameter("updatedTo", modEndDate),
+		        new QueryParameter("pageSize", "100")
+	        };
+	        var data = await CreateAndExecuteRequest(resource, Method.GET, donationsScope, queryParams, true);
+
+	        var newData = JArray.Parse(data);
+
+	        var donations = new List<string>();
+
+	        foreach (var item in newData)
+	        {
+		        try
+		        {
+			        var donation = item.ToString();
+			        donations.Add(donation);
+		        }
+		        catch (Exception e)
+		        {
+			        _logger.Error($"Could not parse donation: {e.Message}, {item.ToString()}");
+		        }
+	        }
+
+	        return donations;
+        }
     }
 }
