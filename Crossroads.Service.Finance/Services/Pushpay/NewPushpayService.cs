@@ -26,6 +26,7 @@ namespace Crossroads.Service.Finance.Services
         {
             _logger.Info($"PullRecurringGiftsAsync is starting.  Start Date: {startDate}, End Date: {endDate}");
             var recurringGifts = await _pushpayClient.GetRecurringGiftsAsync(startDate, endDate);
+            _logger.Info($"Got {recurringGifts.Count} updates to recurring gift schedules and/or new schedules from PushPay.");
             foreach (var recurringGift in recurringGifts)
             {
                 _recurringGiftRepository.CreateRawPushpayRecurrentGiftSchedule(recurringGift);
