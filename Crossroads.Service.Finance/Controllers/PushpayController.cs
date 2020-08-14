@@ -44,8 +44,8 @@ namespace Crossroads.Service.Finance.Controllers
             }
         }
 
-        [HttpPost("donations/poll")]
-        public async Task<IActionResult> PollDonationsAsync()
+        [HttpPost("updatedonations")]
+        public async Task<IActionResult> UpdateDonationsAsync()
         {
 	        try
 	        {
