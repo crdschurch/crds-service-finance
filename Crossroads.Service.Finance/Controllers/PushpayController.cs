@@ -30,8 +30,10 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 _logger.Info($"UpdateRecurringGiftsAsync is starting.  Start Date: {startDate}, End Date: {endDate}");
                 await _pushpayService.PullRecurringGiftsAsync(startDate, endDate);
-                //TODO: Process the unprocessed records in raw json table
-                _logger.Info($"UpdateRecurringGiftsAsync is complete.");
+                _logger.Info("All update jsons are saved to the DB");
+                _logger.Info("Starting to process the updates");
+                await _recurringService.SyncRecurringSchedules();
+                _logger.Info("UpdateRecurringGiftsAsync is complete.");
                 return Ok();
             }
 
@@ -49,11 +51,11 @@ namespace Crossroads.Service.Finance.Controllers
 	        {
 		        using (var reader = new StreamReader(Request.Body))
 		        {
-			        //var body = await reader.ReadToEndAsync();
+                    var body = await reader.ReadToEndAsync();
 
-			        //var timeString = JObject.Parse(body)["lastSuccessfulRunTime"].ToString();
+                    var lastSuccessfulRunTime = JObject.Parse(body)["lastSuccessfulRunTime"].ToString();
 
-			        await _pushpayService.PollDonationsAsync(DateTime.Now.AddMinutes(-7).ToString());
+                    await _pushpayService.PollDonationsAsync(lastSuccessfulRunTime);
 
 			        return NoContent();
 		        }

@@ -31,6 +31,7 @@ using Pushpay.Cache;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
+using Crossroads.Service.Finance.Services.Donor;
 
 namespace Crossroads.Service.Finance
 {
@@ -93,6 +94,7 @@ namespace Crossroads.Service.Finance
             // Service Layer
             services.AddSingleton<IBatchService, BatchService>();
             services.AddSingleton<IAdjustmentsToJournalEntriesService, AdjustmentsToJournalEntriesService>();
+            services.AddSingleton<IDonorService, DonorService>();
             services.AddSingleton<IJournalEntryService, JournalEntryService>();
             services.AddSingleton<IJournalEntryBatchService, JournalEntryBatchService>();
             services.AddSingleton<IContactService, ContactService>();

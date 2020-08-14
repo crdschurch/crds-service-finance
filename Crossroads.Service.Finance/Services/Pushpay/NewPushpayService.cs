@@ -1,12 +1,11 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
 using MinistryPlatform.Interfaces;
 using NLog;
-using ProcessLogging.Transfer;
 using Pushpay.Client;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ProcessLogging.Models;
+using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -29,6 +28,7 @@ namespace Crossroads.Service.Finance.Services
         {
             _logger.Info($"PullRecurringGiftsAsync is starting.  Start Date: {startDate}, End Date: {endDate}");
             var recurringGifts = await _pushpayClient.GetRecurringGiftsAsync(startDate, endDate);
+            _logger.Info($"Got {recurringGifts.Count} updates to recurring gift schedules and/or new schedules from PushPay.");
             foreach (var recurringGift in recurringGifts)
             {
                 _recurringGiftRepository.CreateRawPushpayRecurrentGiftSchedule(recurringGift);
@@ -36,7 +36,16 @@ namespace Crossroads.Service.Finance.Services
             _logger.Info($"PullRecurringGiftsAsync is complete.  Start Date: {startDate}, End Date: {endDate}");
         }
 
-        public async Task PollDonationsAsync(string lastSuccessfulRunTime)
+        // TODO: Make the argument be of PushPayTransactionBaseDTO if external links gets moved there.
+        public int? ParseFundIdFromExternalLinks(PushpayRecurringGiftDto schedule)
+        {
+            if (!schedule.ExternalLinks.Any()) return null;
+            var externalLink = schedule.ExternalLinks
+                .FirstOrDefault(e => e.Relationship.ToLower() == "fund_id");
+            return externalLink?.Value;
+        }
+
+	    public async Task PollDonationsAsync(string lastSuccessfulRunTime)
         {
 	        var startTime = DateTime.Parse(lastSuccessfulRunTime).AddMinutes(-2);
 

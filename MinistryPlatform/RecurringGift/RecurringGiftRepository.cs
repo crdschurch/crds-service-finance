@@ -38,6 +38,20 @@ namespace MinistryPlatform.Repositories
 
             return gifts.First();
         }
+        
+        public async Task<MpRecurringGift> LookForRecurringGiftBySubscriptionId(string subscriptionId)
+        {
+            var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+            var filter = $"Subscription_ID = '{subscriptionId}'";
+            var gifts = await MpRestBuilder.NewRequestBuilder()
+                                .WithAuthenticationToken(token)
+                                .WithFilter(filter)
+                                .BuildAsync()
+                                .Search<MpRecurringGift>();
+
+            return gifts.FirstOrDefault();
+        }
 
         public async Task<MpRecurringGift> CreateRecurringGift(MpRecurringGift mpRecurringGift)
         {
@@ -122,6 +136,36 @@ namespace MinistryPlatform.Repositories
                             .WithAuthenticationToken(token)
                             .Build()
                             .ExecuteStoredProc("api_crds_Insert_PushpayRecurringSchedulesRawJson", parameters);
+        }
+
+        public async Task<List<MpRawPushPayRecurringSchedules>> GetUnprocessedRecurringGifts(int? lastSyncIndex = null)
+        {
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
+            var filter = lastSyncIndex.HasValue && lastSyncIndex.Value > 1
+                ? $"IsProcessed = '{false}' AND RecurringGiftScheduleId < {lastSyncIndex.Value}"
+                : $"IsProcessed = '{false}'";
+            return await MpRestBuilder.NewRequestBuilder()
+                .WithAuthenticationToken(token)
+                .WithFilter(filter)
+                .OrderBy("TimeCreated DESC")
+                .BuildAsync()
+                .Search<MpRawPushPayRecurringSchedules>();
+
+        }
+
+        public async Task FlipIsProcessedToTrue(MpRawPushPayRecurringSchedules schedule)
+        {
+            var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
+
+            var parameters = new Dictionary<string, object>
+            {
+                {"@RecurringGiftScheduleId", schedule.RecurringGiftScheduleId}
+            };
+
+            await MpRestBuilder.NewRequestBuilder()
+                            .WithAuthenticationToken(token)
+                            .BuildAsync()
+                            .ExecuteStoredProc("api_crds_Set_Recurring_JSON_To_Processed", parameters);
         }
     }
 }
