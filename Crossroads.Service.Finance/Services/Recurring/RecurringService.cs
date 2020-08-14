@@ -224,7 +224,11 @@ namespace Crossroads.Service.Finance.Services.Recurring
             }
             catch (Exception e)
             {
-                _logger.Error($"Got the following error \"{e.Message}\" while processing schedule with an ID of {schedule.RecurringGiftScheduleId}");
+                var exceptionLog = new ProcessLogMessage(ProcessLogConstants.MessageType.recurringGiftsSyncError)
+                {
+                    MessageData = $"Got the following error \"{e.Message}\" while processing schedule with an ID of {schedule.RecurringGiftScheduleId}"
+                };
+                _processLogger.SaveProcessLogMessage(exceptionLog);
             }
         }
 
