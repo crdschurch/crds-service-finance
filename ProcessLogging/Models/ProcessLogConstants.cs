@@ -36,6 +36,7 @@ namespace ProcessLogging.Models
             recurringGiftsCreatedOrUpdated,
             creatingRecurringGift,
             recurringGiftsPulledButNotProcess,
+            recurringGiftsSyncError,
 
             // Deposits
             noDepositsToSync,
@@ -93,6 +94,7 @@ namespace ProcessLogging.Models
             {"recurringGiftsCreatedOrUpdated", "1.0.0"},
             {"creatingRecurringGift", "1.0.0"},
             {"recurringGiftsPulledButNotProcess", "1.0.0"},
+            {"recurringGiftsSyncError", "1.0.0"},
 
             // Deposits
             {"noDepositsToSync", "1.0.0"},
