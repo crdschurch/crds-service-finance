@@ -334,6 +334,7 @@ namespace Pushpay.Client
             
             var modStartDate = startDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
             var modEndDate = endDate.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            _logger.Info($"Date range we are giving to pushpay. Start Date: {modStartDate}, End Date: {modEndDate}");
             List<QueryParameter> queryParams = new List<QueryParameter>()
             {
                 new QueryParameter("updatedFrom", modStartDate),
