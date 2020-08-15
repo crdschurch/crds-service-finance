@@ -157,7 +157,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
         public async Task SyncRecurringSchedules()
         {
-            List<bool> results = new List<bool>();
+            int failureCount = 0;
             int? lastSyncIndex = null;
             do
             {
@@ -179,14 +179,13 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
                     // Sync the chunk and wait for all to finish before processing the next chunk
                     var currentResults = await Task.WhenAll(setOfSchedulesToProcess.Select(SyncSchedule).ToArray());
-                    results.AddRange(currentResults);
+                    failureCount += currentResults.Where(r => !r).ToList().Count;
                 }
             } while (lastSyncIndex.HasValue);
 
-            var failures = results.Where(r => !r).ToList();
-            if (failures.Any())
+            if (failureCount > 0)
             {
-                _logger.Error($"There was {failures.Count} recurring schedule(s) that could not be synced.");
+                _logger.Error($"There was {failureCount} recurring schedule(s) that could not be synced.");
             }
         }
 
