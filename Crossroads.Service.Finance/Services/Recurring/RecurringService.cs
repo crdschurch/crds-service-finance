@@ -157,6 +157,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
         public async Task SyncRecurringSchedules()
         {
+            List<bool> results = new List<bool>();
             int? lastSyncIndex = null;
             do
             {
@@ -177,12 +178,19 @@ namespace Crossroads.Service.Finance.Services.Recurring
                     schedulesToProcess.RemoveRange(0, range);
 
                     // Sync the chunk and wait for all to finish before processing the next chunk
-                    Task.WaitAll(setOfSchedulesToProcess.Select(SyncSchedule).ToArray());
+                    var currentResults = await Task.WhenAll(setOfSchedulesToProcess.Select(SyncSchedule).ToArray());
+                    results.AddRange(currentResults);
                 }
             } while (lastSyncIndex.HasValue);
+
+            var failures = results.Where(r => !r).ToList();
+            if (failures.Any())
+            {
+                _logger.Error($"There was {failures.Count} recurring schedule(s) that could not be synced.");
+            }
         }
 
-        private async Task SyncSchedule(MpRawPushPayRecurringSchedules schedule)
+        private async Task<bool> SyncSchedule(MpRawPushPayRecurringSchedules schedule)
         {
             try
             {
@@ -229,7 +237,10 @@ namespace Crossroads.Service.Finance.Services.Recurring
                     MessageData = $"Got the following error \"{e.Message}\" while processing schedule with an ID of {schedule.RecurringGiftScheduleId}"
                 };
                 _processLogger.SaveProcessLogMessage(exceptionLog);
+                return false;
             }
+
+            return true;
         }
 
         private bool IsPushpayDateNewer(DateTime mp, DateTime pushpay)
