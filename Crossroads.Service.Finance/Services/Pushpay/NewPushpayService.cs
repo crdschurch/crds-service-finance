@@ -15,11 +15,13 @@ namespace Crossroads.Service.Finance.Services
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IPushpayClient _pushpayClient;
         private readonly IRecurringGiftRepository _recurringGiftRepository;
+        private readonly IDonationRepository _donationRepository;
 
-        public NewPushpayService(IPushpayClient pushpayClient, IRecurringGiftRepository recurringGiftRepository)
+        public NewPushpayService(IPushpayClient pushpayClient, IRecurringGiftRepository recurringGiftRepository, IDonationRepository donationRepository)
         {
             _pushpayClient = pushpayClient;
             _recurringGiftRepository = recurringGiftRepository;
+            _donationRepository = donationRepository;
         }
 
         public async Task PullRecurringGiftsAsync(DateTime startDate, DateTime endDate)
@@ -41,7 +43,19 @@ namespace Crossroads.Service.Finance.Services
             var externalLink = schedule.ExternalLinks
                 .FirstOrDefault(e => e.Relationship.ToLower() == "fund_id");
             return externalLink?.Value;
+        }
 
+	    public async Task PollDonationsAsync(string lastSuccessfulRunTime)
+        {
+	        var startTime = DateTime.Parse(lastSuccessfulRunTime).AddMinutes(-2);
+
+            var donations = await _pushpayClient.GetPolledDonationsJson(startTime, DateTime.Now);
+
+            foreach (var donation in donations)
+            {
+                _donationRepository.CreateRawPushpayDonation(donation);
+            }
+            _logger.Info($"PollDonationsAsync is complete.  Start Time: {startTime}, End Time: {DateTime.Now}");
         }
     }
 }

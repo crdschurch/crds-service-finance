@@ -364,5 +364,20 @@ namespace MinistryPlatform.Repositories
                 .BuildAsync()
                 .Search<MpDonation>()).ToList();
         }
+
+        public void CreateRawPushpayDonation(string rawDonation)
+        {
+	        var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+	        var parameters = new Dictionary<string, object>
+	        {
+		        {"@RawJson", rawDonation}
+	        };
+
+	        MpRestBuilder.NewRequestBuilder()
+		        .WithAuthenticationToken(token)
+		        .Build()
+		        .ExecuteStoredProc("api_crds_Insert_PushpayDonationsRawJson", parameters);
+        }
     }
 }
