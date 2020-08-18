@@ -13,20 +13,27 @@ namespace Crossroads.Functions.Finance
         [FunctionName("DonationSync")]
         public static async Task Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
         {
-            log.LogInformation($"DonationSync timer trigger function executed at: {DateTime.Now}");
-            var helper = new Helper("DonationSyncLog", HttpStatusCode.NoContent);
+            try
+            {
+                log.LogInformation($"DonationSync timer trigger function executed at: {DateTime.Now}");
+                var helper = new Helper("DonationSyncLog", HttpStatusCode.NoContent);
 
-            var currentRunTime = DateTime.Now;
-            var lastSuccessfulRunTime = await helper.GetLastSuccessfulRunTimeAsync();
-            log.LogDebug($"Last Successful Runtime: {lastSuccessfulRunTime}");
-            var httpStatusCode = await RunDonationEndpointAsync(lastSuccessfulRunTime.ToUniversalTime().ToString("u"), log);
-            log.LogInformation($"HTTP Status Code: {httpStatusCode}");
-            await helper.UpdateLogAsync(currentRunTime, httpStatusCode);
+                var currentRunTime = DateTime.Now;
+                var lastSuccessfulRunTime = await helper.GetLastSuccessfulRunTimeAsync();
+                log.LogDebug($"Last Successful Runtime: {lastSuccessfulRunTime}");
+                var httpStatusCode = await RunDonationEndpointAsync(lastSuccessfulRunTime.ToUniversalTime().ToString("u"), log);
+                log.LogInformation($"HTTP Status Code: {httpStatusCode}");
+                await helper.UpdateLogAsync(currentRunTime, httpStatusCode);
 
-            log.LogInformation($"DonationSync returned a {httpStatusCode} response");
+                log.LogInformation($"DonationSync returned a {httpStatusCode} response");
 
-            var deletedRecordCount = await helper.ClearOldEntries(httpStatusCode, lastSuccessfulRunTime);
-            log.LogInformation($"Deleted {deletedRecordCount} records out of DonationSyncLog.");
+                var deletedRecordCount = await helper.ClearOldEntries(httpStatusCode, lastSuccessfulRunTime);
+                log.LogInformation($"Deleted {deletedRecordCount} records out of DonationSyncLog.");
+            }
+            catch (Exception)
+            {
+                Helper.SlackErrorNotification();
+            }            
         }
 
         private static async Task<HttpStatusCode> RunDonationEndpointAsync(string lastSuccessfulRunTime, ILogger log)
