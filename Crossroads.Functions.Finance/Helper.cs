@@ -75,5 +75,17 @@ namespace Crossroads.Functions.Finance
             await donationSyncLogTable.ExecuteAsync(insertOperation);
         }
 
+        public static void SlackErrorNotification()
+        {
+            var urlWithAccessToken = Environment.GetEnvironmentVariable("SLACK_ERROR_URL");
+            var environmentName = Environment.GetEnvironmentVariable("ENVIRONMENT_NAME");
+            var client = new SlackClient(urlWithAccessToken);
+
+            client.PostMessage(
+                username: "Azure Functions",
+                text: $"{environmentName}: There was an error in the Azure DonationSync function.",
+                channel: "#finance-ms-errors"
+                );
+        }
     }
 }
