@@ -13,6 +13,8 @@ namespace Pushpay.Client
         List<PushpayPaymentDto> GetDonations(string settlementKey);
         Task<List<PushpaySettlementDto>> GetDepositsByDateRange(DateTime startDate, DateTime endDate);
         List<PushpayRecurringGiftDto> GetNewAndUpdatedRecurringGiftsByDateRange(DateTime startDate, DateTime endDate);
-	Task<List<PushpayPaymentDto>> GetPolledDonations(DateTime startTime, DateTime endTime);    
-}
+        Task<List<PushpayPaymentDto>> GetPolledDonations(DateTime startTime, DateTime endTime);
+        Task<List<string>> GetRecurringGiftsAsync(DateTime startDate, DateTime endDate);
+        Task<List<string>> GetPolledDonationsJson(DateTime startTime, DateTime endTime);
+    }
 }

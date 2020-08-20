@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using AutoMapper;
+using Crossroads.Service.Finance.Constants;
 using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Models;
 using Pushpay.Models;
@@ -98,5 +99,61 @@ public class MappingProfile : Profile
 
         CreateMap<DonationDetailDto, MpDonationDetail>();
         CreateMap<MpContactAddress, ContactAddressDto>();
+        CreateMap<PushpayTransactionBaseDto, MpDonorAccount>()
+            .ForMember(dest => dest.AccountNumber,
+                opt => opt.ResolveUsing(p =>
+                    p.PaymentMethodType.ToLower() == "ach" ? p.Account.Reference : p.Card.Reference))
+            .ForMember(dest => dest.InstitutionName,
+                opt => opt.ResolveUsing(p =>
+                {
+                    if (p.PaymentMethodType.ToLower() == "ach")
+                    {
+                        return p.Account.BankName;
+                    }
+
+                    switch (p.Card.Brand)
+                    {
+                        case "VISA":
+                            return "Visa";
+                        case "Discover":
+                            return "Discover";
+                        case "Amex":
+                            return "AmericanExpress";
+                        case "MasterCard":
+                            return "MasterCard";
+                        default:
+                            return "";
+                    }
+                }))
+            .ForMember(dest => dest.RoutingNumber,
+                opt => opt.ResolveUsing(p =>
+                    p.PaymentMethodType.ToLower() == "ach" ? p.Account.RoutingNumber : null)
+            )
+            .ForMember(dest => dest.NonAssignable, opt => opt.ResolveUsing(p => false))
+            .ForMember(dest => dest.DomainId, opt => opt.ResolveUsing(p => 1))
+            .ForMember(dest => dest.Closed, opt => opt.ResolveUsing(p => false))
+            .ForMember(dest => dest.ProcessorId, opt => opt.ResolveUsing(p => p.Payer.Key))
+            .ForMember(dest => dest.ProcessorTypeId,
+                opt => opt.ResolveUsing(p => ProcessorTypes.PushpayProcessorTypeId))
+            .ForMember(dest => dest.AccountTypeId, opts => opts.ResolveUsing(p =>
+            {
+                switch (p.PaymentMethodType.ToLower())
+                {
+                    case "ach":
+                        switch (p.Account.AccountType)
+                        {
+                            case "Checking":
+                                return MpAccountTypes.Checkings;
+                            case "Savings":
+                                return MpAccountTypes.Savings;
+                        }
+
+                        break;
+                    case "creditcard":
+                        return MpAccountTypes.CreditCard;
+                }
+                return 0;
+            }));
+
     }
 }

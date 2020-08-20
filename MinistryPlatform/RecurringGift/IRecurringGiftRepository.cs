@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using MinistryPlatform.Models;
+﻿using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MinistryPlatform.Interfaces
 {
@@ -12,5 +12,9 @@ namespace MinistryPlatform.Interfaces
         Task<MpRecurringGift> FindRecurringGiftBySubscriptionId(string subscriptionId);
         Task<List<MpRecurringGift>> FindRecurringGiftsByDonorId(int donorId);
         Task<List<MpRecurringGift>> FindRecurringGiftsBySubscriptionIds(List<string> subscriptionIds);
+        void CreateRawPushpayRecurrentGiftSchedule(string rawRecurringGiftSchedule);
+        Task<MpRecurringGift> LookForRecurringGiftBySubscriptionId(string subscriptionId);
+        Task<List<MpRawPushPayRecurringSchedules>> GetUnprocessedRecurringGifts(int? lastSyncIndex = null);
+        Task FlipIsProcessedToTrue(MpRawPushPayRecurringSchedules schedule);
     }
 }

@@ -8,8 +8,12 @@ using System.Linq;
 using System.Resources;
 using System.Threading;
 using System.Threading.Tasks;
+using Crossroads.Service.Finance.Services.Donor;
+using MinistryPlatform.Models;
+using Newtonsoft.Json;
 using ProcessLogging.Models;
 using ProcessLogging.Transfer;
+using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Services.Recurring
 {
@@ -19,22 +23,41 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
         private readonly IRecurringGiftRepository _recurringGiftRepository;
         private readonly IPushpayService _pushpayService;
+        private readonly INewPushpayService _newPushpayService;
         private readonly IConfigurationWrapper _configurationWrapper;
+        private readonly IDonationService _donationService;
+        private readonly IMapper _mapper;
         private readonly IProcessLogger _processLogger;
+        private readonly IProgramRepository _programRepository;
+        private readonly IDonorService _donorService;
+        private readonly IGatewayService _gatewayService;
 
         private const int PausedRecurringGiftStatus = 2;
+        private readonly int _mpNotSiteSpecificCongregationId;
 
         public RecurringService(IDepositRepository depositRepository,
             IMapper mapper,
             IPushpayService pushpayService,
+            INewPushpayService newPushpayService,
             IConfigurationWrapper configurationWrapper,
+            IDonationService donationService,
+            IDonorService donorService,
             IRecurringGiftRepository recurringGiftRepository,
+            IProgramRepository programRepository,
+            IGatewayService gatewayService,
             IProcessLogger processLogger)
         {
             _pushpayService = pushpayService;
+            _newPushpayService = newPushpayService;
             _configurationWrapper = configurationWrapper;
+            _donationService = donationService;
+            _donorService = donorService;
+            _gatewayService = gatewayService;
             _recurringGiftRepository = recurringGiftRepository;
+            _programRepository = programRepository;
             _processLogger = processLogger;
+            _mapper = mapper;
+            _mpNotSiteSpecificCongregationId = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "NotSiteSpecific") ?? 5;
         }
 
         public async Task<List<string>> SyncRecurringGifts(DateTime startDate, DateTime endDate)
@@ -131,7 +154,94 @@ namespace Crossroads.Service.Finance.Services.Recurring
 
             return giftIdsSynced;
         }
-        
+
+        public async Task SyncRecurringSchedules()
+        {
+            int failureCount = 0;
+            int? lastSyncIndex = null;
+            do
+            {
+                var schedulesToProcess = await _recurringGiftRepository.GetUnprocessedRecurringGifts(lastSyncIndex);
+                _logger.Info($"Syncing {schedulesToProcess.Count} schedules.");
+                
+                // MP gets the top 1000 results. So we should get the last ID so we can get the next chunk of donations
+                lastSyncIndex = schedulesToProcess.Count >= 1000
+                    ? schedulesToProcess.Last().RecurringGiftScheduleId
+                    : (int?) null;
+
+                while (schedulesToProcess.Any())
+                {
+                    // Do a chunk at a time to not overload MP
+                    Thread.Sleep(500);
+                    var range = Math.Min(schedulesToProcess.Count, 100);
+                    var setOfSchedulesToProcess = schedulesToProcess.Take(range).ToList();
+                    schedulesToProcess.RemoveRange(0, range);
+
+                    // Sync the chunk and wait for all to finish before processing the next chunk
+                    var currentResults = await Task.WhenAll(setOfSchedulesToProcess.Select(SyncSchedule).ToArray());
+                    failureCount += currentResults.Where(r => !r).ToList().Count;
+                }
+            } while (lastSyncIndex.HasValue);
+
+            if (failureCount > 0)
+            {
+                _logger.Error($"There was {failureCount} recurring schedule(s) that could not be synced.");
+            }
+        }
+
+        private async Task<bool> SyncSchedule(MpRawPushPayRecurringSchedules schedule)
+        {
+            try
+            {
+                var pushPayScheduleDto = JsonConvert.DeserializeObject<PushpayRecurringGiftDto>(schedule.RawJson);
+                if (!string.IsNullOrEmpty(pushPayScheduleDto.PaymentToken))
+                {
+                    var mpRecurringSchedule =
+                        await _recurringGiftRepository.LookForRecurringGiftBySubscriptionId(
+                            pushPayScheduleDto.PaymentToken);
+                    if (mpRecurringSchedule != null)
+                    {
+                        if (IsPushpayDateNewer(mpRecurringSchedule.UpdatedOn ?? DateTime.MinValue,
+                            pushPayScheduleDto.UpdatedOn))
+                        {
+                            await _pushpayService.UpdateRecurringGiftForSync(pushPayScheduleDto, mpRecurringSchedule);
+                        }    
+                    }
+                    else
+                    {
+                        var recurringSchedule = await BuildRecurringScheduleFromPushPayData(pushPayScheduleDto);
+                        await _recurringGiftRepository.CreateRecurringGift(recurringSchedule);
+                        
+                        // STRIPE CANCELLATION - this can be removed after there are no more Stripe recurring gifts
+                        // This cancels a Stripe gift if a subscription id was uploaded to Pushpay (i.e. through pushpay migration tool)
+                        if (pushPayScheduleDto.Notes != null && pushPayScheduleDto.Notes.Trim()
+                            .StartsWith("sub_", StringComparison.Ordinal))
+                        {
+                            _gatewayService.CancelStripeRecurringGift(pushPayScheduleDto.Notes.Trim());
+                        }
+                        
+                    }
+                    await _recurringGiftRepository.FlipIsProcessedToTrue(schedule);
+                }
+                else
+                {
+                    throw new Exception("Schedule is missing payment token.");
+                }
+                
+            }
+            catch (Exception e)
+            {
+                var exceptionLog = new ProcessLogMessage(ProcessLogConstants.MessageType.recurringGiftsSyncError)
+                {
+                    MessageData = $"Got the following error \"{e.Message}\" while processing schedule with an ID of {schedule.RecurringGiftScheduleId}"
+                };
+                _processLogger.SaveProcessLogMessage(exceptionLog);
+                return false;
+            }
+
+            return true;
+        }
+
         private bool IsPushpayDateNewer(DateTime mp, DateTime pushpay)
         {
             // MP truncates seconds from DateTime fields that are inserted/updated via
@@ -141,6 +251,61 @@ namespace Crossroads.Service.Finance.Services.Recurring
             DateTime normalizedPushpay = new DateTime(pushpay.Year, pushpay.Month, pushpay.Day, pushpay.Hour, pushpay.Minute, 0);
 
             return normalizedPushpay > normalizedMp;
+        }
+
+        private async Task<MpRecurringGift> BuildRecurringScheduleFromPushPayData (PushpayRecurringGiftDto pushpayRecurringGift)
+        {
+            var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
+            var donorId = await _donorService.FindDonorId(pushpayRecurringGift);
+
+            if (donorId.HasValue)
+            {
+                mpRecurringGift.DonorId = donorId.Value;
+                var donorAccount = await _donationService.FindDonorAccount(pushpayRecurringGift, donorId.Value);
+                mpRecurringGift.DonorAccountId =
+                    donorAccount?.DonorAccountId ??
+                    (await _donationService.CreateDonorAccountFromPushpay(pushpayRecurringGift, donorId.Value))
+                    .DonorAccountId;
+            }
+            else
+            {
+                var donor = await _donorService.CreateDonor(pushpayRecurringGift);
+                mpRecurringGift.DonorId = donor.DonorId.Value;
+                mpRecurringGift.DonorAccountId =
+                    (await _donationService.CreateDonorAccountFromPushpay(pushpayRecurringGift, donor.DonorId.Value))
+                    .DonorAccountId;
+            }
+
+            mpRecurringGift.CongregationId = await _pushpayService.LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key);
+
+            if (mpRecurringGift.CongregationId == _mpNotSiteSpecificCongregationId)
+            {
+                var recurringGiftNoSelectedSiteCreateMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.recurringGiftNoSelectedSiteCreate)
+                {
+                    MessageData = $"No selected site for recurring gift {pushpayRecurringGift.PaymentToken}"
+                };
+                _processLogger.SaveProcessLogMessage(recurringGiftNoSelectedSiteCreateMessage);
+            }
+
+            var programId = _newPushpayService.ParseFundIdFromExternalLinks(pushpayRecurringGift);
+            mpRecurringGift.ConsecutiveFailureCount = 0;
+            mpRecurringGift.ProgramId = programId ?? (await _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code)).ProgramId;
+            mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
+            mpRecurringGift.UpdatedOn = pushpayRecurringGift.UpdatedOn;
+
+            mpRecurringGift.Notes = _pushpayService.GetRecurringGiftNotes(pushpayRecurringGift);
+
+            if (pushpayRecurringGift.Links.ViewRecurringPayment != null && string.IsNullOrEmpty(mpRecurringGift.VendorDetailUrl))
+            {
+                mpRecurringGift.VendorDetailUrl = pushpayRecurringGift.Links.ViewRecurringPayment.Href;
+            }
+
+            if (pushpayRecurringGift.Links.MerchantViewRecurringPayment != null && string.IsNullOrEmpty(mpRecurringGift.VendorAdminDetailUrl))
+            {
+                mpRecurringGift.VendorAdminDetailUrl = pushpayRecurringGift.Links.MerchantViewRecurringPayment.Href;
+            }
+
+            return mpRecurringGift;
         }
     }
 }

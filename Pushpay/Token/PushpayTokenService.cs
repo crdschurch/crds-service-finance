@@ -28,7 +28,7 @@ namespace Pushpay.Token
         public async Task<OAuth2TokenResponse> GetOAuthToken(string scope = "read")
         {
             // check first to see if there is a cached and valid token
-            var tokenString = _cacheService.Get("tokens");
+            var tokenString = _cacheService.Get(scope);
 
             if (tokenString == null)
             {
@@ -53,7 +53,7 @@ namespace Pushpay.Token
                 var tokens = JsonConvert.DeserializeObject<OAuth2TokenResponse>(tokenJson);
                 tokenString = JsonConvert.SerializeObject(tokens);
 
-                _cacheService.Set("tokens", tokenString, new TimeSpan(0, 00, tokens.ExpiresIn - (int)(tokens.ExpiresIn * .25)));
+                _cacheService.Set(scope, tokenString, new TimeSpan(0, 00, tokens.ExpiresIn - (int)(tokens.ExpiresIn * .25)));
                 return tokens;
             }
 

@@ -10,6 +10,7 @@ using Pushpay.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Crossroads.Service.Finance.Services.Donor;
 using ProcessLogging.Transfer;
 using Xunit;
 
@@ -23,6 +24,11 @@ namespace Crossroads.Service.Finance.Test.Recurring
         private readonly Mock<IConfigurationWrapper> _configWrapper;
         private readonly Mock<IRecurringGiftRepository> _recurringGiftRepository;
         private readonly Mock<IProcessLogger> _processLogger;
+        private readonly Mock<INewPushpayService> _newPushpayService;
+        private readonly Mock<IDonationService> _donationService;
+        private readonly Mock<IProgramRepository> _programRepository;
+        private readonly Mock<IDonorService> _donorService;
+        private readonly Mock<IGatewayService> _gatewayService;
 
         private readonly IRecurringService _fixture;
 
@@ -34,9 +40,14 @@ namespace Crossroads.Service.Finance.Test.Recurring
             _configWrapper = new Mock<IConfigurationWrapper>();
             _recurringGiftRepository = new Mock<IRecurringGiftRepository>();
             _processLogger = new Mock<IProcessLogger>();
+            _newPushpayService = new Mock<INewPushpayService>();
+            _donationService = new Mock<IDonationService>();
+            _programRepository = new Mock<IProgramRepository>();
+            _donorService = new Mock<IDonorService>();
+            _gatewayService = new Mock<IGatewayService>();
 
-            _fixture = new RecurringService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object,
-                _recurringGiftRepository.Object, _processLogger.Object);
+            _fixture = new RecurringService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _newPushpayService.Object, _configWrapper.Object,
+               _donationService.Object, _donorService.Object, _recurringGiftRepository.Object, _programRepository.Object, _gatewayService.Object, _processLogger.Object);
         }
 
         [Fact]
@@ -225,5 +236,6 @@ namespace Crossroads.Service.Finance.Test.Recurring
 
             Assert.Single(result);
         }
+
     }
 }

@@ -23,5 +23,6 @@ namespace MinistryPlatform.Interfaces
         Task<List<MpDonationDetail>> GetOtherGiftsByContactId(int contactId);
         Task<List<MpDonationDetail>> GetOtherGiftsForRelatedContact(int contactId, DateTime? startDate = null, DateTime? endDate = null);
         Task<List<MpDonation>> GetDonationsByTransactionIds(List<string> transactionIds);
+        void CreateRawPushpayDonation(string rawRecurringGiftSchedule);
     }
 }
