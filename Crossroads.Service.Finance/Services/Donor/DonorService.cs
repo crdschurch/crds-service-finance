@@ -65,30 +65,5 @@ namespace Crossroads.Service.Finance.Services.Donor
         {
             return await _donorRepository.GetDonorIdByProcessorId(pushpayTransactionBaseDto.Payer.Key);
         }
-
-        //public Task<MpDonorAccount> GetOrCreateDonorAccount(PushpayTransactionBaseDto basePushPayTransaction, int donorId)
-        //{
-	       // var mpDonorAccount = MapDonorAccountPaymentDetails(basePushPayTransaction, donorId);
-	       // var mpCurrentDonorAccounts = await _donationService.GetDonorAccounts(donorId);
-
-	       // var matchingDonorAccounts = mpCurrentDonorAccounts.Where(da =>
-		      //  da.Closed == mpDonorAccount.Closed
-		      //  && da.NonAssignable == mpDonorAccount.NonAssignable
-		      //  && da.AccountNumber == mpDonorAccount.AccountNumber
-		      //  && da.DonorId == mpDonorAccount.DonorId
-		      //  && da.InstitutionName == mpDonorAccount.InstitutionName
-		      //  && da.ProcessorId == mpDonorAccount.ProcessorId
-		      //  && da.RoutingNumber == mpDonorAccount.RoutingNumber
-		      //  && da.AccountTypeId == mpDonorAccount.AccountTypeId
-		      //  && da.ProcessorTypeId == mpDonorAccount.ProcessorTypeId).ToList();
-
-	       // if (matchingDonorAccounts.Count > 0)
-	       // {
-		      //  return matchingDonorAccounts[0];
-	       // }
-	       // else
-	       // {
-		      //  return
-        //}
     }
 }
