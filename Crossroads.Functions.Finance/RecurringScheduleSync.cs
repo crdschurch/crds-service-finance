@@ -13,23 +13,30 @@ namespace Crossroads.Functions.Finance
         [FunctionName("RecurringScheduleSync")]
         public static async Task Run([TimerTrigger("0 */15 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            var tableName = "RecurringScheduleSyncLog";
-            log.LogInformation($"RecurringScheduleSync timer trigger function executed at: {DateTime.Now}");
-            var helper = new Helper(tableName, HttpStatusCode.OK);
+            try
+            {
+                var tableName = "RecurringScheduleSyncLog";
+                log.LogInformation($"RecurringScheduleSync timer trigger function executed at: {DateTime.Now}");
+                var helper = new Helper(tableName, HttpStatusCode.OK);
 
-            var currentRunTime = DateTime.Now;
-            var lastSuccessfulRunTime = await helper.GetLastSuccessfulRunTimeAsync();
-            log.LogDebug($"Last Successful Runtime: {lastSuccessfulRunTime}");
-            var httpStatusCode = await RunRecurringScheduleEndpointAsync(
-                lastSuccessfulRunTime.ToUniversalTime().ToString("u"), currentRunTime.ToUniversalTime().ToString("u"),
-                log);
-            log.LogInformation($"HTTP Status Code: {httpStatusCode}");
-            await helper.UpdateLogAsync(currentRunTime, httpStatusCode);
+                var currentRunTime = DateTime.Now;
+                var lastSuccessfulRunTime = await helper.GetLastSuccessfulRunTimeAsync();
+                log.LogDebug($"Last Successful Runtime: {lastSuccessfulRunTime}");
+                var httpStatusCode = await RunRecurringScheduleEndpointAsync(
+                    lastSuccessfulRunTime.ToUniversalTime().ToString("u"), currentRunTime.ToUniversalTime().ToString("u"),
+                    log);
+                log.LogInformation($"HTTP Status Code: {httpStatusCode}");
+                await helper.UpdateLogAsync(currentRunTime, httpStatusCode);
 
-            log.LogInformation($"RecurringScheduleSync returned a {httpStatusCode} response");
+                log.LogInformation($"RecurringScheduleSync returned a {httpStatusCode} response");
 
-            var deletedRecordCount = await helper.ClearOldEntries(httpStatusCode, lastSuccessfulRunTime);
-            log.LogInformation($"Deleted {deletedRecordCount} records out of RecurringScheduleSyncLog.");
+                var deletedRecordCount = await helper.ClearOldEntries(httpStatusCode, lastSuccessfulRunTime);
+                log.LogInformation($"Deleted {deletedRecordCount} records out of RecurringScheduleSyncLog.");
+            }
+            catch (Exception)
+            {
+                Helper.SlackErrorNotification();
+            }            
         }
 
         private static async Task<HttpStatusCode> RunRecurringScheduleEndpointAsync(string lastSuccessfulRunTime,
