@@ -30,5 +30,6 @@ namespace Crossroads.Service.Finance.Interfaces
         Task<List<PledgeDto>> GetRelatedContactPledge(int userContactId, int relatedContactId);
         Task<List<DonationDto>> GetDonationsByTransactionCodes(List<string> transactionIds);
         Task<MpDonorAccount> CreateDonorAccountFromPushpay(PushpayTransactionBaseDto gift, int donorId);
+        Task UpdateMpDonation(MpDonation mpDonation);
     }
 }

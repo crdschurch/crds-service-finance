@@ -40,7 +40,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
 
         public PushpayServiceTest()
         {
-            System.Environment.SetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY", "1234");
+            System.Environment.SetEnvironmentVariable("PUSHPAY_SITE_FIELD_KEY", "1234567654321");
 
             _pushpayClient = new Mock<IPushpayClient>();
             _donationService = new Mock<IDonationService>();
@@ -465,7 +465,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 new PushpayFieldValueDto
                 {
-                    Key = "1234",
+                    Key = "1234567654321",
                     Value = "Mason",
                     Label = "site"
                 }
@@ -539,7 +539,7 @@ namespace Crossroads.Service.Finance.Test.Pushpay
             {
                 new PushpayFieldValueDto
                 {
-                    Key = "1234",
+                    Key = "12345",
                     Value = "Mason",
                     Label = "site"
                 }

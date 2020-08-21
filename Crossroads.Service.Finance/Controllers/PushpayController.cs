@@ -16,6 +16,7 @@ namespace Crossroads.Service.Finance.Controllers
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly INewPushpayService _pushpayService;
         private readonly IRecurringService _recurringService;
+        private readonly IDonationService _donationService;
 
         public PushpayController(INewPushpayService pushpayService, IRecurringService recurringService)
         {
@@ -49,16 +50,27 @@ namespace Crossroads.Service.Finance.Controllers
         {
 	        try
 	        {
+		        var lastSuccessfulRunTime = string.Empty;
+
 		        using (var reader = new StreamReader(Request.Body))
 		        {
-                    var body = await reader.ReadToEndAsync();
+			        var body = await reader.ReadToEndAsync();
 
-                    var lastSuccessfulRunTime = JObject.Parse(body)["lastSuccessfulRunTime"].ToString();
-
-                    await _pushpayService.PollDonationsAsync(lastSuccessfulRunTime);
-
-			        return NoContent();
+			        lastSuccessfulRunTime = JObject.Parse(body)["lastSuccessfulRunTime"].ToString();
 		        }
+
+		        if (string.IsNullOrEmpty(lastSuccessfulRunTime))
+		        {
+			        throw new Exception("Donation sync missing lastSuccessfulRunTime value");
+		        }
+
+		        // save raw schedules to the db
+		        await _pushpayService.PollDonationsAsync(lastSuccessfulRunTime);
+
+                // process raw schedules
+                await _pushpayService.ProcessRawDonations();
+
+                return NoContent();
 	        }
 	        catch (Exception ex)
 	        {

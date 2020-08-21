@@ -312,7 +312,7 @@ namespace Crossroads.Service.Finance.Services
 
             if (pushpayRecurringGift.PushpayFields!= null && pushpayRecurringGift.PushpayFields.Any(r => r.Key == CongregationFieldKey))
             {
-                var congregationName = TranslateCongregation.Translate(pushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value);
+                var congregationName = Helpers.Helpers.Translate(pushpayRecurringGift.PushpayFields.First(r => r.Key == CongregationFieldKey).Value);
                 var congregations = await _congregationRepository.GetCongregationByCongregationName(congregationName);
 
                 if (congregations.Any())
@@ -573,12 +573,11 @@ namespace Crossroads.Service.Finance.Services
 
         public async Task<int> LookupCongregationId(List<PushpayFieldValueDto> pushpayFields, string campusKey)
         {
-
-            var lookupCongregationId = 0;
+	        var lookupCongregationId = 0;
 
             if (pushpayFields != null && pushpayFields.Any(r => r.Key == CongregationFieldKey))
             {
-                var congregationName = TranslateCongregation.Translate(pushpayFields.First(r => r.Key == CongregationFieldKey).Value);
+                var congregationName = Helpers.Helpers.Translate(pushpayFields.First(r => r.Key == CongregationFieldKey).Value);
 
                 // TODO: consider caching these values on application startup
                 var congregations = await _congregationRepository.GetCongregationByCongregationName(congregationName);
