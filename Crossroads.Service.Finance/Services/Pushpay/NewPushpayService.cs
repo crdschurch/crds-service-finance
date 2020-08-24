@@ -112,119 +112,125 @@ namespace Crossroads.Service.Finance.Services
         {
 	        try
 	        {
-                var pushpayPaymentDto = JsonConvert.DeserializeObject<PushpayPaymentDto>(mpRawDonation.RawJson);
+		        var pushpayPaymentDto = JsonConvert.DeserializeObject<PushpayPaymentDto>(mpRawDonation.RawJson);
 
-                var mpDonation = await _donationRepository.GetDonationByTransactionCode($"PP-{pushpayPaymentDto.TransactionId}");
+		        var mpDonation =
+			        await _donationRepository.GetDonationByTransactionCode($"PP-{pushpayPaymentDto.TransactionId}");
 
-                // this may be a special case related to test code
-                if (mpDonation == null)
-                {
-                    return null;
-                }
+		        // this may be a special case related to test code
+		        if (mpDonation == null)
+		        {
+			        return null;
+		        }
 
-                // add payment token to identify via api
-                if (pushpayPaymentDto.PaymentToken != null)
-                {
-                    mpDonation.SubscriptionCode = pushpayPaymentDto.PaymentToken;
-                }
+		        // add payment token to identify via api
+		        if (pushpayPaymentDto.PaymentToken != null)
+		        {
+			        mpDonation.SubscriptionCode = pushpayPaymentDto.PaymentToken;
+		        }
 
-                // set recurring gift id
-                if (pushpayPaymentDto.RecurringPaymentToken != null)
-                {
-                    mpDonation.IsRecurringGift = true;
+		        // set recurring gift id
+		        if (pushpayPaymentDto.RecurringPaymentToken != null)
+		        {
+			        mpDonation.IsRecurringGift = true;
 
-                    var mpRecurringGift =
-                        await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPaymentDto
-                            .RecurringPaymentToken);
+			        var mpRecurringGift =
+				        await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPaymentDto
+					        .RecurringPaymentToken);
 
-                    if (mpRecurringGift == null)
-                    {
-                        _logger.Error(
-                            $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
-                        Console.WriteLine(
-                            $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
-                    }
-                    else
-                    {
-                        mpDonation.RecurringGiftId = mpRecurringGift.RecurringGiftId;
-                    }
-                }
+			        if (mpRecurringGift == null)
+			        {
+				        _logger.Error(
+					        $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
+				        Console.WriteLine(
+					        $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
+			        }
+			        else
+			        {
+				        mpDonation.RecurringGiftId = mpRecurringGift.RecurringGiftId;
+			        }
+		        }
 
-                // attach donor account
-                var donorId = await _donorService.FindDonorId(pushpayPaymentDto);
+		        // attach donor account
+		        var donorId = await _donorService.FindDonorId(pushpayPaymentDto);
 
-                if (donorId.HasValue)
-                {
-                    mpDonation.DonorId = donorId.Value;
-                    var donorAccount = await _donationService.FindDonorAccount(pushpayPaymentDto, donorId.Value);
-                    mpDonation.DonorAccountId =
-                        donorAccount?.DonorAccountId ??
-                        (await _donationService.CreateDonorAccountFromPushpay(pushpayPaymentDto, donorId.Value))
-                        .DonorAccountId;
-                }
-                else
-                {
-                    var donor = await _donorService.CreateDonor(pushpayPaymentDto);
-                    mpDonation.DonorId = donor.DonorId.Value;
-                    mpDonation.DonorAccountId =
-                        (await _donationService.CreateDonorAccountFromPushpay(pushpayPaymentDto, donor.DonorId.Value))
-                        .DonorAccountId;
-                }
+		        if (donorId.HasValue)
+		        {
+			        mpDonation.DonorId = donorId.Value;
+			        var donorAccount = await _donationService.FindDonorAccount(pushpayPaymentDto, donorId.Value);
+			        mpDonation.DonorAccountId =
+				        donorAccount?.DonorAccountId ??
+				        (await _donationService.CreateDonorAccountFromPushpay(pushpayPaymentDto, donorId.Value))
+				        .DonorAccountId;
+		        }
+		        else
+		        {
+			        var donor = await _donorService.CreateDonor(pushpayPaymentDto);
+			        mpDonation.DonorId = donor.DonorId.Value;
+			        mpDonation.DonorAccountId =
+				        (await _donationService.CreateDonorAccountFromPushpay(pushpayPaymentDto, donor.DonorId.Value))
+				        .DonorAccountId;
+		        }
 
-                if (pushpayPaymentDto.IsStatusNew || pushpayPaymentDto.IsStatusProcessing)
-                {
-                    mpDonation.DonationStatusId = _mpDonationStatusPending;
-                }
-                // only flip if not deposited
-                else if (pushpayPaymentDto.IsStatusSuccess && mpDonation.BatchId == null)
-                {
-                    mpDonation.DonationStatusId = _mpDonationStatusSucceeded;
-                }
-                else if (pushpayPaymentDto.IsStatusFailed)
-                {
-                    mpDonation.DonationStatusId = _mpDonationStatusDeclined;
-                }
+		        if (pushpayPaymentDto.IsStatusNew || pushpayPaymentDto.IsStatusProcessing)
+		        {
+			        mpDonation.DonationStatusId = _mpDonationStatusPending;
+		        }
+		        // only flip if not deposited
+		        else if (pushpayPaymentDto.IsStatusSuccess && mpDonation.BatchId == null)
+		        {
+			        mpDonation.DonationStatusId = _mpDonationStatusSucceeded;
+		        }
+		        else if (pushpayPaymentDto.IsStatusFailed)
+		        {
+			        mpDonation.DonationStatusId = _mpDonationStatusDeclined;
+		        }
 
-                // check if refund
-                if (pushpayPaymentDto.RefundFor != null)
-                {
-                    // Set payment type for refunds
-                    var refund = await _donationService.GetDonationByTransactionCode(pushpayPaymentDto.RefundFor.TransactionId);
-                    mpDonation.PaymentTypeId = refund.PaymentTypeId;
-                }
+		        // check if refund
+		        if (pushpayPaymentDto.RefundFor != null)
+		        {
+			        // Set payment type for refunds
+			        var refund =
+				        await _donationService.GetDonationByTransactionCode(pushpayPaymentDto.RefundFor.TransactionId);
+			        mpDonation.PaymentTypeId = refund.PaymentTypeId;
+		        }
 
-                mpDonation.DonationStatusDate = DateTime.Now;
+		        mpDonation.DonationStatusDate = DateTime.Now;
 
-                // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
-                // (this is a different business rule from soft credit donations) - default to using the id from the
-                // webhook if possible so we don't have to mess with name matching
-                int? congregationId = await _congregationService.LookupCongregationId(pushpayPaymentDto.PushpayFields, pushpayPaymentDto.Campus.Key);
+		        // set the congregation on the donation distribution, based on the giver's site preference stated in pushpay
+		        // (this is a different business rule from soft credit donations) - default to using the id from the
+		        // webhook if possible so we don't have to mess with name matching
+		        int? congregationId = await _congregationService.LookupCongregationId(pushpayPaymentDto.PushpayFields,
+			        pushpayPaymentDto.Campus.Key);
 
-                // set congregation
-                if (congregationId != null)
-                {
-                    var donationDistributions = await _donationDistributionRepository.GetByDonationId(mpDonation.DonationId);
+		        // set congregation
+		        if (congregationId != null)
+		        {
+			        var donationDistributions =
+				        await _donationDistributionRepository.GetByDonationId(mpDonation.DonationId);
 
-                    foreach (var donationDistribution in donationDistributions)
-                    {
-                        donationDistribution.CongregationId = congregationId;
-                        donationDistribution.HCDonorCongregationId = congregationId;
-                    }
+			        foreach (var donationDistribution in donationDistributions)
+			        {
+				        donationDistribution.CongregationId = congregationId;
+				        donationDistribution.HCDonorCongregationId = congregationId;
+			        }
 
-                    await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
-                }
+			        await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
+		        }
 
-                await _donationRepository.MarkAsProcessed(mpRawDonation);
+		        // save donation back to MP
+		        await _donationService.UpdateMpDonation(mpDonation);
 
-                // save donation back to MP
-                await _donationService.UpdateMpDonation(mpDonation);
-
-                return mpDonation;
-            }
+		        return mpDonation;
+	        }
 	        catch (Exception ex)
 	        {
 		        _logger.Error($"Could not process donation {mpRawDonation}: {ex}");
 	        }
+	        finally
+	        {
+		        await _donationRepository.MarkAsProcessed(mpRawDonation);
+			}
 
 	        return null;
         }
