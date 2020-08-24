@@ -65,6 +65,5 @@ namespace Crossroads.Service.Finance.Services.Donor
         {
             return await _donorRepository.GetDonorIdByProcessorId(pushpayTransactionBaseDto.Payer.Key);
         }
-
     }
 }
