@@ -30,13 +30,6 @@ namespace Crossroads.Service.Finance.Services
 
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
 
-        private Dictionary<string, int> _recurringGiftStatuses = new Dictionary<string, int>
-        {
-	        { "Active", 1 },
-	        { "Paused", 2 },
-	        { "Cancelled", 3 }
-        };
-
         public NewPushpayService(IPushpayClient pushpayClient, IRecurringGiftRepository recurringGiftRepository, IDonationRepository donationRepository,
 	        IDonationService donationService, ICongregationService congregationService, IDonorService donorService, IDonationDistributionRepository donationDistributionRepository,
 	        IConfigurationWrapper configurationWrapper)
