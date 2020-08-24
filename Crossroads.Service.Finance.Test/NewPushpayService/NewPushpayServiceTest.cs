@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services.Congregations;
-using Crossroads.Service.Finance.Services.DonorAccounts;
+using Crossroads.Service.Finance.Services.Donor;
 using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
@@ -23,7 +23,7 @@ namespace Crossroads.Service.Finance.Test.NewPushpayService
 		private readonly Mock<IDonationService> _donationService;
 		private readonly Mock<ICongregationService> _congregationService;
 		private readonly Mock<IDonationDistributionRepository> _donationDistributionRepository;
-		private readonly Mock<IDonorAccountService> _donorAccountService;
+		private readonly Mock<IDonorService> _donorService;
 		private readonly Mock<IConfigurationWrapper> _configurationWrapper;
 
 		public INewPushpayService _fixture;
@@ -36,11 +36,11 @@ namespace Crossroads.Service.Finance.Test.NewPushpayService
 			_donationService = new Mock<IDonationService>();
 			_congregationService = new Mock<ICongregationService>();
 			_donationDistributionRepository = new Mock<IDonationDistributionRepository>();
-			_donorAccountService = new Mock<IDonorAccountService>();
+			_donorService = new Mock<IDonorService>();
 			_configurationWrapper = new Mock<IConfigurationWrapper>();
 
 			_fixture = new Services.NewPushpayService(_pushpayClient.Object, _recurringGiftRepository.Object, _donationRepository.Object,
-				_donationService.Object, _congregationService.Object, _donorAccountService.Object, _donationDistributionRepository.Object,
+				_donationService.Object, _congregationService.Object, _donorService.Object, _donationDistributionRepository.Object,
 				_configurationWrapper.Object);
 		}
 
@@ -152,13 +152,17 @@ namespace Crossroads.Service.Finance.Test.NewPushpayService
 				}
 			};
 
+			int? donorId = 1234567;
+
 			_donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-1111122222"))
 				.Returns(Task.FromResult(new MpDonation()));
 			_recurringGiftRepository.Setup(r => r.FindRecurringGiftBySubscriptionId("111111blahblahAAAAAA"))
 				.Returns(Task.FromResult(mpRecurringGift));
-			_donorAccountService
-				.Setup(r => r.GetOrCreateDonorAccount(It.IsAny<PushpayTransactionBaseDto>(), It.IsAny<int>()))
-				.Returns(Task.FromResult(new MpDonorAccount()));
+			_donorService
+				.Setup(r => r.FindDonorId(It.IsAny<PushpayTransactionBaseDto>()))
+				.Returns(Task.FromResult(donorId));
+			_donationService.Setup(r => r.FindDonorAccount(It.IsAny<PushpayTransactionBaseDto>(),
+				It.IsAny<int>())).Returns(Task.FromResult(new MpDonorAccount()));
 			_congregationService.Setup(r => r.LookupCongregationId(It.IsAny<List<PushpayFieldValueDto>>(), "Breeland"))
 				.Returns(Task.FromResult(1));
 			_donationDistributionRepository.Setup(r => r.GetByDonationId(It.IsAny<int>()))
