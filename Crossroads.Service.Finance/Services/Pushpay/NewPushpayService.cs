@@ -102,8 +102,8 @@ namespace Crossroads.Service.Finance.Services
 			        var setOfDonationsToProcess = donationsToProcess.Take(range).ToList();
 			        donationsToProcess.RemoveRange(0, range);
 
-			        // Sync the chunk and wait for all to finish before processing the next chunk
-			        Task.WaitAll(setOfDonationsToProcess.Select(ProcessDonation).ToArray());
+                    // Sync the chunk and wait for all to finish before processing the next chunk
+                    Task.WaitAll(setOfDonationsToProcess.Select(ProcessDonation).ToArray());
 		        }
 	        } while (lastSyncIndex.HasValue);
         }
@@ -221,11 +221,12 @@ namespace Crossroads.Service.Finance.Services
 
                 return mpDonation;
             }
-	        catch (Exception e)
+	        catch (Exception ex)
 	        {
-		        Console.WriteLine(e);
-		        throw;
+		        _logger.Error($"Could not process donation {mpRawDonation}: {ex}");
 	        }
+
+	        return null;
         }
     }
 }
