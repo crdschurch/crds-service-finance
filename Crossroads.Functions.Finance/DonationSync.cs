@@ -38,7 +38,7 @@ namespace Crossroads.Functions.Finance
 
         private static async Task<HttpStatusCode> RunDonationEndpointAsync(string lastSuccessfulRunTime, ILogger log)
         {
-            string endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_URL") + "polling/donations";
+            string endpointUrl = Environment.GetEnvironmentVariable("ENDPOINT_URL") + "pushpay/updatedonations";
             HttpClient httpClient = new HttpClient();
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, endpointUrl);
             httpRequestMessage.Content = new StringContent("{\"lastSuccessfulRunTime\":\"" + lastSuccessfulRunTime + "\"}",
