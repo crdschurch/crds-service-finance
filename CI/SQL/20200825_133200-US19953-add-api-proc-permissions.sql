@@ -1,3 +1,12 @@
+USE [MinistryPlatform]
+GO
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
 -- ===============================================================
 -- Authors: Chris Andrews
 -- Create date: 2020-08-25
