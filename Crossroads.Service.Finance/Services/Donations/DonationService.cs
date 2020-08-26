@@ -7,13 +7,17 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Services
 {
     public class DonationService : IDonationService
     {
+	    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly IDonationRepository _mpDonationRepository;
         private readonly IDonationDistributionRepository _mpDonationDistributionRepository;
         private readonly IPledgeRepository _mpPledgeRepository;
@@ -295,5 +299,9 @@ namespace Crossroads.Service.Finance.Services
             return _mapper.Map<List<DonationDto>>(mpDonations);
         }
 
+        public async Task UpdateMpDonation(MpDonation mpDonation)
+        {
+	        await _mpDonationRepository.Update(mpDonation);
+        }
     }
 }

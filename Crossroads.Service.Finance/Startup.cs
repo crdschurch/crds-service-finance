@@ -31,7 +31,9 @@ using Pushpay.Cache;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
+using Crossroads.Service.Finance.Services.Congregations;
 using Crossroads.Service.Finance.Services.Donor;
+using MinistryPlatform.DonorAccounts;
 
 namespace Crossroads.Service.Finance
 {
@@ -107,6 +109,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
             services.AddSingleton<IRecurringService, RecurringService>();
             services.AddSingleton<IExportService, ExportService>();
+            services.AddSingleton<ICongregationService, CongregationService>();
 
             // Repo Layer
             services.AddSingleton<IBatchRepository, BatchRepository>();
@@ -124,6 +127,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<ICongregationRepository, CongregationRepository>();
             services.AddSingleton<IAdjustmentRepository, AdjustmentRepository>();
             services.AddSingleton<IJournalEntryRepository, JournalEntryRepository>();
+            services.AddSingleton<IDonorAccountRepository, DonorAccountRepository>();
 
             // Exports Layer
             services.AddSingleton<IJournalEntryExport, VelosioExportClient>();
