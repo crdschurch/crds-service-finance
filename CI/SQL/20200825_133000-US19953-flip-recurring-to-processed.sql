@@ -14,7 +14,7 @@ GO
 -- =============================================
 
 CREATE OR ALTER PROCEDURE [dbo].[api_crds_Set_Recurring_JSON_To_Processed]
-	@RecurringGiftScheduleId nvarchar(max)
+	@RecurringGiftScheduleId int
 AS
 BEGIN
 	UPDATE cr_RawPushpayRecurringSchedules
