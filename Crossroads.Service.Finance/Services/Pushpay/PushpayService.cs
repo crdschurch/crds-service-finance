@@ -527,7 +527,7 @@ namespace Crossroads.Service.Finance.Services
             }
         }
 
-        private int GetRecurringGiftStatusId(string recurringGiftStatus)
+        public int GetRecurringGiftStatusId(string recurringGiftStatus)
         {
             switch (recurringGiftStatus)
             {
