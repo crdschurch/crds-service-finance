@@ -290,8 +290,15 @@ namespace Crossroads.Service.Finance.Services.Recurring
             var programId = _newPushpayService.ParseFundIdFromExternalLinks(pushpayRecurringGift);
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = programId ?? (await _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code)).ProgramId;
-            mpRecurringGift.RecurringGiftStatusId = MpRecurringGiftStatus.Active;
+            // TODO: Make this be apart of mapping?
+            mpRecurringGift.RecurringGiftStatusId =
+                _pushpayService.GetRecurringGiftStatusId(pushpayRecurringGift.Status);
             mpRecurringGift.UpdatedOn = pushpayRecurringGift.UpdatedOn;
+            mpRecurringGift.StatusChangedDate = pushpayRecurringGift.UpdatedOn;
+            mpRecurringGift.EndDate =
+                mpRecurringGift.RecurringGiftStatusId == MpRecurringGiftStatus.Cancelled || mpRecurringGift.RecurringGiftStatusId == MpRecurringGiftStatus.Paused
+                    ? pushpayRecurringGift.UpdatedOn
+                    : (DateTime?) null;
 
             mpRecurringGift.Notes = _pushpayService.GetRecurringGiftNotes(pushpayRecurringGift);
 
