@@ -364,5 +364,51 @@ namespace MinistryPlatform.Repositories
                 .BuildAsync()
                 .Search<MpDonation>()).ToList();
         }
+
+        public void CreateRawPushpayDonation(string rawDonation)
+        {
+	        var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+	        var parameters = new Dictionary<string, object>
+	        {
+		        {"@RawJson", rawDonation}
+	        };
+
+	        MpRestBuilder.NewRequestBuilder()
+		        .WithAuthenticationToken(token)
+		        .Build()
+		        .ExecuteStoredProc("api_crds_Insert_PushpayDonationsRawJson", parameters);
+        }
+
+        public async Task<List<MpRawDonation>> GetUnprocessedDonations(int? lastSyncIndex = null)
+        {
+	        var token = ApiUserRepository.GetApiClientToken("CRDS.Service.Finance");
+
+	        var filter = lastSyncIndex.HasValue && lastSyncIndex.Value > 1
+		        ? $"IsProcessed = '{false}' AND DonationId < {lastSyncIndex.Value}"
+		        : $"IsProcessed = '{false}'";
+
+            return (await MpRestBuilder.NewRequestBuilder()
+	            .WithAuthenticationToken(token)
+		        .WithFilter(filter)
+	            .OrderBy("TimeCreated DESC")
+                .BuildAsync()
+		        .Search<MpRawDonation>()).ToList();
+        }
+
+        public async Task MarkAsProcessed(MpRawDonation donation)
+        {
+	        var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
+
+	        var parameters = new Dictionary<string, object>
+	        {
+		        {"@DonationId", donation.DonationId}
+	        };
+
+	        await MpRestBuilder.NewRequestBuilder()
+		        .WithAuthenticationToken(token)
+		        .BuildAsync()
+		        .ExecuteStoredProc("api_crds_Set_Donation_JSON_To_Processed", parameters);
+        }
     }
 }

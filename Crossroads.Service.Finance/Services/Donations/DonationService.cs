@@ -7,12 +7,17 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Services
 {
     public class DonationService : IDonationService
     {
+	    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly IDonationRepository _mpDonationRepository;
         private readonly IDonationDistributionRepository _mpDonationDistributionRepository;
         private readonly IPledgeRepository _mpPledgeRepository;
@@ -80,6 +85,34 @@ namespace Crossroads.Service.Finance.Services
         public async Task<MpDonorAccount> CreateDonorAccount(MpDonorAccount donor)
         {
             return await _mpDonationRepository.CreateDonorAccount(donor);
+        }
+        
+        public async Task<MpDonorAccount> CreateDonorAccountFromPushpay(PushpayTransactionBaseDto gift, int donorId)
+        {
+            var mpDonorAccount = _mapper.Map<PushpayTransactionBaseDto, MpDonorAccount>(gift);
+            mpDonorAccount.DonorId = donorId;
+            return await CreateDonorAccount(mpDonorAccount);
+        }
+
+        public async Task<MpDonorAccount> FindDonorAccount(PushpayTransactionBaseDto gift, int donorId)
+        {
+            var mpDonorAccount = _mapper.Map<PushpayTransactionBaseDto, MpDonorAccount>(gift);
+            mpDonorAccount.DonorId = donorId;
+            var mpCurrentDonorAccounts = await GetDonorAccounts(donorId);
+
+            var matchingDonorAccounts = mpCurrentDonorAccounts.Where(da => 
+                da.Closed == mpDonorAccount.Closed 
+                && da.NonAssignable == mpDonorAccount.NonAssignable
+                && da.AccountNumber == mpDonorAccount.AccountNumber
+                && da.DonorId == mpDonorAccount.DonorId
+                && da.InstitutionName == mpDonorAccount.InstitutionName
+                && da.ProcessorId == mpDonorAccount.ProcessorId
+                && da.RoutingNumber == mpDonorAccount.RoutingNumber
+                && da.AccountTypeId == mpDonorAccount.AccountTypeId
+                && da.ProcessorTypeId == mpDonorAccount.ProcessorTypeId).ToList();
+
+            return matchingDonorAccounts.FirstOrDefault();
+
         }
 
         public async Task<List<MpDonorAccount>> GetDonorAccounts(int donorId)
@@ -264,6 +297,11 @@ namespace Crossroads.Service.Finance.Services
         {
             var mpDonations = await _mpDonationRepository.GetDonationsByTransactionIds(transactionIds);
             return _mapper.Map<List<DonationDto>>(mpDonations);
+        }
+
+        public async Task UpdateMpDonation(MpDonation mpDonation)
+        {
+	        await _mpDonationRepository.Update(mpDonation);
         }
     }
 }

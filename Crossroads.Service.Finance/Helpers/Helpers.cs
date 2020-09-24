@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Helpers
 {
-    public static class TranslateCongregation
+    public static class Helpers
     {
         public static string Translate(string pushpayCongregation)
         {
@@ -16,6 +16,23 @@ namespace Crossroads.Service.Finance.Helpers
                 default:
                     return pushpayCongregation;
             }
+        }
+
+        public static string GetCardBrand(string pushpayCardBrand)
+        {
+	        switch (pushpayCardBrand)
+	        {
+		        case "VISA":
+			        return "Visa";
+		        case "Discover":
+			        return "Discover";
+		        case "Amex":
+			        return "AmericanExpress";
+		        case "MasterCard":
+			        return "MasterCard";
+		        default:
+			        return "";
+	        }
         }
     }
 }

@@ -3,6 +3,7 @@ using MinistryPlatform.Models;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Interfaces
 {
@@ -14,6 +15,7 @@ namespace Crossroads.Service.Finance.Interfaces
         Task<DonationDto> GetDonationByTransactionCode(string transactionCode);
         Task<MpDonor> CreateDonor(MpDonor donor);
         Task<MpDonorAccount> CreateDonorAccount(MpDonorAccount donor);
+        Task<MpDonorAccount> FindDonorAccount(PushpayTransactionBaseDto gift, int donorId);
         Task<List<MpDonorAccount>> GetDonorAccounts(int donorId);
         void UpdateDonorAccount(JObject donorAccount);
         Task<List<RecurringGiftDto>> GetRecurringGifts(int contactId);
@@ -27,5 +29,7 @@ namespace Crossroads.Service.Finance.Interfaces
         Task<List<DonationDetailDto>> GetRelatedContactDonations(int userContactId, int relatedContactId);
         Task<List<PledgeDto>> GetRelatedContactPledge(int userContactId, int relatedContactId);
         Task<List<DonationDto>> GetDonationsByTransactionCodes(List<string> transactionIds);
+        Task<MpDonorAccount> CreateDonorAccountFromPushpay(PushpayTransactionBaseDto gift, int donorId);
+        Task UpdateMpDonation(MpDonation mpDonation);
     }
 }

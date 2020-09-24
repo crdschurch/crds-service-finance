@@ -11,6 +11,10 @@ namespace Pushpay.Models
 
         [JsonProperty("notes")]
         public string Notes { get; set; }
+        
+        // TODO: See if this exists in all transaction. If so move to the base class
+        [JsonProperty("externalLinks")]
+        public ExternalLinks[] ExternalLinks { get; set; }
     }
 
     public class RecurringGiftSchedule

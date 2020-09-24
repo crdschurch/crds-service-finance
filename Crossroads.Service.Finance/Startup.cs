@@ -31,6 +31,9 @@ using Pushpay.Cache;
 using Pushpay.Client;
 using Pushpay.Token;
 using System;
+using Crossroads.Service.Finance.Services.Congregations;
+using Crossroads.Service.Finance.Services.Donor;
+using MinistryPlatform.DonorAccounts;
 
 namespace Crossroads.Service.Finance
 {
@@ -93,6 +96,7 @@ namespace Crossroads.Service.Finance
             // Service Layer
             services.AddSingleton<IBatchService, BatchService>();
             services.AddSingleton<IAdjustmentsToJournalEntriesService, AdjustmentsToJournalEntriesService>();
+            services.AddSingleton<IDonorService, DonorService>();
             services.AddSingleton<IJournalEntryService, JournalEntryService>();
             services.AddSingleton<IJournalEntryBatchService, JournalEntryBatchService>();
             services.AddSingleton<IContactService, ContactService>();
@@ -100,10 +104,12 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IDepositService, DepositService>();
             services.AddSingleton<IPaymentEventService, PaymentEventService>();
             services.AddSingleton<IPushpayService, PushpayService>();
+            services.AddSingleton<INewPushpayService, NewPushpayService>();
             services.AddSingleton<IPushpayClient, PushpayClient>();
             services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
             services.AddSingleton<IRecurringService, RecurringService>();
             services.AddSingleton<IExportService, ExportService>();
+            services.AddSingleton<ICongregationService, CongregationService>();
 
             // Repo Layer
             services.AddSingleton<IBatchRepository, BatchRepository>();
@@ -121,6 +127,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<ICongregationRepository, CongregationRepository>();
             services.AddSingleton<IAdjustmentRepository, AdjustmentRepository>();
             services.AddSingleton<IJournalEntryRepository, JournalEntryRepository>();
+            services.AddSingleton<IDonorAccountRepository, DonorAccountRepository>();
 
             // Exports Layer
             services.AddSingleton<IJournalEntryExport, VelosioExportClient>();

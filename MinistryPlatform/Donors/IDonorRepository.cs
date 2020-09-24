@@ -8,6 +8,7 @@ namespace MinistryPlatform.Donors
 {
     public interface IDonorRepository
     {
+        Task<MpDonor> CreateDonor(MpDonor donor);
         Task<int?> GetDonorIdByProcessorId(string processorId);
         Task<MpDonor> GetDonorByDonorId(int donorId);
     }
