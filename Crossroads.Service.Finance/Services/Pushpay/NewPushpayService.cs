@@ -130,9 +130,9 @@ namespace Crossroads.Service.Finance.Services
 		        }
 
 		        // set recurring gift id
+				mpDonation.IsRecurringGift = pushpayPaymentDto.RecurringPaymentToken != null;
 		        if (pushpayPaymentDto.RecurringPaymentToken != null)
 		        {
-			        mpDonation.IsRecurringGift = true;
 
 			        var mpRecurringGift =
 				        await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPaymentDto
