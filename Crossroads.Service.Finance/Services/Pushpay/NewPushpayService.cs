@@ -144,6 +144,7 @@ namespace Crossroads.Service.Finance.Services
 					        $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
 				        Console.WriteLine(
 					        $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
+				        return null;
 			        }
 			        else
 			        {
