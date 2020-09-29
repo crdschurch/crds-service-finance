@@ -156,7 +156,7 @@ namespace Crossroads.Service.Finance.Test.NewPushpayService
 
 			_donationRepository.Setup(r => r.GetDonationByTransactionCode("PP-1111122222"))
 				.Returns(Task.FromResult(new MpDonation()));
-			_recurringGiftRepository.Setup(r => r.FindRecurringGiftBySubscriptionId("111111blahblahAAAAAA"))
+			_recurringGiftRepository.Setup(r => r.LookForRecurringGiftBySubscriptionId("111111blahblahAAAAAA"))
 				.Returns(Task.FromResult(mpRecurringGift));
 			_donorService
 				.Setup(r => r.FindDonorId(It.IsAny<PushpayTransactionBaseDto>()))
