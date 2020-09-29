@@ -135,7 +135,7 @@ namespace Crossroads.Service.Finance.Services
 		        {
 
 			        var mpRecurringGift =
-				        await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPaymentDto
+				        await _recurringGiftRepository.LookForRecurringGiftBySubscriptionId(pushpayPaymentDto
 					        .RecurringPaymentToken);
 
 			        if (mpRecurringGift == null)
