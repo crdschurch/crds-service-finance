@@ -219,6 +219,9 @@ namespace Crossroads.Service.Finance.Services
 			        await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
 		        }
 
+		        // set to process
+		        await _donationRepository.MarkAsProcessed(mpRawDonation);
+		        
 		        // save donation back to MP
 		        await _donationService.UpdateMpDonation(mpDonation);
 
@@ -227,11 +230,8 @@ namespace Crossroads.Service.Finance.Services
 	        catch (Exception ex)
 	        {
 		        _logger.Error($"Could not process donation {mpRawDonation}: {ex}");
-	        }
-	        finally
-	        {
 		        await _donationRepository.MarkAsProcessed(mpRawDonation);
-			}
+	        }
 
 	        return null;
         }
