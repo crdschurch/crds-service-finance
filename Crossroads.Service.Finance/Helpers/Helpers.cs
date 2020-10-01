@@ -7,12 +7,18 @@ namespace Crossroads.Service.Finance.Helpers
 {
     public static class Helpers
     {
+        public const string AnywhereName = "Anywhere/Online";
+
         public static string Translate(string pushpayCongregation)
         {
             switch (pushpayCongregation)
             {
+	            case "Anywhere":
+		            return AnywhereName;
+                case "Anywhere/Online":
+	                return AnywhereName;
                 case "Anywhere (Online)":
-                    return "Anywhere";
+                    return AnywhereName;
                 default:
                     return pushpayCongregation;
             }
