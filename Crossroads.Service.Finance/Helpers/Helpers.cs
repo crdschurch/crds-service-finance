@@ -11,17 +11,7 @@ namespace Crossroads.Service.Finance.Helpers
 
         public static string Translate(string pushpayCongregation)
         {
-            switch (pushpayCongregation)
-            {
-	            case "Anywhere":
-		            return AnywhereName;
-                case "Anywhere/Online":
-	                return AnywhereName;
-                case "Anywhere (Online)":
-                    return AnywhereName;
-                default:
-                    return pushpayCongregation;
-            }
+            return pushpayCongregation.IndexOf("Anywhere") >= 0 ? AnywhereName : pushpayCongregation;
         }
 
         public static string GetCardBrand(string pushpayCardBrand)
