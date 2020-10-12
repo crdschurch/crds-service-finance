@@ -130,12 +130,12 @@ namespace Crossroads.Service.Finance.Services
 		        }
 
 		        // set recurring gift id
+				mpDonation.IsRecurringGift = pushpayPaymentDto.RecurringPaymentToken != null;
 		        if (pushpayPaymentDto.RecurringPaymentToken != null)
 		        {
-			        mpDonation.IsRecurringGift = true;
 
 			        var mpRecurringGift =
-				        await _recurringGiftRepository.FindRecurringGiftBySubscriptionId(pushpayPaymentDto
+				        await _recurringGiftRepository.LookForRecurringGiftBySubscriptionId(pushpayPaymentDto
 					        .RecurringPaymentToken);
 
 			        if (mpRecurringGift == null)
@@ -144,6 +144,7 @@ namespace Crossroads.Service.Finance.Services
 					        $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
 				        Console.WriteLine(
 					        $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
+				        return null;
 			        }
 			        else
 			        {
@@ -218,6 +219,9 @@ namespace Crossroads.Service.Finance.Services
 			        await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
 		        }
 
+		        // set to process
+		        await _donationRepository.MarkAsProcessed(mpRawDonation);
+		        
 		        // save donation back to MP
 		        await _donationService.UpdateMpDonation(mpDonation);
 
@@ -226,11 +230,8 @@ namespace Crossroads.Service.Finance.Services
 	        catch (Exception ex)
 	        {
 		        _logger.Error($"Could not process donation {mpRawDonation}: {ex}");
-	        }
-	        finally
-	        {
 		        await _donationRepository.MarkAsProcessed(mpRawDonation);
-			}
+	        }
 
 	        return null;
         }
