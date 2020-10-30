@@ -33,6 +33,7 @@ using Pushpay.Token;
 using System;
 using Crossroads.Service.Finance.Services.Congregations;
 using Crossroads.Service.Finance.Services.Donor;
+using MinistryPlatform;
 using MinistryPlatform.DonorAccounts;
 
 namespace Crossroads.Service.Finance
@@ -113,6 +114,7 @@ namespace Crossroads.Service.Finance
 
             // Repo Layer
             services.AddSingleton<IBatchRepository, BatchRepository>();
+            services.AddSingleton<IConfigurationSettingsRepository, ConfigurationSettingsRepository>();
             services.AddSingleton<IDepositRepository, DepositRepository>();
             services.AddSingleton<IDonationRepository, DonationRepository>();
             services.AddSingleton<IDonorRepository, DonorRepository>();
