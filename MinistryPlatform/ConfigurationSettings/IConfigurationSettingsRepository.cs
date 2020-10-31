@@ -7,5 +7,7 @@ namespace MinistryPlatform
     {
         Task UpdateValue(int configurationSettingsId, string value);
         Task CreateConfigurationSettings(MpConfigurationSettings configurationSettings);
+
+        Task<int?> GetConfigurationId(string appName, string keyName);
     }
 }

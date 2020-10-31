@@ -1,24 +1,25 @@
 ﻿using System.Text.Json.Serialization;
 using Crossroads.Web.Common.MinistryPlatform;
+using Newtonsoft.Json;
 
 namespace MinistryPlatform.Models
 {
     [MpRestApiTable(Name = "dp_Configuration_Settings")]
     public class MpConfigurationSettings
     {
-        [JsonPropertyName("Configuration_Setting_ID")]
+        [JsonProperty("Configuration_Setting_ID")]
         public int ConfigurationSettingId { get; set; }
 
-        [JsonPropertyName("Application_Code")] 
+        [JsonProperty("Application_Code")] 
         public string ApplicationCode { get; set; }
 
-        [JsonPropertyName("Key_Name")] 
+        [JsonProperty("Key_Name")] 
         public string KeyName { get; set; }
 
-        [JsonPropertyName("Value")] 
+        [JsonProperty("Value")] 
         public string Value { get; set; }
 
-        [JsonPropertyName("Description")] 
+        [JsonProperty("Description")] 
         public string Description { get; set; }
     }
 }
