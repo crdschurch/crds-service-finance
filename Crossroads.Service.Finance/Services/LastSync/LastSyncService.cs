@@ -21,35 +21,13 @@ namespace Crossroads.Service.Finance.Services
         public async Task<DateTime> GetLastDonationSyncTime()
         {
             var lastSync = await _configurationWrapper.GetMpConfigValueAsync("CRDS-FINANCE", "LastDonationSync");
-
-            if (!string.IsNullOrWhiteSpace(lastSync)) return DateTime.Parse(lastSync);
-
-            var newEntry = new MpConfigurationSettings
-            {
-                Description = "Donations have been sync up to this datetime from PushPay",
-                ApplicationCode = "CRDS-FINANCE",
-                KeyName = "LastDonationSync",
-                Value = DateTime.Now.AddHours(-1).ToString()
-            };
-            await _configurationSettingsRepository.CreateConfigurationSettings(newEntry);
-            return DateTime.Parse(newEntry.Value);
+            return string.IsNullOrWhiteSpace(lastSync) ? DateTime.Now.AddHours(-1) : DateTime.Parse(lastSync);
         }
 
         public async Task<DateTime> GetLastRecurringScheduleSyncTime()
         {
             var lastSync = await _configurationWrapper.GetMpConfigValueAsync("CRDS-FINANCE", "LastRecurringSync");
-
-            if (!string.IsNullOrWhiteSpace(lastSync)) return DateTime.Parse(lastSync);
-
-            var newEntry = new MpConfigurationSettings
-            {
-                Description = "Recurring have been sync up to this datetime from PushPay",
-                ApplicationCode = "CRDS-FINANCE",
-                KeyName = "LastRecurringSync",
-                Value = DateTime.Now.AddHours(-1).ToString()
-            };
-            await _configurationSettingsRepository.CreateConfigurationSettings(newEntry);
-            return DateTime.Parse(newEntry.Value);
+            return string.IsNullOrWhiteSpace(lastSync) ? DateTime.Now.AddHours(-1) : DateTime.Parse(lastSync);
         }
 
         public async Task UpdateDonationSyncTime(DateTime newSyncTime)
@@ -63,14 +41,14 @@ namespace Crossroads.Service.Finance.Services
                     Description = "Donations have been sync up to this datetime from PushPay",
                     ApplicationCode = "CRDS-FINANCE",
                     KeyName = "LastDonationSync",
-                    Value = newSyncTime.ToUniversalTime().ToString()
+                    Value = newSyncTime.ToUniversalTime().ToString("u")
                 };
                 await _configurationSettingsRepository.CreateConfigurationSettings(newEntry);
             }
             else
             {
                 await _configurationSettingsRepository.UpdateValue(configId.Value,
-                    newSyncTime.ToUniversalTime().ToString());
+                    newSyncTime.ToUniversalTime().ToString("u"));
             }
         }
 
@@ -85,14 +63,14 @@ namespace Crossroads.Service.Finance.Services
                     Description = "Recurring have been sync up to this datetime from PushPay",
                     ApplicationCode = "CRDS-FINANCE",
                     KeyName = "LastRecurringSync",
-                    Value = newSyncTime.ToUniversalTime().ToString()
+                    Value = newSyncTime.ToUniversalTime().ToString("u")
                 };
                 await _configurationSettingsRepository.CreateConfigurationSettings(newEntry);
             }
             else
             {
                 await _configurationSettingsRepository.UpdateValue(configId.Value,
-                    newSyncTime.ToUniversalTime().ToString());
+                    newSyncTime.ToUniversalTime().ToString("u"));
             }
         }
     }
