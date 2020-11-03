@@ -53,14 +53,14 @@ namespace Crossroads.Service.Finance.Services
         {
 	        var startDate = await _lastSyncService.GetLastRecurringScheduleSyncTime();
 	        var endDate = DateTime.Now;
-            _logger.Info($"PullRecurringGiftsAsync is starting.  Start Date: {startDate}, End Date: {endDate}");
+            _logger.Info($"PullRecurringGiftsAsync is starting.  Start Date: {startDate.ToLocalTime()}, End Date: {endDate}");
             var recurringGifts = await _pushpayClient.GetRecurringGiftsAsync(startDate, endDate);
             _logger.Info($"Got {recurringGifts.Count} updates to recurring gift schedules and/or new schedules from PushPay.");
             foreach (var recurringGift in recurringGifts)
             {
                 _recurringGiftRepository.CreateRawPushpayRecurrentGiftSchedule(recurringGift);
             }
-            _logger.Info($"PullRecurringGiftsAsync is complete.  Start Date: {startDate}, End Date: {endDate}");
+            _logger.Info($"PullRecurringGiftsAsync is complete.  Start Date: {startDate.ToLocalTime()}, End Date: {endDate}");
             await _lastSyncService.UpdateRecurringScheduleSyncTime(endDate);
         }
 
@@ -85,7 +85,7 @@ namespace Crossroads.Service.Finance.Services
             {
                 _donationRepository.CreateRawPushpayDonation(donation);
             }
-            _logger.Info($"PollDonationsAsync is complete.  Start Time: {startTime}, End Time: {endTime}");
+            _logger.Info($"PollDonationsAsync is complete.  Start Time: {startTime.ToLocalTime()}, End Time: {endTime}");
             await _lastSyncService.UpdateDonationSyncTime(endTime);
 	    }
 
