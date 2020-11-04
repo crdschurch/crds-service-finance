@@ -7,8 +7,8 @@ namespace Crossroads.Service.Finance.Interfaces
 {
     public interface INewPushpayService
     {
-        Task PullRecurringGiftsAsync(DateTime startDate, DateTime endDate);
-        Task PollDonationsAsync(string lastSuccessfulRunTime);
+        Task PullRecurringGiftsAsync();
+        Task PollDonationsAsync();
         int? ParseFundIdFromExternalLinks(PushpayRecurringGiftDto schedule);
         Task ProcessRawDonations();
         Task<MpDonation> ProcessDonation(MpRawDonation mpRawDonation);
