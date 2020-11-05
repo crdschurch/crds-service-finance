@@ -27,12 +27,11 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost("updaterecurringgifts")]
-        public async Task<IActionResult> UpdateRecurringGiftsAsync([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> UpdateRecurringGiftsAsync()
         {
             try
             {
-                _logger.Info($"UpdateRecurringGiftsAsync is starting.  Start Date: {startDate}, End Date: {endDate}");
-                await _pushpayService.PullRecurringGiftsAsync(startDate, endDate);
+                await _pushpayService.PullRecurringGiftsAsync();
                 _logger.Info("All update jsons are saved to the DB");
                 _logger.Info("Starting to process the updates");
                 await _recurringService.SyncRecurringSchedules();
@@ -52,22 +51,8 @@ namespace Crossroads.Service.Finance.Controllers
         {
 	        try
 	        {
-		        var lastSuccessfulRunTime = string.Empty;
-
-		        using (var reader = new StreamReader(Request.Body))
-		        {
-			        var body = await reader.ReadToEndAsync();
-
-			        lastSuccessfulRunTime = JObject.Parse(body)["lastSuccessfulRunTime"].ToString();
-		        }
-
-		        if (string.IsNullOrEmpty(lastSuccessfulRunTime))
-		        {
-			        throw new Exception("Donation sync missing lastSuccessfulRunTime value");
-		        }
-
 		        // save raw schedules to the db
-		        await _pushpayService.PollDonationsAsync(lastSuccessfulRunTime);
+		        await _pushpayService.PollDonationsAsync();
 
                 // process raw schedules
                 await _pushpayService.ProcessRawDonations();

@@ -34,6 +34,7 @@ using System;
 using Crossroads.Service.Finance.Services.Congregations;
 using Crossroads.Service.Finance.Services.Donor;
 using Crossroads.Service.Finance.Services.Slack;
+using MinistryPlatform;
 using MinistryPlatform.DonorAccounts;
 
 namespace Crossroads.Service.Finance
@@ -105,6 +106,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IDepositService, DepositService>();
             services.AddSingleton<IPaymentEventService, PaymentEventService>();
             services.AddSingleton<IPushpayService, PushpayService>();
+            services.AddSingleton<ILastSyncService, LastSyncService>();
             services.AddSingleton<INewPushpayService, NewPushpayService>();
             services.AddSingleton<IPushpayClient, PushpayClient>();
             services.AddSingleton<IPushpayTokenService, PushpayTokenService>();

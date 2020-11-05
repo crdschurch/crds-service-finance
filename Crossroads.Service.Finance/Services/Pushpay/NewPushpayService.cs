@@ -22,6 +22,7 @@ namespace Crossroads.Service.Finance.Services
     public class NewPushpayService : INewPushpayService
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILastSyncService _lastSyncService;
         private readonly IPushpayClient _pushpayClient;
         private readonly IRecurringGiftRepository _recurringGiftRepository;
         private readonly IDonationRepository _donationRepository;
@@ -37,7 +38,7 @@ namespace Crossroads.Service.Finance.Services
 
         public NewPushpayService(IPushpayClient pushpayClient, IRecurringGiftRepository recurringGiftRepository, IDonationRepository donationRepository,
 	        IDonationService donationService, ICongregationService congregationService, IDonorService donorService, IDonationDistributionRepository donationDistributionRepository,
-	        IConfigurationWrapper configurationWrapper, ISlackService slackService)
+	        IConfigurationWrapper configurationWrapper, ILastSyncService lastSyncService, ISlackService slackService)
         {
             _pushpayClient = pushpayClient;
             _recurringGiftRepository = recurringGiftRepository;
@@ -46,6 +47,7 @@ namespace Crossroads.Service.Finance.Services
             _congregationService = congregationService;
             _donorService = donorService;
             _donationDistributionRepository = donationDistributionRepository;
+            _lastSyncService = lastSyncService;
             _slackService = slackService;
 
 			_mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
@@ -56,16 +58,19 @@ namespace Crossroads.Service.Finance.Services
 			_slackChannel = Environment.GetEnvironmentVariable("SLACK_CHANNEL");
 		}
 
-		public async Task PullRecurringGiftsAsync(DateTime startDate, DateTime endDate)
+        public async Task PullRecurringGiftsAsync()
         {
-            _logger.Info($"PullRecurringGiftsAsync is starting.  Start Date: {startDate}, End Date: {endDate}");
+	        var startDate = await _lastSyncService.GetLastRecurringScheduleSyncTime();
+	        var endDate = DateTime.Now;
+            _logger.Info($"PullRecurringGiftsAsync is starting.  Start Date: {startDate.ToLocalTime()}, End Date: {endDate}");
             var recurringGifts = await _pushpayClient.GetRecurringGiftsAsync(startDate, endDate);
             _logger.Info($"Got {recurringGifts.Count} updates to recurring gift schedules and/or new schedules from PushPay.");
             foreach (var recurringGift in recurringGifts)
             {
                 _recurringGiftRepository.CreateRawPushpayRecurrentGiftSchedule(recurringGift);
             }
-            _logger.Info($"PullRecurringGiftsAsync is complete.  Start Date: {startDate}, End Date: {endDate}");
+            _logger.Info($"PullRecurringGiftsAsync is complete.  Start Date: {startDate.ToLocalTime()}, End Date: {endDate}");
+            await _lastSyncService.UpdateRecurringScheduleSyncTime(endDate);
         }
 
         // TODO: Make the argument be of PushPayTransactionBaseDTO if external links gets moved there.
@@ -77,18 +82,21 @@ namespace Crossroads.Service.Finance.Services
             return externalLink?.Value;
         }
 
-	    public async Task PollDonationsAsync(string lastSuccessfulRunTime)
-        {
-	        var startTime = DateTime.Parse(lastSuccessfulRunTime).AddMinutes(-2);
+	    public async Task PollDonationsAsync()
+	    {
+		    var startDate = await _lastSyncService.GetLastDonationSyncTime();
+	        var startTime = startDate.AddMinutes(-2);
+	        var endTime = DateTime.Now;
 
-            var donations = await _pushpayClient.GetPolledDonationsJson(startTime, DateTime.Now);
+            var donations = await _pushpayClient.GetPolledDonationsJson(startTime, endTime);
 
             foreach (var donation in donations)
             {
                 _donationRepository.CreateRawPushpayDonation(donation);
             }
-            _logger.Info($"PollDonationsAsync is complete.  Start Time: {startTime}, End Time: {DateTime.Now}");
-        }
+            _logger.Info($"PollDonationsAsync is complete.  Start Time: {startTime.ToLocalTime()}, End Time: {endTime}");
+            await _lastSyncService.UpdateDonationSyncTime(endTime);
+	    }
 
         public async Task ProcessRawDonations()
         {
