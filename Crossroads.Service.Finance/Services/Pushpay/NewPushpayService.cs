@@ -200,7 +200,7 @@ namespace Crossroads.Service.Finance.Services
 		        {
 			        // Set payment type for refunds
 			        var refund =
-				        await _donationService.GetDonationByTransactionCode(pushpayPaymentDto.RefundFor.TransactionId);
+				        await _donationService.GetDonationByTransactionCode($"PP-{pushpayPaymentDto.RefundFor.TransactionId}");
 			        mpDonation.PaymentTypeId = refund.PaymentTypeId;
 		        }
 
