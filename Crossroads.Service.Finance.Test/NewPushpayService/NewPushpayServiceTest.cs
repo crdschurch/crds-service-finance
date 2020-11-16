@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Crossroads.Service.Finance.Interfaces;
+﻿using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services;
 using Crossroads.Service.Finance.Services.Congregations;
 using Crossroads.Service.Finance.Services.Donor;
+using Crossroads.Service.Finance.Services.Slack;
 using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Moq;
 using Pushpay.Client;
 using Pushpay.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Crossroads.Service.Finance.Test.NewPushpayService
@@ -27,6 +27,7 @@ namespace Crossroads.Service.Finance.Test.NewPushpayService
 		private readonly Mock<IDonorService> _donorService;
 		private readonly Mock<IConfigurationWrapper> _configurationWrapper;
 		private readonly Mock<ILastSyncService> _lastSyncServiceMock;
+		private readonly Mock<ISlackService> _slackService;
 
 		public INewPushpayService _fixture;
 
@@ -41,10 +42,11 @@ namespace Crossroads.Service.Finance.Test.NewPushpayService
 			_donorService = new Mock<IDonorService>();
 			_configurationWrapper = new Mock<IConfigurationWrapper>();
 			_lastSyncServiceMock = new Mock<ILastSyncService>(MockBehavior.Strict);
+			_slackService = new Mock<ISlackService>();
 
 			_fixture = new Services.NewPushpayService(_pushpayClient.Object, _recurringGiftRepository.Object, _donationRepository.Object,
 				_donationService.Object, _congregationService.Object, _donorService.Object, _donationDistributionRepository.Object,
-				_configurationWrapper.Object, _lastSyncServiceMock.Object);
+				_configurationWrapper.Object, _lastSyncServiceMock.Object, _slackService.Object);
 		}
 
 		[Fact]
