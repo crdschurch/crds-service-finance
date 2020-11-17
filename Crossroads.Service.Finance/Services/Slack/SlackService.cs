@@ -26,7 +26,6 @@ namespace Crossroads.Service.Finance.Services.Slack
 
 			var request = new RestRequest(Method.POST)
 			{
-				//Resource = "https://hooks.slack.com/services/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"
 				Resource = resource
 			};
 
