@@ -9,9 +9,11 @@ using Pushpay.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Crossroads.Service.Finance.Services.Donor;
+using Crossroads.Service.Finance.Services.Slack;
 using Crossroads.Web.Common.Configuration;
 
 namespace Crossroads.Service.Finance.Services
@@ -28,12 +30,15 @@ namespace Crossroads.Service.Finance.Services
         private readonly ICongregationService _congregationService;
         private readonly IDonationDistributionRepository _donationDistributionRepository;
         private readonly IDonorService _donorService;
+        private readonly ISlackService _slackService;
 
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
+        private readonly string _slackEndpoint;
+        private readonly string _slackChannel;
 
         public NewPushpayService(IPushpayClient pushpayClient, IRecurringGiftRepository recurringGiftRepository, IDonationRepository donationRepository,
 	        IDonationService donationService, ICongregationService congregationService, IDonorService donorService, IDonationDistributionRepository donationDistributionRepository,
-	        IConfigurationWrapper configurationWrapper, ILastSyncService lastSyncService)
+	        IConfigurationWrapper configurationWrapper, ILastSyncService lastSyncService, ISlackService slackService)
         {
             _pushpayClient = pushpayClient;
             _recurringGiftRepository = recurringGiftRepository;
@@ -43,11 +48,15 @@ namespace Crossroads.Service.Finance.Services
             _donorService = donorService;
             _donationDistributionRepository = donationDistributionRepository;
             _lastSyncService = lastSyncService;
+            _slackService = slackService;
 
-            _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
+			_mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
-        }
+
+            _slackEndpoint = Environment.GetEnvironmentVariable("SLACK_ENDPOINT");
+			_slackChannel = Environment.GetEnvironmentVariable("SLACK_CHANNEL");
+		}
 
         public async Task PullRecurringGiftsAsync()
         {
@@ -125,13 +134,29 @@ namespace Crossroads.Service.Finance.Services
 		        var mpDonation =
 			        await _donationRepository.GetDonationByTransactionCode($"PP-{pushpayPaymentDto.TransactionId}");
 
-		        // this may be a special case related to test code
-		        if (mpDonation == null)
+		        // this is to avoid having "bad" donations show up in MP
+		        if (mpDonation == null && pushpayPaymentDto.IsStatusFailed)
 		        {
-			        return null;
+			        mpRawDonation.IsProcessed = true;
+			        await _donationRepository.MarkAsProcessed(mpRawDonation);
+
+					// return a default so that it doesn't cause a null exception
+			        return new MpDonation();
 		        }
 
-		        // add payment token to identify via api
+				// alert if the donation is not failed and doesn't exist in MP
+				if (mpDonation == null && !pushpayPaymentDto.IsStatusFailed)
+				{
+					mpRawDonation.IsProcessed = false;
+					await _donationRepository.MarkAsProcessed(mpRawDonation);
+					_slackService.SendSlackAlert(_slackEndpoint, _slackChannel, "Donation sync error", 
+						$"Donation not in MP for transaction id: {pushpayPaymentDto.TransactionId}");
+
+					// return a default so that it doesn't cause a null exception
+					return new MpDonation();
+				}
+
+				// add payment token to identify via api
 		        if (pushpayPaymentDto.PaymentToken != null)
 		        {
 			        mpDonation.SubscriptionCode = pushpayPaymentDto.PaymentToken;

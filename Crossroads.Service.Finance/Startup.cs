@@ -33,6 +33,7 @@ using Pushpay.Token;
 using System;
 using Crossroads.Service.Finance.Services.Congregations;
 using Crossroads.Service.Finance.Services.Donor;
+using Crossroads.Service.Finance.Services.Slack;
 using MinistryPlatform;
 using MinistryPlatform.DonorAccounts;
 
@@ -112,6 +113,7 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IRecurringService, RecurringService>();
             services.AddSingleton<IExportService, ExportService>();
             services.AddSingleton<ICongregationService, CongregationService>();
+            services.AddSingleton<ISlackService, SlackService>();
 
             // Repo Layer
             services.AddSingleton<IBatchRepository, BatchRepository>();
