@@ -116,7 +116,7 @@ namespace Crossroads.Service.Finance.Services
                     Task.WaitAll(setOfDonationsToProcess.Select(ProcessDonation).ToArray());
 		        }
 	        } while (lastSyncIndex.HasValue);
-			_logger.Info($"Processed {totalCount} donations.");
+	        _logger.Info($"Processed {totalCount} donations.");
         }
 
         public async Task<MpDonation> ProcessDonation(MpRawDonation mpRawDonation)
