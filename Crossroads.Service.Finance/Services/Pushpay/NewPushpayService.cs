@@ -101,9 +101,11 @@ namespace Crossroads.Service.Finance.Services
         public async Task ProcessRawDonations()
         {
 	        int? lastSyncIndex = null;
+	        var totalCount = 0;
 	        do
 	        {
 		        var donationsToProcess = await _donationRepository.GetUnprocessedDonations(lastSyncIndex);
+		        totalCount += donationsToProcess.Count;
 		        _logger.Info($"Processing {donationsToProcess.Count} donations.");
 
 		        // MP gets the top 1000 results. So we should get the last ID so we can get the next chunk of donations
@@ -123,6 +125,7 @@ namespace Crossroads.Service.Finance.Services
                     Task.WaitAll(setOfDonationsToProcess.Select(ProcessDonation).ToArray());
 		        }
 	        } while (lastSyncIndex.HasValue);
+	        _logger.Info($"Processed {totalCount} donations.");
         }
 
         public async Task<MpDonation> ProcessDonation(MpRawDonation mpRawDonation)
