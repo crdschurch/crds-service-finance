@@ -150,8 +150,6 @@ namespace Crossroads.Service.Finance.Services
 				// alert if the donation is not failed and doesn't exist in MP
 				if (mpDonation == null && !pushpayPaymentDto.IsStatusFailed)
 				{
-					mpRawDonation.IsProcessed = false;
-					await _donationRepository.MarkAsProcessed(mpRawDonation);
 					_slackService.SendSlackAlert(_slackEndpoint, _slackChannel, "Donation sync error", 
 						$"Donation not in MP for transaction id: {pushpayPaymentDto.TransactionId}");
 
