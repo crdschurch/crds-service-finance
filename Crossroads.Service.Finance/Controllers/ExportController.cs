@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualBasic;
 using ProcessLogging.Models;
-using ProcessLogging.Transfer;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -17,12 +16,10 @@ namespace Crossroads.Service.Finance.Controllers
     {
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IExportService _exportService;
-        private readonly IProcessLogger _processLogger;
 
-        public ExportController(IExportService exportService, IProcessLogger processLogger)
+        public ExportController(IExportService exportService)
         {
             _exportService = exportService;
-            _processLogger = processLogger;
         }
 
         [HttpPost]
@@ -33,12 +30,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                var creatingJournalEntriesMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.createJournalEntries)
-                {
-                    MessageData = "Creating journal entries"
-                };
-                _processLogger.SaveProcessLogMessage(creatingJournalEntriesMessage);
-
+                _logger.Info("Creating journal entries");
                 _exportService.CreateJournalEntriesAsync();
 
                 return Ok();
@@ -78,12 +70,7 @@ namespace Crossroads.Service.Finance.Controllers
         {
             try
             {
-                var runningExportMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.exportJournalEntries)
-                {
-                    MessageData = "Exporting journal entries programatically"
-                };
-                _processLogger.SaveProcessLogMessage(runningExportMessage);
-
+                _logger.Info("Exporting journal entries programatically");
                 _exportService.ExportJournalEntries();
                 return Ok();
             }
@@ -109,12 +96,7 @@ namespace Crossroads.Service.Finance.Controllers
 
             try
             {
-                var manualJournalEntryExportMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.manualJournalEntryExport)
-                {
-                    MessageData = "Exporting journal entries manually"
-                };
-                _processLogger.SaveProcessLogMessage(manualJournalEntryExportMessage);
-
+                _logger.Info("Exporting journal entries manually");
                 var resultTask = _exportService.ExportJournalEntriesManually(update);
                  result = resultTask.Result;
                  return Ok(result);

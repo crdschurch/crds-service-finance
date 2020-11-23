@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ProcessLogging.Models;
-using ProcessLogging.Transfer;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -22,7 +21,6 @@ namespace Crossroads.Service.Finance.Services
         private readonly IMapper _mapper;
         private readonly IPushpayService _pushpayService;
         private readonly IConfigurationWrapper _configurationWrapper;
-        private readonly IProcessLogger _processLogger;
 
         private readonly int _depositProcessingOffset;
         private readonly string _pushpayWebEndpoint;
@@ -30,14 +28,12 @@ namespace Crossroads.Service.Finance.Services
         public DepositService(IDepositRepository depositRepository,
                               IMapper mapper,
                               IPushpayService pushpayService,
-                              IConfigurationWrapper configurationWrapper,
-                              IProcessLogger processLogger)
+                              IConfigurationWrapper configurationWrapper)
         {
             _depositRepository = depositRepository;
             _mapper = mapper;
             _pushpayService = pushpayService;
             _configurationWrapper = configurationWrapper;
-            _processLogger = processLogger;
 
             _depositProcessingOffset = _configurationWrapper.GetMpConfigIntValue("CRDS-FINANCE", "DepositProcessingOffset", true).GetValueOrDefault();
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
@@ -115,14 +111,7 @@ namespace Crossroads.Service.Finance.Services
             var depositDtos = await GetDepositsForSync(startDate, endDate);
             var depositCount = (depositDtos == null || !depositDtos.Any()) ? 0 : depositDtos.Count;
 
-            //Console.WriteLine($"Checking pushpay for deposits between {startDate} and {endDate}. Found {depositCount}");
-            //_logger.Info($"Checking pushpay for deposits between {startDate} and {endDate}. Found {depositCount}");
-
-            var checkingPushpayDepositsMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.pushpayDepositCount)
-            {
-                MessageData = $"Checking pushpay for deposits between {startDate} and {endDate}. Found {depositCount}."
-            };
-            _processLogger.SaveProcessLogMessage(checkingPushpayDepositsMessage);
+            _logger.Info($"Checking pushpay for deposits between {startDate} and {endDate}. Found {depositCount}.");
 
             if (depositDtos == null || !depositDtos.Any())
             {
@@ -150,14 +139,7 @@ namespace Crossroads.Service.Finance.Services
             var existingDepositIds = existingDeposits.Select(r => r.ProcessorTransferId).ToList();
             var existingDepositList = String.Join(", ", existingDepositIds);
 
-            //Console.WriteLine($"These deposits already exist in MP and will be skipped: {existingDepositList}");
-            //_logger.Info($"These deposits already exist in MP and will be skipped: {existingDepositList}");
-
-            var skippedDepositsMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.depositsToSkip)
-            {
-                MessageData = $"These deposits already exist in MP and will be skipped: {existingDepositList}"
-            };
-            _processLogger.SaveProcessLogMessage(skippedDepositsMessage);
+            _logger.Info($"These deposits already exist in MP and will be skipped: {existingDepositList}");
 
             var depositsToProcess = new List<SettlementEventDto>();
 
@@ -170,14 +152,7 @@ namespace Crossroads.Service.Finance.Services
             }
 
             var depositsToProcessList = String.Join(", ", depositsToProcess.Select(r => r.Name));
-            //Console.WriteLine($"These deposits do not exist in MP and will be created: {depositsToProcessList}");
-            //_logger.Info($"These deposits do not exist in MP and will be created: {depositsToProcessList}");
-
-            var depositsToCreateMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.depositsToCreate)
-            {
-                MessageData = $"These deposits do not exist in MP and will be created: {depositsToProcessList}"
-            };
-            _processLogger.SaveProcessLogMessage(depositsToCreateMessage);
+            _logger.Info($"These deposits do not exist in MP and will be created: {depositsToProcessList}");
 
             return depositsToProcess;
         }

@@ -136,10 +136,6 @@ namespace Crossroads.Service.Finance
             // Exports Layer
             services.AddSingleton<IJournalEntryExport, VelosioExportClient>();
 
-            // Process Logging Layer
-            services.AddSingleton<IProcessLogger, NoSqlProcessLogger>();
-            services.AddSingleton<INoSqlDbService>(InitializeProcessLoggingDbService());
-
             // Add support for caching
             services.AddSingleton<ICacheService, CacheService>();
             services.AddDistributedMemoryCache();

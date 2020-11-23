@@ -35,8 +35,7 @@ namespace Crossroads.Service.Finance.Test.Deposits
             
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
 
-            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object,
-                _processLogger.Object);
+            _fixture = new DepositService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _configWrapper.Object);
         }
 
         [Fact]
