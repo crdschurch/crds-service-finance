@@ -11,6 +11,7 @@ using Pushpay.Client;
 using Pushpay.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -193,14 +194,13 @@ namespace Crossroads.Service.Finance.Test.NewPushpayService
 				.Returns(Task.FromResult(new List<MpDonationDistribution>()));
 			_donationDistributionRepository.Setup(r =>
 				r.UpdateDonationDistributions(mpDonationDistributions));
-			_donationRepository.Setup(r => r.MarkAsProcessed(It.IsAny<MpRawDonation>()));
 			_donationService.Setup(r => r.UpdateMpDonation(It.IsAny<MpDonation>()));
 
 			// Act
 			var result = _fixture.ProcessDonation(rawDonation).Result;
 
 			// Assert
-			Assert.Equal(1234567, result.RecurringGiftId);
+			Assert.Equal(rawDonation.DonationId, result);
 			_donationRepository.VerifyAll();
 		}
 	}

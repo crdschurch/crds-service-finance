@@ -396,19 +396,19 @@ namespace MinistryPlatform.Repositories
 		        .Search<MpRawDonation>()).ToList();
         }
 
-        public async Task MarkAsProcessed(MpRawDonation donation)
+        public async Task BatchMarkAsProcessed(List<int> ids)
         {
 	        var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
 
 	        var parameters = new Dictionary<string, object>
 	        {
-		        {"@DonationId", donation.DonationId}
+		        {"@DonationIds", ids}
 	        };
 
 	        await MpRestBuilder.NewRequestBuilder()
 		        .WithAuthenticationToken(token)
 		        .BuildAsync()
-		        .ExecuteStoredProc("api_crds_Set_Donation_JSON_To_Processed", parameters);
+		        .ExecuteStoredProc("api_crds_Batch_Set_Donation_JSON_To_Processed", parameters);
         }
     }
 }
