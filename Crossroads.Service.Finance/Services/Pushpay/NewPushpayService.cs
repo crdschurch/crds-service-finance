@@ -123,7 +123,11 @@ namespace Crossroads.Service.Finance.Services
 
                     // Sync the chunk and wait for all to finish before processing the next chunk
                     var results = await Task.WhenAll(setOfDonationsToProcess.Select(ProcessDonation).ToArray());
-                    await _donationRepository.BatchMarkAsProcessed(results.Where(r => r.HasValue).Select(j => j.Value).ToList());
+                    var recordsToBeMarkedProcessed = results.Where(r => r.HasValue).Select(j => j.Value).ToList();
+                    if (recordsToBeMarkedProcessed.Any())
+                    {
+						await _donationRepository.BatchMarkAsProcessed(recordsToBeMarkedProcessed);
+                    }
 		        }
 	        } while (lastSyncIndex.HasValue);
 	        _logger.Info($"Processed {totalCount} donations.");

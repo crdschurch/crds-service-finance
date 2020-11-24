@@ -402,7 +402,7 @@ namespace MinistryPlatform.Repositories
 
 	        var parameters = new Dictionary<string, object>
 	        {
-		        {"@DonationIds", ids}
+		        {"@DonationIds", string.Join(",", ids)}
 	        };
 
 	        await MpRestBuilder.NewRequestBuilder()
