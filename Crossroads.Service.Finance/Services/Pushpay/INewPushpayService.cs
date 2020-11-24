@@ -11,6 +11,6 @@ namespace Crossroads.Service.Finance.Interfaces
         Task PollDonationsAsync();
         int? ParseFundIdFromExternalLinks(PushpayRecurringGiftDto schedule);
         Task ProcessRawDonations();
-        Task<MpDonation> ProcessDonation(MpRawDonation mpRawDonation);
+        Task<int?> ProcessDonation(MpRawDonation mpRawDonation);
     }
 }

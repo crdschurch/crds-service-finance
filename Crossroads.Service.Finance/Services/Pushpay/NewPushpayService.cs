@@ -122,13 +122,18 @@ namespace Crossroads.Service.Finance.Services
 			        donationsToProcess.RemoveRange(0, range);
 
                     // Sync the chunk and wait for all to finish before processing the next chunk
-                    Task.WaitAll(setOfDonationsToProcess.Select(ProcessDonation).ToArray());
+                    var results = await Task.WhenAll(setOfDonationsToProcess.Select(ProcessDonation).ToArray());
+                    var recordsToBeMarkedProcessed = results.Where(r => r.HasValue).Select(j => j.Value).ToList();
+                    if (recordsToBeMarkedProcessed.Any())
+                    {
+						await _donationRepository.BatchMarkAsProcessed(recordsToBeMarkedProcessed);
+                    }
 		        }
 	        } while (lastSyncIndex.HasValue);
 	        _logger.Info($"Processed {totalCount} donations.");
         }
 
-        public async Task<MpDonation> ProcessDonation(MpRawDonation mpRawDonation)
+        public async Task<int?> ProcessDonation(MpRawDonation mpRawDonation)
         {
 	        try
 	        {
@@ -140,11 +145,7 @@ namespace Crossroads.Service.Finance.Services
 		        // this is to avoid having "bad" donations show up in MP
 		        if (mpDonation == null && pushpayPaymentDto.IsStatusFailed)
 		        {
-			        mpRawDonation.IsProcessed = true;
-			        await _donationRepository.MarkAsProcessed(mpRawDonation);
-
-					// return a default so that it doesn't cause a null exception
-			        return new MpDonation();
+			        return mpRawDonation.DonationId;
 		        }
 
 				// alert if the donation is not failed and doesn't exist in MP
@@ -154,7 +155,7 @@ namespace Crossroads.Service.Finance.Services
 						$"Donation not in MP for transaction id: {pushpayPaymentDto.TransactionId}");
 
 					// return a default so that it doesn't cause a null exception
-					return new MpDonation();
+					return null;
 				}
 
 				// add payment token to identify via api
@@ -253,18 +254,14 @@ namespace Crossroads.Service.Finance.Services
 			        await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
 		        }
 
-		        // set to process
-		        await _donationRepository.MarkAsProcessed(mpRawDonation);
-		        
 		        // save donation back to MP
 		        await _donationService.UpdateMpDonation(mpDonation);
 
-		        return mpDonation;
+		        return mpRawDonation.DonationId;
 	        }
 	        catch (Exception ex)
 	        {
 		        _logger.Error($"Could not process donation {mpRawDonation}: {ex}");
-		        await _donationRepository.MarkAsProcessed(mpRawDonation);
 	        }
 
 	        return null;
