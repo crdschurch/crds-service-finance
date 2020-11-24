@@ -2,7 +2,6 @@
 using Crossroads.Service.Finance.Models;
 using System;
 using System.Threading.Tasks;
-using ProcessLogging.Models;
 
 namespace Crossroads.Service.Finance.Services
 {

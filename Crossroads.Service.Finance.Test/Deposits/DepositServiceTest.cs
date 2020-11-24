@@ -9,7 +9,6 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ProcessLogging.Transfer;
 using Xunit;
 
 namespace Crossroads.Service.Finance.Test.Deposits
@@ -21,7 +20,6 @@ namespace Crossroads.Service.Finance.Test.Deposits
         private readonly Mock<IPushpayService> _pushpayService;
         private readonly Mock<IConfigurationWrapper> _configWrapper;
         private readonly string _pushpayWebEndpoint;
-        private readonly Mock<IProcessLogger> _processLogger;
 
         private readonly IDepositService _fixture;
 
@@ -31,7 +29,6 @@ namespace Crossroads.Service.Finance.Test.Deposits
             _mapper = new Mock<IMapper>();
             _pushpayService = new Mock<IPushpayService>();
             _configWrapper = new Mock<IConfigurationWrapper>();
-            _processLogger = new Mock<IProcessLogger>();
             
             _pushpayWebEndpoint = Environment.GetEnvironmentVariable("PUSHPAY_WEB_ENDPOINT");
 

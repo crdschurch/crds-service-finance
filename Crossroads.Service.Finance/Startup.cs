@@ -4,7 +4,6 @@ using Crossroads.Microservice.Settings;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Middleware;
 using Crossroads.Service.Finance.Services;
-using Crossroads.Service.Finance.Services.DbClients;
 using Crossroads.Service.Finance.Services.Exports;
 using Crossroads.Service.Finance.Services.JournalEntry;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
@@ -24,13 +23,10 @@ using MinistryPlatform.Interfaces;
 using MinistryPlatform.JournalEntries;
 using MinistryPlatform.Repositories;
 using MinistryPlatform.Users;
-using MongoDB.Driver;
 using Newtonsoft.Json;
-using ProcessLogging.Transfer;
 using Pushpay.Cache;
 using Pushpay.Client;
 using Pushpay.Token;
-using System;
 using Crossroads.Service.Finance.Services.Congregations;
 using Crossroads.Service.Finance.Services.Donor;
 using Crossroads.Service.Finance.Services.Slack;
@@ -177,13 +173,6 @@ namespace Crossroads.Service.Finance
             //     c.DocExpansion(DocExpansion.None);
             //     c.RoutePrefix = string.Empty;
             // });
-        }
-
-        public INoSqlDbService InitializeProcessLoggingDbService()
-        {
-            var mongoClient = new MongoClient(Environment.GetEnvironmentVariable("NO_SQL_CONNECTION_STRING"));
-            var cosmosDbService = new NoSqlDbService(mongoClient);
-            return cosmosDbService;
         }
     }
 }

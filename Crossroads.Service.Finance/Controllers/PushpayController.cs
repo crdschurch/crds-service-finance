@@ -6,7 +6,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ProcessLogging.Models;
 using Crossroads.Web.Common.Auth.Helpers;
 
 namespace Crossroads.Service.Finance.Controllers

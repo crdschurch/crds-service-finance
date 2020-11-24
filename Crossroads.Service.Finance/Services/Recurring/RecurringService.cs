@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 using Crossroads.Service.Finance.Services.Donor;
 using MinistryPlatform.Models;
 using Newtonsoft.Json;
-using ProcessLogging.Models;
-using ProcessLogging.Transfer;
 using Pushpay.Models;
 
 namespace Crossroads.Service.Finance.Services.Recurring
@@ -27,7 +25,6 @@ namespace Crossroads.Service.Finance.Services.Recurring
         private readonly IConfigurationWrapper _configurationWrapper;
         private readonly IDonationService _donationService;
         private readonly IMapper _mapper;
-        private readonly IProcessLogger _processLogger;
         private readonly IProgramRepository _programRepository;
         private readonly IDonorService _donorService;
         private readonly IGatewayService _gatewayService;
@@ -44,8 +41,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
             IDonorService donorService,
             IRecurringGiftRepository recurringGiftRepository,
             IProgramRepository programRepository,
-            IGatewayService gatewayService,
-            IProcessLogger processLogger)
+            IGatewayService gatewayService)
         {
             _pushpayService = pushpayService;
             _newPushpayService = newPushpayService;
@@ -55,7 +51,6 @@ namespace Crossroads.Service.Finance.Services.Recurring
             _gatewayService = gatewayService;
             _recurringGiftRepository = recurringGiftRepository;
             _programRepository = programRepository;
-            _processLogger = processLogger;
             _mapper = mapper;
             _mpNotSiteSpecificCongregationId = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "NotSiteSpecific") ?? 5;
         }

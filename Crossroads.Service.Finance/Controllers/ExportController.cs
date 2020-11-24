@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualBasic;
-using ProcessLogging.Models;
 
 namespace Crossroads.Service.Finance.Controllers
 {
