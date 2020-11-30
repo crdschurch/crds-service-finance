@@ -18,10 +18,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pushpay.Test", "Pushpay.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Exports", "Exports\Exports.csproj", "{71FB5E96-B3E3-4A40-AF94-55551BF3FBC3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcessLogging", "ProcessLogging\ProcessLogging.csproj", "{61CEFAD3-B536-4E80-82C4-21AE6756D005}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcessLogging.Test", "ProcessLogging.Test\ProcessLogging.Test.csproj", "{CE33EA18-6505-4412-A1E7-E57EFB803360}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,22 +90,6 @@ Global
 		{71FB5E96-B3E3-4A40-AF94-55551BF3FBC3}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{71FB5E96-B3E3-4A40-AF94-55551BF3FBC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71FB5E96-B3E3-4A40-AF94-55551BF3FBC3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{61CEFAD3-B536-4E80-82C4-21AE6756D005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{61CEFAD3-B536-4E80-82C4-21AE6756D005}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{61CEFAD3-B536-4E80-82C4-21AE6756D005}.Demo|Any CPU.ActiveCfg = Debug|Any CPU
-		{61CEFAD3-B536-4E80-82C4-21AE6756D005}.Demo|Any CPU.Build.0 = Debug|Any CPU
-		{61CEFAD3-B536-4E80-82C4-21AE6756D005}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
-		{61CEFAD3-B536-4E80-82C4-21AE6756D005}.Integration|Any CPU.Build.0 = Debug|Any CPU
-		{61CEFAD3-B536-4E80-82C4-21AE6756D005}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{61CEFAD3-B536-4E80-82C4-21AE6756D005}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CE33EA18-6505-4412-A1E7-E57EFB803360}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE33EA18-6505-4412-A1E7-E57EFB803360}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE33EA18-6505-4412-A1E7-E57EFB803360}.Demo|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE33EA18-6505-4412-A1E7-E57EFB803360}.Demo|Any CPU.Build.0 = Debug|Any CPU
-		{CE33EA18-6505-4412-A1E7-E57EFB803360}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE33EA18-6505-4412-A1E7-E57EFB803360}.Integration|Any CPU.Build.0 = Debug|Any CPU
-		{CE33EA18-6505-4412-A1E7-E57EFB803360}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE33EA18-6505-4412-A1E7-E57EFB803360}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,7 +4,6 @@ using Crossroads.Microservice.Settings;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Middleware;
 using Crossroads.Service.Finance.Services;
-using Crossroads.Service.Finance.Services.DbClients;
 using Crossroads.Service.Finance.Services.Exports;
 using Crossroads.Service.Finance.Services.JournalEntry;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
@@ -24,15 +23,14 @@ using MinistryPlatform.Interfaces;
 using MinistryPlatform.JournalEntries;
 using MinistryPlatform.Repositories;
 using MinistryPlatform.Users;
-using MongoDB.Driver;
 using Newtonsoft.Json;
-using ProcessLogging.Transfer;
 using Pushpay.Cache;
 using Pushpay.Client;
 using Pushpay.Token;
-using System;
 using Crossroads.Service.Finance.Services.Congregations;
 using Crossroads.Service.Finance.Services.Donor;
+using Crossroads.Service.Finance.Services.Slack;
+using MinistryPlatform;
 using MinistryPlatform.DonorAccounts;
 
 namespace Crossroads.Service.Finance
@@ -104,12 +102,14 @@ namespace Crossroads.Service.Finance
             services.AddSingleton<IDepositService, DepositService>();
             services.AddSingleton<IPaymentEventService, PaymentEventService>();
             services.AddSingleton<IPushpayService, PushpayService>();
+            services.AddSingleton<ILastSyncService, LastSyncService>();
             services.AddSingleton<INewPushpayService, NewPushpayService>();
             services.AddSingleton<IPushpayClient, PushpayClient>();
             services.AddSingleton<IPushpayTokenService, PushpayTokenService>();
             services.AddSingleton<IRecurringService, RecurringService>();
             services.AddSingleton<IExportService, ExportService>();
             services.AddSingleton<ICongregationService, CongregationService>();
+            services.AddSingleton<ISlackService, SlackService>();
 
             // Repo Layer
             services.AddSingleton<IBatchRepository, BatchRepository>();
@@ -131,10 +131,6 @@ namespace Crossroads.Service.Finance
 
             // Exports Layer
             services.AddSingleton<IJournalEntryExport, VelosioExportClient>();
-
-            // Process Logging Layer
-            services.AddSingleton<IProcessLogger, NoSqlProcessLogger>();
-            services.AddSingleton<INoSqlDbService>(InitializeProcessLoggingDbService());
 
             // Add support for caching
             services.AddSingleton<ICacheService, CacheService>();
@@ -177,13 +173,6 @@ namespace Crossroads.Service.Finance
             //     c.DocExpansion(DocExpansion.None);
             //     c.RoutePrefix = string.Empty;
             // });
-        }
-
-        public INoSqlDbService InitializeProcessLoggingDbService()
-        {
-            var mongoClient = new MongoClient(Environment.GetEnvironmentVariable("NO_SQL_CONNECTION_STRING"));
-            var cosmosDbService = new NoSqlDbService(mongoClient);
-            return cosmosDbService;
         }
     }
 }

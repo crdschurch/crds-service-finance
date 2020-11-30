@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ProcessLogging.Models;
-using ProcessLogging.Transfer;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -15,13 +13,11 @@ namespace Crossroads.Service.Finance.Controllers
 
         private readonly IDepositService _depositService;
         private readonly IPaymentEventService _paymentEventService;
-        private readonly IProcessLogger _processLogger;
 
-        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService, IProcessLogger processLogger)
+        public DepositController(IDepositService depositService, IPaymentEventService paymentEventService)
         {
             _depositService = depositService;
             _paymentEventService = paymentEventService;
-            _processLogger = processLogger;
         }
 
         /// <summary>
@@ -42,13 +38,7 @@ namespace Crossroads.Service.Finance.Controllers
                 if (deposits == null || deposits.Count == 0)
                 {
                     //Console.WriteLine("No deposits to sync");
-                    //_logger.Info("No deposits to sync");
-                    var noDepositsToSyncMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.noDepositsToSync)
-                    {
-                        MessageData = $"No deposits to sync."
-                    };
-                    _processLogger.SaveProcessLogMessage(noDepositsToSyncMessage);
-
+                    _logger.Info("No deposits to sync");
                     return NoContent();
                 }
                 foreach (var deposit in deposits)
@@ -58,13 +48,7 @@ namespace Crossroads.Service.Finance.Controllers
                 }
 
                 //Console.WriteLine($"SyncSettlements processed {deposits.Count} deposits");
-                //_logger.Info($"SyncSettlements processed {deposits.Count} deposits");
-
-                var depositsProcessedMessage = new ProcessLogMessage(ProcessLogConstants.MessageType.settlementsProcessed)
-                {
-                    MessageData = $"{deposits.Count} settlements were processed."
-                };
-                _processLogger.SaveProcessLogMessage(depositsProcessedMessage);
+                _logger.Info($"SyncSettlements processed {deposits.Count} deposits");
 
                 return Ok(new {created = deposits.Count});
             }
