@@ -323,7 +323,7 @@ namespace Pushpay.Client
 
         private async Task<RestRequest> CreateRecurringGiftRequestAsync(DateTime startDate, DateTime endDate)
         {
-            _logger.Info($"CreateRecurringGiftsRequestAsync is starting.  Start Date: {startDate}, End Date: {endDate}");
+            _logger.Info($"CreateRecurringGiftsRequestAsync is starting.  Start Date: {startDate.ToLocalTime()}, End Date: {endDate}");
 
             var merchantKey = Environment.GetEnvironmentVariable("PUSHPAY_MERCHANT_KEY");
             var resource = $"merchant/{merchantKey}/recurringpayments";

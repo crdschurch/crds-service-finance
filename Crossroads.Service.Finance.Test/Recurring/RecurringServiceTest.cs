@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Crossroads.Service.Finance.Services.Donor;
-using ProcessLogging.Transfer;
 using Xunit;
 
 namespace Crossroads.Service.Finance.Test.Recurring
@@ -23,7 +22,6 @@ namespace Crossroads.Service.Finance.Test.Recurring
         private readonly Mock<IPushpayService> _pushpayService;
         private readonly Mock<IConfigurationWrapper> _configWrapper;
         private readonly Mock<IRecurringGiftRepository> _recurringGiftRepository;
-        private readonly Mock<IProcessLogger> _processLogger;
         private readonly Mock<INewPushpayService> _newPushpayService;
         private readonly Mock<IDonationService> _donationService;
         private readonly Mock<IProgramRepository> _programRepository;
@@ -39,7 +37,6 @@ namespace Crossroads.Service.Finance.Test.Recurring
             _pushpayService = new Mock<IPushpayService>();
             _configWrapper = new Mock<IConfigurationWrapper>();
             _recurringGiftRepository = new Mock<IRecurringGiftRepository>();
-            _processLogger = new Mock<IProcessLogger>();
             _newPushpayService = new Mock<INewPushpayService>();
             _donationService = new Mock<IDonationService>();
             _programRepository = new Mock<IProgramRepository>();
@@ -47,7 +44,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
             _gatewayService = new Mock<IGatewayService>();
 
             _fixture = new RecurringService(_depositRepository.Object, _mapper.Object, _pushpayService.Object, _newPushpayService.Object, _configWrapper.Object,
-               _donationService.Object, _donorService.Object, _recurringGiftRepository.Object, _programRepository.Object, _gatewayService.Object, _processLogger.Object);
+               _donationService.Object, _donorService.Object, _recurringGiftRepository.Object, _programRepository.Object, _gatewayService.Object);
         }
 
         [Fact]

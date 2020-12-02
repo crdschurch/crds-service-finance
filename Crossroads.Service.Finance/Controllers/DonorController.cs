@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ProcessLogging.Models;
 
 namespace Crossroads.Service.Finance.Controllers
 {

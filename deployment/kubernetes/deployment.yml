@@ -103,3 +103,5 @@ spec:
               value: $EXPORT_SERVICE_KEY
             - name: VELOSIO_EXPORT_URL
               value: $VELOSIO_EXPORT_URL
+            - name: TABLE_STORAGE_CONNECTION
+              value: $TABLE_STORAGE_CONNECTION

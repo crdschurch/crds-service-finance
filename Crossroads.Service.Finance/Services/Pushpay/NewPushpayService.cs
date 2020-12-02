@@ -9,9 +9,11 @@ using Pushpay.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Crossroads.Service.Finance.Services.Donor;
+using Crossroads.Service.Finance.Services.Slack;
 using Crossroads.Web.Common.Configuration;
 
 namespace Crossroads.Service.Finance.Services
@@ -20,6 +22,7 @@ namespace Crossroads.Service.Finance.Services
     public class NewPushpayService : INewPushpayService
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILastSyncService _lastSyncService;
         private readonly IPushpayClient _pushpayClient;
         private readonly IRecurringGiftRepository _recurringGiftRepository;
         private readonly IDonationRepository _donationRepository;
@@ -27,12 +30,15 @@ namespace Crossroads.Service.Finance.Services
         private readonly ICongregationService _congregationService;
         private readonly IDonationDistributionRepository _donationDistributionRepository;
         private readonly IDonorService _donorService;
+        private readonly ISlackService _slackService;
 
         private readonly int _mpDonationStatusPending, _mpDonationStatusDeclined, _mpDonationStatusSucceeded;
+        private readonly string _slackEndpoint;
+        private readonly string _slackChannel;
 
         public NewPushpayService(IPushpayClient pushpayClient, IRecurringGiftRepository recurringGiftRepository, IDonationRepository donationRepository,
 	        IDonationService donationService, ICongregationService congregationService, IDonorService donorService, IDonationDistributionRepository donationDistributionRepository,
-	        IConfigurationWrapper configurationWrapper)
+	        IConfigurationWrapper configurationWrapper, ILastSyncService lastSyncService, ISlackService slackService)
         {
             _pushpayClient = pushpayClient;
             _recurringGiftRepository = recurringGiftRepository;
@@ -41,22 +47,30 @@ namespace Crossroads.Service.Finance.Services
             _congregationService = congregationService;
             _donorService = donorService;
             _donationDistributionRepository = donationDistributionRepository;
+            _lastSyncService = lastSyncService;
+            _slackService = slackService;
 
-            _mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
+			_mpDonationStatusPending = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusPending") ?? 1;
             _mpDonationStatusDeclined = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusDeclined") ?? 3;
             _mpDonationStatusSucceeded = configurationWrapper.GetMpConfigIntValue("CRDS-COMMON", "DonationStatusSucceeded") ?? 4;
-        }
 
-        public async Task PullRecurringGiftsAsync(DateTime startDate, DateTime endDate)
+            _slackEndpoint = Environment.GetEnvironmentVariable("SLACK_ENDPOINT");
+			_slackChannel = Environment.GetEnvironmentVariable("SLACK_CHANNEL");
+		}
+
+        public async Task PullRecurringGiftsAsync()
         {
-            _logger.Info($"PullRecurringGiftsAsync is starting.  Start Date: {startDate}, End Date: {endDate}");
+	        var startDate = await _lastSyncService.GetLastRecurringScheduleSyncTime();
+	        var endDate = DateTime.Now;
+            _logger.Info($"PullRecurringGiftsAsync is starting.  Start Date: {startDate.ToLocalTime()}, End Date: {endDate}");
             var recurringGifts = await _pushpayClient.GetRecurringGiftsAsync(startDate, endDate);
             _logger.Info($"Got {recurringGifts.Count} updates to recurring gift schedules and/or new schedules from PushPay.");
             foreach (var recurringGift in recurringGifts)
             {
                 _recurringGiftRepository.CreateRawPushpayRecurrentGiftSchedule(recurringGift);
             }
-            _logger.Info($"PullRecurringGiftsAsync is complete.  Start Date: {startDate}, End Date: {endDate}");
+            _logger.Info($"PullRecurringGiftsAsync is complete.  Start Date: {startDate.ToLocalTime()}, End Date: {endDate}");
+            await _lastSyncService.UpdateRecurringScheduleSyncTime(endDate);
         }
 
         // TODO: Make the argument be of PushPayTransactionBaseDTO if external links gets moved there.
@@ -68,25 +82,30 @@ namespace Crossroads.Service.Finance.Services
             return externalLink?.Value;
         }
 
-	    public async Task PollDonationsAsync(string lastSuccessfulRunTime)
-        {
-	        var startTime = DateTime.Parse(lastSuccessfulRunTime).AddMinutes(-2);
+	    public async Task PollDonationsAsync()
+	    {
+		    var startDate = await _lastSyncService.GetLastDonationSyncTime();
+	        var startTime = startDate.AddMinutes(-2);
+	        var endTime = DateTime.Now;
 
-            var donations = await _pushpayClient.GetPolledDonationsJson(startTime, DateTime.Now);
+            var donations = await _pushpayClient.GetPolledDonationsJson(startTime, endTime);
 
             foreach (var donation in donations)
             {
                 _donationRepository.CreateRawPushpayDonation(donation);
             }
-            _logger.Info($"PollDonationsAsync is complete.  Start Time: {startTime}, End Time: {DateTime.Now}");
-        }
+            _logger.Info($"PollDonationsAsync is complete.  Start Time: {startTime.ToLocalTime()}, End Time: {endTime}");
+            await _lastSyncService.UpdateDonationSyncTime(endTime);
+	    }
 
         public async Task ProcessRawDonations()
         {
 	        int? lastSyncIndex = null;
+	        var totalCount = 0;
 	        do
 	        {
 		        var donationsToProcess = await _donationRepository.GetUnprocessedDonations(lastSyncIndex);
+		        totalCount += donationsToProcess.Count;
 		        _logger.Info($"Processing {donationsToProcess.Count} donations.");
 
 		        // MP gets the top 1000 results. So we should get the last ID so we can get the next chunk of donations
@@ -103,12 +122,18 @@ namespace Crossroads.Service.Finance.Services
 			        donationsToProcess.RemoveRange(0, range);
 
                     // Sync the chunk and wait for all to finish before processing the next chunk
-                    Task.WaitAll(setOfDonationsToProcess.Select(ProcessDonation).ToArray());
+                    var results = await Task.WhenAll(setOfDonationsToProcess.Select(ProcessDonation).ToArray());
+                    var recordsToBeMarkedProcessed = results.Where(r => r.HasValue).Select(j => j.Value).ToList();
+                    if (recordsToBeMarkedProcessed.Any())
+                    {
+						await _donationRepository.BatchMarkAsProcessed(recordsToBeMarkedProcessed);
+                    }
 		        }
 	        } while (lastSyncIndex.HasValue);
+	        _logger.Info($"Processed {totalCount} donations.");
         }
 
-        public async Task<MpDonation> ProcessDonation(MpRawDonation mpRawDonation)
+        public async Task<int?> ProcessDonation(MpRawDonation mpRawDonation)
         {
 	        try
 	        {
@@ -117,13 +142,23 @@ namespace Crossroads.Service.Finance.Services
 		        var mpDonation =
 			        await _donationRepository.GetDonationByTransactionCode($"PP-{pushpayPaymentDto.TransactionId}");
 
-		        // this may be a special case related to test code
-		        if (mpDonation == null)
+		        // this is to avoid having "bad" donations show up in MP
+		        if (mpDonation == null && pushpayPaymentDto.IsStatusFailed)
 		        {
-			        return null;
+			        return mpRawDonation.DonationId;
 		        }
 
-		        // add payment token to identify via api
+				// alert if the donation is not failed and doesn't exist in MP
+				if (mpDonation == null && !pushpayPaymentDto.IsStatusFailed)
+				{
+					_slackService.SendSlackAlert(_slackEndpoint, _slackChannel, "Donation sync error", 
+						$"Donation not in MP for transaction id: {pushpayPaymentDto.TransactionId}");
+
+					// return a default so that it doesn't cause a null exception
+					return null;
+				}
+
+				// add payment token to identify via api
 		        if (pushpayPaymentDto.PaymentToken != null)
 		        {
 			        mpDonation.SubscriptionCode = pushpayPaymentDto.PaymentToken;
@@ -192,7 +227,7 @@ namespace Crossroads.Service.Finance.Services
 		        {
 			        // Set payment type for refunds
 			        var refund =
-				        await _donationService.GetDonationByTransactionCode(pushpayPaymentDto.RefundFor.TransactionId);
+				        await _donationService.GetDonationByTransactionCode($"PP-{pushpayPaymentDto.RefundFor.TransactionId}");
 			        mpDonation.PaymentTypeId = refund.PaymentTypeId;
 		        }
 
@@ -219,18 +254,14 @@ namespace Crossroads.Service.Finance.Services
 			        await _donationDistributionRepository.UpdateDonationDistributions(donationDistributions);
 		        }
 
-		        // set to process
-		        await _donationRepository.MarkAsProcessed(mpRawDonation);
-		        
 		        // save donation back to MP
 		        await _donationService.UpdateMpDonation(mpDonation);
 
-		        return mpDonation;
+		        return mpRawDonation.DonationId;
 	        }
 	        catch (Exception ex)
 	        {
 		        _logger.Error($"Could not process donation {mpRawDonation}: {ex}");
-		        await _donationRepository.MarkAsProcessed(mpRawDonation);
 	        }
 
 	        return null;
