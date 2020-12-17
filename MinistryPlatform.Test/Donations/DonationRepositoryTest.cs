@@ -402,5 +402,54 @@ namespace MinistryPlatform.Test.Donations
             // Assert
             Assert.NotNull(results);
         }
+
+        [Fact]
+        public async Task ShouldGetUnProcessedUpdates()
+        {
+            // Arrange
+            var storedProc = "api_crds_Get_UnprocessedRawDonations";
+            var parameters = new Dictionary<string, object>
+            {
+                {"@LastProcessedDonationId", null}
+            };
+            
+            _apiUserRepository.Setup(r => r.GetApiClientTokenAsync("CRDS.Service.Finance")).ReturnsAsync(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
+            _request.Setup(m => m.ExecuteStoredProc<MpRawDonation>(storedProc, parameters))
+                .ReturnsAsync(new List<List<MpRawDonation>>{new List<MpRawDonation>{ new MpRawDonation()}});
+            
+            // Act 
+            var results = await _fixture.GetUnprocessedDonationsFromProc();
+            
+            // Assert
+            Assert.NotNull(results);
+        }
+        
+        [Fact]
+        public async Task ShouldGetUnProcessedUpdatesPassedInLastId()
+        {
+            // Arrange
+            var storedProc = "api_crds_Get_UnprocessedRawDonations";
+            var id = 123213;
+            var parameters = new Dictionary<string, object>
+            {
+                {"@LastProcessedDonationId", id}
+            };
+            
+            _apiUserRepository.Setup(r => r.GetApiClientTokenAsync("CRDS.Service.Finance")).ReturnsAsync(token);
+            _restRequestBuilder.Setup(m => m.NewRequestBuilder()).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.WithAuthenticationToken(token)).Returns(_restRequest.Object);
+            _restRequest.Setup(m => m.BuildAsync()).Returns(_request.Object);
+            _request.Setup(m => m.ExecuteStoredProc<MpRawDonation>(storedProc, parameters))
+                .ReturnsAsync(new List<List<MpRawDonation>>{new List<MpRawDonation>{ new MpRawDonation()}});
+            
+            // Act 
+            var results = await _fixture.GetUnprocessedDonationsFromProc(id);
+            
+            // Assert
+            Assert.NotNull(results);
+        }
     }
 }
