@@ -50,14 +50,12 @@ namespace Crossroads.Service.Finance.Services
                 var restRequest = new RestRequest($"api/donor/recurrence/{stripeRecurringGift.RecurringGiftId}?sendEmail=false", Method.DELETE);
                 restRequest.AddHeader("GatewayServiceKey", _gatewayServiceKey);
 
-                Console.WriteLine($"Cancelling stripe recurring gift ({stripeSubscriptionId})");
+                _logger.Info($"Cancelling stripe recurring gift ({stripeSubscriptionId})");
                 IRestResponse response = _restClient.Execute(restRequest);
-                Console.WriteLine($"Status code: {response.StatusCode}");
+                _logger.Info($"Status code: {response.StatusCode}");
             }
             catch (Exception ex)
             {
-
-                Console.WriteLine($"Error in GatewayService.CancelStripeRecurringGift for Stripe subscription={stripeSubscriptionId}: {ex.Message}");
                 _logger.Error(ex, $"Error in GatewayService.CancelStripeRecurringGift for Stripe subscription={stripeSubscriptionId}: {ex.Message}");
             }
         }

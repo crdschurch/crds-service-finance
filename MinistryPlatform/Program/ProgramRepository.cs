@@ -3,7 +3,6 @@ using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,7 +33,6 @@ namespace MinistryPlatform.Repositories
 
             if(!programs.Any())
             {
-                Console.WriteLine($"GetProgramByName: No program found with name {filter}");
                 _logger.Error($"GetProgramByName: No program found with name {filter}");
                 return null;
             }

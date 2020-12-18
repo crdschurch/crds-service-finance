@@ -37,7 +37,6 @@ namespace Crossroads.Service.Finance.Middleware
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error in ImpersonationMiddleware.Invoke: {ex.Message}");
                     _logger.Error(ex, $"Error in ImpersonationMiddleware.Invoke: {ex.Message}");
                     throw;
                 }

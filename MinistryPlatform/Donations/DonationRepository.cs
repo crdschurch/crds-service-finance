@@ -36,7 +36,6 @@ namespace MinistryPlatform.Repositories
             if(!donations.Any())
             {
                 _logger.Error($"Donation does not exist for transaction code: {transactionCode}");
-                Console.WriteLine($"Donation does not exist for transaction code: {transactionCode}");
                 return null;
             }
 
@@ -115,7 +114,6 @@ namespace MinistryPlatform.Repositories
             catch (Exception ex)
             {
                 _logger.Error(ex, $"UpdateRecurringGift: Error updating recurring gift: {JsonConvert.SerializeObject(donorAccount)}, {ex.Message}");
-                Console.WriteLine($"UpdateRecurringGift: Error updating recurring gift: {JsonConvert.SerializeObject(donorAccount)}, {ex.Message}");
             }
         }
 

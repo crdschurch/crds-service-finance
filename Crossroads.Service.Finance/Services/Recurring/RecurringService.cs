@@ -1,17 +1,16 @@
 ﻿using AutoMapper;
 using Crossroads.Service.Finance.Interfaces;
+using Crossroads.Service.Finance.Services.Donor;
 using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Resources;
-using System.Threading;
-using System.Threading.Tasks;
-using Crossroads.Service.Finance.Services.Donor;
 using MinistryPlatform.Models;
 using Newtonsoft.Json;
 using Pushpay.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Services.Recurring
 {
@@ -63,12 +62,12 @@ namespace Crossroads.Service.Finance.Services.Recurring
             int numUpdates = 0;
             var giftIdsSynced = new List<string>();
 
-            Console.WriteLine($"Starting SyncRecurringGifts at {DateTime.Now:G}");
+            _logger.Info($"Starting SyncRecurringGifts at {DateTime.Now:G}");
 
             // get new and updated recurring gifts.
             var pushpayRecurringGifts = _pushpayService.GetRecurringGiftsByDateRange(start, end);
 
-            Console.WriteLine($"Syncing {pushpayRecurringGifts.Count} gifts from pushpay");
+            _logger.Info($"Syncing {pushpayRecurringGifts.Count} gifts from pushpay");
 
             // next, check to see if these gifts exist in MP
             var pushpayRecurringGiftIds = pushpayRecurringGifts

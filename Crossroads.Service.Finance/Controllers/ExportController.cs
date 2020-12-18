@@ -1,12 +1,7 @@
 ﻿using Crossroads.Service.Finance.Services.Exports;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Runtime;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.VisualBasic;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -36,7 +31,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ExportController.AdjustJournalEntries: {ex.Message}");
                 _logger.Error(ex, $"Error in ExportController.AdjustJournalEntries: {ex.Message}");
                 return StatusCode(500);
             }
@@ -55,7 +49,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ExportController.ExportHello: {ex.Message}");
                 _logger.Error(ex, $"Error in ExportController.ExportHello: {ex.Message}");
                 return StatusCode(500);
             }
@@ -75,7 +68,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ExportController.ExportProgramatically: {ex.Message}");
                 _logger.Error(ex, $"Error in ExportController.ExportProgramatically: {ex.Message}");
                 return StatusCode(500);
             }
@@ -102,7 +94,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ExportController.ExportManually: {ex.Message}");
                 _logger.Error(ex, $"Error in ExportController.ExportManually: {ex.Message}");
                 return StatusCode(500);
             }

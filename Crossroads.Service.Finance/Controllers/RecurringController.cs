@@ -38,7 +38,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error RecurringController.SyncRecurringGifts: {ex.Message}");
                 _logger.Error(ex, $"Error in RecurringController.SyncRecurringGifts: {ex.Message}");
                 return StatusCode(500);
             }

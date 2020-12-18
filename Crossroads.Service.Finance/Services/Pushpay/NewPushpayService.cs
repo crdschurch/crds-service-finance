@@ -1,5 +1,8 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services.Congregations;
+using Crossroads.Service.Finance.Services.Donor;
+using Crossroads.Service.Finance.Services.Slack;
+using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Newtonsoft.Json;
@@ -7,14 +10,9 @@ using NLog;
 using Pushpay.Client;
 using Pushpay.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Crossroads.Service.Finance.Services.Donor;
-using Crossroads.Service.Finance.Services.Slack;
-using Crossroads.Web.Common.Configuration;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -175,10 +173,7 @@ namespace Crossroads.Service.Finance.Services
 
 			        if (mpRecurringGift == null)
 			        {
-				        _logger.Error(
-					        $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
-				        Console.WriteLine(
-					        $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
+				        _logger.Error($"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
 				        return null;
 			        }
 			        else

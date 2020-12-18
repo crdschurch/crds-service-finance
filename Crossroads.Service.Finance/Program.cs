@@ -7,6 +7,7 @@ namespace Crossroads.Service.Finance
 {
     public class Program
     {
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
         {
@@ -18,7 +19,7 @@ namespace Crossroads.Service.Finance
             catch (Exception)
             {
                 // no .env file present but since not required, just write
-                Console.WriteLine("no .env file found, reading environment variables from machine");
+                _logger.Info("no .env file found, reading environment variables from machine");
             }
 
             var host = new WebHostBuilder()
