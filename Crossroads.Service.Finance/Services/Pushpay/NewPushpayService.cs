@@ -104,7 +104,7 @@ namespace Crossroads.Service.Finance.Services
 	        var totalCount = 0;
 	        do
 	        {
-		        var donationsToProcess = await _donationRepository.GetUnprocessedDonations(lastSyncIndex);
+		        var donationsToProcess = await _donationRepository.GetUnprocessedDonationsFromProc(lastSyncIndex);
 		        totalCount += donationsToProcess.Count;
 		        _logger.Info($"Processing {donationsToProcess.Count} donations.");
 
