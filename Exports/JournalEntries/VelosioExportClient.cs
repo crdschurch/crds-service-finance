@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.ServiceModel;
-using System.Text;
+﻿using Crossroads.Web.Common.Configuration;
+using System;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Crossroads.Web.Common.Configuration;
-using Exports.Models;
-using log4net;
 using VelosioJournalExport;
 
 namespace Exports.JournalEntries

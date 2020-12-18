@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Xml;
-using log4net;
-using log4net.Config;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using System;
+using System.IO;
 
 namespace Crossroads.Service.Finance
 {
@@ -17,9 +10,6 @@ namespace Crossroads.Service.Finance
 
         public static void Main(string[] args)
         {
-            var repo = log4net.LogManager.CreateRepository(
-                Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
-
             // load environment variables from .env file for local development
             try
             {
