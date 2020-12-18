@@ -82,11 +82,16 @@ namespace Crossroads.Service.Finance.Services
             return externalLink?.Value;
         }
 
-	    public async Task PollDonationsAsync()
+	    public async Task PollDonationsAsync(DateTime? start_time = null, DateTime? end_time = null)
 	    {
-		    var startDate = await _lastSyncService.GetLastDonationSyncTime();
-	        var startTime = startDate.AddMinutes(-2);
-	        var endTime = DateTime.Now;
+		    var startTime = (await _lastSyncService.GetLastDonationSyncTime()).AddMinutes(-2);
+		    var endTime = DateTime.Now;
+
+	        if (start_time != null && end_time != null)
+	        {
+		        startTime = start_time.GetValueOrDefault();
+				endTime = end_time.GetValueOrDefault();
+	        }
 
             var donations = await _pushpayClient.GetPolledDonationsJson(startTime, endTime);
 
@@ -104,7 +109,7 @@ namespace Crossroads.Service.Finance.Services
 	        var totalCount = 0;
 	        do
 	        {
-		        var donationsToProcess = await _donationRepository.GetUnprocessedDonations(lastSyncIndex);
+		        var donationsToProcess = await _donationRepository.GetUnprocessedDonationsFromProc(lastSyncIndex);
 		        totalCount += donationsToProcess.Count;
 		        _logger.Info($"Processing {donationsToProcess.Count} donations.");
 

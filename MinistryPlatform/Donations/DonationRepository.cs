@@ -393,6 +393,20 @@ namespace MinistryPlatform.Repositories
 		        .Search<MpRawDonation>()).ToList();
         }
 
+        public async Task<List<MpRawDonation>> GetUnprocessedDonationsFromProc(int? lastSyncIndex = null)
+        {
+	        var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
+            var parameters = new Dictionary<string, object>
+            {
+                {"@LastProcessedDonationId", lastSyncIndex}
+            };
+
+            var results = await MpRestBuilder.NewRequestBuilder().WithAuthenticationToken(token).BuildAsync()
+                .ExecuteStoredProc<MpRawDonation>("api_crds_Get_UnprocessedRawDonations", parameters);
+
+            return results.FirstOrDefault();
+        }
+
         public async Task BatchMarkAsProcessed(List<int> ids)
         {
 	        var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");

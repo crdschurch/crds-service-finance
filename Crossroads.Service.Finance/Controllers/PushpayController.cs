@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using NLog;
 using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Crossroads.Web.Common.Auth.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.OData.Edm;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -57,6 +61,27 @@ namespace Crossroads.Service.Finance.Controllers
                 await _pushpayService.ProcessRawDonations();
 
                 return NoContent();
+	        }
+	        catch (Exception ex)
+	        {
+		        var error = $"Got error getting updates for donations from PushPay: {ex.Message}";
+		        _logger.Error(error);
+		        return StatusCode(500);
+	        }
+        }
+
+        [HttpPost("updatedonations/{start_time}/{end_time}")]
+        public async Task<IActionResult> UpdateDonationsAsyncByRange(DateTime start_time, DateTime end_time)
+        {
+	        try
+	        {
+		        // save raw schedules to the db
+		        await _pushpayService.PollDonationsAsync(start_time, end_time);
+
+		        // process raw schedules
+		        await _pushpayService.ProcessRawDonations();
+
+		        return NoContent();
 	        }
 	        catch (Exception ex)
 	        {

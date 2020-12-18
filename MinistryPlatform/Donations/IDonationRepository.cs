@@ -25,6 +25,7 @@ namespace MinistryPlatform.Interfaces
         Task<List<MpDonation>> GetDonationsByTransactionIds(List<string> transactionIds);
         void CreateRawPushpayDonation(string rawRecurringGiftSchedule);
         Task<List<MpRawDonation>> GetUnprocessedDonations(int? lastSyncIndex = null);
+        Task<List<MpRawDonation>> GetUnprocessedDonationsFromProc(int? lastSyncIndex = null);
         Task BatchMarkAsProcessed(List<int> ids);
     }
 }
