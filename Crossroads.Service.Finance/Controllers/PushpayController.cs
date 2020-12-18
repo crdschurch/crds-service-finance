@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Crossroads.Web.Common.Auth.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.OData.Edm;
 
 namespace Crossroads.Service.Finance.Controllers
@@ -68,7 +69,7 @@ namespace Crossroads.Service.Finance.Controllers
         }
 
         [HttpPost("updatedonations/{start_time}/{end_time}")]
-        public async Task<IActionResult> UpdateDonationsAsync(DateTime start_time, DateTime end_time)
+        public async Task<IActionResult> UpdateDonationsAsyncByRange(DateTime start_time, DateTime end_time)
         {
 	        try
 	        {
