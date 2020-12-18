@@ -76,7 +76,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in DonorController.GetRecurringGifts: {ex.Message}");
                 _logger.Error(ex,$"Error in DonorController.GetRecurringGifts: {ex.Message}");
                 return StatusCode(500);
             }
@@ -129,7 +128,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in DonorController.GetMyPledges: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
                 _logger.Error(ex, $"Error in DonorController.GetMyPledges: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
                 return StatusCode(500);
             }
@@ -183,7 +181,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in DonorController.GetDonationHistory: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
                 _logger.Error(ex, $"Error in DonorController.GetDonationHistory: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
                 return StatusCode(500);
             }
@@ -218,7 +215,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in DonorController.GetDonorRelatedContacts: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
                 _logger.Error(ex, $"Error in DonorController.GetDonorRelatedContacts: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
                 return StatusCode(500);
             }
@@ -273,7 +269,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in DonorController.GetOtherGifts: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
                 _logger.Error(ex, $"Error in DonorController.GetOtherGifts: {ex.Message} for contactId={authDto.UserInfo.Mp.ContactId}");
                 return StatusCode(500);
             }

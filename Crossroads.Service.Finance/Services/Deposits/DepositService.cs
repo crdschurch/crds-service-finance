@@ -123,7 +123,7 @@ namespace Crossroads.Service.Finance.Services
         public async Task<List<SettlementEventDto>> GetDepositsForSync(DateTime startDate, DateTime endDate)
         {
             var deposits = await _pushpayService.GetDepositsByDateRange(startDate, endDate);
-            Console.WriteLine($"{deposits.Count} found in pushpay");
+            _logger.Info($"{deposits.Count} found in pushpay");
 
             if (!deposits.Any())
             {

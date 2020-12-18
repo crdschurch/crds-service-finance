@@ -1,7 +1,6 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using System;
-using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -42,7 +41,7 @@ namespace Crossroads.Service.Finance.Services
             // 2. Get all payments associated with a settlement from Pushpay's API. Throw an exception
             // if none are found.
             var settlementPayments = _pushpayService.GetDonationsForSettlement(settlementEventDto.Key);
-            Console.WriteLine($"Settlement {settlementEventDto.Key} contains {settlementPayments.Count} ({settlementPayments}) donations from pushpay");
+            _logger.Info($"Settlement {settlementEventDto.Key} contains {settlementPayments.Count} ({settlementPayments}) donations from pushpay");
 
             if (settlementPayments.Count <= 0)
             {

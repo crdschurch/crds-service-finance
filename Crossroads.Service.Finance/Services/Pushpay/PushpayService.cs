@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Crossroads.Service.Finance.Helpers;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Models;
 using Crossroads.Web.Common.Configuration;
@@ -290,7 +289,7 @@ namespace Crossroads.Service.Finance.Services
                 }
                 else
                 {
-                    Console.WriteLine($"Site mismatch - {congregationName} not found in MP.");
+                    _logger.Info($"Site mismatch - {congregationName} not found in MP.");
                 }
             }
             else
@@ -528,7 +527,6 @@ namespace Crossroads.Service.Finance.Services
             catch (Exception ex)
             {
                 _logger.Error(ex, $"Error in PushpayService.SaveWebhookData: {ex.Message}");
-                Console.WriteLine($"Error in PushpayService.SaveWebhookData: {ex.Message}");
             }
         }
 
