@@ -37,7 +37,6 @@ namespace Crossroads.Service.Finance.Controllers
                 var deposits = await _depositService.SyncDeposits();
                 if (deposits == null || deposits.Count == 0)
                 {
-                    //Console.WriteLine("No deposits to sync");
                     _logger.Info("No deposits to sync");
                     return NoContent();
                 }
@@ -47,14 +46,12 @@ namespace Crossroads.Service.Finance.Controllers
                     Thread.Sleep(5000);
                 }
 
-                //Console.WriteLine($"SyncSettlements processed {deposits.Count} deposits");
                 _logger.Info($"SyncSettlements processed {deposits.Count} deposits");
 
                 return Ok(new {created = deposits.Count});
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in SyncSettlements: {ex.Message}, {ex}");
                 _logger.Error($"Error in SyncSettlements: {ex.Message}, {ex}");
 
                 return StatusCode(500);

@@ -1,12 +1,15 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services.Recurring;
+using Crossroads.Web.Auth.Models;
+using Crossroads.Web.Common.Auth.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Crossroads.Web.Common.Auth.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.OData.Edm;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -28,6 +31,7 @@ namespace Crossroads.Service.Finance.Controllers
         [HttpPost("updaterecurringgifts")]
         public async Task<IActionResult> UpdateRecurringGiftsAsync()
         {
+            var authDto = (AuthDTO)HttpContext.Items["authDto"];
             try
             {
                 await _pushpayService.PullRecurringGiftsAsync();
@@ -40,7 +44,7 @@ namespace Crossroads.Service.Finance.Controllers
 
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Error in PushpayController.UpdateRecurringGiftsAsync: {ex.Message}");
+                _logger.Error("Error in PushpayController.UpdateRecurringGiftsAsync run by {user} with exception {message}", authDto.UserInfo.Mp.UserId, ex.Message);
                 return StatusCode(500);
             }
         }
@@ -57,6 +61,27 @@ namespace Crossroads.Service.Finance.Controllers
                 await _pushpayService.ProcessRawDonations();
 
                 return NoContent();
+	        }
+	        catch (Exception ex)
+	        {
+		        var error = $"Got error getting updates for donations from PushPay: {ex.Message}";
+		        _logger.Error(error);
+		        return StatusCode(500);
+	        }
+        }
+
+        [HttpPost("updatedonations/{start_time}/{end_time}")]
+        public async Task<IActionResult> UpdateDonationsAsyncByRange(DateTime start_time, DateTime end_time)
+        {
+	        try
+	        {
+		        // save raw schedules to the db
+		        await _pushpayService.PollDonationsAsync(start_time, end_time);
+
+		        // process raw schedules
+		        await _pushpayService.ProcessRawDonations();
+
+		        return NoContent();
 	        }
 	        catch (Exception ex)
 	        {
