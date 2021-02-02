@@ -333,7 +333,7 @@ namespace Crossroads.Service.Finance.Test.Recurring
             var result = _fixture.BuildRecurringScheduleFromPushPayData(pushpayRecurringGift).Result;
 
             // Assert
-            Assert.Equal(new DateTime(2021, 2, 1).ToShortDateString(), mpRecurringGift.StatusChangedDate.GetValueOrDefault().ToShortDateString());
+            Assert.Equal(DateTime.Now.ToShortDateString(), mpRecurringGift.StatusChangedDate.GetValueOrDefault().ToShortDateString());
         }
 
         [Fact]
