@@ -234,5 +234,209 @@ namespace Crossroads.Service.Finance.Test.Recurring
             Assert.Single(result);
         }
 
+        [Fact]
+        public void ShouldSetRecurringGiftStatusChangedDate()
+        {
+            // Arrange
+            var pushpayRecurringGift = new PushpayRecurringGiftDto
+            {
+	            Status = "Paused",
+	            Amount = null,
+	            Payer = null,
+	            PaymentMethodType = null,
+	            Card = null,
+	            Account = null,
+	            Fund = null,
+	            PaymentToken = null,
+	            Links = new PushpayLinksDto(),
+	            UpdatedOn = default,
+	            PushpayFields = null,
+	            Campus = new PushpayCampusDto
+	            {
+		            Name = "Oakley",
+		            Key = "Oakley"
+	            },
+	            Schedule = null,
+	            Notes = null,
+	            ExternalLinks = new ExternalLinks[]
+	            {
+	            }
+            };
+
+            var mpRecurringGift = new MpRecurringGift
+            {
+	            RecurringGiftId = 0,
+	            ContactId = 0,
+	            DonorId = 0,
+	            DonorAccountId = 9988776,
+	            FrequencyId = 0,
+	            DayOfMonth = null,
+	            DayOfWeek = null,
+	            Amount = 0,
+	            StartDate = default,
+	            EndDate = null,
+	            ProgramId = 550,
+	            ProgramName = null,
+	            CongregationId = 0,
+	            SubscriptionId = null,
+	            ConsecutiveFailureCount = 0,
+	            SourceUrl = null,
+	            PredefinedAmount = null,
+	            VendorDetailUrl = null,
+	            VendorAdminDetailUrl = null,
+	            Notes = null,
+	            Status = "Active",
+	            RecurringGiftStatusId = 1,
+	            UpdatedOn = null,
+	            StatusChangedDate = new DateTime(2021, 2, 1)
+            };
+
+            int? donorId = 5544555;
+
+            var mpDonorAccount = new MpDonorAccount
+            {
+	            DonorAccountId = 0,
+	            DonorId = 0,
+	            NonAssignable = false,
+	            DomainId = 0,
+	            AccountTypeId = 0,
+	            Closed = false,
+	            InstitutionName = null,
+	            AccountNumber = null,
+	            RoutingNumber = null,
+	            ProcessorId = null,
+	            ProcessorTypeId = null
+            };
+
+            var congregationId = 1;
+            var fundId = 550;
+            var pushpayRecurringGiftStatus = "Paused";
+
+            _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
+            _donorService.Setup(m => m.FindDonorId(pushpayRecurringGift)).Returns(Task.FromResult(donorId));
+
+            // this gets called because the donor id has a value
+            _donationService.Setup(m => m.FindDonorAccount(pushpayRecurringGift, donorId.GetValueOrDefault()))
+	            .Returns(Task.FromResult(mpDonorAccount));
+
+            _pushpayService.Setup(m => m.LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key))
+	            .Returns(Task.FromResult(congregationId));
+
+            _newPushpayService.Setup(m => m.ParseFundIdFromExternalLinks(pushpayRecurringGift))
+	            .Returns(fundId);
+
+            _pushpayService.Setup(m => m.GetRecurringGiftStatusId(pushpayRecurringGift.Status)).Returns(3);
+
+            _pushpayService.Setup(m => m.GetRecurringGiftNotes(pushpayRecurringGift)).Returns("blah blah");
+
+	            // Act
+            var result = _fixture.BuildRecurringScheduleFromPushPayData(pushpayRecurringGift).Result;
+
+            // Assert
+            Assert.Equal(new DateTime(2021, 2, 1).ToShortDateString(), mpRecurringGift.StatusChangedDate.GetValueOrDefault().ToShortDateString());
+        }
+
+        [Fact]
+        public void ShouldNotSetRecurringGiftStatusChangedDate()
+        {
+            // Arrange
+            var pushpayRecurringGift = new PushpayRecurringGiftDto
+            {
+                Status = "Active",
+                Amount = null,
+                Payer = null,
+                PaymentMethodType = null,
+                Card = null,
+                Account = null,
+                Fund = null,
+                PaymentToken = null,
+                Links = new PushpayLinksDto(),
+                UpdatedOn = new DateTime(2021, 2, 1),
+                PushpayFields = null,
+                Campus = new PushpayCampusDto
+                {
+                    Name = "Oakley",
+                    Key = "Oakley"
+                },
+                Schedule = null,
+                Notes = null,
+                ExternalLinks = new ExternalLinks[]
+                {
+                }
+            };
+
+            var mpRecurringGift = new MpRecurringGift
+            {
+                RecurringGiftId = 0,
+                ContactId = 0,
+                DonorId = 0,
+                DonorAccountId = 9988776,
+                FrequencyId = 0,
+                DayOfMonth = null,
+                DayOfWeek = null,
+                Amount = 0,
+                StartDate = default,
+                EndDate = null,
+                ProgramId = 550,
+                ProgramName = null,
+                CongregationId = 0,
+                SubscriptionId = null,
+                ConsecutiveFailureCount = 0,
+                SourceUrl = null,
+                PredefinedAmount = null,
+                VendorDetailUrl = null,
+                VendorAdminDetailUrl = null,
+                Notes = null,
+                Status = "Active",
+                RecurringGiftStatusId = 1,
+                UpdatedOn = null,
+                StatusChangedDate = new DateTime(2021, 1, 1)
+            };
+
+            int? donorId = 5544555;
+
+            var mpDonorAccount = new MpDonorAccount
+            {
+                DonorAccountId = 0,
+                DonorId = 0,
+                NonAssignable = false,
+                DomainId = 0,
+                AccountTypeId = 0,
+                Closed = false,
+                InstitutionName = null,
+                AccountNumber = null,
+                RoutingNumber = null,
+                ProcessorId = null,
+                ProcessorTypeId = null
+            };
+
+            var congregationId = 1;
+            var fundId = 550;
+            var pushpayRecurringGiftStatus = "Paused";
+
+            _mapper.Setup(m => m.Map<MpRecurringGift>(It.IsAny<PushpayRecurringGiftDto>())).Returns(mpRecurringGift);
+            _donorService.Setup(m => m.FindDonorId(pushpayRecurringGift)).Returns(Task.FromResult(donorId));
+
+            // this gets called because the donor id has a value
+            _donationService.Setup(m => m.FindDonorAccount(pushpayRecurringGift, donorId.GetValueOrDefault()))
+                .Returns(Task.FromResult(mpDonorAccount));
+
+            _pushpayService.Setup(m => m.LookupCongregationId(pushpayRecurringGift.PushpayFields, pushpayRecurringGift.Campus.Key))
+                .Returns(Task.FromResult(congregationId));
+
+            _newPushpayService.Setup(m => m.ParseFundIdFromExternalLinks(pushpayRecurringGift))
+                .Returns(fundId);
+
+            _pushpayService.Setup(m => m.GetRecurringGiftStatusId(pushpayRecurringGift.Status)).Returns(1);
+
+            _pushpayService.Setup(m => m.GetRecurringGiftNotes(pushpayRecurringGift)).Returns("blah blah");
+
+            // Act
+            var result = _fixture.BuildRecurringScheduleFromPushPayData(pushpayRecurringGift).Result;
+
+            // Assert
+            Assert.Equal(new DateTime(2021, 1, 1), mpRecurringGift.StatusChangedDate);
+        }
+
     }
 }
