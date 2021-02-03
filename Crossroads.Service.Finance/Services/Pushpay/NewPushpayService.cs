@@ -1,5 +1,8 @@
 ﻿using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Services.Congregations;
+using Crossroads.Service.Finance.Services.Donor;
+using Crossroads.Service.Finance.Services.Slack;
+using Crossroads.Web.Common.Configuration;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Newtonsoft.Json;
@@ -7,14 +10,9 @@ using NLog;
 using Pushpay.Client;
 using Pushpay.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Crossroads.Service.Finance.Services.Donor;
-using Crossroads.Service.Finance.Services.Slack;
-using Crossroads.Web.Common.Configuration;
 
 namespace Crossroads.Service.Finance.Services
 {
@@ -82,11 +80,16 @@ namespace Crossroads.Service.Finance.Services
             return externalLink?.Value;
         }
 
-	    public async Task PollDonationsAsync()
+	    public async Task PollDonationsAsync(DateTime? start_time = null, DateTime? end_time = null)
 	    {
-		    var startDate = await _lastSyncService.GetLastDonationSyncTime();
-	        var startTime = startDate.AddMinutes(-2);
-	        var endTime = DateTime.Now;
+		    var startTime = (await _lastSyncService.GetLastDonationSyncTime()).AddMinutes(-2);
+		    var endTime = DateTime.Now;
+
+	        if (start_time != null && end_time != null)
+	        {
+		        startTime = start_time.GetValueOrDefault();
+				endTime = end_time.GetValueOrDefault();
+	        }
 
             var donations = await _pushpayClient.GetPolledDonationsJson(startTime, endTime);
 
@@ -104,7 +107,7 @@ namespace Crossroads.Service.Finance.Services
 	        var totalCount = 0;
 	        do
 	        {
-		        var donationsToProcess = await _donationRepository.GetUnprocessedDonations(lastSyncIndex);
+		        var donationsToProcess = await _donationRepository.GetUnprocessedDonationsFromProc(lastSyncIndex);
 		        totalCount += donationsToProcess.Count;
 		        _logger.Info($"Processing {donationsToProcess.Count} donations.");
 
@@ -175,10 +178,7 @@ namespace Crossroads.Service.Finance.Services
 
 			        if (mpRecurringGift == null)
 			        {
-				        _logger.Error(
-					        $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
-				        Console.WriteLine(
-					        $"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
+				        _logger.Error($"No recurring gift found by subscription id {pushpayPaymentDto.RecurringPaymentToken} when trying to attach it to donation");
 				        return null;
 			        }
 			        else

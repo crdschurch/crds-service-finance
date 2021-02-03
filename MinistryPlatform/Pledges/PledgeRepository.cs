@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
-using log4net;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace MinistryPlatform.Repositories

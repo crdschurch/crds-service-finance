@@ -148,7 +148,7 @@ namespace Crossroads.Service.Finance.Test.NewPushpayService
 		public void ShouldGetRawDonations()
 		{
 			// Arrange
-			_donationRepository.Setup(r => r.GetUnprocessedDonations(It.IsAny<int?>()))
+			_donationRepository.Setup(r => r.GetUnprocessedDonationsFromProc(It.IsAny<int?>()))
 				.Returns(Task.FromResult(new List<MpRawDonation>()));
 
 			// Act

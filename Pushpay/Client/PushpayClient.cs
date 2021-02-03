@@ -106,7 +106,6 @@ namespace Pushpay.Client
                 if (data == null)
                 {
                     _logger.Error("Null data in GetNewAndUpdatedRecurringGiftsByDateRange");
-                    Console.WriteLine("Null data in GetNewAndUpdatedRecurringGiftsByDateRange");
                 }
 
                 var settings = new JsonSerializerSettings
@@ -114,7 +113,6 @@ namespace Pushpay.Client
                     Error = delegate (object sender, ErrorEventArgs args)
                     {
                         _logger.Error($"Error in deserializing recurring gifts: {args.ErrorContext.Error.Message}");
-                        Console.WriteLine(args.ErrorContext.Error.Message);
                         args.ErrorContext.Handled = true;
                     }};
 
@@ -144,7 +142,6 @@ namespace Pushpay.Client
             catch (Exception e)
             {
                 _logger.Error($"Error in GetNewAndUpdatedRecurringGiftsByDateRange: {e.Message}", e.ToString());
-                Console.WriteLine(e);
                 throw new Exception(e.Message);
             }
 
@@ -204,7 +201,7 @@ namespace Pushpay.Client
                 RateLimitCount++;
                 var pushpayRetrySeconds = Convert.ToInt32(response.Headers.ToList().Find(x => x.Name == "Retry-After").Value);
                 var retrySeconds = GetRetrySeconds(pushpayRetrySeconds);
-                Console.WriteLine($"Hit rate limit. Sleeping for {retrySeconds} seconds");
+                _logger.Info($"Hit rate limit. Sleeping for {retrySeconds} seconds");
                 Thread.Sleep(retrySeconds * 1000);
                 return await Execute(request, scope);
             }
@@ -222,7 +219,7 @@ namespace Pushpay.Client
                 RateLimitCount++;
                 var pushpayRetrySeconds = Convert.ToInt32(response.Headers.ToList().Find(x => x.Name == "Retry-After").Value);
                 var retrySeconds = GetRetrySeconds(pushpayRetrySeconds);
-                Console.WriteLine($"Hit rate limit. Sleeping for {retrySeconds} seconds");
+                _logger.Info($"Hit rate limit. Sleeping for {retrySeconds} seconds");
                 Thread.Sleep(retrySeconds * 1000);
                 return await ExecuteList(request, scope);
             }
@@ -273,7 +270,7 @@ namespace Pushpay.Client
                 var response = await Execute(request, scope);
                 if ((int)response.StatusCode == 404 || response.ErrorException != null)
                 {
-                    Console.WriteLine(response.ErrorMessage);
+                    _logger.Info(response.ErrorMessage);
                     return null;
                 }
                 return response.Content;
@@ -312,7 +309,6 @@ namespace Pushpay.Client
                         else
                         {
                             _logger.Error($"No data in response: {request.Resource}");
-                            Console.WriteLine($"No data in response: {request.Resource}");
                         }
                     }
                     return JsonConvert.SerializeObject(responseDataItems);
@@ -380,7 +376,6 @@ namespace Pushpay.Client
                 else
                 {
                     _logger.Error($"No data in response: {recurringGiftRequest.Resource}");
-                    Console.WriteLine($"No data in response: {recurringGiftRequest.Resource}");
                 }
 
                 // remove page param, if exists
@@ -402,7 +397,6 @@ namespace Pushpay.Client
             if (rawJson == null)
             {
                 _logger.Error("Null data in GetNewAndUpdatedRecurringGiftsByDateRange");
-                Console.WriteLine("Null data in GetNewAndUpdatedRecurringGiftsByDateRange");
             }
 
             var newData = JArray.Parse(rawJson);

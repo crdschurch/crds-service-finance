@@ -39,7 +39,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ContactController:GetContact for contactId={contactId}: {ex.Message}");
                 _logger.Error(ex, $"Error in ContactController:GetContact for contactId={contactId}: {ex.Message}");
                 return StatusCode(500);
             }
@@ -60,7 +59,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ContactController:GetContactBySessionId for contactId={authDto.UserInfo.Mp.ContactId}: {ex.Message}");
                 _logger.Error(ex, $"Error in ContactController:GetContactBySessionId for contactId={authDto.UserInfo.Mp.ContactId}: {ex.Message}");
                 return StatusCode(500);
             }
@@ -79,7 +77,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ContactController:GetContactAddress for contactId={contactId}: {ex.Message}");
                 _logger.Error(ex, $"Error in ContactController:GetContactAddress for contactId={contactId}: {ex.Message}");
                 return StatusCode(500);
             }

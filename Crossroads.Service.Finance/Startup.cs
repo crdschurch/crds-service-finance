@@ -4,10 +4,13 @@ using Crossroads.Microservice.Settings;
 using Crossroads.Service.Finance.Interfaces;
 using Crossroads.Service.Finance.Middleware;
 using Crossroads.Service.Finance.Services;
+using Crossroads.Service.Finance.Services.Congregations;
+using Crossroads.Service.Finance.Services.Donor;
 using Crossroads.Service.Finance.Services.Exports;
 using Crossroads.Service.Finance.Services.JournalEntry;
 using Crossroads.Service.Finance.Services.JournalEntryBatch;
 using Crossroads.Service.Finance.Services.Recurring;
+using Crossroads.Service.Finance.Services.Slack;
 using Crossroads.Web.Common.Configuration;
 using Exports.JournalEntries;
 using Microsoft.AspNetCore.Builder;
@@ -18,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MinistryPlatform.Adjustments;
 using MinistryPlatform.Congregations;
+using MinistryPlatform.DonorAccounts;
 using MinistryPlatform.Donors;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.JournalEntries;
@@ -27,11 +31,6 @@ using Newtonsoft.Json;
 using Pushpay.Cache;
 using Pushpay.Client;
 using Pushpay.Token;
-using Crossroads.Service.Finance.Services.Congregations;
-using Crossroads.Service.Finance.Services.Donor;
-using Crossroads.Service.Finance.Services.Slack;
-using MinistryPlatform;
-using MinistryPlatform.DonorAccounts;
 
 namespace Crossroads.Service.Finance
 {
@@ -64,12 +63,6 @@ namespace Crossroads.Service.Finance
             SettingsService settingsService = new SettingsService();
             services.AddSingleton<ISettingsService>(settingsService);
 
-            //services.AddLogging(loggingBuilder =>
-            //{
-            //    loggingBuilder.AddConsole();
-            //    loggingBuilder.AddDebug();
-            //});
-
             Logger.SetUpLogging(settingsService.GetSetting("LOGZ_IO_KEY"),
                                 settingsService.GetSetting("CRDS_ENV"));
 
@@ -88,7 +81,6 @@ namespace Crossroads.Service.Finance
             //         c.IncludeXmlComments(xmlPath);
             //     });
             // } catch (Exception e) {
-            //     Console.WriteLine(e.Message);
             // }
 
             // Service Layer

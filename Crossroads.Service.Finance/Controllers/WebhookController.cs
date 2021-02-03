@@ -3,7 +3,6 @@ using Crossroads.Service.Finance.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
-using System.Threading.Tasks;
 
 namespace Crossroads.Service.Finance.Controllers
 {
@@ -36,8 +35,8 @@ namespace Crossroads.Service.Finance.Controllers
             {
                 pushpayWebhook.CongregationId = congregationId;
 
-                Console.WriteLine("⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡ Incoming webhook ⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️");
-                Console.WriteLine(JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
+                _logger.Info("⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡ Incoming webhook ⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️");
+                _logger.Info(JsonConvert.SerializeObject(pushpayWebhook, Formatting.Indented));
                 _pushpayService.SaveWebhookData(pushpayWebhook);
 
                 var pushpayEvent = pushpayWebhook.Events[0];
@@ -56,7 +55,6 @@ namespace Crossroads.Service.Finance.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error WebhookController.HandlePushpayWebhooks: {ex.Message}");
                 _logger.Error(ex, $"Error WebhookController.HandlePushpayWebhooks: {ex.Message}");
                 return StatusCode(500);
             }

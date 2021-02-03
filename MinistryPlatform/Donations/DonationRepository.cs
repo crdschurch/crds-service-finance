@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Crossroads.Web.Common.Configuration;
 using Crossroads.Web.Common.MinistryPlatform;
-using log4net;
 using MinistryPlatform.Interfaces;
 using MinistryPlatform.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MinistryPlatform.Repositories
 {
@@ -39,7 +36,6 @@ namespace MinistryPlatform.Repositories
             if(!donations.Any())
             {
                 _logger.Error($"Donation does not exist for transaction code: {transactionCode}");
-                Console.WriteLine($"Donation does not exist for transaction code: {transactionCode}");
                 return null;
             }
 
@@ -118,7 +114,6 @@ namespace MinistryPlatform.Repositories
             catch (Exception ex)
             {
                 _logger.Error(ex, $"UpdateRecurringGift: Error updating recurring gift: {JsonConvert.SerializeObject(donorAccount)}, {ex.Message}");
-                Console.WriteLine($"UpdateRecurringGift: Error updating recurring gift: {JsonConvert.SerializeObject(donorAccount)}, {ex.Message}");
             }
         }
 
@@ -394,6 +389,20 @@ namespace MinistryPlatform.Repositories
 	            .OrderBy("TimeCreated DESC")
                 .BuildAsync()
 		        .Search<MpRawDonation>()).ToList();
+        }
+
+        public async Task<List<MpRawDonation>> GetUnprocessedDonationsFromProc(int? lastSyncIndex = null)
+        {
+	        var token = await ApiUserRepository.GetApiClientTokenAsync("CRDS.Service.Finance");
+            var parameters = new Dictionary<string, object>
+            {
+                {"@LastProcessedDonationId", lastSyncIndex}
+            };
+
+            var results = await MpRestBuilder.NewRequestBuilder().WithAuthenticationToken(token).BuildAsync()
+                .ExecuteStoredProc<MpRawDonation>("api_crds_Get_UnprocessedRawDonations", parameters);
+
+            return results.FirstOrDefault();
         }
 
         public async Task BatchMarkAsProcessed(List<int> ids)

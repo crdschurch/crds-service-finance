@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using AutoMapper;
+﻿using AutoMapper;
 using Crossroads.Service.Finance.Constants;
 using Crossroads.Service.Finance.Models;
 using MinistryPlatform.Models;
 using Pushpay.Models;
+using System;
+using System.Text.RegularExpressions;
 
 public class MappingProfile : Profile
 {
+    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
     public MappingProfile()
     {
         CreateMap<MpPledge, PledgeDto>();
@@ -91,7 +92,7 @@ public class MappingProfile : Profile
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    _logger.Error(e.Message);
                     return null;
                 }
             }
