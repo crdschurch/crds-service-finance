@@ -216,7 +216,7 @@ namespace Crossroads.Service.Finance.Services.Recurring
             return normalizedPushpay > normalizedMp;
         }
 
-        private async Task<MpRecurringGift> BuildRecurringScheduleFromPushPayData (PushpayRecurringGiftDto pushpayRecurringGift)
+        public async Task<MpRecurringGift> BuildRecurringScheduleFromPushPayData(PushpayRecurringGiftDto pushpayRecurringGift)
         {
             var mpRecurringGift = _mapper.Map<MpRecurringGift>(pushpayRecurringGift);
             var donorId = await _donorService.FindDonorId(pushpayRecurringGift);
@@ -249,15 +249,22 @@ namespace Crossroads.Service.Finance.Services.Recurring
             var programId = _newPushpayService.ParseFundIdFromExternalLinks(pushpayRecurringGift);
             mpRecurringGift.ConsecutiveFailureCount = 0;
             mpRecurringGift.ProgramId = programId ?? (await _programRepository.GetProgramByName(pushpayRecurringGift.Fund.Code)).ProgramId;
-            // TODO: Make this be apart of mapping?
-            mpRecurringGift.RecurringGiftStatusId =
-                _pushpayService.GetRecurringGiftStatusId(pushpayRecurringGift.Status);
+            // TODO: Make this be a part of mapping?
+            var pushpayRecurringGiftStatus = _pushpayService.GetRecurringGiftStatusId(pushpayRecurringGift.Status);
+
+            // only update the status changed date if the pushpay gift status has actually changed
+            if (mpRecurringGift.RecurringGiftStatusId != pushpayRecurringGiftStatus)
+            {
+                mpRecurringGift.RecurringGiftStatusId = pushpayRecurringGiftStatus;
+                mpRecurringGift.StatusChangedDate = DateTime.Now;
+            }
+
             mpRecurringGift.UpdatedOn = pushpayRecurringGift.UpdatedOn;
-            mpRecurringGift.StatusChangedDate = pushpayRecurringGift.UpdatedOn;
+
             mpRecurringGift.EndDate =
                 mpRecurringGift.RecurringGiftStatusId == MpRecurringGiftStatus.Cancelled || mpRecurringGift.RecurringGiftStatusId == MpRecurringGiftStatus.Paused
                     ? pushpayRecurringGift.UpdatedOn
-                    : (DateTime?) null;
+                    : (DateTime?)null;
 
             mpRecurringGift.Notes = _pushpayService.GetRecurringGiftNotes(pushpayRecurringGift);
 
